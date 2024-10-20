@@ -2,7 +2,11 @@ use super::{
     error::{ModuleError, ParseError},
     CustomSection, ImportSection, Parsable, TypeSection,
 };
-use crate::{alloc, hex::Hex};
+use crate::{
+    alloc,
+    hex::Hex,
+    parser::{ExportSection, FunctionSection},
+};
 use std::io::{Cursor, Read};
 
 /// https://webassembly.github.io/spec/core/binary/modules.html#binary-module
@@ -11,12 +15,12 @@ use std::io::{Cursor, Read};
 pub struct Module {
     magic: Hex<4>,
     version: Hex<4>,
-    custom_sections_1: Vec<CustomSection>,
     functype: Vec<TypeSection>,
     // customsec
     import: Vec<ImportSection>,
     // customsec
-    // typeidx: funcsec
+    typeidx: Vec<FunctionSection>,
+    export: Vec<ExportSection>,
     // customsec
     // table: tablesec
     // customsec
@@ -55,13 +59,20 @@ impl Parsable for Module {
 
         let functype = TypeSection::parse(data)?;
         let import = ImportSection::parse(data)?;
+        let function = FunctionSection::parse(data)?;
+        let export = ExportSection::parse(data)?;
+
+        let mut b = [0];
+        data.read_exact(&mut b)?;
+        println!("{b:?}");
 
         Ok(Module {
             magic,
             version,
-            custom_sections_1: Vec::new(),
             functype: vec![functype],
             import: vec![import],
+            typeidx: vec![function],
+            export: vec![export],
         })
     }
 }

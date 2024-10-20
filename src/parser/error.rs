@@ -4,6 +4,7 @@ use std::io;
 #[derive(Debug)]
 pub enum ParseError {
     InvalidModule(ModuleError),
+    InvalidSection(SectionError),
     NotImplemented(&'static str),
     IOError(io::Error),
 }
@@ -17,9 +18,19 @@ impl From<ModuleError> for ParseError {
         Self::InvalidModule(value)
     }
 }
+impl From<SectionError> for ParseError {
+    fn from(value: SectionError) -> Self {
+        Self::InvalidSection(value)
+    }
+}
 
 #[derive(Debug)]
 pub enum ModuleError {
     InvalidHeader(Hex<4>),
     InvalidVersion(Hex<4>),
+}
+
+#[derive(Debug)]
+pub enum SectionError {
+    NotTypeSec(u8),
 }

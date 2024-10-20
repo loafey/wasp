@@ -1,6 +1,6 @@
 use super::{
     error::{ModuleError, ParseError},
-    CustomSection,
+    CustomSection, TypeSection,
 };
 use crate::{alloc, hex::Hex};
 use std::io::{Cursor, Read};
@@ -10,8 +10,8 @@ use std::io::{Cursor, Read};
 pub struct Module {
     magic: Hex<4>,
     version: Hex<4>,
-    customsec_1: CustomSection,
-    // functpye: typesec
+    custom_sections_1: Vec<CustomSection>,
+    functype: Vec<TypeSection>,
     // customsec
     // import: importsec
     // customsec
@@ -52,12 +52,13 @@ impl Module {
             Err(ModuleError::InvalidVersion(version))?;
         }
 
-        let customsec_1 = CustomSection::parse(data)?;
+        let functype = TypeSection::parse(data)?;
 
         Ok(Module {
             magic,
             version,
-            customsec_1,
+            custom_sections_1: Vec::new(),
+            functype: vec![functype],
         })
     }
 }

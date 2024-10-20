@@ -1,7 +1,10 @@
 {
     "cSpell.words": [
         "customsec",
+        "functype",
+        "resulttype",
         "typesec",
-        "uninit"
+        "uninit",
+        "valtype"
     ]
 }

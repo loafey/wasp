@@ -7,6 +7,9 @@ pub enum ParseError {
     InvalidSection(SectionError),
     NotImplemented(&'static str),
     IOError(io::Error),
+    Leb128(leb128::read::Error),
+    UnknownType(Hex<1>),
+    InvalidFuncType(Hex<1>),
 }
 impl From<io::Error> for ParseError {
     fn from(value: io::Error) -> Self {
@@ -21,6 +24,11 @@ impl From<ModuleError> for ParseError {
 impl From<SectionError> for ParseError {
     fn from(value: SectionError) -> Self {
         Self::InvalidSection(value)
+    }
+}
+impl From<leb128::read::Error> for ParseError {
+    fn from(value: leb128::read::Error) -> Self {
+        Self::Leb128(value)
     }
 }
 

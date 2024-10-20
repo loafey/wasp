@@ -54,6 +54,10 @@ impl Parsable for Module {
 
         let functype = TypeSection::parse(data)?;
 
+        let mut b = [0];
+        data.read_exact(&mut b)?;
+        println!("{b:?}");
+
         Ok(Module {
             magic,
             version,

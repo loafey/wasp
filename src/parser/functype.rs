@@ -1,0 +1,25 @@
+use super::{Parsable, ResultType};
+use crate::{hex::Hex, parser::error::ParseError};
+use std::io::Read;
+
+#[derive(Debug)]
+pub struct FuncType {
+    pub input: ResultType,
+    pub output: ResultType,
+}
+impl Parsable for FuncType {
+    fn parse(data: &mut std::io::Cursor<&[u8]>) -> Result<Self, ParseError>
+    where
+        Self: std::marker::Sized,
+    {
+        let mut b = [0];
+        data.read_exact(&mut b)?;
+        if !matches!(b, [0x60]) {
+            Err(ParseError::InvalidFuncType(Hex(b)))?;
+        }
+
+        let input = ResultType::parse(data)?;
+        let output = ResultType::parse(data)?;
+        Ok(Self { input, output })
+    }
+}

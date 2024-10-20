@@ -42,3 +42,12 @@ impl Parsable for u32 {
         Ok(leb128::read::unsigned(data)? as u32)
     }
 }
+
+impl Parsable for i32 {
+    fn parse(data: &mut Cursor<&[u8]>) -> Result<Self, ParseError>
+    where
+        Self: std::marker::Sized,
+    {
+        Ok(leb128::read::signed(data)? as i32)
+    }
+}

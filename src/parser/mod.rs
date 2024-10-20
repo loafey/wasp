@@ -50,3 +50,5 @@ mod expr;
 pub use expr::*;
 mod instr;
 pub use instr::*;
+mod funcidx;
+pub use funcidx::*;

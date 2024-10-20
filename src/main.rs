@@ -22,13 +22,20 @@ impl From<ModuleError> for ParseError {
     }
 }
 
+#[derive(Clone, Copy)]
 struct Hex<const N: usize>(pub [u8; N]);
 impl<const N: usize> Debug for Hex<N> {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        for b in self.0 {
-            write!(f, "{b:0x}")?;
+        write!(f, "<")?;
+        for (i, b) in self.0.iter().enumerate() {
+            if i + 1 != self.0.len() {
+                write!(f, "{b:02x} ")?;
+            } else {
+                write!(f, "{b:02x}")?;
+            }
         }
-        writeln!(f)
+        write!(f, ">")?;
+        Ok(())
     }
 }
 impl<const N: usize> Deref for Hex<N> {
@@ -94,16 +101,16 @@ struct Module {
 fn module(data: &mut Cursor<&[u8]>) -> Result<Module, ParseError> {
     // parse magic
     let mut magic = alloc::<4>();
-    data.read_exact(&mut magic)?;
-    if !matches!(&magic, b"\0asm") {
-        Err(ModuleError::InvalidHeader(Hex(magic)))?;
+    data.read_exact(&mut *magic)?;
+    if !matches!(&*magic, b"\0asm") {
+        Err(ModuleError::InvalidHeader(magic))?;
     }
 
     // parse version
     let mut version = alloc::<4>();
-    data.read_exact(&mut version)?;
-    if !matches!(&version, [0x01, 0x00, 0x00, 0x00]) {
-        Err(ModuleError::InvalidVersion(Hex(version)))?;
+    data.read_exact(&mut *version)?;
+    if !matches!(&*version, [0x01, 0x00, 0x00, 0x00]) {
+        Err(ModuleError::InvalidVersion(version))?;
     }
 
     Ok(Module { magic, version })

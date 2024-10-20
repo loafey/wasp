@@ -1,5 +1,5 @@
 use hex::Hex;
-use parser::Module;
+use parser::{Module, Parsable};
 use std::{io::Cursor, mem::MaybeUninit};
 mod hex;
 mod parser;

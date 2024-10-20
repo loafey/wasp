@@ -1,6 +1,6 @@
 use super::{
     error::{ModuleError, ParseError},
-    CustomSection, TypeSection,
+    CustomSection, Parsable, TypeSection,
 };
 use crate::{alloc, hex::Hex};
 use std::io::{Cursor, Read};
@@ -36,8 +36,8 @@ pub struct Module {
     // data: datasec
     // customsec
 }
-impl Module {
-    pub fn parse(data: &mut Cursor<&[u8]>) -> Result<Module, ParseError> {
+impl Parsable for Module {
+    fn parse(data: &mut Cursor<&[u8]>) -> Result<Module, ParseError> {
         // parse magic
         let mut magic = alloc::<4>();
         data.read_exact(&mut *magic)?;

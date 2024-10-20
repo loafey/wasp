@@ -3,6 +3,7 @@ use crate::parser::error::SectionError;
 use std::io::Read;
 
 #[derive(Debug)]
+#[allow(unused)]
 pub struct ExportSection {
     pub size: u32,
     pub exports: Vec<Export>,

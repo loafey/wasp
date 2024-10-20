@@ -1,5 +1,6 @@
 {
     "cSpell.words": [
+        "codesec",
         "customsec",
         "exportdesc",
         "funcsec",
@@ -7,6 +8,7 @@
         "globaltype",
         "importdesc",
         "importsec",
+        "instrs",
         "memtype",
         "resulttype",
         "tabletype",

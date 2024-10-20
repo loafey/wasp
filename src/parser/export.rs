@@ -1,6 +1,7 @@
 use super::{ExportDesc, Name, Parsable};
 
 #[derive(Debug)]
+#[allow(unused)]
 pub struct Export {
     pub nm: Name,
     pub d: ExportDesc,

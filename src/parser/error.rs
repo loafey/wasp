@@ -13,6 +13,8 @@ pub enum ParseError {
     InvalidFuncType(Hex<1>),
     InvalidImportDesc(Hex<1>),
     InvalidLimit(Hex<1>),
+    UnknownInstruction(Hex<1>),
+    EndOfInstructions,
 }
 impl From<io::Error> for ParseError {
     fn from(value: io::Error) -> Self {

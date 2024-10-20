@@ -4,7 +4,9 @@ use std::io::Read;
 
 #[derive(Debug)]
 pub struct FuncType {
+    #[allow(unused)]
     pub input: ResultType,
+    #[allow(unused)]
     pub output: ResultType,
 }
 impl Parsable for FuncType {

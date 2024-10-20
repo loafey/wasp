@@ -5,10 +5,11 @@ use crate::hex::Hex;
 use super::Parsable;
 
 #[derive(Debug)]
+#[allow(unused)]
 pub enum ValType {
-    NumType(NumType),
-    VecType,
-    RefType(RefTyp),
+    Num(NumType),
+    Vec,
+    Ref(RefTyp),
 }
 #[derive(Debug)]
 pub enum NumType {
@@ -30,13 +31,13 @@ impl Parsable for ValType {
         let mut b = [0];
         data.read_exact(&mut b)?;
         Ok(match b[0] {
-            0x7F => ValType::NumType(NumType::I32),
-            0x7E => ValType::NumType(NumType::I64),
-            0x7D => ValType::NumType(NumType::F32),
-            0x7C => ValType::NumType(NumType::F64),
-            0x7B => ValType::VecType,
-            0x70 => ValType::RefType(RefTyp::FuncRef),
-            0x6F => ValType::RefType(RefTyp::ExternRef),
+            0x7F => ValType::Num(NumType::I32),
+            0x7E => ValType::Num(NumType::I64),
+            0x7D => ValType::Num(NumType::F32),
+            0x7C => ValType::Num(NumType::F64),
+            0x7B => ValType::Vec,
+            0x70 => ValType::Ref(RefTyp::FuncRef),
+            0x6F => ValType::Ref(RefTyp::ExternRef),
             _ => Err(super::error::ParseError::UnknownType(Hex(b)))?,
         })
     }

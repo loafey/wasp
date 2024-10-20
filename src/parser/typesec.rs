@@ -4,6 +4,7 @@ use super::{error::ParseError, Parsable};
 use std::io::{Cursor, Read};
 
 #[derive(Debug)]
+#[allow(unused)]
 pub struct TypeSection {
     pub size: u32,
     pub function_types: Vec<FuncType>,

@@ -7,6 +7,7 @@ use std::io::{Cursor, Read};
 
 /// https://webassembly.github.io/spec/core/binary/modules.html#binary-module
 #[derive(Debug)]
+#[allow(unused)]
 pub struct Module {
     magic: Hex<4>,
     version: Hex<4>,

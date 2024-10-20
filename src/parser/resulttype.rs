@@ -1,6 +1,7 @@
 use super::{Parsable, ValType};
 
 #[derive(Debug)]
+#[allow(unused)]
 pub struct ResultType {
     pub types: Vec<ValType>,
 }

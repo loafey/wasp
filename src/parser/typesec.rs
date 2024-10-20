@@ -14,7 +14,7 @@ impl Parsable for TypeSection {
         let mut n = [0u8];
         data.read_exact(&mut n)?;
         if !matches!(n, [1]) {
-            Err(SectionError::NotTypeSec(n[0]))?;
+            Err(SectionError::InvalidHeader(1, n[0]))?;
         }
 
         let size = u32::parse(data)?;

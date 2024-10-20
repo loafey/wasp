@@ -1,6 +1,6 @@
 use super::{
     error::{ModuleError, ParseError},
-    CustomSection, Parsable, TypeSection,
+    CustomSection, ImportSection, Parsable, TypeSection,
 };
 use crate::{alloc, hex::Hex};
 use std::io::{Cursor, Read};
@@ -14,7 +14,7 @@ pub struct Module {
     custom_sections_1: Vec<CustomSection>,
     functype: Vec<TypeSection>,
     // customsec
-    // import: importsec
+    import: Vec<ImportSection>,
     // customsec
     // typeidx: funcsec
     // customsec
@@ -54,16 +54,14 @@ impl Parsable for Module {
         }
 
         let functype = TypeSection::parse(data)?;
-
-        let mut b = [0];
-        data.read_exact(&mut b)?;
-        println!("{b:?}");
+        let import = ImportSection::parse(data)?;
 
         Ok(Module {
             magic,
             version,
             custom_sections_1: Vec::new(),
             functype: vec![functype],
+            import: vec![import],
         })
     }
 }

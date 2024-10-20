@@ -2,21 +2,17 @@ use crate::hex::Hex;
 use std::io;
 
 #[derive(Debug)]
+#[allow(unused)]
 pub enum ParseError {
-    #[allow(unused)]
     InvalidModule(ModuleError),
-    #[allow(unused)]
     InvalidSection(SectionError),
-    #[allow(unused)]
     NotImplemented(&'static str),
-    #[allow(unused)]
     IOError(io::Error),
-    #[allow(unused)]
     Leb128(leb128::read::Error),
-    #[allow(unused)]
     UnknownType(Hex<1>),
-    #[allow(unused)]
     InvalidFuncType(Hex<1>),
+    InvalidImportDesc(Hex<1>),
+    InvalidLimit(Hex<1>),
 }
 impl From<io::Error> for ParseError {
     fn from(value: io::Error) -> Self {
@@ -40,15 +36,14 @@ impl From<leb128::read::Error> for ParseError {
 }
 
 #[derive(Debug)]
+#[allow(unused)]
 pub enum ModuleError {
-    #[allow(unused)]
     InvalidHeader(Hex<4>),
-    #[allow(unused)]
     InvalidVersion(Hex<4>),
 }
 
 #[derive(Debug)]
+#[allow(unused)]
 pub enum SectionError {
-    #[allow(unused)]
-    NotTypeSec(u8),
+    InvalidHeader(u8, u8),
 }

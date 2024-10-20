@@ -2,7 +2,13 @@
     "cSpell.words": [
         "customsec",
         "functype",
+        "globaltype",
+        "importdesc",
+        "importsec",
+        "memtype",
         "resulttype",
+        "tabletype",
+        "typeidx",
         "typesec",
         "uninit",
         "valtype"

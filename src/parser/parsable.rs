@@ -1,5 +1,8 @@
 use super::error::ParseError;
-use std::{fmt::Debug, io::Cursor};
+use std::{
+    fmt::Debug,
+    io::{Cursor, Read},
+};
 
 pub trait Parsable: Debug {
     fn parse(data: &mut Cursor<&[u8]>) -> Result<Self, ParseError>
@@ -18,6 +21,16 @@ impl<T: Parsable> Parsable for Vec<T> {
             v.push(T::parse(data)?);
         }
         Ok(v)
+    }
+}
+impl Parsable for u8 {
+    fn parse(data: &mut Cursor<&[u8]>) -> Result<Self, ParseError>
+    where
+        Self: std::marker::Sized,
+    {
+        let mut b = [0];
+        data.read_exact(&mut b)?;
+        Ok(b[0])
     }
 }
 

@@ -5,7 +5,7 @@ use super::{
 use crate::{
     alloc,
     hex::Hex,
-    parser::{CodeSection, ExportSection, FunctionSection},
+    parser::{CodeSection, DataSection, ExportSection, FunctionSection},
 };
 use std::io::{Cursor, Read};
 
@@ -38,7 +38,7 @@ pub struct Module {
     // customsec
     code: Vec<CodeSection>,
     // customsec
-    // data: datasec
+    data: Vec<DataSection>,
     // customsec
 }
 impl Parsable for Module {
@@ -62,6 +62,7 @@ impl Parsable for Module {
         let function = FunctionSection::parse(data)?;
         let export = ExportSection::parse(data)?;
         let code = CodeSection::parse(data)?;
+        let datasec = DataSection::parse(data)?;
 
         let mut b = [0];
         data.read_exact(&mut b)?;
@@ -75,6 +76,7 @@ impl Parsable for Module {
             typeidx: vec![function],
             export: vec![export],
             code: vec![code],
+            data: vec![datasec],
         })
     }
 }

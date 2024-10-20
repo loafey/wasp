@@ -52,3 +52,5 @@ mod instr;
 pub use instr::*;
 mod funcidx;
 pub use funcidx::*;
+mod datasec;
+pub use datasec::*;

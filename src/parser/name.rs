@@ -3,7 +3,7 @@ use std::ops::{Deref, DerefMut};
 use super::{Parsable, Pretty};
 
 #[derive(Debug)]
-pub struct Name(String);
+pub struct Name(pub String);
 impl Deref for Name {
     type Target = str;
 

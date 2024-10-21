@@ -1,10 +1,11 @@
 use super::{Export, Parsable, Pretty};
+use std::collections::BTreeSet as Set;
 
 #[derive(Debug, Default)]
 #[allow(unused)]
 pub struct ExportSection {
     pub size: u32,
-    pub exports: Vec<Export>,
+    pub exports: Set<Export>,
 }
 impl ExportSection {
     pub fn concat(&mut self, mut other: Self) {
@@ -18,7 +19,7 @@ impl Parsable for ExportSection {
         Self: std::marker::Sized,
     {
         let size = u32::parse(data)?;
-        let exports = Vec::parse(data)?;
+        let exports = Set::from_iter(Vec::parse(data)?);
         Ok(ExportSection { size, exports })
     }
 }

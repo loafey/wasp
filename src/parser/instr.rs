@@ -3,7 +3,7 @@ use crate::hex::Hex;
 use std::io::Read;
 use Instr::*;
 
-#[derive(Debug)]
+#[derive(Debug, Clone, Copy)]
 #[allow(non_camel_case_types, unused)]
 pub enum Instr {
     i32_const(i32),

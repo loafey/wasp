@@ -13,30 +13,30 @@ use std::io::{Cursor, ErrorKind, Read};
 #[derive(Debug)]
 #[allow(unused)]
 pub struct Module {
-    magic: Hex<4>,
-    version: Hex<4>,
-    types: TypeSection,
+    pub magic: Hex<4>,
+    pub version: Hex<4>,
+    pub types: TypeSection,
     // customsec
-    imports: ImportSection,
+    pub imports: ImportSection,
     // customsec
-    funcs: FunctionSection,
-    exports: ExportSection,
+    pub funcs: FunctionSection,
+    pub exports: ExportSection,
     // customsec
-    tables: Vec<()>, //tablesec
+    pub tables: Vec<()>, //tablesec
     // customsec
-    mems: Vec<()>, // memsec
+    pub mems: Vec<()>, // memsec
     // customsec
-    globals: Vec<()>, // globalsec
+    pub globals: Vec<()>, // globalsec
     // customsec
-    start: Option<()>, // startsec
+    pub start: Option<()>, // startsec
     // customsec
-    elems: Vec<()>, //elemsec
+    pub elems: Vec<()>, //elemsec
     // customsec
-    data_count: Vec<()>, //datacountsec
+    pub data_count: Vec<()>, //datacountsec
     // customsec
-    code: CodeSection,
+    pub code: CodeSection,
     // customsec
-    datas: DataSection,
+    pub datas: DataSection,
     // customsec
 }
 impl Parsable for Module {

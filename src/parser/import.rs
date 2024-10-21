@@ -5,9 +5,9 @@ use super::{ImportDesc, Parsable, Pretty};
 #[derive(Debug)]
 #[allow(unused)]
 pub struct Import {
-    module: Name,
-    name: Name,
-    desc: ImportDesc,
+    pub module: Name,
+    pub name: Name,
+    pub desc: ImportDesc,
 }
 impl Parsable for Import {
     fn parse(data: &mut std::io::Cursor<&[u8]>) -> Result<Self, super::error::ParseError>

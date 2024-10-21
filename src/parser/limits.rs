@@ -4,7 +4,7 @@ use crate::hex::Hex;
 
 use super::{Parsable, Pretty};
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq, Eq, PartialOrd, Ord)]
 #[allow(unused)]
 pub enum Limits {
     Min(u32),

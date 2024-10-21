@@ -1,6 +1,6 @@
 use super::{Parsable, Pretty};
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq, Eq, PartialOrd, Ord)]
 pub struct GlobalType;
 impl Parsable for GlobalType {
     fn parse(_data: &mut std::io::Cursor<&[u8]>) -> Result<Self, super::error::ParseError>

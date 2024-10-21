@@ -2,8 +2,8 @@ use std::ops::{Deref, DerefMut};
 
 use super::{Parsable, Pretty};
 
-#[derive(Debug)]
-pub struct TypeIdX(u32);
+#[derive(Debug, PartialEq, Eq, PartialOrd, Ord)]
+pub struct TypeIdX(pub u32);
 impl Deref for TypeIdX {
     type Target = u32;
 

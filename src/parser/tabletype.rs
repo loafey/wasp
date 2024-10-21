@@ -1,6 +1,6 @@
 use super::{Parsable, Pretty};
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq, Eq, PartialOrd, Ord)]
 pub struct TableType;
 impl Parsable for TableType {
     fn parse(_data: &mut std::io::Cursor<&[u8]>) -> Result<Self, super::error::ParseError>

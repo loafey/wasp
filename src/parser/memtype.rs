@@ -2,7 +2,7 @@ use std::ops::{Deref, DerefMut};
 
 use super::{Limits, Parsable, Pretty};
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq, Eq, PartialOrd, Ord)]
 pub struct MemType(Limits);
 impl Deref for MemType {
     type Target = Limits;

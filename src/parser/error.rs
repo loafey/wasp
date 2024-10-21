@@ -16,6 +16,8 @@ pub enum ParseError {
     InvalidLimit(Hex<1>),
     UnknownInstruction(Hex<1>),
     InvalidData(Hex<1>),
+    InvalidRefType(Hex<1>),
+    InvalidElem(u32),
     EndOfInstructions,
 }
 impl From<io::Error> for ParseError {

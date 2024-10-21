@@ -23,6 +23,23 @@ pub enum RefTyp {
     FuncRef,
     ExternRef,
 }
+impl Parsable for RefTyp {
+    fn parse_inner(
+        data: &mut std::io::Cursor<&[u8]>,
+        _: super::DebugStack,
+    ) -> Result<Self, super::error::ParseError>
+    where
+        Self: std::marker::Sized,
+    {
+        let mut h = [0];
+        data.read_exact(&mut h)?;
+        match h[0] {
+            0x00 => Ok(RefTyp::FuncRef),
+            0x01 => Ok(RefTyp::ExternRef),
+            _ => Err(super::error::ParseError::InvalidRefType(Hex(h))),
+        }
+    }
+}
 impl Parsable for ValType {
     fn parse_inner(
         data: &mut std::io::Cursor<&[u8]>,

@@ -77,3 +77,7 @@ mod tableidx;
 pub use tableidx::*;
 mod globalidx;
 pub use globalidx::*;
+mod elemsec;
+pub use elemsec::*;
+mod elem;
+pub use elem::*;

@@ -1,6 +1,7 @@
 use super::{
     error::{ModuleError, ParseError, SectionError},
-    GlobalSection, ImportSection, MemorySection, Parsable, Pretty, TableSection, TypeSection,
+    ElementSection, GlobalSection, ImportSection, MemorySection, Parsable, Pretty, TableSection,
+    TypeSection,
 };
 use crate::{
     alloc,
@@ -67,6 +68,7 @@ impl Parsable for Module {
         let mut tables = TableSection::default();
         let mut mems = MemorySection::default();
         let mut globals = GlobalSection::default();
+        let mut elements = ElementSection::default();
         let mut section_header = [0];
         loop {
             if let Err(e) = data.read_exact(&mut section_header) {
@@ -85,7 +87,7 @@ impl Parsable for Module {
                 6 => globals.concat(GlobalSection::parse(data, stack)?),
                 7 => export.concat(ExportSection::parse(data, stack)?),
                 8 => unimplemented!("\"start\" sections (8)"),
-                9 => unimplemented!("\"element\" sections (9)"),
+                9 => elements.concat(ElementSection::parse(data, stack)?),
                 10 => code.concat(CodeSection::parse(data, stack)?),
                 11 => datasec.concat(DataSection::parse(data, stack)?),
                 12 => unimplemented!("\"data count\" sections (12)"),

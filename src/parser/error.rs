@@ -14,6 +14,7 @@ pub enum ParseError {
     InvalidImportDesc(Hex<1>),
     InvalidLimit(Hex<1>),
     UnknownInstruction(Hex<1>),
+    InvalidData(Hex<1>),
     EndOfInstructions,
 }
 impl From<io::Error> for ParseError {

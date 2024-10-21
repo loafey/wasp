@@ -11,6 +11,7 @@
         "importdesc",
         "importsec",
         "instrs",
+        "memidx",
         "memtype",
         "resulttype",
         "tabletype",

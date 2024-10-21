@@ -7,7 +7,7 @@ use crate::{
     hex::Hex,
     parser::{CodeSection, DataSection, ExportSection, FunctionSection},
 };
-use std::io::{Cursor, Read};
+use std::io::{Cursor, ErrorKind, Read};
 
 /// https://webassembly.github.io/spec/core/binary/modules.html#binary-module
 #[derive(Debug)]
@@ -64,7 +64,13 @@ impl Parsable for Module {
         let mut code = Vec::new();
         let mut datasec = Vec::new();
         let mut section_header = [0];
-        while data.read_exact(&mut section_header).is_ok() {
+        loop {
+            if let Err(e) = data.read_exact(&mut section_header) {
+                match e.kind() {
+                    ErrorKind::UnexpectedEof => break,
+                    _ => Err(e)?,
+                }
+            }
             match section_header[0] {
                 0 => unimplemented!("\"custom\" sections (0)"),
                 1 => functype.push(TypeSection::parse(data)?),

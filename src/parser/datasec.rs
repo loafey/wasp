@@ -1,12 +1,18 @@
-use super::Parsable;
+use super::{Data, Parsable};
 
 #[derive(Debug)]
-pub struct DataSection;
+#[allow(unused)]
+pub struct DataSection {
+    pub size: u32,
+    pub data: Vec<Data>,
+}
 impl Parsable for DataSection {
-    fn parse(_data: &mut std::io::Cursor<&[u8]>) -> Result<Self, super::error::ParseError>
+    fn parse(data: &mut std::io::Cursor<&[u8]>) -> Result<Self, super::error::ParseError>
     where
         Self: std::marker::Sized,
     {
-        todo!()
+        let size = u32::parse(data)?;
+        let data = Vec::parse(data)?;
+        Ok(Self { size, data })
     }
 }

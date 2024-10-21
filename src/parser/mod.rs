@@ -53,3 +53,7 @@ mod funcidx;
 pub use funcidx::*;
 mod datasec;
 pub use datasec::*;
+mod data;
+pub use data::*;
+mod memidx;
+pub use memidx::*;

@@ -17,7 +17,10 @@ impl Parsable for Expr {
         loop {
             match Instr::parse(data, stack) {
                 Ok(i) => instrs.push(i),
-                Err(ParseError::EndOfInstructions) => break,
+                Err(ParseError::EndOfInstructions) => {
+                    stack.pop();
+                    break;
+                }
                 Err(e) => Err(e)?,
             }
         }

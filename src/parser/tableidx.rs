@@ -3,20 +3,20 @@ use std::ops::{Deref, DerefMut};
 use super::{Parsable, Pretty};
 
 #[derive(Debug, PartialEq, Eq, PartialOrd, Ord)]
-pub struct MemIdX(u32);
-impl Deref for MemIdX {
+pub struct TableIdX(pub u32);
+impl Deref for TableIdX {
     type Target = u32;
 
     fn deref(&self) -> &Self::Target {
         &self.0
     }
 }
-impl DerefMut for MemIdX {
+impl DerefMut for TableIdX {
     fn deref_mut(&mut self) -> &mut Self::Target {
         &mut self.0
     }
 }
-impl Parsable for MemIdX {
+impl Parsable for TableIdX {
     fn parse_inner(
         data: &mut std::io::Cursor<&[u8]>,
         stack: super::DebugStack,
@@ -27,8 +27,8 @@ impl Parsable for MemIdX {
         Ok(Self(u32::parse(data, stack)?))
     }
 }
-impl Pretty for MemIdX {
+impl Pretty for TableIdX {
     fn pretty_indent(&self, _: usize) -> String {
-        todo!()
+        format!("TableIdX({})", self.0)
     }
 }

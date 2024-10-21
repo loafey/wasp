@@ -73,3 +73,7 @@ mod global;
 pub use global::*;
 mod mutable;
 pub use mutable::*;
+mod tableidx;
+pub use tableidx::*;
+mod globalidx;
+pub use globalidx::*;

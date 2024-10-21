@@ -14,9 +14,8 @@ impl Parsable for Global {
     where
         Self: std::marker::Sized,
     {
-        Ok(Self {
-            gt: GlobalType::parse(data, stack)?,
-            e: Expr::parse(data, stack)?,
-        })
+        let gt = GlobalType::parse(data, stack)?;
+        let e = Expr::parse(data, stack)?;
+        Ok(Self { gt, e })
     }
 }

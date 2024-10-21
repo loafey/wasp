@@ -13,16 +13,26 @@ pub trait Parsable: Debug {
         Self: std::marker::Sized,
     {
         stack.push(Self::STACK_NAME);
+        println!(
+            "{}┌─Parsing {} 💅",
+            "│ ".repeat(stack.len()),
+            Self::STACK_NAME
+        );
         #[allow(deprecated)]
         let res = Self::parse_inner(data, stack)?;
+        let format = format!("{res:?}");
+        let formatted = &format[0..(format.len().min(128))];
+        let eps = if formatted.len() != format.len() {
+            "..."
+        } else {
+            ""
+        };
+        println!("{}├─Result: {formatted}{eps} 🏳️‍🌈", "│ ".repeat(stack.len()),);
         stack.pop();
         Ok(res)
     }
     #[deprecated]
-    fn parse_inner(
-        data: &mut Cursor<&[u8]>,
-        stack: &mut Vec<&'static str>,
-    ) -> Result<Self, ParseError>
+    fn parse_inner(data: &mut Cursor<&[u8]>, stack: DebugStack) -> Result<Self, ParseError>
     where
         Self: std::marker::Sized;
 }
@@ -35,7 +45,8 @@ impl<T: Parsable> Parsable for Vec<T> {
         let len = u32::parse(data, stack)?;
         let mut v = Vec::new();
         for _ in 0..len {
-            v.push(T::parse(data, stack)?);
+            let value = T::parse(data, stack)?;
+            v.push(value);
         }
         Ok(v)
     }

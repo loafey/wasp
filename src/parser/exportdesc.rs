@@ -1,4 +1,4 @@
-use super::{error::ParseError, GlobalType, MemType, Parsable, Pretty, TableType, TypeIdX};
+use super::{error::ParseError, GlobalIdX, MemIdX, Parsable, Pretty, TableIdX, TypeIdX};
 use crate::hex::Hex;
 use std::io::Read;
 
@@ -6,9 +6,9 @@ use std::io::Read;
 #[allow(unused)]
 pub enum ExportDesc {
     Func(TypeIdX),
-    Table(TableType),
-    Mem(MemType),
-    Global(GlobalType),
+    Table(TableIdX),
+    Mem(MemIdX),
+    Global(GlobalIdX),
 }
 impl Parsable for ExportDesc {
     fn parse_inner(
@@ -22,9 +22,9 @@ impl Parsable for ExportDesc {
         data.read_exact(&mut b)?;
         Ok(match b[0] {
             0x00 => Self::Func(TypeIdX::parse(data, stack)?),
-            0x01 => Self::Table(TableType::parse(data, stack)?),
-            0x02 => Self::Mem(MemType::parse(data, stack)?),
-            0x03 => Self::Global(GlobalType::parse(data, stack)?),
+            0x01 => Self::Table(TableIdX::parse(data, stack)?),
+            0x02 => Self::Mem(MemIdX::parse(data, stack)?),
+            0x03 => Self::Global(GlobalIdX::parse(data, stack)?),
             _ => Err(ParseError::InvalidExportDesc(Hex(b)))?,
         })
     }

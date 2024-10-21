@@ -10,7 +10,7 @@ pub enum Instr {
     call(FuncIdx),
 }
 impl Parsable for Instr {
-    fn parse(data: &mut std::io::Cursor<&[u8]>) -> Result<Self, super::error::ParseError>
+    fn parse_inner(data: &mut std::io::Cursor<&[u8]>) -> Result<Self, super::error::ParseError>
     where
         Self: std::marker::Sized,
     {
@@ -33,7 +33,7 @@ impl Parsable for Instr {
             0x0d => Err(ParseError::UnknownInstruction(Hex(typ)))?,
             0x0e => Err(ParseError::UnknownInstruction(Hex(typ)))?,
             0x0f => Err(ParseError::UnknownInstruction(Hex(typ)))?,
-            0x10 => call(FuncIdx::parse(data)?),
+            0x10 => call(FuncIdx::parse_inner(data)?),
             0x11 => Err(ParseError::UnknownInstruction(Hex(typ)))?,
             0x12 => Err(ParseError::UnknownInstruction(Hex(typ)))?,
             0x13 => Err(ParseError::UnknownInstruction(Hex(typ)))?,
@@ -82,7 +82,7 @@ impl Parsable for Instr {
             0x3e => Err(ParseError::UnknownInstruction(Hex(typ)))?,
             0x3f => Err(ParseError::UnknownInstruction(Hex(typ)))?,
             0x40 => Err(ParseError::UnknownInstruction(Hex(typ)))?,
-            0x41 => i32_const(i32::parse(data)?),
+            0x41 => i32_const(i32::parse_inner(data)?),
             0x42 => Err(ParseError::UnknownInstruction(Hex(typ)))?,
             0x43 => Err(ParseError::UnknownInstruction(Hex(typ)))?,
             0x44 => Err(ParseError::UnknownInstruction(Hex(typ)))?,

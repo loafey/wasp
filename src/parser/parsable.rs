@@ -5,26 +5,26 @@ use std::{
 };
 
 pub trait Parsable: Debug {
-    fn parse(data: &mut Cursor<&[u8]>) -> Result<Self, ParseError>
+    fn parse_inner(data: &mut Cursor<&[u8]>) -> Result<Self, ParseError>
     where
         Self: std::marker::Sized;
 }
 
 impl<T: Parsable> Parsable for Vec<T> {
-    fn parse(data: &mut Cursor<&[u8]>) -> Result<Self, ParseError>
+    fn parse_inner(data: &mut Cursor<&[u8]>) -> Result<Self, ParseError>
     where
         Self: std::marker::Sized,
     {
-        let len = u32::parse(data)?;
+        let len = u32::parse_inner(data)?;
         let mut v = Vec::new();
         for _ in 0..len {
-            v.push(T::parse(data)?);
+            v.push(T::parse_inner(data)?);
         }
         Ok(v)
     }
 }
 impl Parsable for u8 {
-    fn parse(data: &mut Cursor<&[u8]>) -> Result<Self, ParseError>
+    fn parse_inner(data: &mut Cursor<&[u8]>) -> Result<Self, ParseError>
     where
         Self: std::marker::Sized,
     {
@@ -35,7 +35,7 @@ impl Parsable for u8 {
 }
 
 impl Parsable for u32 {
-    fn parse(data: &mut Cursor<&[u8]>) -> Result<Self, ParseError>
+    fn parse_inner(data: &mut Cursor<&[u8]>) -> Result<Self, ParseError>
     where
         Self: std::marker::Sized,
     {
@@ -44,7 +44,7 @@ impl Parsable for u32 {
 }
 
 impl Parsable for i32 {
-    fn parse(data: &mut Cursor<&[u8]>) -> Result<Self, ParseError>
+    fn parse_inner(data: &mut Cursor<&[u8]>) -> Result<Self, ParseError>
     where
         Self: std::marker::Sized,
     {

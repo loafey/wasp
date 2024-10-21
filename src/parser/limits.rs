@@ -11,7 +11,7 @@ pub enum Limits {
     MinMax(u32, u32),
 }
 impl Parsable for Limits {
-    fn parse(data: &mut std::io::Cursor<&[u8]>) -> Result<Self, super::error::ParseError>
+    fn parse_inner(data: &mut std::io::Cursor<&[u8]>) -> Result<Self, super::error::ParseError>
     where
         Self: std::marker::Sized,
     {
@@ -19,12 +19,12 @@ impl Parsable for Limits {
         data.read_exact(&mut b)?;
         Ok(match b[0] {
             0x00 => {
-                let min = u32::parse(data)?;
+                let min = u32::parse_inner(data)?;
                 Self::Min(min)
             }
             0x01 => {
-                let min = u32::parse(data)?;
-                let max = u32::parse(data)?;
+                let min = u32::parse_inner(data)?;
+                let max = u32::parse_inner(data)?;
                 Self::MinMax(min, max)
             }
             _ => Err(super::error::ParseError::InvalidLimit(Hex(b)))?,

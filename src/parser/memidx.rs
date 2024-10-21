@@ -17,10 +17,10 @@ impl DerefMut for MemIdX {
     }
 }
 impl Parsable for MemIdX {
-    fn parse(data: &mut std::io::Cursor<&[u8]>) -> Result<Self, super::error::ParseError>
+    fn parse_inner(data: &mut std::io::Cursor<&[u8]>) -> Result<Self, super::error::ParseError>
     where
         Self: std::marker::Sized,
     {
-        Ok(Self(u32::parse(data)?))
+        Ok(Self(u32::parse_inner(data)?))
     }
 }

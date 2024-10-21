@@ -12,12 +12,12 @@ impl MemorySection {
     }
 }
 impl Parsable for MemorySection {
-    fn parse(data: &mut std::io::Cursor<&[u8]>) -> Result<Self, super::error::ParseError>
+    fn parse_inner(data: &mut std::io::Cursor<&[u8]>) -> Result<Self, super::error::ParseError>
     where
         Self: std::marker::Sized,
     {
-        let size = u32::parse(data)?;
-        let mems = Vec::parse(data)?;
+        let size = u32::parse_inner(data)?;
+        let mems = Vec::parse_inner(data)?;
         Ok(Self { size, mems })
     }
 }

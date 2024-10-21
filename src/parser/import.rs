@@ -10,13 +10,13 @@ pub struct Import {
     pub desc: ImportDesc,
 }
 impl Parsable for Import {
-    fn parse(data: &mut std::io::Cursor<&[u8]>) -> Result<Self, super::error::ParseError>
+    fn parse_inner(data: &mut std::io::Cursor<&[u8]>) -> Result<Self, super::error::ParseError>
     where
         Self: std::marker::Sized,
     {
-        let module = Name::parse(data)?;
-        let name = Name::parse(data)?;
-        let desc = ImportDesc::parse(data)?;
+        let module = Name::parse_inner(data)?;
+        let name = Name::parse_inner(data)?;
+        let desc = ImportDesc::parse_inner(data)?;
         Ok(Self { module, name, desc })
     }
 }

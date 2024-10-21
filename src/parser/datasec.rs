@@ -13,12 +13,12 @@ impl DataSection {
     }
 }
 impl Parsable for DataSection {
-    fn parse(data: &mut std::io::Cursor<&[u8]>) -> Result<Self, super::error::ParseError>
+    fn parse_inner(data: &mut std::io::Cursor<&[u8]>) -> Result<Self, super::error::ParseError>
     where
         Self: std::marker::Sized,
     {
-        let size = u32::parse(data)?;
-        let data = Vec::parse(data)?;
+        let size = u32::parse_inner(data)?;
+        let data = Vec::parse_inner(data)?;
         Ok(Self { size, data })
     }
 }

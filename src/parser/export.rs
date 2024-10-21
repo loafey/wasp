@@ -23,12 +23,12 @@ impl Ord for Export {
     }
 }
 impl Parsable for Export {
-    fn parse(data: &mut std::io::Cursor<&[u8]>) -> Result<Self, super::error::ParseError>
+    fn parse_inner(data: &mut std::io::Cursor<&[u8]>) -> Result<Self, super::error::ParseError>
     where
         Self: std::marker::Sized,
     {
-        let nm = Name::parse(data)?;
-        let d = ExportDesc::parse(data)?;
+        let nm = Name::parse_inner(data)?;
+        let d = ExportDesc::parse_inner(data)?;
         Ok(Self { nm, d })
     }
 }

@@ -40,7 +40,7 @@ pub struct Module {
     // customsec
 }
 impl Parsable for Module {
-    fn parse(data: &mut Cursor<&[u8]>) -> Result<Module, ParseError> {
+    fn parse_inner(data: &mut Cursor<&[u8]>) -> Result<Module, ParseError> {
         // parse magic
         let mut magic = alloc::<4>();
         data.read_exact(&mut *magic)?;
@@ -74,17 +74,17 @@ impl Parsable for Module {
             }
             match section_header[0] {
                 0 => unimplemented!("\"custom\" sections (0)"),
-                1 => functype.concat(TypeSection::parse(data)?),
-                2 => import.concat(ImportSection::parse(data)?),
-                3 => typeidx.concat(FunctionSection::parse(data)?),
-                4 => tables.concat(TableSection::parse(data)?),
-                5 => mems.concat(MemorySection::parse(data)?),
-                6 => globals.concat(GlobalSection::parse(data)?),
-                7 => export.concat(ExportSection::parse(data)?),
+                1 => functype.concat(TypeSection::parse_inner(data)?),
+                2 => import.concat(ImportSection::parse_inner(data)?),
+                3 => typeidx.concat(FunctionSection::parse_inner(data)?),
+                4 => tables.concat(TableSection::parse_inner(data)?),
+                5 => mems.concat(MemorySection::parse_inner(data)?),
+                6 => globals.concat(GlobalSection::parse_inner(data)?),
+                7 => export.concat(ExportSection::parse_inner(data)?),
                 8 => unimplemented!("\"start\" sections (8)"),
                 9 => unimplemented!("\"element\" sections (9)"),
-                10 => code.concat(CodeSection::parse(data)?),
-                11 => datasec.concat(DataSection::parse(data)?),
+                10 => code.concat(CodeSection::parse_inner(data)?),
+                11 => datasec.concat(DataSection::parse_inner(data)?),
                 12 => unimplemented!("\"data count\" sections (12)"),
                 _ => Err(SectionError::UnknownHeader(Hex(section_header)))?,
             }

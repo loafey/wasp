@@ -17,11 +17,11 @@ impl DerefMut for MemType {
     }
 }
 impl Parsable for MemType {
-    fn parse(data: &mut std::io::Cursor<&[u8]>) -> Result<Self, super::error::ParseError>
+    fn parse_inner(data: &mut std::io::Cursor<&[u8]>) -> Result<Self, super::error::ParseError>
     where
         Self: std::marker::Sized,
     {
-        Ok(Self(Limits::parse(data)?))
+        Ok(Self(Limits::parse_inner(data)?))
     }
 }
 impl Pretty for MemType {

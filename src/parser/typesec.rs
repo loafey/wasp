@@ -15,9 +15,9 @@ impl TypeSection {
     }
 }
 impl Parsable for TypeSection {
-    fn parse(data: &mut Cursor<&[u8]>) -> Result<TypeSection, ParseError> {
-        let size = u32::parse(data)?;
-        let function_types: Vec<FuncType> = Vec::parse(data)?;
+    fn parse_inner(data: &mut Cursor<&[u8]>) -> Result<TypeSection, ParseError> {
+        let size = u32::parse_inner(data)?;
+        let function_types: Vec<FuncType> = Vec::parse_inner(data)?;
         Ok(Self {
             size,
             function_types,

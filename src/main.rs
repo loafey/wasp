@@ -85,7 +85,7 @@ impl Runtime {
 fn main() {
     let bin: &[u8] = include_bytes!("../examples/rust_addition.wasm");
     let mut cursor = Cursor::new(bin);
-    let module = Module::parse(&mut cursor).unwrap();
+    let module = Module::parse_inner(&mut cursor).unwrap();
     println!("{module:#?}");
     Runtime::new(module).call_by_id(1);
 }

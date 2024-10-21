@@ -79,3 +79,11 @@ impl Parsable for i32 {
         Ok(leb128::read::signed(data)? as i32)
     }
 }
+impl Parsable for i64 {
+    fn parse_inner(data: &mut Cursor<&[u8]>, _: DebugStack) -> Result<Self, ParseError>
+    where
+        Self: std::marker::Sized,
+    {
+        Ok(leb128::read::signed(data)?)
+    }
+}

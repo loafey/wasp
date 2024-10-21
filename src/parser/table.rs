@@ -11,7 +11,10 @@ pub struct Table {
     lim: Limits,
 }
 impl Parsable for Table {
-    fn parse_inner(data: &mut std::io::Cursor<&[u8]>) -> Result<Self, ParseError>
+    fn parse_inner(
+        data: &mut std::io::Cursor<&[u8]>,
+        stack: super::DebugStack,
+    ) -> Result<Self, ParseError>
     where
         Self: std::marker::Sized,
     {
@@ -22,7 +25,7 @@ impl Parsable for Table {
             0x6F => RefTyp::ExternRef,
             _ => Err(ParseError::UnknownType(Hex(et)))?,
         };
-        let lim = Limits::parse_inner(data)?;
+        let lim = Limits::parse(data, stack)?;
         Ok(Self { et, lim })
     }
 }

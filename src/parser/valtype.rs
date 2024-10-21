@@ -24,7 +24,10 @@ pub enum RefTyp {
     ExternRef,
 }
 impl Parsable for ValType {
-    fn parse_inner(data: &mut std::io::Cursor<&[u8]>) -> Result<Self, super::error::ParseError>
+    fn parse_inner(
+        data: &mut std::io::Cursor<&[u8]>,
+        _: super::DebugStack,
+    ) -> Result<Self, super::error::ParseError>
     where
         Self: std::marker::Sized,
     {

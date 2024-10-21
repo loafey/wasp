@@ -7,13 +7,16 @@ pub struct Global {
     e: Expr,
 }
 impl Parsable for Global {
-    fn parse_inner(data: &mut std::io::Cursor<&[u8]>) -> Result<Self, super::error::ParseError>
+    fn parse_inner(
+        data: &mut std::io::Cursor<&[u8]>,
+        stack: super::DebugStack,
+    ) -> Result<Self, super::error::ParseError>
     where
         Self: std::marker::Sized,
     {
         Ok(Self {
-            gt: GlobalType::parse_inner(data)?,
-            e: Expr::parse_inner(data)?,
+            gt: GlobalType::parse(data, stack)?,
+            e: Expr::parse(data, stack)?,
         })
     }
 }

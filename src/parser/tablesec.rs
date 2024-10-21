@@ -13,12 +13,12 @@ impl TableSection {
     }
 }
 impl Parsable for TableSection {
-    fn parse_inner(data: &mut std::io::Cursor<&[u8]>) -> Result<Self, super::error::ParseError>
-    where
-        Self: std::marker::Sized,
-    {
-        let size = u32::parse_inner(data)?;
-        let tables = Vec::parse_inner(data)?;
+    fn parse_inner(
+        data: &mut std::io::Cursor<&[u8]>,
+        stack: super::DebugStack,
+    ) -> Result<Self, super::error::ParseError> {
+        let size = u32::parse(data, stack)?;
+        let tables = Vec::parse(data, stack)?;
         Ok(Self { size, tables })
     }
 }

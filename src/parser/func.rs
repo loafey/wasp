@@ -7,12 +7,15 @@ pub struct Func {
     pub e: Expr,
 }
 impl Parsable for Func {
-    fn parse_inner(data: &mut std::io::Cursor<&[u8]>) -> Result<Self, super::error::ParseError>
+    fn parse_inner(
+        data: &mut std::io::Cursor<&[u8]>,
+        stack: super::DebugStack,
+    ) -> Result<Self, super::error::ParseError>
     where
         Self: std::marker::Sized,
     {
-        let t = Vec::parse_inner(data)?;
-        let e = Expr::parse_inner(data)?;
+        let t = Vec::parse(data, stack)?;
+        let e = Expr::parse(data, stack)?;
         Ok(Self { t, e })
     }
 }

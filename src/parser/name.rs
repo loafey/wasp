@@ -17,11 +17,14 @@ impl DerefMut for Name {
     }
 }
 impl Parsable for Name {
-    fn parse_inner(data: &mut std::io::Cursor<&[u8]>) -> Result<Self, super::error::ParseError>
+    fn parse_inner(
+        data: &mut std::io::Cursor<&[u8]>,
+        stack: super::DebugStack,
+    ) -> Result<Self, super::error::ParseError>
     where
         Self: std::marker::Sized,
     {
-        let bytes = Vec::parse_inner(data)?;
+        let bytes = Vec::parse(data, stack)?;
         let s = String::from_utf8_lossy(&bytes);
         Ok(Name(s.to_string()))
     }

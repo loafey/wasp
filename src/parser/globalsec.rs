@@ -12,12 +12,15 @@ impl GlobalSection {
     }
 }
 impl Parsable for GlobalSection {
-    fn parse_inner(data: &mut std::io::Cursor<&[u8]>) -> Result<Self, super::error::ParseError>
+    fn parse_inner(
+        data: &mut std::io::Cursor<&[u8]>,
+        stack: super::DebugStack,
+    ) -> Result<Self, super::error::ParseError>
     where
         Self: std::marker::Sized,
     {
-        let size = u32::parse_inner(data)?;
-        let globals = Vec::parse_inner(data)?;
+        let size = u32::parse(data, stack)?;
+        let globals = Vec::parse(data, stack)?;
         Ok(Self { size, globals })
     }
 }

@@ -1,3 +1,5 @@
+#![feature(const_type_name)]
+
 use hex::Hex;
 use parser::{FuncIdx, ImportDesc, Module, Parsable};
 use std::{io::Cursor, mem::MaybeUninit};
@@ -85,7 +87,15 @@ impl Runtime {
 fn main() {
     let bin: &[u8] = include_bytes!("../examples/rust_addition.wasm");
     let mut cursor = Cursor::new(bin);
-    let module = Module::parse_inner(&mut cursor).unwrap();
+    let mut stack = Vec::new();
+    let module = match Module::parse(&mut cursor, &mut stack) {
+        Ok(o) => o,
+        Err(e) => {
+            stack.reverse();
+            eprintln!("Error: {e:?}, stack: {stack:#?}");
+            return;
+        }
+    };
     println!("{module:#?}");
     Runtime::new(module).call_by_id(1);
 }

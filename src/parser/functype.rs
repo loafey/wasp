@@ -10,7 +10,10 @@ pub struct FuncType {
     pub output: ResultType,
 }
 impl Parsable for FuncType {
-    fn parse_inner(data: &mut std::io::Cursor<&[u8]>) -> Result<Self, ParseError>
+    fn parse_inner(
+        data: &mut std::io::Cursor<&[u8]>,
+        stack: super::DebugStack,
+    ) -> Result<Self, ParseError>
     where
         Self: std::marker::Sized,
     {
@@ -20,8 +23,8 @@ impl Parsable for FuncType {
             Err(ParseError::InvalidFuncType(Hex(b)))?;
         }
 
-        let input = ResultType::parse_inner(data)?;
-        let output = ResultType::parse_inner(data)?;
+        let input = ResultType::parse(data, stack)?;
+        let output = ResultType::parse(data, stack)?;
         Ok(Self { input, output })
     }
 }

@@ -22,7 +22,7 @@ impl Parsable for ExportDesc {
             0x01 => Self::Table(TableType::parse(data)?),
             0x02 => Self::Mem(MemType::parse(data)?),
             0x03 => Self::Global(GlobalType::parse(data)?),
-            _ => Err(ParseError::InvalidImportDesc(Hex(b)))?,
+            _ => Err(ParseError::InvalidExportDesc(Hex(b)))?,
         })
     }
 }

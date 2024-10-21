@@ -17,6 +17,7 @@
         "memidx",
         "memtype",
         "resulttype",
+        "tablesec",
         "tabletype",
         "typeidx",
         "typesec",

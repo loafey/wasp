@@ -1,6 +1,6 @@
 use super::{
     error::{ModuleError, ParseError, SectionError},
-    ImportSection, Parsable, Pretty, TypeSection,
+    ImportSection, Parsable, Pretty, TableSection, TypeSection,
 };
 use crate::{
     alloc,
@@ -22,7 +22,7 @@ pub struct Module {
     pub funcs: FunctionSection,
     pub exports: ExportSection,
     // customsec
-    pub tables: Vec<()>, //tablesec
+    pub tables: TableSection, //tablesec
     // customsec
     pub mems: Vec<()>, // memsec
     // customsec
@@ -61,6 +61,7 @@ impl Parsable for Module {
         let mut export = ExportSection::default();
         let mut code = CodeSection::default();
         let mut datasec = DataSection::default();
+        let mut tables = TableSection::default();
         let mut section_header = [0];
         loop {
             if let Err(e) = data.read_exact(&mut section_header) {
@@ -74,7 +75,7 @@ impl Parsable for Module {
                 1 => functype.concat(TypeSection::parse(data)?),
                 2 => import.concat(ImportSection::parse(data)?),
                 3 => typeidx.concat(FunctionSection::parse(data)?),
-                4 => unimplemented!("\"table\" sections (4)"),
+                4 => tables.concat(TableSection::parse(data)?),
                 5 => unimplemented!("\"memory\" sections (5)"),
                 6 => unimplemented!("\"global\" sections (6)"),
                 7 => export.concat(ExportSection::parse(data)?),
@@ -96,7 +97,7 @@ impl Parsable for Module {
             exports: export,
             code,
             datas: datasec,
-            tables: Vec::new(),
+            tables,
             mems: Vec::new(),
             globals: Vec::new(),
             start: None,

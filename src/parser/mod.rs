@@ -59,3 +59,7 @@ mod memidx;
 pub use memidx::*;
 mod pretty;
 pub use pretty::*;
+mod tablesec;
+pub use tablesec::*;
+mod table;
+pub use table::*;

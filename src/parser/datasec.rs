@@ -1,4 +1,4 @@
-use super::{Data, Parsable};
+use super::{Data, Parsable, Pretty};
 
 #[derive(Debug)]
 #[allow(unused)]
@@ -14,5 +14,10 @@ impl Parsable for DataSection {
         let size = u32::parse(data)?;
         let data = Vec::parse(data)?;
         Ok(Self { size, data })
+    }
+}
+impl Pretty for DataSection {
+    fn pretty_indent(&self, _: usize) -> String {
+        todo!()
     }
 }

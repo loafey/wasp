@@ -1,6 +1,6 @@
 use std::ops::{Deref, DerefMut};
 
-use super::{Limits, Parsable};
+use super::{Limits, Parsable, Pretty};
 
 #[derive(Debug)]
 pub struct MemType(Limits);
@@ -22,5 +22,10 @@ impl Parsable for MemType {
         Self: std::marker::Sized,
     {
         Ok(Self(Limits::parse(data)?))
+    }
+}
+impl Pretty for MemType {
+    fn pretty_indent(&self, _: usize) -> String {
+        self.0.pretty().to_string()
     }
 }

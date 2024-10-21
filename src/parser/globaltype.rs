@@ -1,4 +1,4 @@
-use super::Parsable;
+use super::{Parsable, Pretty};
 
 #[derive(Debug)]
 pub struct GlobalType;
@@ -7,6 +7,11 @@ impl Parsable for GlobalType {
     where
         Self: std::marker::Sized,
     {
+        todo!()
+    }
+}
+impl Pretty for GlobalType {
+    fn pretty_indent(&self, _: usize) -> String {
         todo!()
     }
 }

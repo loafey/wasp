@@ -1,4 +1,4 @@
-use super::{ExportDesc, Name, Parsable};
+use super::{ExportDesc, Name, Parsable, Pretty};
 
 #[derive(Debug)]
 #[allow(unused)]
@@ -14,5 +14,10 @@ impl Parsable for Export {
         let nm = Name::parse(data)?;
         let d = ExportDesc::parse(data)?;
         Ok(Self { nm, d })
+    }
+}
+impl Pretty for Export {
+    fn pretty_indent(&self, _: usize) -> String {
+        format!("(func {} {})", self.nm.pretty(), self.d.pretty())
     }
 }

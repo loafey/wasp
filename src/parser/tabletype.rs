@@ -1,4 +1,4 @@
-use super::Parsable;
+use super::{Parsable, Pretty};
 
 #[derive(Debug)]
 pub struct TableType;
@@ -7,6 +7,11 @@ impl Parsable for TableType {
     where
         Self: std::marker::Sized,
     {
+        todo!()
+    }
+}
+impl Pretty for TableType {
+    fn pretty_indent(&self, _: usize) -> String {
         todo!()
     }
 }

@@ -1,6 +1,6 @@
 use std::ops::{Deref, DerefMut};
 
-use super::Parsable;
+use super::{Parsable, Pretty};
 
 #[derive(Debug)]
 pub struct Name(String);
@@ -24,5 +24,10 @@ impl Parsable for Name {
         let bytes = Vec::parse(data)?;
         let s = String::from_utf8_lossy(&bytes);
         Ok(Name(s.to_string()))
+    }
+}
+impl Pretty for Name {
+    fn pretty_indent(&self, _: usize) -> String {
+        format!("\"{}\"", self.0)
     }
 }

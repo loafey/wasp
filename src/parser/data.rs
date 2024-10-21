@@ -1,4 +1,4 @@
-use super::{Expr, MemIdX, Parsable};
+use super::{Expr, MemIdX, Parsable, Pretty};
 use crate::{hex::Hex, parser::error::ParseError};
 use std::io::Read;
 
@@ -22,5 +22,10 @@ impl Parsable for Data {
             2 => Data::MemX(MemIdX::parse(data)?, Expr::parse(data)?, Vec::parse(data)?),
             _ => Err(ParseError::InvalidData(Hex(header)))?,
         })
+    }
+}
+impl Pretty for Data {
+    fn pretty_indent(&self, _: usize) -> String {
+        todo!()
     }
 }

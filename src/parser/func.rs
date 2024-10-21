@@ -1,4 +1,4 @@
-use super::{Expr, Locals, Parsable};
+use super::{Expr, Locals, Parsable, Pretty};
 
 #[derive(Debug)]
 #[allow(unused)]
@@ -14,5 +14,10 @@ impl Parsable for Func {
         let t = Vec::parse(data)?;
         let e = Expr::parse(data)?;
         Ok(Self { t, e })
+    }
+}
+impl Pretty for Func {
+    fn pretty_indent(&self, _: usize) -> String {
+        todo!()
     }
 }

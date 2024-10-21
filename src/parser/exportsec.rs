@@ -1,4 +1,4 @@
-use super::{Export, Parsable};
+use super::{Export, Parsable, Pretty};
 
 #[derive(Debug)]
 #[allow(unused)]
@@ -14,5 +14,15 @@ impl Parsable for ExportSection {
         let size = u32::parse(data)?;
         let exports = Vec::parse(data)?;
         Ok(ExportSection { size, exports })
+    }
+}
+impl Pretty for ExportSection {
+    fn pretty_indent(&self, indent: usize) -> String {
+        format!(
+            "{i}(exports // b_size={}\n{i}{}\n{i})\n",
+            self.size,
+            self.exports.pretty_indent(indent),
+            i = self.get_indent(indent),
+        )
     }
 }

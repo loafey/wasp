@@ -1,3 +1,5 @@
+use crate::hex::Hex;
+
 pub trait Pretty {
     const INDENT: &'static str = "    ";
     fn pretty(&self) -> String {
@@ -27,10 +29,16 @@ impl<T: Pretty> Pretty for Vec<T> {
         for i in 0..self.len() {
             s += &self.get_indent(indent);
             s += &self[i].pretty_indent(indent + 1);
-            if i + 1 == self.len() {
+            if i + 1 != self.len() {
                 s += "\n";
             }
         }
         s
+    }
+}
+
+impl<const N: usize> Pretty for Hex<N> {
+    fn pretty_indent(&self, _: usize) -> String {
+        format!("{self:?}")
     }
 }

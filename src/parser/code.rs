@@ -1,4 +1,4 @@
-use super::{Func, Parsable};
+use super::{Func, Parsable, Pretty};
 
 #[derive(Debug)]
 #[allow(unused)]
@@ -14,5 +14,10 @@ impl Parsable for Code {
         let size = u32::parse(data)?;
         let code = Func::parse(data)?;
         Ok(Self { size, code })
+    }
+}
+impl Pretty for Code {
+    fn pretty_indent(&self, indent: usize) -> String {
+        format!("(code {})", self.code.pretty_indent(indent))
     }
 }

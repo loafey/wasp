@@ -40,7 +40,7 @@ impl Parsable for Instr {
             0x02 => Err(ParseError::UnknownInstruction(Hex(typ)))?,
             0x03 => Err(ParseError::UnknownInstruction(Hex(typ)))?,
             0x04 => Err(ParseError::UnknownInstruction(Hex(typ)))?,
-            0x05 => Err(ParseError::UnknownInstruction(Hex(typ)))?,
+            0x05 => Err(ParseError::EndOfInstructions)?,
             0x06 => Err(ParseError::UnknownInstruction(Hex(typ)))?,
             0x07 => Err(ParseError::UnknownInstruction(Hex(typ)))?,
             0x08 => Err(ParseError::UnknownInstruction(Hex(typ)))?,

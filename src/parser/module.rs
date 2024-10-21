@@ -63,28 +63,21 @@ impl Parsable for Module {
         let mut export = Vec::new();
         let mut code = Vec::new();
         let mut datasec = Vec::new();
-        loop {
-            let mut section_header = [0];
-            data.read_exact(&mut section_header)?;
-            // let functype = TypeSection::parse(data)?;
-            // let import = ImportSection::parse(data)?;
-            // let function = FunctionSection::parse(data)?;
-            // let export = ExportSection::parse(data)?;
-            // let code = CodeSection::parse(data)?;
-            // let datasec = DataSection::parse(data)?;
+        let mut section_header = [0];
+        while data.read_exact(&mut section_header).is_ok() {
             match section_header[0] {
                 0 => unimplemented!("\"custom\" sections (0)"),
-                1 => unimplemented!("\"type\" sections (1)"),
-                2 => unimplemented!("\"import\" sections (2)"),
-                3 => unimplemented!("\"function\" sections (3)"),
+                1 => functype.push(TypeSection::parse(data)?),
+                2 => import.push(ImportSection::parse(data)?),
+                3 => typeidx.push(FunctionSection::parse(data)?),
                 4 => unimplemented!("\"table\" sections (4)"),
                 5 => unimplemented!("\"memory\" sections (5)"),
                 6 => unimplemented!("\"global\" sections (6)"),
-                7 => unimplemented!("\"export\" sections (7)"),
+                7 => export.push(ExportSection::parse(data)?),
                 8 => unimplemented!("\"start\" sections (8)"),
                 9 => unimplemented!("\"element\" sections (9)"),
-                10 => unimplemented!("\"code\" sections (10)"),
-                11 => unimplemented!("\"data\" sections (11)"),
+                10 => code.push(CodeSection::parse(data)?),
+                11 => datasec.push(DataSection::parse(data)?),
                 12 => unimplemented!("\"data count\" sections (12)"),
                 _ => Err(SectionError::UnknownHeader(Hex(section_header)))?,
             }

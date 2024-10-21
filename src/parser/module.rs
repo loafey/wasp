@@ -1,6 +1,6 @@
 use super::{
     error::{ModuleError, ParseError, SectionError},
-    ImportSection, Parsable, TypeSection,
+    ImportSection, Parsable, Pretty, TypeSection,
 };
 use crate::{
     alloc,
@@ -15,30 +15,28 @@ use std::io::{Cursor, ErrorKind, Read};
 pub struct Module {
     magic: Hex<4>,
     version: Hex<4>,
-    functype: Vec<TypeSection>,
+    types: Vec<TypeSection>,
     // customsec
-    import: Vec<ImportSection>,
+    imports: Vec<ImportSection>,
     // customsec
-    typeidx: Vec<FunctionSection>,
-    export: Vec<ExportSection>,
+    funcs: Vec<FunctionSection>,
+    exports: Vec<ExportSection>,
     // customsec
-    // table: tablesec
+    tables: Vec<()>, //tablesec
     // customsec
-    // mem: memsec
+    mems: Vec<()>, // memsec
     // customsec
-    // global: globalsec
+    globals: Vec<()>, // globalsec
     // customsec
-    // export:exportsec
+    start: Vec<()>, // startsec
     // customsec
-    // start: startsec
+    elems: Vec<()>, //elemsec
     // customsec
-    // elem: elemsec
-    // customsec
-    // m: datacountsec
+    data_count: Vec<()>, //datacountsec
     // customsec
     code: Vec<CodeSection>,
     // customsec
-    data: Vec<DataSection>,
+    datas: Vec<DataSection>,
     // customsec
 }
 impl Parsable for Module {
@@ -92,12 +90,39 @@ impl Parsable for Module {
         Ok(Module {
             magic,
             version,
-            functype,
-            import,
-            typeidx,
-            export,
+            types: functype,
+            imports: import,
+            funcs: typeidx,
+            exports: export,
             code,
-            data: datasec,
+            datas: datasec,
+            tables: Vec::new(),
+            mems: Vec::new(),
+            globals: Vec::new(),
+            start: Vec::new(),
+            elems: Vec::new(),
+            data_count: Vec::new(),
         })
+    }
+}
+impl Pretty for Module {
+    fn pretty_indent(&self, indent: usize) -> String {
+        let mut s = format!("{}(module\n", self.get_indent(indent));
+        // magic
+        // version
+        // functype
+        // import
+        // typeidx
+        // table
+        // mem
+        // global
+        // export
+        // start
+        // elem
+        // m
+        // code
+        // data
+        s += ")";
+        s
     }
 }

@@ -1,5 +1,5 @@
 use hex::Hex;
-use parser::{Module, Parsable};
+use parser::{Module, Parsable, Pretty};
 use std::{io::Cursor, mem::MaybeUninit};
 mod hex;
 mod parser;
@@ -15,6 +15,5 @@ fn alloc<const N: usize>() -> Hex<N> {
 fn main() {
     let bin: &[u8] = include_bytes!("../examples/hello_world.wasm");
     let mut cursor = Cursor::new(bin);
-
-    println!("{:#?}", Module::parse(&mut cursor))
+    println!("{}", Module::parse(&mut cursor).unwrap().pretty())
 }

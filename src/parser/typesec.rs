@@ -2,11 +2,17 @@ use super::{error::ParseError, Parsable, Pretty};
 use crate::parser::FuncType;
 use std::io::Cursor;
 
-#[derive(Debug)]
+#[derive(Debug, Default)]
 #[allow(unused)]
 pub struct TypeSection {
     pub size: u32,
     pub function_types: Vec<FuncType>,
+}
+impl TypeSection {
+    pub fn concat(&mut self, mut other: Self) {
+        self.size += other.size;
+        self.function_types.append(&mut other.function_types);
+    }
 }
 impl Parsable for TypeSection {
     fn parse(data: &mut Cursor<&[u8]>) -> Result<TypeSection, ParseError> {

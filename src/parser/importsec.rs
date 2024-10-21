@@ -1,10 +1,16 @@
 use super::{Import, Parsable, Pretty};
 
-#[derive(Debug)]
+#[derive(Debug, Default)]
 #[allow(unused)]
 pub struct ImportSection {
     pub size: u32,
     pub imports: Vec<Import>,
+}
+impl ImportSection {
+    pub fn concat(&mut self, mut other: Self) {
+        self.size += other.size;
+        self.imports.append(&mut other.imports);
+    }
 }
 impl Parsable for ImportSection {
     fn parse(data: &mut std::io::Cursor<&[u8]>) -> Result<Self, super::error::ParseError>

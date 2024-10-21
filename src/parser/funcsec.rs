@@ -1,10 +1,16 @@
 use super::{Parsable, Pretty, TypeIdX};
 
-#[derive(Debug)]
+#[derive(Debug, Default)]
 #[allow(unused)]
 pub struct FunctionSection {
     pub size: u32,
     pub functions: Vec<TypeIdX>,
+}
+impl FunctionSection {
+    pub fn concat(&mut self, mut other: Self) {
+        self.size += other.size;
+        self.functions.append(&mut other.functions);
+    }
 }
 impl Parsable for FunctionSection {
     fn parse(data: &mut std::io::Cursor<&[u8]>) -> Result<Self, super::error::ParseError>

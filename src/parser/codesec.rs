@@ -1,10 +1,16 @@
 use super::{Code, Parsable, Pretty};
 
-#[derive(Debug)]
+#[derive(Debug, Default)]
 #[allow(unused)]
 pub struct CodeSection {
     pub size: u32,
     pub code: Vec<Code>,
+}
+impl CodeSection {
+    pub fn concat(&mut self, mut other: Self) {
+        self.size += other.size;
+        self.code.append(&mut other.code);
+    }
 }
 
 impl Parsable for CodeSection {

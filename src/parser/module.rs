@@ -15,12 +15,12 @@ use std::io::{Cursor, ErrorKind, Read};
 pub struct Module {
     magic: Hex<4>,
     version: Hex<4>,
-    types: Vec<TypeSection>,
+    types: TypeSection,
     // customsec
-    imports: Vec<ImportSection>,
+    imports: ImportSection,
     // customsec
-    funcs: Vec<FunctionSection>,
-    exports: Vec<ExportSection>,
+    funcs: FunctionSection,
+    exports: ExportSection,
     // customsec
     tables: Vec<()>, //tablesec
     // customsec
@@ -28,15 +28,15 @@ pub struct Module {
     // customsec
     globals: Vec<()>, // globalsec
     // customsec
-    start: Vec<()>, // startsec
+    start: Option<()>, // startsec
     // customsec
     elems: Vec<()>, //elemsec
     // customsec
     data_count: Vec<()>, //datacountsec
     // customsec
-    code: Vec<CodeSection>,
+    code: CodeSection,
     // customsec
-    datas: Vec<DataSection>,
+    datas: DataSection,
     // customsec
 }
 impl Parsable for Module {
@@ -55,12 +55,12 @@ impl Parsable for Module {
             Err(ModuleError::InvalidVersion(version))?;
         }
 
-        let mut functype = Vec::new();
-        let mut import = Vec::new();
-        let mut typeidx = Vec::new();
-        let mut export = Vec::new();
-        let mut code = Vec::new();
-        let mut datasec = Vec::new();
+        let mut functype = TypeSection::default();
+        let mut import = ImportSection::default();
+        let mut typeidx = FunctionSection::default();
+        let mut export = ExportSection::default();
+        let mut code = CodeSection::default();
+        let mut datasec = DataSection::default();
         let mut section_header = [0];
         loop {
             if let Err(e) = data.read_exact(&mut section_header) {
@@ -71,17 +71,17 @@ impl Parsable for Module {
             }
             match section_header[0] {
                 0 => unimplemented!("\"custom\" sections (0)"),
-                1 => functype.push(TypeSection::parse(data)?),
-                2 => import.push(ImportSection::parse(data)?),
-                3 => typeidx.push(FunctionSection::parse(data)?),
+                1 => functype.concat(TypeSection::parse(data)?),
+                2 => import.concat(ImportSection::parse(data)?),
+                3 => typeidx.concat(FunctionSection::parse(data)?),
                 4 => unimplemented!("\"table\" sections (4)"),
                 5 => unimplemented!("\"memory\" sections (5)"),
                 6 => unimplemented!("\"global\" sections (6)"),
-                7 => export.push(ExportSection::parse(data)?),
+                7 => export.concat(ExportSection::parse(data)?),
                 8 => unimplemented!("\"start\" sections (8)"),
                 9 => unimplemented!("\"element\" sections (9)"),
-                10 => code.push(CodeSection::parse(data)?),
-                11 => datasec.push(DataSection::parse(data)?),
+                10 => code.concat(CodeSection::parse(data)?),
+                11 => datasec.concat(DataSection::parse(data)?),
                 12 => unimplemented!("\"data count\" sections (12)"),
                 _ => Err(SectionError::UnknownHeader(Hex(section_header)))?,
             }
@@ -99,7 +99,7 @@ impl Parsable for Module {
             tables: Vec::new(),
             mems: Vec::new(),
             globals: Vec::new(),
-            start: Vec::new(),
+            start: None,
             elems: Vec::new(),
             data_count: Vec::new(),
         })

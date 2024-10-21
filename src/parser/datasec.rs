@@ -1,10 +1,16 @@
 use super::{Data, Parsable, Pretty};
 
-#[derive(Debug)]
+#[derive(Debug, Default)]
 #[allow(unused)]
 pub struct DataSection {
     pub size: u32,
     pub data: Vec<Data>,
+}
+impl DataSection {
+    pub fn concat(&mut self, mut other: Self) {
+        self.size += other.size;
+        self.data.append(&mut other.data);
+    }
 }
 impl Parsable for DataSection {
     fn parse(data: &mut std::io::Cursor<&[u8]>) -> Result<Self, super::error::ParseError>

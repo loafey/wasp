@@ -1,10 +1,16 @@
 use super::{Export, Parsable, Pretty};
 
-#[derive(Debug)]
+#[derive(Debug, Default)]
 #[allow(unused)]
 pub struct ExportSection {
     pub size: u32,
     pub exports: Vec<Export>,
+}
+impl ExportSection {
+    pub fn concat(&mut self, mut other: Self) {
+        self.size += other.size;
+        self.exports.append(&mut other.exports);
+    }
 }
 impl Parsable for ExportSection {
     fn parse(data: &mut std::io::Cursor<&[u8]>) -> Result<Self, super::error::ParseError>

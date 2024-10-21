@@ -19,6 +19,15 @@ impl Pretty for () {
     }
 }
 
+impl<T: Pretty> Pretty for Option<T> {
+    fn pretty_indent(&self, indent: usize) -> String {
+        match self {
+            Some(p) => p.pretty_indent(indent),
+            None => String::new(),
+        }
+    }
+}
+
 impl<T: Pretty> Pretty for Vec<T> {
     fn pretty_indent(&self, indent: usize) -> String {
         if self.is_empty() {

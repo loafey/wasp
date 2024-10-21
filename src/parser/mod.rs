@@ -81,3 +81,7 @@ mod elemsec;
 pub use elemsec::*;
 mod elem;
 pub use elem::*;
+mod localidx;
+pub use localidx::*;
+mod memarg;
+pub use memarg::*;

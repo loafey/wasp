@@ -1,13 +1,18 @@
-use super::{error::ParseError, FuncIdx, Parsable};
+use super::{error::ParseError, FuncIdx, GlobalIdX, LocalIdX, MemArg, Parsable, TableIdX, TypeIdX};
 use crate::hex::Hex;
 use std::io::Read;
 use Instr::*;
 
 #[derive(Debug, Clone, Copy)]
 #[allow(non_camel_case_types, unused)]
+#[repr(u8)]
 pub enum Instr {
-    i32_const(i32),
-    call(FuncIdx),
+    i32_const(i32) = 0x10,
+    call_indirect(TypeIdX, TableIdX) = 0x11,
+    local_get(LocalIdX) = 0x20,
+    global_get(GlobalIdX) = 0x23,
+    i32_load(MemArg) = 0x28,
+    call(FuncIdx) = 0x41,
 }
 impl Parsable for Instr {
     fn parse_inner(
@@ -37,7 +42,7 @@ impl Parsable for Instr {
             0x0e => Err(ParseError::UnknownInstruction(Hex(typ)))?,
             0x0f => Err(ParseError::UnknownInstruction(Hex(typ)))?,
             0x10 => call(FuncIdx::parse(data, stack)?),
-            0x11 => Err(ParseError::UnknownInstruction(Hex(typ)))?,
+            0x11 => call_indirect(Parsable::parse(data, stack)?, Parsable::parse(data, stack)?),
             0x12 => Err(ParseError::UnknownInstruction(Hex(typ)))?,
             0x13 => Err(ParseError::UnknownInstruction(Hex(typ)))?,
             0x14 => Err(ParseError::UnknownInstruction(Hex(typ)))?,
@@ -52,15 +57,15 @@ impl Parsable for Instr {
             0x1d => Err(ParseError::UnknownInstruction(Hex(typ)))?,
             0x1e => Err(ParseError::UnknownInstruction(Hex(typ)))?,
             0x1f => Err(ParseError::UnknownInstruction(Hex(typ)))?,
-            0x20 => Err(ParseError::UnknownInstruction(Hex(typ)))?,
+            0x20 => local_get(Parsable::parse(data, stack)?),
             0x21 => Err(ParseError::UnknownInstruction(Hex(typ)))?,
             0x22 => Err(ParseError::UnknownInstruction(Hex(typ)))?,
-            0x23 => Err(ParseError::UnknownInstruction(Hex(typ)))?,
+            0x23 => global_get(Parsable::parse(data, stack)?),
             0x24 => Err(ParseError::UnknownInstruction(Hex(typ)))?,
             0x25 => Err(ParseError::UnknownInstruction(Hex(typ)))?,
             0x26 => Err(ParseError::UnknownInstruction(Hex(typ)))?,
             0x27 => Err(ParseError::UnknownInstruction(Hex(typ)))?,
-            0x28 => Err(ParseError::UnknownInstruction(Hex(typ)))?,
+            0x28 => i32_load(Parsable::parse(data, stack)?),
             0x29 => Err(ParseError::UnknownInstruction(Hex(typ)))?,
             0x2a => Err(ParseError::UnknownInstruction(Hex(typ)))?,
             0x2b => Err(ParseError::UnknownInstruction(Hex(typ)))?,

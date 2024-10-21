@@ -1,12 +1,13 @@
-use super::{Parsable, ValType};
+use super::Parsable;
 
-#[derive(Debug)]
+#[derive(Debug, Clone, Copy)]
 #[allow(unused)]
-pub struct Locals {
-    pub n: u32,
-    pub t: ValType,
+pub struct MemArg {
+    align: u32,
+    offset: u32,
 }
-impl Parsable for Locals {
+
+impl Parsable for MemArg {
     fn parse_inner(
         data: &mut std::io::Cursor<&[u8]>,
         stack: super::DebugStack,
@@ -15,8 +16,8 @@ impl Parsable for Locals {
         Self: std::marker::Sized,
     {
         Ok(Self {
-            n: Parsable::parse(data, stack)?,
-            t: Parsable::parse(data, stack)?,
+            align: Parsable::parse(data, stack)?,
+            offset: Parsable::parse(data, stack)?,
         })
     }
 }

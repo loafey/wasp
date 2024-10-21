@@ -78,6 +78,7 @@ impl Runtime {
                 match instrs[pc] {
                     parser::Instr::i32_const(i) => self.stack.push(StackValue::I32(i)),
                     parser::Instr::call(FuncIdx(id)) => self.call_by_id(id),
+                    p => unimplemented!("{p:?} instruction not supported"),
                 }
             }
         }

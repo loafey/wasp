@@ -63,3 +63,7 @@ mod tablesec;
 pub use tablesec::*;
 mod table;
 pub use table::*;
+mod memorysec;
+pub use memorysec::*;
+mod mem;
+pub use mem::*;

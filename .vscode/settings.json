@@ -15,6 +15,7 @@
         "importsec",
         "instrs",
         "memidx",
+        "memorysec",
         "memtype",
         "resulttype",
         "tablesec",

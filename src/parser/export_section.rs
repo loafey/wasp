@@ -1,6 +1,4 @@
 use super::{Export, Parsable};
-use crate::parser::error::SectionError;
-use std::io::Read;
 
 #[derive(Debug)]
 #[allow(unused)]
@@ -13,12 +11,6 @@ impl Parsable for ExportSection {
     where
         Self: std::marker::Sized,
     {
-        let mut n = [0u8];
-        data.read_exact(&mut n)?;
-        if !matches!(n, [7]) {
-            Err(SectionError::InvalidHeader(7, n[0]))?;
-        }
-
         let size = u32::parse(data)?;
         let exports = Vec::parse(data)?;
         Ok(ExportSection { size, exports })

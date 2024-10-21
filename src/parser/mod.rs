@@ -1,4 +1,3 @@
-mod customsec;
 pub mod error;
 mod module;
 pub use module::*;

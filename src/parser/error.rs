@@ -47,5 +47,5 @@ pub enum ModuleError {
 #[derive(Debug)]
 #[allow(unused)]
 pub enum SectionError {
-    InvalidHeader(u8, u8),
+    UnknownHeader(Hex<1>),
 }

@@ -1,5 +1,5 @@
 use super::{
-    error::{ModuleError, ParseError},
+    error::{ModuleError, ParseError, SectionError},
     ImportSection, Parsable, TypeSection,
 };
 use crate::{
@@ -57,26 +57,48 @@ impl Parsable for Module {
             Err(ModuleError::InvalidVersion(version))?;
         }
 
-        let functype = TypeSection::parse(data)?;
-        let import = ImportSection::parse(data)?;
-        let function = FunctionSection::parse(data)?;
-        let export = ExportSection::parse(data)?;
-        let code = CodeSection::parse(data)?;
-        let datasec = DataSection::parse(data)?;
-
-        let mut b = [0];
-        data.read_exact(&mut b)?;
-        println!("{b:?}");
+        let mut functype = Vec::new();
+        let mut import = Vec::new();
+        let mut typeidx = Vec::new();
+        let mut export = Vec::new();
+        let mut code = Vec::new();
+        let mut datasec = Vec::new();
+        loop {
+            let mut section_header = [0];
+            data.read_exact(&mut section_header)?;
+            // let functype = TypeSection::parse(data)?;
+            // let import = ImportSection::parse(data)?;
+            // let function = FunctionSection::parse(data)?;
+            // let export = ExportSection::parse(data)?;
+            // let code = CodeSection::parse(data)?;
+            // let datasec = DataSection::parse(data)?;
+            match section_header[0] {
+                0 => unimplemented!("\"custom\" sections (0)"),
+                1 => unimplemented!("\"type\" sections (1)"),
+                2 => unimplemented!("\"import\" sections (2)"),
+                3 => unimplemented!("\"function\" sections (3)"),
+                4 => unimplemented!("\"table\" sections (4)"),
+                5 => unimplemented!("\"memory\" sections (5)"),
+                6 => unimplemented!("\"global\" sections (6)"),
+                7 => unimplemented!("\"export\" sections (7)"),
+                8 => unimplemented!("\"start\" sections (8)"),
+                9 => unimplemented!("\"element\" sections (9)"),
+                10 => unimplemented!("\"code\" sections (10)"),
+                11 => unimplemented!("\"data\" sections (11)"),
+                12 => unimplemented!("\"data count\" sections (12)"),
+                _ => Err(SectionError::UnknownHeader(Hex(section_header)))?,
+            }
+        }
 
         Ok(Module {
             magic,
             version,
-            functype: vec![functype],
-            import: vec![import],
-            typeidx: vec![function],
-            export: vec![export],
-            code: vec![code],
-            data: vec![datasec],
+            functype,
+            import,
+            typeidx,
+            export,
+            code,
+            data: datasec,
         })
     }
 }

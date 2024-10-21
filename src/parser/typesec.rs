@@ -1,7 +1,6 @@
-use crate::parser::{error::SectionError, FuncType};
-
 use super::{error::ParseError, Parsable};
-use std::io::{Cursor, Read};
+use crate::parser::FuncType;
+use std::io::Cursor;
 
 #[derive(Debug)]
 #[allow(unused)]
@@ -11,14 +10,7 @@ pub struct TypeSection {
 }
 impl Parsable for TypeSection {
     fn parse(data: &mut Cursor<&[u8]>) -> Result<TypeSection, ParseError> {
-        let mut n = [0u8];
-        data.read_exact(&mut n)?;
-        if !matches!(n, [1]) {
-            Err(SectionError::InvalidHeader(1, n[0]))?;
-        }
-
         let size = u32::parse(data)?;
-
         let function_types: Vec<FuncType> = Vec::parse(data)?;
         Ok(Self {
             size,

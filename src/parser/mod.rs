@@ -85,3 +85,7 @@ mod localidx;
 pub use localidx::*;
 mod memarg;
 pub use memarg::*;
+mod blocktype;
+pub use blocktype::*;
+mod labelidx;
+pub use labelidx::*;

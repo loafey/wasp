@@ -4,21 +4,21 @@ use crate::hex::Hex;
 
 use super::{Parsable, Pretty};
 
-#[derive(Debug, PartialEq, Eq, PartialOrd, Ord)]
+#[derive(Debug, PartialEq, Eq, PartialOrd, Ord, Clone, Copy)]
 #[allow(unused)]
 pub enum ValType {
     Num(NumType),
     Vec,
     Ref(RefTyp),
 }
-#[derive(Debug, PartialEq, Eq, PartialOrd, Ord)]
+#[derive(Debug, PartialEq, Eq, PartialOrd, Ord, Clone, Copy)]
 pub enum NumType {
     I32,
     I64,
     F32,
     F64,
 }
-#[derive(Debug, PartialEq, Eq, PartialOrd, Ord)]
+#[derive(Debug, PartialEq, Eq, PartialOrd, Ord, Clone, Copy)]
 pub enum RefTyp {
     FuncRef,
     ExternRef,

@@ -17,6 +17,7 @@
         "importdesc",
         "importsec",
         "instrs",
+        "labelidx",
         "localidx",
         "memarg",
         "memidx",

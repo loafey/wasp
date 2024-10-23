@@ -15,6 +15,7 @@ pub enum ParseError {
     InvalidExportDesc(Hex<1>),
     InvalidLimit(Hex<1>),
     UnknownInstruction(Hex<1>),
+    Unknown0x40(Hex<1>),
     InvalidData(Hex<1>),
     InvalidRefType(Hex<1>),
     InvalidElem(u32),

@@ -75,9 +75,9 @@ impl Runtime {
                 .clone();
             #[allow(clippy::needless_range_loop)]
             for pc in 0..instrs.len() {
-                match instrs[pc] {
-                    parser::Instr::i32_const(i) => self.stack.push(StackValue::I32(i)),
-                    parser::Instr::call(FuncIdx(id)) => self.call_by_id(id),
+                match &instrs[pc] {
+                    parser::Instr::x10_i32_const(i) => self.stack.push(StackValue::I32(*i)),
+                    parser::Instr::x41_call(FuncIdx(id)) => self.call_by_id(*id),
                     p => unimplemented!("{p:?} instruction not supported"),
                 }
             }
@@ -93,7 +93,10 @@ fn main() {
         Ok(o) => o,
         Err(e) => {
             stack.reverse();
-            eprintln!("Error: {e:?}, stack: {stack:#?}");
+            eprintln!(
+                "Error: {e:?}, bin pos: {}, stack: {stack:#?}",
+                cursor.position()
+            );
             return;
         }
     };

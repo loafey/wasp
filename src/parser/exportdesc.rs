@@ -2,7 +2,7 @@ use super::{error::ParseError, GlobalIdX, MemIdX, Parsable, Pretty, TableIdX, Ty
 use crate::hex::Hex;
 use std::io::Read;
 
-#[derive(Debug, PartialEq, Eq, PartialOrd, Ord)]
+#[derive(Debug, PartialEq, Eq, PartialOrd, Ord, Clone, Copy)]
 #[allow(unused)]
 pub enum ExportDesc {
     Func(TypeIdX),

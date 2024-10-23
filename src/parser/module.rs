@@ -1,7 +1,7 @@
 use super::{
     error::{ModuleError, ParseError, SectionError},
-    ElementSection, GlobalSection, ImportSection, MemorySection, Parsable, Pretty, TableSection,
-    TypeSection,
+    CustomSection, ElementSection, GlobalSection, ImportSection, MemorySection, Parsable, Pretty,
+    TableSection, TypeSection,
 };
 use crate::{
     alloc,
@@ -17,28 +17,18 @@ pub struct Module {
     pub magic: Hex<4>,
     pub version: Hex<4>,
     pub types: TypeSection,
-    // customsec
     pub imports: ImportSection,
-    // customsec
     pub funcs: FunctionSection,
     pub exports: ExportSection,
-    // customsec
     pub tables: TableSection, //tablesec
-    // customsec
-    pub mems: Vec<()>, // memsec
-    // customsec
-    pub globals: Vec<()>, // globalsec
-    // customsec
-    pub start: Option<()>, // startsec
-    // customsec
-    pub elems: Vec<()>, //elemsec
-    // customsec
-    pub data_count: Vec<()>, //datacountsec
-    // customsec
+    pub mems: Vec<()>,        // memsec
+    pub globals: Vec<()>,     // globalsec
+    pub start: Option<()>,    // startsec
+    pub elems: Vec<()>,       //elemsec
+    pub data_count: Vec<()>,  //datacountsec
     pub code: CodeSection,
-    // customsec
     pub datas: DataSection,
-    // customsec
+    pub customs: CustomSection,
 }
 impl Parsable for Module {
     fn parse_inner(
@@ -69,6 +59,7 @@ impl Parsable for Module {
         let mut mems = MemorySection::default();
         let mut globals = GlobalSection::default();
         let mut elements = ElementSection::default();
+        let mut customs = CustomSection::default();
         let mut section_header = [0];
         loop {
             if let Err(e) = data.read_exact(&mut section_header) {
@@ -78,7 +69,7 @@ impl Parsable for Module {
                 }
             }
             match section_header[0] {
-                0 => unimplemented!("\"custom\" sections (0)"),
+                0 => customs.concat(CustomSection::parse(data, stack)?),
                 1 => functype.concat(TypeSection::parse(data, stack)?),
                 2 => import.concat(ImportSection::parse(data, stack)?),
                 3 => typeidx.concat(FunctionSection::parse(data, stack)?),
@@ -110,6 +101,7 @@ impl Parsable for Module {
             start: None,
             elems: Vec::new(),
             data_count: Vec::new(),
+            customs,
         })
     }
 }

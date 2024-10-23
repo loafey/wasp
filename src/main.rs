@@ -100,6 +100,6 @@ fn main() {
             return;
         }
     };
-    println!("{module:#?}");
+    // println!("{module:#?}");
     Runtime::new(module).call_by_id(1);
 }

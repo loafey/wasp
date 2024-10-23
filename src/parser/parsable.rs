@@ -12,23 +12,29 @@ pub trait Parsable: Debug {
     where
         Self: std::marker::Sized,
     {
-        stack.push(Self::STACK_NAME);
-        println!(
-            "{}┌─Parsing {} 💅",
-            "│ ".repeat(stack.len()),
-            Self::STACK_NAME
-        );
+        #[cfg(debug_assertions)]
+        {
+            stack.push(Self::STACK_NAME);
+            println!(
+                "{}┌─Parsing {} 💅",
+                "│ ".repeat(stack.len()),
+                Self::STACK_NAME
+            );
+        }
         #[allow(deprecated)]
         let res = Self::parse_inner(data, stack)?;
-        let format = format!("{res:?}");
-        let formatted = &format[0..(format.len().min(128))];
-        let eps = if formatted.len() != format.len() {
-            "..."
-        } else {
-            ""
-        };
-        println!("{}├─Result: {formatted}{eps} 🏳️‍🌈", "│ ".repeat(stack.len()),);
-        stack.pop();
+        #[cfg(debug_assertions)]
+        {
+            let format = format!("{res:?}");
+            let formatted = &format[0..(format.len().min(128))];
+            let eps = if formatted.len() != format.len() {
+                "..."
+            } else {
+                ""
+            };
+            println!("{}├─Result: {formatted}{eps} 🏳️‍🌈", "│ ".repeat(stack.len()),);
+            stack.pop();
+        }
         Ok(res)
     }
     #[deprecated]

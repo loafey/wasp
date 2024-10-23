@@ -104,7 +104,7 @@ impl Runtime {
             let instrs = self.module.code.code[index].code.e.instrs.clone();
             #[allow(clippy::needless_range_loop)]
             for pc in 0..instrs.len() {
-                std::thread::sleep(std::time::Duration::from_secs_f32(0.5));
+                std::thread::sleep(std::time::Duration::from_secs_f32(0.25));
                 let instr = &instrs[pc];
 
                 let mut fs = "┌────┄┄┄┈┈\n".to_string();
@@ -117,7 +117,7 @@ impl Runtime {
                     fs += &format!("│ {line}\n");
                 }
                 fs += "├────┄┄┄┈┈┈┈\n";
-                fs += &format!("│ Executing: {instr:?}\n└─┄┈");
+                fs += &format!("│ Executing next frame: {instr:?}\n└─┄┈");
                 println!("{fs}");
                 let f = self.stack.last_mut().unwrap();
 

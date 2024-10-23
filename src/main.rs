@@ -103,14 +103,14 @@ impl Runtime {
                 let instr = &instrs[pc];
                 let mut fs = "┌────┄┄┄┈┈\n".to_string();
                 for line in format!(
-                    "----  Stack  -----\n{:#?}\n---- Globals -----\n{:#?}",
+                    "════  Stack  ════\n{:#?}\n════ Globals ════\n{:#?}",
                     self.stack, self.globals
                 )
                 .lines()
                 {
                     fs += &format!("│ {line}\n");
                 }
-                fs += "└────┄┄┄┈┈";
+                fs += "└────┄┄┄┈┈┈┈";
                 println!("{fs}");
                 let f = self.stack.last_mut().unwrap();
 

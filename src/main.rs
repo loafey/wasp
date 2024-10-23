@@ -1,10 +1,13 @@
 #![feature(const_type_name)]
 
 use hex::Hex;
-use parser::{ExportDesc, FuncIdx, ImportDesc, Instr::*, Module, Parsable, TypeIdX};
+use parser::{ExportDesc, FuncIdx, GlobalIdX, ImportDesc, Instr::*, Module, Parsable, TypeIdX};
 use std::{io::Cursor, mem::MaybeUninit};
 mod hex;
 mod parser;
+
+#[macro_use]
+extern crate log;
 
 fn alloc<const N: usize>() -> Hex<N> {
     #[allow(clippy::uninit_assumed_init)]
@@ -68,7 +71,6 @@ impl Runtime {
                 m => panic!("unknown module {m:?}"),
             }
         } else {
-            println!("{import_funcs} | {id}");
             let index = if import_funcs == 0 {
                 id as usize
             } else {
@@ -77,13 +79,30 @@ impl Runtime {
             let instrs = self.module.code.code[index].code.e.instrs.clone();
             #[allow(clippy::needless_range_loop)]
             for pc in 0..instrs.len() {
-                match &instrs[pc] {
+                let instr = &instrs[pc];
+                println!("---- Stack -----\n{:#?}", self.stack);
+                match instr {
                     x10_i32_const(i) => {
                         let st = self.stack.last_mut().unwrap();
                         st.push(StackValue::I32(*i))
                     }
+                    f @ x23_global_get(_) => {
+                        error!("not implemented : {f:?}")
+                    }
+                    x6b_i32_sub => {
+                        let st = self.stack.last_mut().unwrap();
+                        let y = st.pop().unwrap();
+                        let x = st.pop().unwrap();
+                        match (x, y) {
+                            (StackValue::I32(x), StackValue::I32(y)) => {
+                                st.push(StackValue::I32(y - x))
+                            }
+                        }
+                    }
                     x41_call(FuncIdx(id)) => self.call_by_id(*id),
-                    i => unimplemented!("instruction {i:?}"),
+                    f => {
+                        unimplemented!("instruction not supported : {f:?}")
+                    }
                 }
             }
         }
@@ -91,6 +110,8 @@ impl Runtime {
 }
 
 fn main() {
+    pretty_env_logger::init();
+
     let bin: &[u8] = include_bytes!("../examples/rust_addition.wasm");
     let mut cursor = Cursor::new(bin);
     let mut stack = Vec::new();

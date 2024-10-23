@@ -3,7 +3,7 @@ use std::ops::{Deref, DerefMut};
 use super::{Parsable, Pretty};
 
 #[derive(Debug, PartialEq, Eq, PartialOrd, Ord, Clone, Copy)]
-pub struct GlobalIdX(u32);
+pub struct GlobalIdX(pub u32);
 impl Deref for GlobalIdX {
     type Target = u32;
 

@@ -3,7 +3,7 @@ use std::ops::{Deref, DerefMut};
 use super::{Parsable, Pretty};
 
 #[derive(Debug, PartialEq, Eq, PartialOrd, Ord, Clone, Copy)]
-pub struct LocalIdX(u32);
+pub struct LocalIdX(pub u32);
 impl Deref for LocalIdX {
     type Target = u32;
 

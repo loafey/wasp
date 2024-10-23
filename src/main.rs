@@ -1,11 +1,14 @@
 #![feature(const_type_name)]
 
 use hex::Hex;
-use parser::{ExportDesc, FuncIdx, GlobalIdX, ImportDesc, Instr::*, Module, Parsable, TypeIdX};
-use std::{io::Cursor, mem::MaybeUninit};
+use parser::{
+    ExportDesc, FuncIdx, GlobalIdX, ImportDesc, Instr::*, LocalIdX, Module, Parsable, TypeIdX,
+};
+use std::{collections::HashMap, fmt::format, io::Cursor, mem::MaybeUninit};
 mod hex;
 mod parser;
 
+#[allow(unused_imports)]
 #[macro_use]
 extern crate log;
 
@@ -17,13 +20,29 @@ fn alloc<const N: usize>() -> Hex<N> {
     }
 }
 
-#[derive(Debug)]
-enum StackValue {
+#[derive(Clone, Copy)]
+enum Value {
     I32(i32),
 }
+
+impl std::fmt::Debug for Value {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            Self::I32(arg0) => write!(f, "i32({arg0})"),
+        }
+    }
+}
+
+#[derive(Debug, Default)]
+struct Frame {
+    pub stack: Vec<Value>,
+    pub locals: HashMap<u32, Value>,
+}
+
 struct Runtime {
     module: Module,
-    stack: Vec<Vec<StackValue>>,
+    stack: Vec<Frame>,
+    globals: HashMap<u32, Value>,
     data: Vec<u8>,
 }
 impl Runtime {
@@ -38,8 +57,9 @@ impl Runtime {
         }
         Self {
             module,
-            stack: vec![Vec::new()],
+            stack: vec![Frame::default()],
             data,
+            globals: HashMap::new(),
         }
     }
     pub fn call_by_id(&mut self, id: u32) {
@@ -57,7 +77,8 @@ impl Runtime {
                 m @ "console" => match &*func.name.0 {
                     "log" => {
                         let st = self.stack.last_mut().unwrap();
-                        let Some((StackValue::I32(y), StackValue::I32(x))) = st.pop().zip(st.pop())
+                        let Some((Value::I32(y), Value::I32(x))) =
+                            st.stack.pop().zip(st.stack.pop())
                         else {
                             unimplemented!()
                         };
@@ -80,23 +101,38 @@ impl Runtime {
             #[allow(clippy::needless_range_loop)]
             for pc in 0..instrs.len() {
                 let instr = &instrs[pc];
-                println!("---- Stack -----\n{:#?}", self.stack);
+                let mut fs = "┌────┄┄┄┈┈\n".to_string();
+                for line in format!(
+                    "----  Stack  -----\n{:#?}\n---- Globals -----\n{:#?}",
+                    self.stack, self.globals
+                )
+                .lines()
+                {
+                    fs += &format!("│ {line}\n");
+                }
+                fs += "└────┄┄┄┈┈";
+                println!("{fs}");
+                let f = self.stack.last_mut().unwrap();
+
                 match instr {
-                    x10_i32_const(i) => {
-                        let st = self.stack.last_mut().unwrap();
-                        st.push(StackValue::I32(*i))
+                    x10_i32_const(i) => f.stack.push(Value::I32(*i)),
+                    x20_local_get(LocalIdX(id)) => f.stack.push(*f.locals.get(id).unwrap()),
+                    x22_local_tee(LocalIdX(id)) => {
+                        let last = f.stack.last().unwrap();
+                        f.locals.insert(*id, *last);
                     }
-                    f @ x23_global_get(_) => {
-                        error!("not implemented : {f:?}")
+                    x23_global_get(GlobalIdX(id)) => f
+                        .stack
+                        .push(self.globals.get(id).copied().unwrap_or(Value::I32(0))),
+                    x24_global_set(GlobalIdX(id)) => {
+                        let pop = f.stack.pop().unwrap();
+                        self.globals.insert(*id, pop);
                     }
                     x6b_i32_sub => {
-                        let st = self.stack.last_mut().unwrap();
-                        let y = st.pop().unwrap();
-                        let x = st.pop().unwrap();
+                        let y = f.stack.pop().unwrap();
+                        let x = f.stack.pop().unwrap();
                         match (x, y) {
-                            (StackValue::I32(x), StackValue::I32(y)) => {
-                                st.push(StackValue::I32(y - x))
-                            }
+                            (Value::I32(x), Value::I32(y)) => f.stack.push(Value::I32(y - x)),
                         }
                     }
                     x41_call(FuncIdx(id)) => self.call_by_id(*id),
@@ -126,6 +162,7 @@ fn main() {
             return;
         }
     };
+    // println!("{module:#?}");
     let ExportDesc::Func(TypeIdX(main_id)) = module
         .exports
         .exports

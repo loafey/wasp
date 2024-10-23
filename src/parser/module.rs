@@ -59,7 +59,7 @@ impl Parsable for Module {
         let mut mems = MemorySection::default();
         let mut globals = GlobalSection::default();
         let mut elements = ElementSection::default();
-        let mut customs = CustomSection::default();
+        let customs = CustomSection::default();
         let mut section_header = [0];
         loop {
             if let Err(e) = data.read_exact(&mut section_header) {
@@ -69,7 +69,7 @@ impl Parsable for Module {
                 }
             }
             match section_header[0] {
-                0 => customs.concat(CustomSection::parse(data, stack)?),
+                0 => drop(CustomSection::parse(data, stack)?), // customs.concat(CustomSection::parse(data, stack)?),
                 1 => functype.concat(TypeSection::parse(data, stack)?),
                 2 => import.concat(ImportSection::parse(data, stack)?),
                 3 => typeidx.concat(FunctionSection::parse(data, stack)?),

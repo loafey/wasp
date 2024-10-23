@@ -3,8 +3,8 @@ use super::Parsable;
 #[derive(Debug, Clone, Copy)]
 #[allow(unused)]
 pub struct MemArg {
-    align: u32,
-    offset: u32,
+    pub align: u32,
+    pub offset: u32,
 }
 
 impl Parsable for MemArg {

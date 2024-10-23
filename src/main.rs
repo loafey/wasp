@@ -2,7 +2,8 @@
 
 use hex::Hex;
 use parser::{
-    ExportDesc, FuncIdx, GlobalIdX, ImportDesc, Instr::*, LocalIdX, Module, Parsable, TypeIdX,
+    ExportDesc, FuncIdx, GlobalIdX, ImportDesc, Instr::*, LocalIdX, MemArg, Module, Parsable,
+    TypeIdX,
 };
 use std::{collections::HashMap, fmt::format, io::Cursor, mem::MaybeUninit};
 mod hex;
@@ -57,7 +58,10 @@ impl Runtime {
         }
         Self {
             module,
-            stack: vec![Frame::default()],
+            stack: vec![Frame {
+                stack: Vec::new(),
+                locals: [(0, Value::I32(0)), (1, Value::I32(0))].into(),
+            }],
             data,
             globals: HashMap::new(),
         }
@@ -100,7 +104,9 @@ impl Runtime {
             let instrs = self.module.code.code[index].code.e.instrs.clone();
             #[allow(clippy::needless_range_loop)]
             for pc in 0..instrs.len() {
+                std::thread::sleep(std::time::Duration::from_secs_f32(0.5));
                 let instr = &instrs[pc];
+
                 let mut fs = "┌────┄┄┄┈┈\n".to_string();
                 for line in format!(
                     "════  Stack  ════\n{:#?}\n════ Globals ════\n{:#?}",
@@ -110,7 +116,8 @@ impl Runtime {
                 {
                     fs += &format!("│ {line}\n");
                 }
-                fs += "└────┄┄┄┈┈┈┈";
+                fs += "├────┄┄┄┈┈┈┈\n";
+                fs += &format!("│ Executing: {instr:?}\n└─┄┈");
                 println!("{fs}");
                 let f = self.stack.last_mut().unwrap();
 
@@ -128,6 +135,30 @@ impl Runtime {
                         let pop = f.stack.pop().unwrap();
                         self.globals.insert(*id, pop);
                     }
+                    x36_i32_store(MemArg { align, offset }) => {
+                        let addr = (align * offset) as usize;
+                        let end_pos = addr + size_of::<i32>();
+                        if self.module.mems.len() < end_pos {
+                            self.module
+                                .mems
+                                .append(&mut vec![0; end_pos - self.module.mems.len()]);
+                        }
+                        #[allow(irrefutable_let_patterns)]
+                        let Value::I32(v) = f.stack.pop().unwrap() else {
+                            panic!()
+                        };
+                        let bytes = v.to_le_bytes();
+                        for (i, b) in bytes.into_iter().enumerate() {
+                            self.module.mems[addr + i] = b;
+                        }
+                    }
+                    x6a_i32_add => {
+                        let y = f.stack.pop().unwrap();
+                        let x = f.stack.pop().unwrap();
+                        match (x, y) {
+                            (Value::I32(x), Value::I32(y)) => f.stack.push(Value::I32(y + x)),
+                        }
+                    }
                     x6b_i32_sub => {
                         let y = f.stack.pop().unwrap();
                         let x = f.stack.pop().unwrap();
@@ -135,7 +166,11 @@ impl Runtime {
                             (Value::I32(x), Value::I32(y)) => f.stack.push(Value::I32(y - x)),
                         }
                     }
-                    x41_call(FuncIdx(id)) => self.call_by_id(*id),
+                    x41_call(FuncIdx(id)) => {
+                        self.stack.push(Frame::default());
+                        self.call_by_id(*id);
+                        self.stack.pop();
+                    }
                     f => {
                         unimplemented!("instruction not supported : {f:?}")
                     }

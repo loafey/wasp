@@ -21,7 +21,7 @@ pub struct Module {
     pub funcs: FunctionSection,
     pub exports: ExportSection,
     pub tables: TableSection, //tablesec
-    pub mems: Vec<()>,        // memsec
+    pub mems: Vec<u8>,        // memsec
     pub globals: Vec<()>,     // globalsec
     pub start: Option<()>,    // startsec
     pub elems: Vec<()>,       //elemsec
@@ -129,7 +129,7 @@ impl Pretty for Module {
         // table
         s += &self.tables.pretty_indent(indent);
         // mem
-        s += &self.mems.pretty_indent(indent);
+        // s += &self.mems.pretty_indent(indent);
         // global
         s += &self.globals.pretty_indent(indent);
         // export

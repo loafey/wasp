@@ -1,13 +1,13 @@
 #![feature(const_type_name)]
 
+use egui::{Id, Pos2, Rect, Vec2};
 use hex::Hex;
-use parser::{
-    ExportDesc, FuncIdx, GlobalIdX, ImportDesc, Instr::*, LocalIdX, MemArg, Module, Parsable,
-    TypeIdX,
-};
-use std::{collections::HashMap, fmt::format, io::Cursor, mem::MaybeUninit};
+use parser::{Module, Parsable};
+use runtime::Runtime;
+use std::{fmt::format, io::Cursor, mem::MaybeUninit};
 mod hex;
 mod parser;
+mod runtime;
 
 #[allow(unused_imports)]
 #[macro_use]
@@ -21,193 +21,121 @@ fn alloc<const N: usize>() -> Hex<N> {
     }
 }
 
-#[derive(Clone, Copy)]
-enum Value {
-    I32(i32),
+struct App {
+    runtime: Runtime,
+    current_frame: usize,
 }
-
-impl std::fmt::Debug for Value {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        match self {
-            Self::I32(arg0) => write!(f, "i32({arg0})"),
-        }
-    }
-}
-
-#[derive(Debug, Default)]
-struct Frame {
-    pub stack: Vec<Value>,
-    pub locals: HashMap<u32, Value>,
-}
-
-struct Runtime {
-    module: Module,
-    stack: Vec<Frame>,
-    globals: HashMap<u32, Value>,
-    data: Vec<u8>,
-}
-impl Runtime {
-    pub fn new(module: Module) -> Self {
-        let mut data = Vec::new();
-        for d in &module.datas.data {
-            match d {
-                parser::Data::Mem0(_, vec) => data.append(&mut vec.clone()),
-                parser::Data::MemB(_) => todo!(),
-                parser::Data::MemX(_, _, _) => todo!(),
+impl App {
+    pub fn new(_xcc: &eframe::CreationContext<'_>) -> Self {
+        let bin: &[u8] = include_bytes!("../examples/rust_addition.wasm");
+        let mut cursor = Cursor::new(bin);
+        let mut stack = Vec::new();
+        let module = match Module::parse(&mut cursor, &mut stack) {
+            Ok(o) => o,
+            Err(e) => {
+                stack.reverse();
+                eprintln!(
+                    "Error: {e:?}, bin pos: {}, stack: {stack:#?}",
+                    cursor.position()
+                );
+                std::process::exit(1);
             }
-        }
+        };
+
         Self {
-            module,
-            stack: vec![Frame {
-                stack: Vec::new(),
-                locals: [(0, Value::I32(0)), (1, Value::I32(0))].into(),
-            }],
-            data,
-            globals: HashMap::new(),
+            runtime: Runtime::new(module),
+            current_frame: 0,
         }
     }
-    pub fn call_by_id(&mut self, id: u32) {
-        let import_funcs: usize = self
-            .module
-            .imports
-            .imports
-            .iter()
-            .map(|i| matches!(i.desc, ImportDesc::Func(_)) as usize)
-            .sum();
+}
+impl eframe::App for App {
+    fn update(&mut self, ctx: &egui::Context, _frame: &mut eframe::Frame) {
+        egui::TopBottomPanel::top("top_panel").show(ctx, |ui| {
+            if ui.button("Step").clicked() {
+                self.runtime.step();
+            }
+        });
 
-        if (id as usize) < import_funcs {
-            let func = &self.module.imports.imports[id as usize];
-            match &*func.module.0 {
-                m @ "console" => match &*func.name.0 {
-                    "log" => {
-                        let st = self.stack.last_mut().unwrap();
-                        let Some((Value::I32(y), Value::I32(x))) =
-                            st.stack.pop().zip(st.stack.pop())
-                        else {
-                            unimplemented!()
-                        };
-                        let (x, y) = (x as usize, y as usize);
+        egui::SidePanel::new(egui::panel::Side::Left, Id::new("side_panel")).show(ctx, |ui| {
+            ui.heading("Stack frames:");
+            let width = ui.max_rect().width();
+            for i in (0..self.runtime.stack.len()).rev() {
+                let button =
+                    egui::Button::new(format!("Frame {i:#?}")).min_size(Vec2::new(width, 16.0));
+                if ui.add(button).clicked() {
+                    self.current_frame = i;
+                }
+            }
+        });
 
-                        let str = String::from_utf8_lossy(&self.data[x..y]);
-                        println!("{str}");
-                    }
-                    n => panic!("no function named {n:?} in module {m:?}"),
+        egui::SidePanel::new(egui::panel::Side::Left, Id::new("stack_info")).show(ctx, |ui| {
+            ui.heading("Frame info:");
+            for s in &self.runtime.stack {
+                ui.label(format!("{s:#?}"));
+            }
+        });
+
+        egui::CentralPanel::default().show(ctx, |ui| {
+            ui.heading("Instructions");
+            ui.with_layout(
+                egui::Layout::top_down(egui::Align::Min).with_cross_justify(true),
+                |ui| {
+                    egui::ScrollArea::vertical().show(ui, |ui| {
+                        let mut pc = self.runtime.stack[self.current_frame].pc;
+                        if pc == 0 {
+                            pc = usize::MAX - 1;
+                        } else {
+                            pc -= 1;
+                        }
+                        let func = self.runtime.stack[self.current_frame].func_id;
+
+                        let longest = format!(
+                            "{}:",
+                            self.runtime.module.code.code[func].code.e.instrs.len()
+                        )
+                        .len()
+                            + 2;
+
+                        for (i, ins) in self.runtime.module.code.code[func]
+                            .code
+                            .e
+                            .instrs
+                            .iter()
+                            .enumerate()
+                        {
+                            let label = format!("{i}:");
+                            let space = if label.len() < longest {
+                                " ".repeat(longest - label.len())
+                            } else {
+                                " ".to_string()
+                            };
+                            let icon = if i == pc + 1 { "├╼ " } else { "│  " };
+
+                            ui.label(
+                                egui::RichText::new(format!("{icon}{label}{space}{ins:?}"))
+                                    .monospace(),
+                            );
+                        }
+                    });
                 },
-                m => panic!("unknown module {m:?}"),
-            }
-        } else {
-            let index = if import_funcs == 0 {
-                id as usize
-            } else {
-                import_funcs - id as usize
-            };
-            let instrs = self.module.code.code[index].code.e.instrs.clone();
-            #[allow(clippy::needless_range_loop)]
-            for pc in 0..instrs.len() {
-                std::thread::sleep(std::time::Duration::from_secs_f32(0.25));
-                let instr = &instrs[pc];
-
-                let mut fs = "┌────┄┄┄┈┈\n".to_string();
-                for line in format!(
-                    "════  Stack  ════\n{:#?}\n════ Globals ════\n{:#?}",
-                    self.stack, self.globals
-                )
-                .lines()
-                {
-                    fs += &format!("│ {line}\n");
-                }
-                fs += "├────┄┄┄┈┈┈┈\n";
-                fs += &format!("│ Executing next frame: {instr:?}\n└─┄┈");
-                println!("{fs}");
-                let f = self.stack.last_mut().unwrap();
-
-                match instr {
-                    x10_i32_const(i) => f.stack.push(Value::I32(*i)),
-                    x20_local_get(LocalIdX(id)) => f.stack.push(*f.locals.get(id).unwrap()),
-                    x22_local_tee(LocalIdX(id)) => {
-                        let last = f.stack.last().unwrap();
-                        f.locals.insert(*id, *last);
-                    }
-                    x23_global_get(GlobalIdX(id)) => f
-                        .stack
-                        .push(self.globals.get(id).copied().unwrap_or(Value::I32(0))),
-                    x24_global_set(GlobalIdX(id)) => {
-                        let pop = f.stack.pop().unwrap();
-                        self.globals.insert(*id, pop);
-                    }
-                    x36_i32_store(MemArg { align, offset }) => {
-                        let addr = (align * offset) as usize;
-                        let end_pos = addr + size_of::<i32>();
-                        if self.module.mems.len() < end_pos {
-                            self.module
-                                .mems
-                                .append(&mut vec![0; end_pos - self.module.mems.len()]);
-                        }
-                        #[allow(irrefutable_let_patterns)]
-                        let Value::I32(v) = f.stack.pop().unwrap() else {
-                            panic!()
-                        };
-                        let bytes = v.to_le_bytes();
-                        for (i, b) in bytes.into_iter().enumerate() {
-                            self.module.mems[addr + i] = b;
-                        }
-                    }
-                    x6a_i32_add => {
-                        let y = f.stack.pop().unwrap();
-                        let x = f.stack.pop().unwrap();
-                        match (x, y) {
-                            (Value::I32(x), Value::I32(y)) => f.stack.push(Value::I32(y + x)),
-                        }
-                    }
-                    x6b_i32_sub => {
-                        let y = f.stack.pop().unwrap();
-                        let x = f.stack.pop().unwrap();
-                        match (x, y) {
-                            (Value::I32(x), Value::I32(y)) => f.stack.push(Value::I32(y - x)),
-                        }
-                    }
-                    x41_call(FuncIdx(id)) => {
-                        self.stack.push(Frame::default());
-                        self.call_by_id(*id);
-                        self.stack.pop();
-                    }
-                    f => {
-                        unimplemented!("instruction not supported : {f:?}")
-                    }
-                }
-            }
-        }
+            );
+        });
     }
 }
 
 fn main() {
     pretty_env_logger::init();
 
-    let bin: &[u8] = include_bytes!("../examples/rust_addition.wasm");
-    let mut cursor = Cursor::new(bin);
-    let mut stack = Vec::new();
-    let module = match Module::parse(&mut cursor, &mut stack) {
-        Ok(o) => o,
-        Err(e) => {
-            stack.reverse();
-            eprintln!(
-                "Error: {e:?}, bin pos: {}, stack: {stack:#?}",
-                cursor.position()
-            );
-            return;
-        }
+    let native_options = eframe::NativeOptions {
+        viewport: egui::ViewportBuilder::default()
+            .with_inner_size([400.0, 300.0])
+            .with_min_inner_size([300.0, 220.0]),
+        ..Default::default()
     };
-    // println!("{module:#?}");
-    let ExportDesc::Func(TypeIdX(main_id)) = module
-        .exports
-        .exports
-        .iter()
-        .find(|s| s.nm.0 == "main")
-        .map(|f| f.d)
-        .unwrap()
-    else {
-        panic!("no main :(")
-    };
-    // println!("{module:#?}");
-    Runtime::new(module).call_by_id(main_id);
+    eframe::run_native(
+        "sasm",
+        native_options,
+        Box::new(|cc| Ok(Box::new(App::new(cc)))),
+    )
+    .unwrap();
 }

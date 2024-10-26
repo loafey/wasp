@@ -38,6 +38,15 @@
           pkg-config
           openssl
           gcc
+
+          libxkbcommon
+          libGL
+          fontconfig
+          wayland
+          xorg.libXcursor
+          xorg.libXrandr
+          xorg.libXi
+          xorg.libX11
         ];
       in
       {

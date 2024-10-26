@@ -135,7 +135,7 @@ impl eframe::App for App {
                 },
             );
         });
-        ctx.request_repaint_after(Duration::from_secs_f64(self.frame_duration));
+        ctx.request_repaint_after(Duration::from_secs_f64(self.frame_duration / 2.0));
     }
 }
 

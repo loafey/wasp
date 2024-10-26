@@ -1,10 +1,10 @@
 #![feature(const_type_name)]
 
-use egui::{Id, Pos2, Rect, Vec2};
+use egui::{Id, Vec2};
 use hex::Hex;
 use parser::{Module, Parsable};
 use runtime::Runtime;
-use std::{fmt::format, io::Cursor, mem::MaybeUninit};
+use std::{io::Cursor, mem::MaybeUninit};
 mod hex;
 mod parser;
 mod runtime;
@@ -24,6 +24,7 @@ fn alloc<const N: usize>() -> Hex<N> {
 struct App {
     runtime: Runtime,
     current_frame: usize,
+    frame_count: usize,
 }
 impl App {
     pub fn new(_xcc: &eframe::CreationContext<'_>) -> Self {
@@ -45,6 +46,7 @@ impl App {
         Self {
             runtime: Runtime::new(module),
             current_frame: 0,
+            frame_count: 1,
         }
     }
 }
@@ -53,6 +55,10 @@ impl eframe::App for App {
         egui::TopBottomPanel::top("top_panel").show(ctx, |ui| {
             if ui.button("Step").clicked() {
                 self.runtime.step();
+                if self.frame_count != self.runtime.stack.len() {
+                    self.current_frame = self.runtime.stack.len() - 1;
+                }
+                self.frame_count = self.runtime.stack.len();
             }
         });
 
@@ -70,9 +76,9 @@ impl eframe::App for App {
 
         egui::SidePanel::new(egui::panel::Side::Left, Id::new("stack_info")).show(ctx, |ui| {
             ui.heading("Frame info:");
-            for s in &self.runtime.stack {
-                ui.label(format!("{s:#?}"));
-            }
+            let label =
+                egui::Label::new(format!("{:#?}", self.runtime.stack[self.current_frame])).extend();
+            ui.add(label);
         });
 
         egui::CentralPanel::default().show(ctx, |ui| {
@@ -81,12 +87,7 @@ impl eframe::App for App {
                 egui::Layout::top_down(egui::Align::Min).with_cross_justify(true),
                 |ui| {
                     egui::ScrollArea::vertical().show(ui, |ui| {
-                        let mut pc = self.runtime.stack[self.current_frame].pc;
-                        if pc == 0 {
-                            pc = usize::MAX - 1;
-                        } else {
-                            pc -= 1;
-                        }
+                        let pc = self.runtime.stack[self.current_frame].pc;
                         let func = self.runtime.stack[self.current_frame].func_id;
 
                         let longest = format!(
@@ -109,7 +110,7 @@ impl eframe::App for App {
                             } else {
                                 " ".to_string()
                             };
-                            let icon = if i == pc + 1 { "├╼ " } else { "│  " };
+                            let icon = if i == pc { "├╼ " } else { "│  " };
 
                             ui.label(
                                 egui::RichText::new(format!("{icon}{label}{space}{ins:?}"))

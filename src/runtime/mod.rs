@@ -17,7 +17,7 @@ impl std::fmt::Debug for Value {
     }
 }
 
-#[derive(Debug, Default)]
+#[derive(Debug)]
 pub struct Frame {
     pub func_id: usize,
     pub pc: usize,
@@ -75,8 +75,8 @@ impl Runtime {
             .map(|i| matches!(i.desc, ImportDesc::Func(_)) as usize)
             .sum();
 
-        if (f.func_id as usize) < import_funcs {
-            let func = &self.module.imports.imports[f.func_id as usize];
+        if f.func_id < import_funcs {
+            let func = &self.module.imports.imports[f.func_id];
             match &*func.module.0 {
                 m @ "console" => match &*func.name.0 {
                     "log" => {
@@ -103,22 +103,8 @@ impl Runtime {
             };
             let instrs = &self.module.code.code[index].code.e.instrs;
             {
-                // std::thread::sleep(std::time::Duration::from_secs_f32(0.25));
                 let instr = &instrs[f.pc];
                 f.pc += 1;
-
-                // let mut fs = "┌────┄┄┄┈┈\n".to_string();
-                // for line in format!(
-                //     "════  Stack  ════\n{:#?}\n════ Globals ════\n{:#?}",
-                //     self.stack, self.globals
-                // )
-                // .lines()
-                // {
-                //     fs += &format!("│ {line}\n");
-                // }
-                // fs += "├────┄┄┄┈┈┈┈\n";
-                // fs += &format!("│ Executing next frame: {instr:?}\n└─┄┈");
-                // println!("{fs}");
 
                 match instr {
                     x10_i32_const(i) => f.stack.push(Value::I32(*i)),
@@ -166,10 +152,14 @@ impl Runtime {
                         }
                     }
                     x41_call(FuncIdx(id)) => {
-                        self.stack.push(Frame::default());
+                        println!("In frame");
+                        self.stack.push(Frame {
+                            func_id: *id as usize,
+                            pc: 0,
+                            stack: Vec::new(),
+                            locals: HashMap::new(),
+                        });
                         // self.call_by_id(*id);
-                        self.stack.pop();
-                        panic!("function calls {id} not implemented");
                     }
                     f => {
                         unimplemented!("instruction not supported : {f:?}")

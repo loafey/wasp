@@ -4,7 +4,11 @@ use egui::{Id, Vec2};
 use hex::Hex;
 use parser::{Module, Parsable};
 use runtime::Runtime;
-use std::{io::Cursor, mem::MaybeUninit};
+use std::{
+    io::Cursor,
+    mem::MaybeUninit,
+    time::{Duration, Instant},
+};
 mod hex;
 mod parser;
 mod runtime;
@@ -25,6 +29,8 @@ struct App {
     runtime: Runtime,
     current_frame: usize,
     frame_count: usize,
+    last_tick: Instant,
+    frame_duration: f64,
 }
 impl App {
     pub fn new(_xcc: &eframe::CreationContext<'_>) -> Self {
@@ -47,11 +53,19 @@ impl App {
             runtime: Runtime::new(module),
             current_frame: 0,
             frame_count: 1,
+            frame_duration: 0.25,
+            last_tick: Instant::now(),
         }
     }
 }
 impl eframe::App for App {
     fn update(&mut self, ctx: &egui::Context, _frame: &mut eframe::Frame) {
+        if self.last_tick.elapsed().as_secs_f64() > self.frame_duration {
+            self.last_tick = Instant::now();
+            self.runtime.step();
+            self.current_frame = self.runtime.stack.len() - 1;
+        }
+
         egui::TopBottomPanel::top("top_panel").show(ctx, |ui| {
             if ui.button("Step").clicked() {
                 self.runtime.step();
@@ -121,6 +135,7 @@ impl eframe::App for App {
                 },
             );
         });
+        ctx.request_repaint_after(Duration::from_secs_f64(self.frame_duration));
     }
 }
 

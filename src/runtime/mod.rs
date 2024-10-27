@@ -23,6 +23,8 @@ pub struct Frame {
     pub pc: usize,
     pub stack: Vec<Value>,
     pub locals: HashMap<u32, Value>,
+    pub labels: HashMap<u32, u32>,
+    pub block_count: Vec<usize>,
 }
 
 pub struct Runtime {
@@ -59,6 +61,8 @@ impl Runtime {
                 pc: 0,
                 stack: Vec::new(),
                 locals: [(0, Value::I32(0)), (1, Value::I32(0))].into(),
+                labels: HashMap::new(),
+                block_count: Vec::new(),
             }],
             data,
             globals: HashMap::new(),
@@ -107,6 +111,31 @@ impl Runtime {
                 f.pc += 1;
 
                 match instr {
+                    x02_block(bt, ins) => {
+                        f.block_count.push(f.stack.len());
+                        match bt {
+                            parser::BlockType::Eps => {}
+                            parser::BlockType::T(_) => todo!(),
+                            parser::BlockType::X(_) => todo!(),
+                        }
+
+                        let c = ins.clone();
+
+                        self.module.code.code[index].code.e.instrs.remove(f.pc - 1);
+                        println!("pop {}", f.pc - 1);
+                        for i in c.into_iter().rev() {
+                            self.module.code.code[index]
+                                .code
+                                .e
+                                .instrs
+                                .insert(f.pc - 1, i);
+                        }
+                        self.module.code.code[index]
+                            .code
+                            .e
+                            .instrs
+                            .insert(f.pc - 1, block_start);
+                    }
                     x10_i32_const(i) => f.stack.push(Value::I32(*i)),
                     x20_local_get(LocalIdX(id)) => f.stack.push(*f.locals.get(id).unwrap()),
                     x22_local_tee(LocalIdX(id)) => {
@@ -158,6 +187,8 @@ impl Runtime {
                             pc: 0,
                             stack: Vec::new(),
                             locals: HashMap::new(),
+                            labels: HashMap::new(),
+                            block_count: Vec::new(),
                         });
                         // self.call_by_id(*id);
                     }

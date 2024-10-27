@@ -60,11 +60,11 @@ impl App {
 }
 impl eframe::App for App {
     fn update(&mut self, ctx: &egui::Context, _frame: &mut eframe::Frame) {
-        if self.last_tick.elapsed().as_secs_f64() > self.frame_duration {
-            self.last_tick = Instant::now();
-            self.runtime.step();
-            self.current_frame = self.runtime.stack.len() - 1;
-        }
+        // if self.last_tick.elapsed().as_secs_f64() > self.frame_duration {
+        //     self.last_tick = Instant::now();
+        //     self.runtime.step();
+        //     self.current_frame = self.runtime.stack.len() - 1;
+        // }
 
         egui::TopBottomPanel::top("top_panel").show(ctx, |ui| {
             if ui.button("Step").clicked() {

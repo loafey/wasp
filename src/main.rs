@@ -34,7 +34,7 @@ struct App {
 }
 impl App {
     pub fn new(_xcc: &eframe::CreationContext<'_>) -> Self {
-        let bin: &[u8] = include_bytes!("../examples/rust_addition.wasm");
+        let bin: &[u8] = include_bytes!("../examples/hello_world.wasm");
         let mut cursor = Cursor::new(bin);
         let mut stack = Vec::new();
         let module = match Module::parse(&mut cursor, &mut stack) {
@@ -106,12 +106,17 @@ impl eframe::App for App {
 
                         let longest = format!(
                             "{}:",
-                            self.runtime.module.code.code[func].code.e.instrs.len()
+                            self.runtime.module.code.code[func - self.runtime.import_count]
+                                .code
+                                .e
+                                .instrs
+                                .len()
                         )
                         .len()
                             + 2;
 
-                        for (i, ins) in self.runtime.module.code.code[func]
+                        for (i, ins) in self.runtime.module.code.code
+                            [func - self.runtime.import_count]
                             .code
                             .e
                             .instrs

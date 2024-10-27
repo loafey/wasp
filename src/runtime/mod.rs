@@ -122,7 +122,6 @@ impl Runtime {
                         let c = ins.clone();
 
                         self.module.code.code[index].code.e.instrs.remove(f.pc - 1);
-                        println!("pop {}", f.pc - 1);
                         for i in c.into_iter().rev() {
                             self.module.code.code[index]
                                 .code

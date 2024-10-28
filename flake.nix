@@ -38,6 +38,7 @@
           pkg-config
           openssl
           gcc
+          emscripten
 
           libxkbcommon
           libGL

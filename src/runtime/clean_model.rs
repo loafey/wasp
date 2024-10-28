@@ -64,7 +64,7 @@ impl From<Module> for Model {
         }
 
         println!(
-            "{}: {}",
+            "{} =? {}",
             value.types.function_types.len(),
             value.code.code.len()
         );

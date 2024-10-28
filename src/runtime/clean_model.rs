@@ -63,6 +63,12 @@ impl From<Module> for Model {
             functions.insert(k as u32, v);
         }
 
+        println!(
+            "{}: {}",
+            value.types.function_types.len(),
+            value.code.code.len()
+        );
+
         for (k, code) in value.code.code.into_iter().enumerate() {
             let k = k + import_count;
             let ty = code.code.t;

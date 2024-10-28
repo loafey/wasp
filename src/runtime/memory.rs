@@ -10,6 +10,12 @@ impl<const PAGE_SIZE: usize> Memory<PAGE_SIZE> {
         }
     }
 
+    pub fn set_u8(&mut self, address: usize, byte: u8) {
+        let block = address / PAGE_SIZE;
+        let index = address % PAGE_SIZE;
+        self.map.entry(block).or_insert([0; PAGE_SIZE])[index] = byte;
+    }
+
     pub fn get_u8(&self, address: usize) -> u8 {
         let block = address / PAGE_SIZE;
         let index = address % PAGE_SIZE;

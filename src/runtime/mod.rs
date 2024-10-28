@@ -46,14 +46,17 @@ pub struct Runtime {
     pub stack: Vec<Frame>,
     pub globals: HashMap<u32, Value>,
     pub memory: Memory<1024>,
-    pub data: Vec<u8>,
 }
 impl Runtime {
     pub fn new(module: Module) -> Self {
-        let mut data = Vec::new();
+        let mut memory = Memory::new();
         for d in &module.datas.data {
             match d {
-                parser::Data::Mem0(_, vec) => data.append(&mut vec.clone()),
+                parser::Data::Mem0(_, vec) => {
+                    for (i, v) in vec.iter().enumerate() {
+                        memory.set_u8(i, *v);
+                    }
+                }
                 parser::Data::MemB(_) => todo!(),
                 parser::Data::MemX(_, _, _) => todo!(),
             }
@@ -79,8 +82,7 @@ impl Runtime {
                 labels: HashMap::new(),
                 block_count: Vec::new(),
             }],
-            data,
-            memory: Memory::new(),
+            memory,
             globals: HashMap::new(),
         }
     }
@@ -98,7 +100,12 @@ impl Runtime {
                         } else {
                             panic!()
                         };
-                        let s = String::from_utf8_lossy(&self.data[x..y]);
+                        let mut b = Vec::new();
+                        for i in x..y {
+                            let s = self.memory.get_u8(i);
+                            b.push(s);
+                        }
+                        let s = String::from_utf8_lossy(&b);
                         println!("{s}")
                     }
                     (module, function) => panic!("unknown function {module}::{function}"),
@@ -143,7 +150,6 @@ impl Runtime {
                             Function::Local { ty, locals, .. } => (ty, locals.clone()),
                         };
 
-                        println!("{ty:?} | {num:?}");
                         // if !f.stack.is_empty() {
                         let locals = ty
                             .input

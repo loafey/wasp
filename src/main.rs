@@ -34,7 +34,7 @@ struct App {
 }
 impl App {
     pub fn new(_xcc: &eframe::CreationContext<'_>) -> Self {
-        let bin: &[u8] = include_bytes!("../examples/c_addition.wasm");
+        let bin: &[u8] = include_bytes!("../examples/hello_world.wasm");
         let mut cursor = Cursor::new(bin);
         let mut stack = Vec::new();
         let module = match Module::parse(&mut cursor, &mut stack) {
@@ -104,7 +104,7 @@ impl eframe::App for App {
                         let pc = self.runtime.stack[self.current_frame].pc;
                         let func = self.runtime.stack[self.current_frame].func_id;
 
-                        let func = &self.runtime.module.functions[&(func as u32)];
+                        let func = self.runtime.module.functions.get(&func).unwrap();
                         let Function::Local { code, .. } = func else {
                             return;
                         };

@@ -1,4 +1,4 @@
-use super::{error::ParseError, Parsable, Pretty};
+use super::{error::ParseError, Parsable};
 use crate::parser::FuncType;
 use std::io::Cursor;
 
@@ -25,15 +25,5 @@ impl Parsable for TypeSection {
             size,
             function_types,
         })
-    }
-}
-impl Pretty for TypeSection {
-    fn pretty_indent(&self, indent: usize) -> String {
-        format!(
-            "{i}(types // b_size={}\n{i}{}\n{i})\n",
-            self.size,
-            self.function_types.pretty_indent(indent),
-            i = self.get_indent(indent),
-        )
     }
 }

@@ -1,6 +1,6 @@
 use super::{
     error::{ModuleError, ParseError, SectionError},
-    CustomSection, ElementSection, GlobalSection, ImportSection, MemorySection, Parsable, Pretty,
+    CustomSection, ElementSection, GlobalSection, ImportSection, MemorySection, Parsable,
     TableSection, TypeSection,
 };
 use crate::{
@@ -103,48 +103,5 @@ impl Parsable for Module {
             data_count: Vec::new(),
             customs,
         })
-    }
-}
-impl Pretty for Module {
-    fn pretty_indent(&self, indent: usize) -> String {
-        let mut s = format!("{}(module\n", self.get_indent(indent));
-        // magic
-        s += &format!(
-            "{}// {:?}\n",
-            self.get_indent(indent + 1),
-            self.magic.pretty()
-        );
-        // version
-        s += &format!(
-            "{}// {:?}\n",
-            self.get_indent(indent + 1),
-            self.version.pretty()
-        );
-        // functype
-        s += &self.funcs.pretty_indent(indent);
-        // import
-        s += &self.imports.pretty_indent(indent);
-        // typeidx
-        s += &self.types.pretty_indent(indent);
-        // table
-        s += &self.tables.pretty_indent(indent);
-        // mem
-        // s += &self.mems.pretty_indent(indent);
-        // global
-        s += &self.globals.pretty_indent(indent);
-        // export
-        s += &self.exports.pretty_indent(indent);
-        // start
-        s += &self.start.pretty_indent(indent);
-        // elem
-        s += &self.elems.pretty_indent(indent);
-        // data_count
-        s += &self.data_count.pretty_indent(indent);
-        // code
-        s += &self.code.pretty_indent(indent);
-        // data
-        s += &self.datas.pretty_indent(indent);
-        s += ")";
-        s
     }
 }

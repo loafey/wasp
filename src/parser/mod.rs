@@ -57,8 +57,6 @@ mod data;
 pub use data::*;
 mod memidx;
 pub use memidx::*;
-mod pretty;
-pub use pretty::*;
 mod tablesec;
 pub use tablesec::*;
 mod table;

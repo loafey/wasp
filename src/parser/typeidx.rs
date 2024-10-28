@@ -1,6 +1,6 @@
 use std::ops::{Deref, DerefMut};
 
-use super::{Parsable, Pretty};
+use super::Parsable;
 
 #[derive(Debug, PartialEq, Eq, PartialOrd, Ord, Clone, Copy)]
 pub struct TypeIdX(pub u32);
@@ -25,10 +25,5 @@ impl Parsable for TypeIdX {
         Self: std::marker::Sized,
     {
         Ok(Self(u32::parse(data, stack)?))
-    }
-}
-impl Pretty for TypeIdX {
-    fn pretty_indent(&self, _: usize) -> String {
-        format!("TypeIdX({})", self.0)
     }
 }

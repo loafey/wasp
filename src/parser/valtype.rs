@@ -2,7 +2,7 @@ use std::io::Read;
 
 use crate::hex::Hex;
 
-use super::{Parsable, Pretty};
+use super::Parsable;
 
 #[derive(Debug, PartialEq, Eq, PartialOrd, Ord, Clone, Copy)]
 #[allow(unused)]
@@ -60,35 +60,5 @@ impl Parsable for ValType {
             0x6F => ValType::Ref(RefTyp::ExternRef),
             _ => Err(super::error::ParseError::UnknownType(Hex(b)))?,
         })
-    }
-}
-
-impl Pretty for ValType {
-    fn pretty_indent(&self, _: usize) -> String {
-        match self {
-            ValType::Num(num_type) => num_type.pretty(),
-            ValType::Vec => "vec".to_string(),
-            ValType::Ref(ref_typ) => ref_typ.pretty(),
-        }
-    }
-}
-impl Pretty for NumType {
-    fn pretty_indent(&self, _: usize) -> String {
-        match self {
-            NumType::I32 => "i32",
-            NumType::I64 => "i64",
-            NumType::F32 => "f32",
-            NumType::F64 => "f64",
-        }
-        .to_string()
-    }
-}
-impl Pretty for RefTyp {
-    fn pretty_indent(&self, _: usize) -> String {
-        match self {
-            RefTyp::FuncRef => "func_ref",
-            RefTyp::ExternRef => "extern_ref",
-        }
-        .to_string()
     }
 }

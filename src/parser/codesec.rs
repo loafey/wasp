@@ -1,4 +1,4 @@
-use super::{Code, Parsable, Pretty};
+use super::{Code, Parsable};
 
 #[derive(Debug, Default)]
 #[allow(unused)]
@@ -24,15 +24,5 @@ impl Parsable for CodeSection {
         let size = u32::parse(data, stack)?;
         let code = Vec::parse(data, stack)?;
         Ok(Self { size, code })
-    }
-}
-impl Pretty for CodeSection {
-    fn pretty_indent(&self, indent: usize) -> String {
-        format!(
-            "{i}(code // b_size={}\n{i}{}\n{i})\n",
-            self.size,
-            self.code.pretty_indent(indent),
-            i = self.get_indent(indent),
-        )
     }
 }

@@ -1,4 +1,4 @@
-use super::{Parsable, Pretty, ValType};
+use super::{Parsable, ValType};
 
 #[derive(Clone)]
 #[allow(unused)]
@@ -22,16 +22,5 @@ impl Parsable for ResultType {
         Ok(ResultType {
             types: Vec::parse(data, stack)?,
         })
-    }
-}
-impl Pretty for ResultType {
-    fn pretty_indent(&self, _: usize) -> String {
-        let s = self
-            .types
-            .iter()
-            .map(|s| s.pretty())
-            .collect::<Vec<_>>()
-            .join(", ");
-        format!("[{s}]")
     }
 }

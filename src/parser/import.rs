@@ -1,6 +1,6 @@
 use crate::parser::Name;
 
-use super::{ImportDesc, Parsable, Pretty};
+use super::{ImportDesc, Parsable};
 
 #[derive(Debug)]
 #[allow(unused)]
@@ -21,15 +21,5 @@ impl Parsable for Import {
         let name = Name::parse(data, stack)?;
         let desc = ImportDesc::parse(data, stack)?;
         Ok(Self { module, name, desc })
-    }
-}
-impl Pretty for Import {
-    fn pretty_indent(&self, _: usize) -> String {
-        format!(
-            "(import {} {} {})",
-            self.module.pretty(),
-            self.name.pretty(),
-            self.desc.pretty()
-        )
     }
 }

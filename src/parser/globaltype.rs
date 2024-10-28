@@ -1,4 +1,4 @@
-use super::{Mutable, Parsable, Pretty, ValType};
+use super::{Mutable, Parsable, ValType};
 
 #[derive(Debug, PartialEq, Eq, PartialOrd, Ord)]
 pub struct GlobalType {
@@ -17,10 +17,5 @@ impl Parsable for GlobalType {
             t: ValType::parse(data, stack)?,
             mutable: Mutable::parse(data, stack)?,
         })
-    }
-}
-impl Pretty for GlobalType {
-    fn pretty_indent(&self, _: usize) -> String {
-        todo!()
     }
 }

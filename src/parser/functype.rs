@@ -1,4 +1,4 @@
-use super::{Parsable, Pretty, ResultType};
+use super::{Parsable, ResultType};
 use crate::{hex::Hex, parser::error::ParseError};
 use std::io::Read;
 
@@ -26,10 +26,5 @@ impl Parsable for FuncType {
         let input = ResultType::parse(data, stack)?;
         let output = ResultType::parse(data, stack)?;
         Ok(Self { input, output })
-    }
-}
-impl Pretty for FuncType {
-    fn pretty_indent(&self, _: usize) -> String {
-        format!("{} -> {}", self.input.pretty(), self.output.pretty())
     }
 }

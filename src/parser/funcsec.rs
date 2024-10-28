@@ -1,4 +1,4 @@
-use super::{Parsable, Pretty, TypeIdX};
+use super::{Parsable, TypeIdX};
 
 #[derive(Debug, Default)]
 #[allow(unused)]
@@ -23,16 +23,5 @@ impl Parsable for FunctionSection {
         let size = u32::parse(data, stack)?;
         let functions = Vec::parse(data, stack)?;
         Ok(Self { size, functions })
-    }
-}
-
-impl Pretty for FunctionSection {
-    fn pretty_indent(&self, indent: usize) -> String {
-        format!(
-            "{i}(func // b_size={}\n{i}{}\n{i})\n",
-            self.size,
-            self.functions.pretty_indent(indent),
-            i = self.get_indent(indent),
-        )
     }
 }

@@ -2,7 +2,7 @@ use std::io::Read;
 
 use crate::hex::Hex;
 
-use super::{Parsable, Pretty};
+use super::Parsable;
 
 #[derive(Debug, PartialEq, Eq, PartialOrd, Ord)]
 #[allow(unused)]
@@ -32,13 +32,5 @@ impl Parsable for Limits {
             }
             _ => Err(super::error::ParseError::InvalidLimit(Hex(b)))?,
         })
-    }
-}
-impl Pretty for Limits {
-    fn pretty_indent(&self, _: usize) -> String {
-        match self {
-            Limits::Min(n) => format!("{n} ≤ N ≤ ε"),
-            Limits::MinMax(n, m) => format!("{n} ≤ N ≤ {m}"),
-        }
     }
 }

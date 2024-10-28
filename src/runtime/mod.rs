@@ -76,7 +76,7 @@ impl Runtime {
             stack: vec![Frame {
                 func_id: main_id,
                 pc: 0,
-                stack: vec![Value::I32(0), Value::I32(0)],
+                stack: Vec::new(),
                 locals: HashMap::new(),
                 labels: HashMap::new(),
                 block_count: Vec::new(),

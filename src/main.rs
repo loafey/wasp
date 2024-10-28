@@ -2,7 +2,7 @@
 
 use egui::{Id, Vec2};
 use hex::Hex;
-use parser::{Module, Parsable};
+use parser::{Instr, Module, Parsable};
 use runtime::{clean_model::Function, Runtime};
 use std::{
     io::Cursor,
@@ -118,6 +118,8 @@ impl eframe::App for App {
                         let var_name = &var_name;
                         let longest = var_name.len() + 2;
 
+                        let mut indent = 0;
+
                         for (i, ins) in code.iter().enumerate() {
                             let label = format!("{i}:");
                             let space = if label.len() < longest {
@@ -127,8 +129,22 @@ impl eframe::App for App {
                             };
                             let icon = if i == pc { "├╼ " } else { "│  " };
 
+                            if matches!(ins, Instr::block_end) {
+                                indent -= 1;
+                            }
+                            let ind = "  ".repeat(indent);
+                            if matches!(ins, Instr::block_start) {
+                                indent += 1;
+                            }
+
+                            let ins = match ins {
+                                Instr::block_start => "{".to_string(),
+                                Instr::block_end => "}".to_string(),
+                                ins => format!("{ins:?}"),
+                            };
+
                             ui.label(
-                                egui::RichText::new(format!("{icon}{label}{space}{ins:?}"))
+                                egui::RichText::new(format!("{icon}{label}{space}{ind}{ins}"))
                                     .monospace(),
                             );
                         }

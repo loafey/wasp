@@ -143,10 +143,18 @@ impl Runtime {
                         };
 
                         code.remove(f.pc - 1);
+                        let pos_before = f.pc;
+                        let mut modified = 0;
                         code.insert(f.pc - 1, block_end);
                         for i in c.into_iter().rev() {
+                            modified += 1;
                             code.insert(f.pc - 1, i);
                         }
+                        f.labels
+                            .iter_mut()
+                            .for_each(|(_, r)| *r += modified as u32 + 1);
+                        f.labels
+                            .insert(f.labels.len() as u32, (pos_before + modified) as u32);
                         code.insert(f.pc - 1, block_start);
 
                         // self.module.code.code[index].code.e.instrs.remove(f.pc - 1);

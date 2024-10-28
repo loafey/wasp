@@ -107,9 +107,15 @@ impl Runtime {
                         let s = String::from_utf8_lossy(&b);
                         println!("{s}")
                     }
+                    ("wasi_snapshot_preview1", "args_sizes_get") => {
+                        let args = std::env::args().count();
+                        f.stack.push(Value::I32((args - 1) as i32)); // maybe i shouldn't do this?
+                    }
                     (module, function) => panic!("unknown function {module}::{function}"),
                 }
-                self.stack.pop();
+                let mut frame = self.stack.pop().unwrap();
+                let last = self.stack.last_mut().unwrap();
+                last.stack.append(&mut frame.stack);
             }
             Function::Local { code, .. } => {
                 if f.pc >= code.len() {

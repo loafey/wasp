@@ -63,13 +63,6 @@ impl From<Module> for Model {
             functions.insert(k as u32, v);
         }
 
-        println!(
-            "{} =? {} =? {}",
-            value.funcs.functions.len(),
-            value.types.function_types.len(),
-            value.code.code.len()
-        );
-
         for (k, code) in value.code.code.into_iter().enumerate() {
             let ty = code.code.t;
             let locals = ty.iter().enumerate().map(|(s, _)| s).collect();

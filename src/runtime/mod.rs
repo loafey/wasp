@@ -16,7 +16,6 @@ pub enum Value {
     I64(i64),
     F32(f32),
     F64(f32),
-    Bool(bool),
 }
 
 impl std::fmt::Debug for Value {
@@ -26,7 +25,6 @@ impl std::fmt::Debug for Value {
             Self::I64(arg0) => write!(f, "i64({arg0})"),
             Self::F32(arg0) => write!(f, "f32({arg0})"),
             Self::F64(arg0) => write!(f, "f64({arg0})"),
-            Self::Bool(arg) => write!(f, "{arg}"),
         }
     }
 }
@@ -230,25 +228,27 @@ impl Runtime {
                     // }
                     x41_i32_const(i) => f.stack.push(Value::I32(*i)),
 
-                    // x42_i64_const(val) => {
-                    //     f.stack.push(Value::I64(*val));
-                    // }
-                    // x52_i64_ne => {
-                    //     let y = f.stack.pop().unwrap();
-                    //     let x = f.stack.pop().unwrap();
-                    //     match (x, y) {
-                    //         (Value::I64(x), Value::I64(y)) => f.stack.push(Value::Bool(y == x)),
-                    //         _ => unreachable!(),
-                    //     }
-                    // }
-                    // x6a_i32_add => {
-                    //     let y = f.stack.pop().unwrap();
-                    //     let x = f.stack.pop().unwrap();
-                    //     match (x, y) {
-                    //         (Value::I32(x), Value::I32(y)) => f.stack.push(Value::I32(y + x)),
-                    //         _ => unreachable!(),
-                    //     }
-                    // }
+                    x42_i64_const(val) => {
+                        f.stack.push(Value::I64(*val));
+                    }
+                    x52_i64_ne => {
+                        let y = f.stack.pop().unwrap();
+                        let x = f.stack.pop().unwrap();
+                        match (x, y) {
+                            (Value::I64(x), Value::I64(y)) => {
+                                f.stack.push(Value::I64((y == x) as i64))
+                            }
+                            _ => unreachable!(),
+                        }
+                    }
+                    x6a_i32_add => {
+                        let y = f.stack.pop().unwrap();
+                        let x = f.stack.pop().unwrap();
+                        match (x, y) {
+                            (Value::I32(x), Value::I32(y)) => f.stack.push(Value::I32(y + x)),
+                            _ => unreachable!(),
+                        }
+                    }
                     x6b_i32_sub => {
                         let y = f.stack.pop().unwrap();
                         let x = f.stack.pop().unwrap();

@@ -11,6 +11,7 @@ use Instr::*;
 #[repr(u8)]
 pub enum Instr {
     block_start = 0xFF,
+    block_end = 0xFE,
     x00_unreachable = 0x00,
     x02_block(BlockType, Vec<Instr>) = 0x02,
     x03_loop(BlockType, Vec<Instr>) = 0x03,

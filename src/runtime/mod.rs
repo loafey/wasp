@@ -63,6 +63,7 @@ impl Runtime {
         }
 
         let iter = &module.exports.exports;
+
         let Some(ExportDesc::Func(TypeIdX(main_id))) = iter
             .iter()
             .find(|s| matches!(&*s.nm.0, "main" | "_start"))
@@ -117,30 +118,41 @@ impl Runtime {
                 f.pc += 1;
 
                 match instr {
-                    // x02_block(bt, ins) => {
-                    //     f.block_count.push(f.stack.len());
-                    //     match bt {
-                    //         parser::BlockType::Eps => {}
-                    //         parser::BlockType::T(_) => todo!(),
-                    //         parser::BlockType::X(_) => todo!(),
-                    //     }
-                    //
-                    //     let c = ins.clone();
-                    //
-                    //     self.module.code.code[index].code.e.instrs.remove(f.pc - 1);
-                    //     for i in c.into_iter().rev() {
-                    //         self.module.code.code[index]
-                    //             .code
-                    //             .e
-                    //             .instrs
-                    //             .insert(f.pc - 1, i);
-                    //     }
-                    //     self.module.code.code[index]
-                    //         .code
-                    //         .e
-                    //         .instrs
-                    //         .insert(f.pc - 1, block_start);
-                    // }
+                    x02_block(bt, ins) => {
+                        f.block_count.push(f.stack.len());
+                        match bt {
+                            parser::BlockType::Eps => {}
+                            parser::BlockType::T(_) => todo!(),
+                            parser::BlockType::X(_) => todo!(),
+                        }
+
+                        let c = ins.clone();
+                        let func = self.module.functions.get_mut(&f.func_id).unwrap();
+                        let Function::Local { ty, locals, code } = func else {
+                            unreachable!()
+                        };
+
+                        code.remove(f.pc - 1);
+                        code.insert(f.pc - 1, block_end);
+                        for i in c.into_iter().rev() {
+                            code.insert(f.pc - 1, i);
+                        }
+                        code.insert(f.pc - 1, block_start);
+
+                        // self.module.code.code[index].code.e.instrs.remove(f.pc - 1);
+                        // for i in c.into_iter().rev() {
+                        //     self.module.code.code[index]
+                        //         .code
+                        //         .e
+                        //         .instrs
+                        //         .insert(f.pc - 1, i);
+                        // }
+                        // self.module.code.code[index]
+                        //     .code
+                        //     .e
+                        //     .instrs
+                        //     .insert(f.pc - 1, block_start);
+                    }
                     x10_call(FuncIdx(id)) => {
                         let fun = &self.module.functions[id];
                         let (ty, num) = match fun {

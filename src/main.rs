@@ -34,7 +34,7 @@ struct App {
 }
 impl App {
     pub fn new(_xcc: &eframe::CreationContext<'_>) -> Self {
-        let bin: &[u8] = include_bytes!("../examples/hello_world.wasm");
+        let bin: &[u8] = include_bytes!("../examples/c_addition.wasm");
         let mut cursor = Cursor::new(bin);
         let mut stack = Vec::new();
         let module = match Module::parse(&mut cursor, &mut stack) {

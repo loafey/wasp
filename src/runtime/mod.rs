@@ -179,7 +179,7 @@ impl Runtime {
                         }
                     }
                     x41_call(FuncIdx(id)) => {
-                        if id < self.import_count {
+                        if (*id as usize) >= self.import_count {
                             self.stack.push(Frame {
                                 func_id: *id as usize,
                                 pc: 0,
@@ -188,6 +188,8 @@ impl Runtime {
                                 labels: HashMap::new(),
                                 block_count: Vec::new(),
                             });
+                        } else {
+                            panic!("import call")
                         }
                         // self.call_by_id(*id);
                     }

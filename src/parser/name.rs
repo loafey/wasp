@@ -2,8 +2,13 @@ use std::ops::{Deref, DerefMut};
 
 use super::{Parsable, Pretty};
 
-#[derive(Debug, Default)]
+#[derive(Default)]
 pub struct Name(pub String);
+impl std::fmt::Debug for Name {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        self.0.fmt(f)
+    }
+}
 impl Deref for Name {
     type Target = str;
 

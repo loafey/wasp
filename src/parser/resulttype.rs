@@ -1,9 +1,15 @@
 use super::{Parsable, Pretty, ValType};
 
-#[derive(Debug)]
+#[derive(Clone)]
 #[allow(unused)]
 pub struct ResultType {
     pub types: Vec<ValType>,
+}
+
+impl std::fmt::Debug for ResultType {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{:?}", self.types)
+    }
 }
 impl Parsable for ResultType {
     fn parse_inner(

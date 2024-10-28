@@ -1,6 +1,8 @@
 use std::collections::HashMap;
+mod clean_model;
 mod memory;
 
+use clean_model::Model;
 use memory::Memory;
 
 use crate::parser::{
@@ -68,22 +70,25 @@ impl Runtime {
             .imports
             .iter()
             .map(|i| matches!(i.desc, ImportDesc::Func(_)) as usize)
-            .sum();
-        Self {
-            module,
-            stack: vec![Frame {
-                func_id: main_id as usize,
-                pc: 0,
-                stack: Vec::new(),
-                locals: [(0, Value::I32(0)), (1, Value::I32(0))].into(),
-                labels: HashMap::new(),
-                block_count: Vec::new(),
-            }],
-            data,
-            memory: Memory::new(),
-            globals: HashMap::new(),
-            import_count,
-        }
+            .sum::<usize>();
+
+        println!("{:#?}", Model::from(module));
+        panic!();
+        // Self {
+        //     module,
+        //     stack: vec![Frame {
+        //         func_id: main_id as usize,
+        //         pc: 0,
+        //         stack: Vec::new(),
+        //         locals: [(0, Value::I32(0)), (1, Value::I32(0))].into(),
+        //         labels: HashMap::new(),
+        //         block_count: Vec::new(),
+        //     }],
+        //     data,
+        //     memory: Memory::new(),
+        //     globals: HashMap::new(),
+        //     import_count,
+        // }
     }
     pub fn step(&mut self) {
         let f = self.stack.last_mut().unwrap();

@@ -179,6 +179,9 @@ impl Runtime {
                         //     .insert(f.pc - 1, block_start);
                     }
                     x0c_br(LabelIdX(label)) => {
+                        (0..*label).for_each(|_| {
+                            f.stack.pop();
+                        });
                         let pc = f.labels.get(label).unwrap();
                         f.pc = *pc as usize;
                     }
@@ -188,6 +191,9 @@ impl Runtime {
                         };
 
                         if val != 0 {
+                            (0..*label).for_each(|_| {
+                                f.stack.pop();
+                            });
                             f.pc = *f.labels.get(label).unwrap() as usize;
                         }
                     }

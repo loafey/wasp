@@ -45,12 +45,10 @@ impl From<Module> for Model {
     fn from(value: Module) -> Self {
         let mut functions = HashMap::new();
 
-        let mut import_count = 0;
         for (k, import) in value.imports.imports.into_iter().enumerate() {
             let ImportDesc::Func(TypeIdX(ty_id)) = import.desc else {
                 continue;
             };
-            import_count += 1;
 
             let ty = value.types.function_types[ty_id as usize].clone();
 
@@ -64,16 +62,16 @@ impl From<Module> for Model {
         }
 
         println!(
-            "{} =? {}",
+            "{} =? {} =? {}",
+            value.funcs.functions.len(),
             value.types.function_types.len(),
             value.code.code.len()
         );
 
         for (k, code) in value.code.code.into_iter().enumerate() {
-            let k = k + import_count;
             let ty = code.code.t;
             let locals = ty.iter().enumerate().map(|(s, _)| s).collect();
-            let ty = value.types.function_types[k].clone();
+            let ty = value.types.function_types[value.funcs.functions[k].0 as usize].clone();
 
             functions.insert(
                 k as u32,

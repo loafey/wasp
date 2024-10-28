@@ -6,13 +6,16 @@ use clean_model::{Function, Model};
 use memory::Memory;
 
 use crate::parser::{
-    self, ExportDesc, FuncIdx, GlobalIdX, ImportDesc, Instr::*, LocalIdX, MemArg, Module, TypeIdX,
+    self, ExportDesc, FuncIdx, GlobalIdX, ImportDesc, Instr::*, LocalIdX, MemArg, Module, NumType,
+    TypeIdX, ValType,
 };
 
 #[derive(Clone, Copy)]
 pub enum Value {
     I32(i32),
     I64(i64),
+    F32(f32),
+    F64(f32),
     Bool(bool),
 }
 
@@ -21,6 +24,8 @@ impl std::fmt::Debug for Value {
         match self {
             Self::I32(arg0) => write!(f, "i32({arg0})"),
             Self::I64(arg0) => write!(f, "i64({arg0})"),
+            Self::F32(arg0) => write!(f, "f32({arg0})"),
+            Self::F64(arg0) => write!(f, "f64({arg0})"),
             Self::Bool(arg) => write!(f, "{arg}"),
         }
     }
@@ -69,8 +74,8 @@ impl Runtime {
             stack: vec![Frame {
                 func_id: main_id,
                 pc: 0,
-                stack: Vec::new(),
-                locals: [(0, Value::I32(0)), (1, Value::I32(0))].into(),
+                stack: vec![Value::I32(0), Value::I32(0)],
+                locals: HashMap::new(),
                 labels: HashMap::new(),
                 block_count: Vec::new(),
             }],
@@ -129,19 +134,61 @@ impl Runtime {
                     //         .instrs
                     //         .insert(f.pc - 1, block_start);
                     // }
-                    x10_i32_const(i) => f.stack.push(Value::I32(*i)),
-                    // x20_local_get(LocalIdX(id)) => f.stack.push(*f.locals.get(id).unwrap()),
-                    // x22_local_tee(LocalIdX(id)) => {
-                    //     let last = f.stack.last().unwrap();
-                    //     f.locals.insert(*id, *last);
-                    // }
-                    // x23_global_get(GlobalIdX(id)) => f
-                    //     .stack
-                    //     .push(self.globals.get(id).copied().unwrap_or(Value::I32(0))),
-                    // x24_global_set(GlobalIdX(id)) => {
-                    //     let pop = f.stack.pop().unwrap();
-                    //     self.globals.insert(*id, pop);
-                    // }
+                    x10_call(FuncIdx(id)) => {
+                        let fun = &self.module.functions[id];
+                        let (ty, num) = match fun {
+                            Function::Import { ty, .. } => {
+                                (ty, (0..=ty.input.types.len()).collect::<Vec<_>>())
+                            }
+                            Function::Local { ty, locals, .. } => (ty, locals.clone()),
+                        };
+
+                        println!("{ty:?} | {num:?}");
+                        // if !f.stack.is_empty() {
+                        let locals = ty
+                            .input
+                            .types
+                            .iter()
+                            .enumerate()
+                            .map(|(i, _)| (i as u32, f.stack.pop().unwrap()))
+                            .collect();
+                        // } else {
+                        // ty.input.types.iter().zip(num).for_each(|(v, n)| {
+                        // let v = match v {
+                        // ValType::Num(num_type) => match num_type {
+                        // NumType::I32 => Value::I32(0),
+                        // NumType::I64 => Value::I64(0),
+                        // NumType::F32 => Value::F32(0.0),
+                        // NumType::F64 => Value::F64(0.0),
+                        // },
+                        // ValType::Vec => todo!(),
+                        // ValType::Ref(ref_typ) => todo!(),
+                        // };
+                        // locals.insert(n as u32, v);
+                        // });
+                        // }
+
+                        self.stack.push(Frame {
+                            func_id: *id,
+                            pc: 0,
+                            stack: Vec::new(),
+                            locals,
+                            labels: HashMap::new(),
+                            block_count: Vec::new(),
+                        });
+                    }
+                    x20_local_get(LocalIdX(id)) => f.stack.push(*f.locals.get(id).unwrap()),
+                    x22_local_tee(LocalIdX(id)) => {
+                        let last = f.stack.last().unwrap();
+                        f.locals.insert(*id, *last);
+                    }
+                    x23_global_get(GlobalIdX(id)) => f
+                        .stack
+                        .push(self.globals.get(id).copied().unwrap_or(Value::I32(0))),
+                    x24_global_set(GlobalIdX(id)) => {
+                        let pop = f.stack.pop().unwrap();
+                        self.globals.insert(*id, pop);
+                    }
                     // x29_i64_load(MemArg { align, offset }) => {
                     //     let addr = (align * offset) as usize;
                     //     f.stack.push(Value::I64(self.memory.get::<i64>(addr)));
@@ -163,31 +210,8 @@ impl Runtime {
                     //         self.module.mems[addr + i] = b;
                     //     }
                     // }
-                    x41_call(FuncIdx(id)) => {
-                        let fun = &self.module.functions[id];
-                        let (ty, num) = match fun {
-                            Function::Import { ty, .. } => {
-                                (ty, (0..ty.input.types.len()).collect::<Vec<_>>())
-                            }
-                            Function::Local { ty, locals, .. } => (ty, locals.clone()),
-                        };
+                    x41_i32_const(i) => f.stack.push(Value::I32(*i)),
 
-                        let mut locals = HashMap::new();
-                        ty.input.types.iter().zip(num).for_each(|(_, n)| {
-                            let v = f.stack.pop().unwrap();
-                            locals.insert(n as u32, v);
-                        });
-
-                        self.stack.push(Frame {
-                            func_id: *id,
-                            pc: 0,
-                            stack: Vec::new(),
-                            locals,
-                            labels: HashMap::new(),
-                            block_count: Vec::new(),
-                        });
-                        // self.call_by_id(*id);
-                    }
                     // x42_i64_const(val) => {
                     //     f.stack.push(Value::I64(*val));
                     // }
@@ -207,14 +231,14 @@ impl Runtime {
                     //         _ => unreachable!(),
                     //     }
                     // }
-                    // x6b_i32_sub => {
-                    //     let y = f.stack.pop().unwrap();
-                    //     let x = f.stack.pop().unwrap();
-                    //     match (x, y) {
-                    //         (Value::I32(x), Value::I32(y)) => f.stack.push(Value::I32(y - x)),
-                    //         _ => unreachable!(),
-                    //     }
-                    // }
+                    x6b_i32_sub => {
+                        let y = f.stack.pop().unwrap();
+                        let x = f.stack.pop().unwrap();
+                        match (x, y) {
+                            (Value::I32(x), Value::I32(y)) => f.stack.push(Value::I32(y - x)),
+                            _ => unreachable!(),
+                        }
+                    }
                     f => {
                         unimplemented!("instruction not supported : {f:?}")
                     }

@@ -18,7 +18,7 @@ pub enum Instr {
     x0d_br_if(LabelIdX) = 0x0d,
     x0e_br_table(Vec<LabelIdX>, LabelIdX) = 0x0e,
     x0f_return = 0x0f,
-    x10_i32_const(i32) = 0x10,
+    x10_call(FuncIdx) = 0x41,
     x11_call_indirect(TypeIdX, TableIdX) = 0x11,
     x1a_drop = 0x1a,
     x1b_select = 0x1b,
@@ -48,7 +48,7 @@ pub enum Instr {
     x3c_i64_store8(MemArg) = 0x3c,
     x3e_i64_store32(MemArg) = 0x3e,
     x40_grow = 0x40,
-    x41_call(FuncIdx) = 0x41,
+    x41_i32_const(i32) = 0x10,
     x42_i64_const(i64) = 0x42,
     x44_f64_const(f64) = 0x44,
     x45_i32_eqz = 0x45,
@@ -173,7 +173,7 @@ impl Parsable for Instr {
             0x0d => x0d_br_if(p!()),
             0x0e => x0e_br_table(p!(), p!()),
             0x0f => x0f_return,
-            0x10 => x41_call(p!()),
+            0x10 => x10_call(p!()),
             0x11 => x11_call_indirect(p!(), p!()),
             0x12 => Err(ParseError::UnknownInstruction(Hex(typ)))?,
             0x13 => Err(ParseError::UnknownInstruction(Hex(typ)))?,
@@ -228,7 +228,7 @@ impl Parsable for Instr {
                 }
                 x40_grow
             }
-            0x41 => x10_i32_const(p!()),
+            0x41 => x41_i32_const(p!()),
             0x42 => x42_i64_const(p!()),
             0x43 => Err(ParseError::UnknownInstruction(Hex(typ)))?,
             0x44 => x44_f64_const(p!()),

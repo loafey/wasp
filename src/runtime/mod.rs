@@ -111,6 +111,12 @@ impl Runtime {
                         let args = std::env::args().count();
                         f.stack.push(Value::I32((args - 1) as i32)); // maybe i shouldn't do this?
                     }
+                    ("wasi_snapshot_preview1", "proc_exit") => {
+                        let Value::I32(x) = *f.locals.get(&0).unwrap() else {
+                            panic!()
+                        };
+                        std::process::exit(x);
+                    }
                     (module, function) => panic!("unknown function {module}::{function}"),
                 }
                 let mut frame = self.stack.pop().unwrap();
@@ -170,6 +176,10 @@ impl Runtime {
                         //     .e
                         //     .instrs
                         //     .insert(f.pc - 1, block_start);
+                    }
+                    x0c_br(LabelIdX(label)) => {
+                        let pc = f.labels.get(label).unwrap();
+                        f.pc = *pc as usize;
                     }
                     x0d_br_if(LabelIdX(label)) => {
                         let Value::I32(val) = f.stack.pop().unwrap() else {

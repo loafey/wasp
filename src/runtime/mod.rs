@@ -215,6 +215,10 @@ impl Runtime {
                         });
                     }
                     x20_local_get(LocalIdX(id)) => f.stack.push(*f.locals.get(id).unwrap()),
+                    x21_local_set(LocalIdX(id)) => {
+                        let val = f.stack.pop().unwrap();
+                        f.locals.insert(*id, val);
+                    }
                     x22_local_tee(LocalIdX(id)) => {
                         let last = f.stack.last().unwrap();
                         f.locals.insert(*id, *last);
@@ -225,6 +229,10 @@ impl Runtime {
                     x24_global_set(GlobalIdX(id)) => {
                         let pop = f.stack.pop().unwrap();
                         self.globals.insert(*id, pop);
+                    }
+                    x28_i32_load(MemArg { align, offset }) => {
+                        let addr = (align * offset) as usize;
+                        f.stack.push(self.memory.get(addr));
                     }
                     // x29_i64_load(MemArg { align, offset }) => {
                     //     let addr = (align * offset) as usize;

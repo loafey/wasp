@@ -31,6 +31,7 @@ struct App {
     frame_count: usize,
     last_tick: Instant,
     frame_duration: f64,
+    auto: bool,
 }
 impl App {
     pub fn new(_xcc: &eframe::CreationContext<'_>) -> Self {
@@ -53,18 +54,19 @@ impl App {
             runtime: Runtime::new(module),
             current_frame: 0,
             frame_count: 1,
-            frame_duration: 0.25,
+            frame_duration: 0.5, //0.5,
             last_tick: Instant::now(),
+            auto: false,
         }
     }
 }
 impl eframe::App for App {
     fn update(&mut self, ctx: &egui::Context, _frame: &mut eframe::Frame) {
-        // if self.last_tick.elapsed().as_secs_f64() > self.frame_duration {
-        //     self.last_tick = Instant::now();
-        //     self.runtime.step();
-        //     self.current_frame = self.runtime.stack.len() - 1;
-        // }
+        if self.auto && self.last_tick.elapsed().as_secs_f64() > self.frame_duration {
+            self.last_tick = Instant::now();
+            self.runtime.step();
+            self.current_frame = self.runtime.stack.len() - 1;
+        }
 
         egui::TopBottomPanel::top("top_panel").show(ctx, |ui| {
             if ui.button("Step").clicked() {
@@ -73,6 +75,10 @@ impl eframe::App for App {
                     self.current_frame = self.runtime.stack.len() - 1;
                 }
                 self.frame_count = self.runtime.stack.len();
+            }
+
+            if ui.button("Auto").clicked() {
+                self.auto = !self.auto;
             }
         });
 
@@ -140,7 +146,8 @@ fn main() {
     let native_options = eframe::NativeOptions {
         viewport: egui::ViewportBuilder::default()
             .with_inner_size([400.0, 300.0])
-            .with_min_inner_size([300.0, 220.0]),
+            .with_min_inner_size([300.0, 220.0])
+            .with_maximized(true),
         ..Default::default()
     };
     eframe::run_native(

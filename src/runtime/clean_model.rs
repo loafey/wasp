@@ -39,7 +39,7 @@ impl std::fmt::Debug for Function {
 
 #[derive(Debug)]
 pub struct Model {
-    functions: HashMap<u32, Function>,
+    pub functions: HashMap<u32, Function>,
 }
 impl From<Module> for Model {
     fn from(value: Module) -> Self {

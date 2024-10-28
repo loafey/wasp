@@ -3,7 +3,7 @@
 use egui::{Id, Vec2};
 use hex::Hex;
 use parser::{Module, Parsable};
-use runtime::Runtime;
+use runtime::{clean_model::Function, Runtime};
 use std::{
     io::Cursor,
     mem::MaybeUninit,
@@ -104,25 +104,15 @@ impl eframe::App for App {
                         let pc = self.runtime.stack[self.current_frame].pc;
                         let func = self.runtime.stack[self.current_frame].func_id;
 
-                        let longest = format!(
-                            "{}:",
-                            self.runtime.module.code.code[func - self.runtime.import_count]
-                                .code
-                                .e
-                                .instrs
-                                .len()
-                        )
-                        .len()
-                            + 2;
+                        let func = &self.runtime.module.functions[&(func as u32)];
+                        let Function::Local { code, .. } = func else {
+                            return;
+                        };
+                        let var_name = format!("{}:", code.len());
+                        let var_name = &var_name;
+                        let longest = var_name.len() + 2;
 
-                        for (i, ins) in self.runtime.module.code.code
-                            [func - self.runtime.import_count]
-                            .code
-                            .e
-                            .instrs
-                            .iter()
-                            .enumerate()
-                        {
+                        for (i, ins) in code.iter().enumerate() {
                             let label = format!("{i}:");
                             let space = if label.len() < longest {
                                 " ".repeat(longest - label.len())

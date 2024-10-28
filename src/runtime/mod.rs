@@ -6,8 +6,8 @@ use clean_model::{Function, Model};
 use memory::Memory;
 
 use crate::parser::{
-    self, ExportDesc, FuncIdx, GlobalIdX, ImportDesc, Instr::*, LocalIdX, MemArg, Module, NumType,
-    TypeIdX, ValType,
+    self, ExportDesc, FuncIdx, GlobalIdX, ImportDesc, Instr::*, LabelIdX, LocalIdX, MemArg, Module,
+    NumType, TypeIdX, ValType,
 };
 
 #[derive(Clone, Copy)]
@@ -112,6 +112,12 @@ impl Runtime {
                 self.stack.pop();
             }
             Function::Local { code, .. } => {
+                if f.pc >= code.len() {
+                    let mut frame = self.stack.pop().unwrap();
+                    let last = self.stack.last_mut().unwrap();
+                    last.stack.append(&mut frame.stack);
+                    return;
+                }
                 let instr = &code[f.pc];
                 f.pc += 1;
 
@@ -150,6 +156,15 @@ impl Runtime {
                         //     .e
                         //     .instrs
                         //     .insert(f.pc - 1, block_start);
+                    }
+                    x0d_br_if(LabelIdX(label)) => {
+                        let Value::I32(val) = f.stack.pop().unwrap() else {
+                            unreachable!()
+                        };
+
+                        if val != 0 {
+                            todo!()
+                        }
                     }
                     x10_call(FuncIdx(id)) => {
                         let fun = &self.module.functions[id];
@@ -209,27 +224,25 @@ impl Runtime {
                     //     let addr = (align * offset) as usize;
                     //     f.stack.push(Value::I64(self.memory.get::<i64>(addr)));
                     // }
-                    // x36_i32_store(MemArg { align, offset }) => {
-                    //     let addr = (align * offset) as usize;
-                    //     let end_pos = addr + size_of::<i32>();
-                    //     if self.module.mems.len() < end_pos {
-                    //         self.module
-                    //             .mems
-                    //             .append(&mut vec![0; end_pos - self.module.mems.len()]);
-                    //     }
-                    //     #[allow(irrefutable_let_patterns)]
-                    //     let Value::I32(v) = f.stack.pop().unwrap() else {
-                    //         panic!()
-                    //     };
-                    //     let bytes = v.to_le_bytes();
-                    //     for (i, b) in bytes.into_iter().enumerate() {
-                    //         self.module.mems[addr + i] = b;
-                    //     }
-                    // }
+                    x36_i32_store(MemArg { align, offset }) => {
+                        let addr = (align * offset) as usize;
+                        let Value::I32(v) = f.stack.pop().unwrap() else {
+                            panic!()
+                        };
+                        let bytes = v.to_le_bytes();
+                        for (i, b) in bytes.into_iter().enumerate() {
+                            self.memory.set_u8(addr + i, b);
+                        }
+                    }
                     x41_i32_const(i) => f.stack.push(Value::I32(*i)),
-
                     x42_i64_const(val) => {
                         f.stack.push(Value::I64(*val));
+                    }
+                    x45_i32_eqz => {
+                        let Value::I32(val) = f.stack.pop().unwrap() else {
+                            unreachable!()
+                        };
+                        f.stack.push(Value::I32((val == 0) as i32));
                     }
                     x52_i64_ne => {
                         let y = f.stack.pop().unwrap();
@@ -257,6 +270,15 @@ impl Runtime {
                             _ => unreachable!(),
                         }
                     }
+                    x71_i32_and => {
+                        let y = f.stack.pop().unwrap();
+                        let x = f.stack.pop().unwrap();
+                        match (x, y) {
+                            (Value::I32(x), Value::I32(y)) => f.stack.push(Value::I32(y & x)),
+                            _ => unreachable!(),
+                        }
+                    }
+                    block_start | block_end => {}
                     f => {
                         unimplemented!("instruction not supported : {f:?}")
                     }

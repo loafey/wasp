@@ -90,6 +90,7 @@ impl Runtime {
 
         match &self.module.functions[&f.func_id] {
             Function::Import { module, name, .. } => {
+                println!("calling \"{}::{}\"", &*module.0, &*name.0);
                 match (&*module.0, &*name.0) {
                     ("console", "log") => {
                         let y = *f.locals.get(&0).unwrap();
@@ -274,7 +275,7 @@ impl Runtime {
                         let Value::I32(val) = f.stack.pop().unwrap() else {
                             unreachable!()
                         };
-                        f.stack.push(Value::I32((val != 0) as i32));
+                        f.stack.push(Value::I32((val == 0) as i32));
                     }
                     x52_i64_ne => {
                         let y = f.stack.pop().unwrap();

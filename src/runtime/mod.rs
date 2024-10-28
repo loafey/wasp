@@ -187,7 +187,7 @@ impl Runtime {
                         };
 
                         if val != 0 {
-                            todo!()
+                            f.pc = *f.labels.get(label).unwrap() as usize;
                         }
                     }
                     x10_call(FuncIdx(id)) => {
@@ -274,14 +274,14 @@ impl Runtime {
                         let Value::I32(val) = f.stack.pop().unwrap() else {
                             unreachable!()
                         };
-                        f.stack.push(Value::I32((val == 0) as i32));
+                        f.stack.push(Value::I32((val != 0) as i32));
                     }
                     x52_i64_ne => {
                         let y = f.stack.pop().unwrap();
                         let x = f.stack.pop().unwrap();
                         match (x, y) {
                             (Value::I64(x), Value::I64(y)) => {
-                                f.stack.push(Value::I64((y == x) as i64))
+                                f.stack.push(Value::I64((y != x) as i64))
                             }
                             _ => unreachable!(),
                         }

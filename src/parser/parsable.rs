@@ -1,3 +1,5 @@
+use crate::alloc;
+
 use super::error::ParseError;
 use std::{
     fmt::Debug,
@@ -74,6 +76,17 @@ impl Parsable for u32 {
         Self: std::marker::Sized,
     {
         Ok(leb128::read::unsigned(data)? as u32)
+    }
+}
+
+impl Parsable for f64 {
+    fn parse_inner(data: &mut Cursor<&[u8]>, _: DebugStack) -> Result<Self, ParseError>
+    where
+        Self: std::marker::Sized,
+    {
+        let mut buf = alloc::<8>();
+        data.read_exact(&mut buf.0)?;
+        Ok(f64::from_le_bytes(buf.0))
     }
 }
 

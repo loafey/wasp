@@ -54,13 +54,11 @@ impl Runtime {
             }
         }
 
-        let ExportDesc::Func(TypeIdX(main_id)) = module
-            .exports
-            .exports
+        let iter = &module.exports.exports;
+        let Some(ExportDesc::Func(TypeIdX(main_id))) = iter
             .iter()
-            .find(|s| s.nm.0 == "main")
+            .find(|s| matches!(&*s.nm.0, "main" | "_start"))
             .map(|f| f.d)
-            .unwrap()
         else {
             panic!("no main :(")
         };

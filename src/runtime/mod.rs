@@ -257,21 +257,24 @@ impl Runtime {
                         self.globals.insert(*id, pop);
                     }
                     x28_i32_load(MemArg { align, offset }) => {
-                        let addr = (align * offset) as usize;
-                        f.stack.push(self.memory.get(addr));
+                        let Value::I32(addr) = f.stack.pop().unwrap() else {
+                            panic!()
+                        };
+                        let offset = (align * offset) as usize;
+                        f.stack
+                            .push(Value::I32(self.memory.get(addr as usize + offset)));
                     }
-                    // x29_i64_load(MemArg { align, offset }) => {
-                    //     let addr = (align * offset) as usize;
-                    //     f.stack.push(Value::I64(self.memory.get::<i64>(addr)));
-                    // }
                     x36_i32_store(MemArg { align, offset }) => {
-                        let addr = (align * offset) as usize;
                         let Value::I32(v) = f.stack.pop().unwrap() else {
                             panic!()
                         };
+                        let Value::I32(addr) = f.stack.pop().unwrap() else {
+                            panic!()
+                        };
+                        let offset = (align * offset) as usize;
                         let bytes = v.to_le_bytes();
                         for (i, b) in bytes.into_iter().enumerate() {
-                            self.memory.set_u8(addr + i, b);
+                            self.memory.set_u8(addr as usize + offset + i, b);
                         }
                     }
                     x41_i32_const(i) => f.stack.push(Value::I32(*i)),

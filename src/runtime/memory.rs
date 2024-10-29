@@ -19,7 +19,6 @@ impl<const PAGE_SIZE: usize> Memory<PAGE_SIZE> {
     pub fn get_u8(&self, address: usize) -> u8 {
         let block = address / PAGE_SIZE;
         let index = address % PAGE_SIZE;
-
         if let Some(v) = self.map.get(&block) {
             v[index]
         } else {

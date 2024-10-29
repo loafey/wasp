@@ -2,7 +2,7 @@
 
 use egui::{Id, Vec2};
 use hex::Hex;
-use parser::{Instr, Module, Parsable, BT};
+use parser::{Instr, Module, Parsable};
 use runtime::{clean_model::Function, Runtime};
 use std::{
     env::args,
@@ -137,12 +137,12 @@ impl eframe::App for App {
                                 indent -= 1;
                             }
                             let ind = "  ".repeat(indent);
-                            if matches!(ins, Instr::block_start(BT::Block)) {
+                            if matches!(ins, Instr::block_start) {
                                 indent += 1;
                             }
 
                             let ins = match ins {
-                                Instr::block_start(BT::Block) => "{".to_string(),
+                                Instr::block_start => "{".to_string(),
                                 Instr::block_end => "}".to_string(),
                                 ins => format!("{ins:?}"),
                             };

@@ -11,6 +11,7 @@ pub enum Function {
         ty: FuncType,
         locals: Vec<usize>,
         code: Vec<Instr>,
+        labels: HashMap<u32, u32>,
     },
 }
 
@@ -27,10 +28,12 @@ impl std::fmt::Debug for Function {
                 ty,
                 locals,
                 code: _,
+                labels,
             } => f
                 .debug_struct("Local")
                 .field("ty", ty)
                 .field("locals", locals)
+                .field("locals", labels)
                 .field("code", &"...")
                 .finish(),
         }
@@ -73,6 +76,7 @@ impl From<Module> for Model {
                 Function::Local {
                     ty,
                     locals,
+                    labels: HashMap::new(),
                     code: code.code.e.instrs,
                 },
             );

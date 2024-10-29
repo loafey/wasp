@@ -35,7 +35,7 @@ pub struct Frame {
     pub pc: usize,
     pub stack: Vec<Value>,
     pub locals: HashMap<u32, Value>,
-    pub labels: HashMap<u32, u32>,
+    // pub labels: HashMap<u32, u32>,
     pub block_count: Vec<usize>,
     pub depth: usize,
 }
@@ -79,7 +79,7 @@ impl Runtime {
                 pc: 0,
                 stack: Vec::new(),
                 locals: HashMap::new(),
-                labels: HashMap::new(),
+                // labels: HashMap::new(),
                 block_count: Vec::new(),
                 depth: 0,
             }],
@@ -155,7 +155,13 @@ impl Runtime {
 
                         let c = ins.clone();
                         let func = self.module.functions.get_mut(&f.func_id).unwrap();
-                        let Function::Local { ty, locals, code } = func else {
+                        let Function::Local {
+                            ty,
+                            locals,
+                            code,
+                            labels,
+                        } = func
+                        else {
                             unreachable!()
                         };
 
@@ -167,11 +173,48 @@ impl Runtime {
                             modified += 1;
                             code.insert(f.pc - 1, i);
                         }
-                        f.labels
-                            .iter_mut()
-                            .for_each(|(_, r)| *r += modified as u32 + 1);
-                        f.labels
-                            .insert(f.labels.len() as u32, (pos_before + modified) as u32);
+                        labels.iter_mut().for_each(|(_, r)| {
+                            if *r as usize > f.pc {
+                                *r += modified as u32 + 1
+                            }
+                        });
+                        labels.insert(labels.len() as u32, (pos_before + modified) as u32);
+                        code.insert(f.pc - 1, block_start);
+                        f.depth += 1;
+                    }
+                    x03_loop(bt, ins) => {
+                        f.block_count.push(f.stack.len());
+                        match bt {
+                            parser::BlockType::Eps => {}
+                            parser::BlockType::T(_) => todo!(),
+                            parser::BlockType::X(_) => todo!(),
+                        }
+
+                        let c = ins.clone();
+                        let func = self.module.functions.get_mut(&f.func_id).unwrap();
+                        let Function::Local {
+                            ty,
+                            locals,
+                            code,
+                            labels,
+                        } = func
+                        else {
+                            unreachable!()
+                        };
+
+                        code.remove(f.pc - 1);
+                        labels.insert(labels.len() as u32, (f.pc - 1) as u32);
+                        code.insert(f.pc - 1, block_end);
+                        let mut modified = 0;
+                        for (_, i) in c.into_iter().enumerate().rev() {
+                            modified += 1;
+                            code.insert(f.pc - 1, i);
+                        }
+                        labels.iter_mut().for_each(|(_, r)| {
+                            if *r as usize > f.pc {
+                                *r += modified as u32 + 1
+                            }
+                        });
                         code.insert(f.pc - 1, block_start);
                         f.depth += 1;
                     }
@@ -180,8 +223,12 @@ impl Runtime {
                         (0..label).for_each(|_| {
                             f.stack.pop();
                         });
-                        let pc = f.labels.get(&(label as u32)).unwrap();
-                        f.pc = *pc as usize + 1;
+                        let func = self.module.functions.get_mut(&f.func_id).unwrap();
+                        let Function::Local { labels, .. } = func else {
+                            unreachable!()
+                        };
+                        let pc = labels.get(&(label as u32)).unwrap();
+                        f.pc = *pc as usize;
                         f.depth = label;
                     }
                     x0d_br_if(LabelIdX(label)) => {
@@ -191,12 +238,32 @@ impl Runtime {
 
                         if val != 0 {
                             let label = f.depth - 1 - *label as usize;
+                            let old = f.depth;
                             f.depth = label;
                             (0..label).for_each(|_| {
                                 f.stack.pop();
                             });
-                            f.pc = *f.labels.get(&(label as u32)).unwrap() as usize + 1;
+                            let func = self.module.functions.get_mut(&f.func_id).unwrap();
+                            let Function::Local { labels, .. } = func else {
+                                unreachable!()
+                            };
+                            if let Some(pc) = labels.get(&(label as u32)) {
+                                f.pc = *pc as usize;
+                            } else {
+                                f.pc -= 1;
+                                f.stack.push(Value::I32(val));
+                                f.depth = old;
+                                println!("!LOCK!")
+                            }
                         }
+                    }
+                    x0f_return => {
+                        let mut last_f = self.stack.pop().unwrap();
+                        self.stack
+                            .last_mut()
+                            .unwrap()
+                            .stack
+                            .append(&mut last_f.stack);
                     }
                     x10_call(FuncIdx(id)) => {
                         let fun = &self.module.functions[id];
@@ -236,7 +303,6 @@ impl Runtime {
                             pc: 0,
                             stack: Vec::new(),
                             locals,
-                            labels: HashMap::new(),
                             block_count: Vec::new(),
                             depth: 0,
                         });
@@ -246,6 +312,11 @@ impl Runtime {
                     }
                     x20_local_get(LocalIdX(id)) => f.stack.push(*f.locals.get(id).unwrap()),
                     x21_local_set(LocalIdX(id)) => {
+                        if f.stack.is_empty() {
+                            f.pc -= 1;
+                            println!("!LOCK!");
+                            return;
+                        }
                         let val = f.stack.pop().unwrap();
                         f.locals.insert(*id, val);
                     }
@@ -314,6 +385,41 @@ impl Runtime {
                             _ => unreachable!(),
                         }
                     }
+                    x4a_i32_gt_s => {
+                        let y = f.stack.pop().unwrap();
+                        let x = f.stack.pop().unwrap();
+                        match (x, y) {
+                            (Value::I32(x), Value::I32(y)) => {
+                                let r = (y > x) as i32;
+                                f.stack.push(Value::I32(r))
+                            }
+                            _ => unreachable!(),
+                        }
+                    }
+                    x4d_i32_le_u => {
+                        let y = f.stack.pop().unwrap();
+                        let x = f.stack.pop().unwrap();
+                        match (x, y) {
+                            (Value::I32(x), Value::I32(y)) => {
+                                let x = unsafe { mem::transmute::<i32, u32>(x) };
+                                let y = unsafe { mem::transmute::<i32, u32>(y) };
+                                let r = (y <= x) as i32;
+                                f.stack.push(Value::I32(r))
+                            }
+                            _ => unreachable!(),
+                        }
+                    }
+                    x4e_i32_ge_s => {
+                        let y = f.stack.pop().unwrap();
+                        let x = f.stack.pop().unwrap();
+                        match (x, y) {
+                            (Value::I32(x), Value::I32(y)) => {
+                                let r = (y > x) as i32;
+                                f.stack.push(Value::I32((y >= x) as i32))
+                            }
+                            _ => unreachable!(),
+                        }
+                    }
                     x52_i64_ne => {
                         let y = f.stack.pop().unwrap();
                         let x = f.stack.pop().unwrap();
@@ -348,6 +454,14 @@ impl Runtime {
                             _ => unreachable!(),
                         }
                     }
+                    x73_i32_xor => {
+                        let y = f.stack.pop().unwrap();
+                        let x = f.stack.pop().unwrap();
+                        match (x, y) {
+                            (Value::I32(x), Value::I32(y)) => f.stack.push(Value::I32(y ^ x)),
+                            _ => unreachable!(),
+                        }
+                    }
                     x74_i32_shl => {
                         let y = f.stack.pop().unwrap();
                         let x = f.stack.pop().unwrap();
@@ -357,7 +471,11 @@ impl Runtime {
                         }
                     }
                     block_start => f.depth += 1,
-                    block_end => f.depth -= 1,
+                    block_end => {
+                        if f.depth > 0 {
+                            f.depth -= 1;
+                        }
+                    }
                     f => {
                         unimplemented!("instruction not supported : {f:?}")
                     }

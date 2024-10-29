@@ -58,7 +58,7 @@ impl App {
             runtime: runtime(),
             current_frame: 0,
             frame_count: 1,
-            frame_duration: 0.5, //0.5,
+            frame_duration: 0.1, //0.5,
             last_tick: Instant::now(),
             auto: false,
         }
@@ -100,8 +100,14 @@ impl eframe::App for App {
 
         egui::SidePanel::new(egui::panel::Side::Left, Id::new("stack_info")).show(ctx, |ui| {
             ui.heading("Frame info:");
-            let label =
-                egui::Label::new(format!("{:#?}", self.runtime.stack[self.current_frame])).extend();
+            let text = &self.runtime.stack[self.current_frame];
+
+            if let Function::Local { labels, .. } = &self.runtime.module.functions[&text.func_id] {
+                let label = egui::Label::new(format!("Labels: {labels:#?}")).extend();
+                ui.add(label);
+            }
+
+            let label = egui::Label::new(format!("{text:#?}")).extend();
             ui.add(label);
         });
 

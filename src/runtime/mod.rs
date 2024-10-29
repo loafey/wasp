@@ -6,8 +6,8 @@ use clean_model::{Function, Model};
 use memory::Memory;
 
 use crate::parser::{
-    self, ExportDesc, FuncIdx, Global, GlobalIdX, ImportDesc, Instr::*, LabelIdX, LocalIdX, MemArg,
-    Module, NumType, TypeIdX, ValType,
+    self, ExportDesc, FuncIdx, Global, GlobalIdX, Instr::*, LabelIdX, LocalIdX, MemArg, Module,
+    TypeIdX, BT,
 };
 
 #[derive(Clone, Copy)]
@@ -159,31 +159,25 @@ impl Runtime {
 
                         let c = ins.clone();
                         let func = self.module.functions.get_mut(&f.func_id).unwrap();
-                        let Function::Local {
-                            ty,
-                            locals,
-                            code,
-                            labels,
-                        } = func
-                        else {
+                        let Function::Local { code, labels, .. } = func else {
                             unreachable!()
                         };
 
                         code.remove(f.pc - 1);
                         let pos_before = f.pc;
                         let mut modified = 0;
-                        code.insert(f.pc - 1, block_end);
+                        code.insert(f.pc - 1, block_end(BT::Block));
                         for (_, i) in c.into_iter().enumerate().rev() {
                             modified += 1;
                             code.insert(f.pc - 1, i);
                         }
                         labels.iter_mut().for_each(|(_, r)| {
-                            if *r as usize > f.pc {
+                            if (*r as usize) >= f.pc {
                                 *r += modified as u32 + 1
                             }
                         });
                         labels.insert(labels.len() as u32, (pos_before + modified) as u32);
-                        code.insert(f.pc - 1, block_start);
+                        code.insert(f.pc - 1, block_start(BT::Block));
                         f.depth += 1;
                     }
                     x03_loop(bt, ins) => {
@@ -195,30 +189,24 @@ impl Runtime {
 
                         let c = ins.clone();
                         let func = self.module.functions.get_mut(&f.func_id).unwrap();
-                        let Function::Local {
-                            ty,
-                            locals,
-                            code,
-                            labels,
-                        } = func
-                        else {
+                        let Function::Local { code, labels, .. } = func else {
                             unreachable!()
                         };
 
                         code.remove(f.pc - 1);
                         labels.insert(labels.len() as u32, (f.pc - 1) as u32);
-                        code.insert(f.pc - 1, block_end);
+                        code.insert(f.pc - 1, block_end(BT::Loop));
                         let mut modified = 0;
                         for (_, i) in c.into_iter().enumerate().rev() {
                             modified += 1;
                             code.insert(f.pc - 1, i);
                         }
                         labels.iter_mut().for_each(|(_, r)| {
-                            if *r as usize > f.pc {
+                            if (*r as usize) >= f.pc {
                                 *r += modified as u32 + 1
                             }
                         });
-                        code.insert(f.pc - 1, block_start);
+                        code.insert(f.pc - 1, block_start(BT::Loop));
                         f.depth += 1;
                     }
                     x0c_br(LabelIdX(label)) => {
@@ -231,7 +219,7 @@ impl Runtime {
                             unreachable!()
                         };
                         let pc = labels.get(&(label as u32)).unwrap();
-                        f.pc = *pc as usize;
+                        f.pc = *pc as usize + 1;
                         f.depth = label;
                     }
                     x0d_br_if(LabelIdX(label)) => {
@@ -251,7 +239,8 @@ impl Runtime {
                                 unreachable!()
                             };
                             if let Some(pc) = labels.get(&(label as u32)) {
-                                f.pc = *pc as usize;
+                                println!("{label}");
+                                f.pc = *pc as usize + 1;
                             } else {
                                 f.pc -= 1;
                                 f.stack.push(Value::I32(val));
@@ -277,14 +266,13 @@ impl Runtime {
                     }
                     x10_call(FuncIdx(id)) => {
                         let fun = &self.module.functions[id];
-                        let (ty, num) = match fun {
+                        let (ty, _) = match fun {
                             Function::Import { ty, .. } => {
                                 (ty, (0..=ty.input.types.len()).collect::<Vec<_>>())
                             }
                             Function::Local { ty, locals, .. } => (ty, locals.clone()),
                         };
 
-                        // if !f.stack.is_empty() {
                         let locals = ty
                             .input
                             .types
@@ -292,21 +280,6 @@ impl Runtime {
                             .enumerate()
                             .map(|(i, _)| (i as u32, f.stack.pop().unwrap()))
                             .collect();
-                        // } else {
-                        // ty.input.types.iter().zip(num).for_each(|(v, n)| {
-                        // let v = match v {
-                        // ValType::Num(num_type) => match num_type {
-                        // NumType::I32 => Value::I32(0),
-                        // NumType::I64 => Value::I64(0),
-                        // NumType::F32 => Value::F32(0.0),
-                        // NumType::F64 => Value::F64(0.0),
-                        // },
-                        // ValType::Vec => todo!(),
-                        // ValType::Ref(ref_typ) => todo!(),
-                        // };
-                        // locals.insert(n as u32, v);
-                        // });
-                        // }
 
                         self.stack.push(Frame {
                             func_id: *id,
@@ -557,12 +530,8 @@ impl Runtime {
                             _ => unreachable!(),
                         }
                     }
-                    block_start => f.depth += 1,
-                    block_end => {
-                        if f.depth > 0 {
-                            f.depth -= 1;
-                        }
-                    }
+                    block_start(_) => f.depth += 1,
+                    block_end(_) => f.depth -= 1,
                     f => {
                         unimplemented!("instruction not supported : {f:?}")
                     }

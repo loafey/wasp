@@ -58,7 +58,7 @@ impl App {
             runtime: runtime(),
             current_frame: 0,
             frame_count: 1,
-            frame_duration: 0.05, //0.5,
+            frame_duration: 0.01, //0.5,
             last_tick: Instant::now(),
             auto: false,
         }
@@ -138,17 +138,17 @@ impl eframe::App for App {
                             };
                             let icon = if i == pc { "├╼ " } else { "│  " };
 
-                            if matches!(ins, Instr::block_end) {
+                            if matches!(ins, Instr::block_end(_)) {
                                 indent -= 1;
                             }
-                            let ind = "  ".repeat(indent);
-                            if matches!(ins, Instr::block_start) {
+                            let ind = ". ".repeat(indent);
+                            if matches!(ins, Instr::block_start(_)) {
                                 indent += 1;
                             }
 
                             let ins = match ins {
-                                Instr::block_start => "{".to_string(),
-                                Instr::block_end => "}".to_string(),
+                                Instr::block_start(bt) => format!("{{ -- {bt:?}"),
+                                Instr::block_end(bt) => format!("}} -- {bt:?}"),
                                 ins => format!("{ins:?}"),
                             };
 

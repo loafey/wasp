@@ -36,7 +36,6 @@ pub struct Frame {
     pub stack: Vec<Value>,
     pub locals: HashMap<u32, Value>,
     // pub labels: HashMap<u32, u32>,
-    pub block_count: Vec<usize>,
     pub depth: usize,
 }
 
@@ -87,7 +86,6 @@ impl Runtime {
                 stack: Vec::new(),
                 locals: HashMap::new(),
                 // labels: HashMap::new(),
-                block_count: Vec::new(),
                 depth: 0,
             }],
             memory,
@@ -153,7 +151,6 @@ impl Runtime {
                 f.pc += 1;
                 match instr {
                     x02_block(bt, ins) => {
-                        f.block_count.push(f.stack.len());
                         match bt {
                             parser::BlockType::Eps => {}
                             parser::BlockType::T(_) => todo!(),
@@ -190,7 +187,6 @@ impl Runtime {
                         f.depth += 1;
                     }
                     x03_loop(bt, ins) => {
-                        f.block_count.push(f.stack.len());
                         match bt {
                             parser::BlockType::Eps => {}
                             parser::BlockType::T(_) => todo!(),
@@ -317,7 +313,6 @@ impl Runtime {
                             pc: 0,
                             stack: Vec::new(),
                             locals,
-                            block_count: Vec::new(),
                             depth: 0,
                         });
                     }
@@ -353,8 +348,32 @@ impl Runtime {
                         f.stack
                             .push(Value::I32(self.memory.get(addr as usize + offset)));
                     }
+                    x2d_i32_load8_u(MemArg { align, offset }) => {
+                        let Value::I32(addr) = f.stack.pop().unwrap() else {
+                            panic!()
+                        };
+                        let offset = (align * offset) as usize;
+                        f.stack.push(Value::I32(unsafe {
+                            mem::transmute::<u32, i32>(
+                                self.memory.get_u8(addr as usize + offset) as u32
+                            )
+                        }));
+                    }
                     x36_i32_store(MemArg { align, offset }) => {
                         let Value::I32(v) = f.stack.pop().unwrap() else {
+                            panic!()
+                        };
+                        let Value::I32(addr) = f.stack.pop().unwrap() else {
+                            panic!()
+                        };
+                        let offset = (align * offset) as usize;
+                        let bytes = v.to_le_bytes();
+                        for (i, b) in bytes.into_iter().enumerate() {
+                            self.memory.set_u8(addr as usize + offset + i, b);
+                        }
+                    }
+                    x37_i64_store(MemArg { align, offset }) => {
+                        let Value::I64(v) = f.stack.pop().unwrap() else {
                             panic!()
                         };
                         let Value::I32(addr) = f.stack.pop().unwrap() else {
@@ -386,6 +405,17 @@ impl Runtime {
                         };
                         f.stack.push(Value::I32((val == 0) as i32));
                     }
+                    x47_i32_ne => {
+                        let y = f.stack.pop().unwrap();
+                        let x = f.stack.pop().unwrap();
+                        match (x, y) {
+                            (Value::I32(x), Value::I32(y)) => {
+                                let r = (x != y) as i32;
+                                f.stack.push(Value::I32(r))
+                            }
+                            _ => unreachable!(),
+                        }
+                    }
                     x49_i32_lt_u => {
                         let y = f.stack.pop().unwrap();
                         let x = f.stack.pop().unwrap();
@@ -405,6 +435,19 @@ impl Runtime {
                         match (x, y) {
                             (Value::I32(x), Value::I32(y)) => {
                                 let r = (x > y) as i32;
+                                f.stack.push(Value::I32(r))
+                            }
+                            _ => unreachable!(),
+                        }
+                    }
+                    x4b_i32_gt_u => {
+                        let y = f.stack.pop().unwrap();
+                        let x = f.stack.pop().unwrap();
+                        match (x, y) {
+                            (Value::I32(x), Value::I32(y)) => {
+                                let x = unsafe { mem::transmute::<i32, u32>(x) };
+                                let y = unsafe { mem::transmute::<i32, u32>(y) };
+                                let r = (y > x) as i32;
                                 f.stack.push(Value::I32(r))
                             }
                             _ => unreachable!(),
@@ -496,6 +539,21 @@ impl Runtime {
                         let x = f.stack.pop().unwrap();
                         match (x, y) {
                             (Value::I32(x), Value::I32(y)) => f.stack.push(Value::I32(x << y)),
+                            _ => unreachable!(),
+                        }
+                    }
+                    x7e_i64_mul => {
+                        let y = f.stack.pop().unwrap();
+                        let x = f.stack.pop().unwrap();
+                        match (x, y) {
+                            (Value::I64(x), Value::I64(y)) => f.stack.push(Value::I64(x * y)),
+                            _ => unreachable!(),
+                        }
+                    }
+                    xad_i64_extend_i32_u => {
+                        let x = f.stack.pop().unwrap();
+                        match x {
+                            Value::I32(x) => f.stack.push(Value::I64(x as i64)),
                             _ => unreachable!(),
                         }
                     }

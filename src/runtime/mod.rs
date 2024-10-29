@@ -131,7 +131,8 @@ impl Runtime {
                     last.stack.append(&mut frame.stack);
                     return;
                 }
-                let instr = &code[f.pc];
+                let mut instr = &code[f.pc];
+                instr = if let comment(_, r) = instr { r } else { instr };
                 f.pc += 1;
 
                 match instr {
@@ -153,9 +154,9 @@ impl Runtime {
                         let pos_before = f.pc;
                         let mut modified = 0;
                         code.insert(f.pc - 1, block_end);
-                        for i in c.into_iter().rev() {
+                        for (c, i) in c.into_iter().enumerate().rev() {
                             modified += 1;
-                            code.insert(f.pc - 1, i);
+                            code.insert(f.pc - 1, comment(format!("line: {c:?}"), Box::new(i)));
                         }
                         f.labels
                             .iter_mut()

@@ -97,7 +97,6 @@ impl Runtime {
 
         match &self.module.functions[&f.func_id] {
             Function::Import { module, name, .. } => {
-                println!("calling \"{}::{}\"", &*module.0, &*name.0);
                 match (&*module.0, &*name.0) {
                     ("console", "log") => {
                         let y = *f.locals.get(&0).unwrap();
@@ -239,7 +238,6 @@ impl Runtime {
                                 unreachable!()
                             };
                             if let Some(pc) = labels.get(&(label as u32)) {
-                                println!("{label}");
                                 f.pc = *pc as usize + 1;
                             } else {
                                 f.pc -= 1;
@@ -372,6 +370,7 @@ impl Runtime {
                     x42_i64_const(val) => {
                         f.stack.push(Value::I64(*val));
                     }
+
                     x45_i32_eqz => {
                         let Value::I32(val) = f.stack.pop().unwrap() else {
                             unreachable!()
@@ -444,6 +443,18 @@ impl Runtime {
                         let x = f.stack.pop().unwrap();
                         match (x, y) {
                             (Value::I32(x), Value::I32(y)) => {
+                                f.stack.push(Value::I32((x >= y) as i32))
+                            }
+                            _ => unreachable!(),
+                        }
+                    }
+                    x4f_i32_ge_u => {
+                        let y = f.stack.pop().unwrap();
+                        let x = f.stack.pop().unwrap();
+                        match (x, y) {
+                            (Value::I32(x), Value::I32(y)) => {
+                                let x = unsafe { mem::transmute::<i32, u32>(x) };
+                                let y = unsafe { mem::transmute::<i32, u32>(y) };
                                 f.stack.push(Value::I32((x >= y) as i32))
                             }
                             _ => unreachable!(),

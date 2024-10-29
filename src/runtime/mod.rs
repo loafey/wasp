@@ -61,9 +61,9 @@ impl Runtime {
             }
         }
 
-        let iter = &module.exports.exports;
-
-        let Some(ExportDesc::Func(TypeIdX(main_id))) = iter
+        let Some(ExportDesc::Func(TypeIdX(main_id))) = module
+            .exports
+            .exports
             .iter()
             .find(|s| matches!(&*s.nm.0, "main" | "_start"))
             .map(|f| f.d)

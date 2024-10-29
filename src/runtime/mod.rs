@@ -174,20 +174,6 @@ impl Runtime {
                             .insert(f.labels.len() as u32, (pos_before + modified) as u32);
                         code.insert(f.pc - 1, block_start);
                         f.depth += 1;
-
-                        // self.module.code.code[index].code.e.instrs.remove(f.pc - 1);
-                        // for i in c.into_iter().rev() {
-                        //     self.module.code.code[index]
-                        //         .code
-                        //         .e
-                        //         .instrs
-                        //         .insert(f.pc - 1, i);
-                        // }
-                        // self.module.code.code[index]
-                        //     .code
-                        //     .e
-                        //     .instrs
-                        //     .insert(f.pc - 1, block_start);
                     }
                     x0c_br(LabelIdX(label)) => {
                         let label = f.depth - 1 - *label as usize;

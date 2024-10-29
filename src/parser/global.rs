@@ -3,8 +3,8 @@ use super::{Expr, GlobalType, Parsable};
 #[derive(Debug)]
 #[allow(unused)]
 pub struct Global {
-    gt: GlobalType,
-    e: Expr,
+    pub gt: GlobalType,
+    pub e: Expr,
 }
 impl Parsable for Global {
     fn parse_inner(

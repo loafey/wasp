@@ -20,12 +20,12 @@ pub struct Module {
     pub imports: ImportSection,
     pub funcs: FunctionSection,
     pub exports: ExportSection,
-    pub tables: TableSection, //tablesec
-    pub mems: Vec<u8>,        // memsec
-    pub globals: Vec<()>,     // globalsec
-    pub start: Option<()>,    // startsec
-    pub elems: Vec<()>,       //elemsec
-    pub data_count: Vec<()>,  //datacountsec
+    pub tables: TableSection,   //tablesec
+    pub mems: Vec<u8>,          // memsec
+    pub globals: GlobalSection, // globalsec
+    pub start: Option<()>,      // startsec
+    pub elems: ElementSection,  //elemsec
+    pub data_count: Vec<()>,    //datacountsec
     pub code: CodeSection,
     pub datas: DataSection,
     pub customs: CustomSection,
@@ -97,9 +97,9 @@ impl Parsable for Module {
             datas: datasec,
             tables,
             mems: Vec::new(),
-            globals: Vec::new(),
+            globals,
             start: None,
-            elems: Vec::new(),
+            elems: elements,
             data_count: Vec::new(),
             customs,
         })

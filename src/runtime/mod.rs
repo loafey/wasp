@@ -6,8 +6,8 @@ use clean_model::{Function, Model};
 use memory::Memory;
 
 use crate::parser::{
-    self, ExportDesc, FuncIdx, GlobalIdX, ImportDesc, Instr::*, LabelIdX, LocalIdX, MemArg, Module,
-    NumType, TypeIdX, ValType,
+    self, ExportDesc, FuncIdx, Global, GlobalIdX, ImportDesc, Instr::*, LabelIdX, LocalIdX, MemArg,
+    Module, NumType, TypeIdX, ValType,
 };
 
 #[derive(Clone, Copy)]
@@ -70,6 +70,13 @@ impl Runtime {
         else {
             panic!("no main :(")
         };
+        let mut globals = HashMap::new();
+        for (i, Global { e, .. }) in module.globals.globals.iter().enumerate() {
+            let x41_i32_const(x) = e.instrs[0] else {
+                panic!()
+            };
+            globals.insert(i as u32, Value::I32(x));
+        }
 
         let module = Model::from(module);
         Self {
@@ -84,7 +91,7 @@ impl Runtime {
                 depth: 0,
             }],
             memory,
-            globals: HashMap::new(),
+            globals,
         }
     }
     pub fn step(&mut self) {
@@ -386,7 +393,7 @@ impl Runtime {
                             (Value::I32(x), Value::I32(y)) => {
                                 let x = unsafe { mem::transmute::<i32, u32>(x) };
                                 let y = unsafe { mem::transmute::<i32, u32>(y) };
-                                let r = (y < x) as i32;
+                                let r = (x < y) as i32;
                                 f.stack.push(Value::I32(r))
                             }
                             _ => unreachable!(),
@@ -397,7 +404,7 @@ impl Runtime {
                         let x = f.stack.pop().unwrap();
                         match (x, y) {
                             (Value::I32(x), Value::I32(y)) => {
-                                let r = (y > x) as i32;
+                                let r = (x > y) as i32;
                                 f.stack.push(Value::I32(r))
                             }
                             _ => unreachable!(),
@@ -410,7 +417,7 @@ impl Runtime {
                             (Value::I32(x), Value::I32(y)) => {
                                 let x = unsafe { mem::transmute::<i32, u32>(x) };
                                 let y = unsafe { mem::transmute::<i32, u32>(y) };
-                                let r = (y <= x) as i32;
+                                let r = (x <= y) as i32;
                                 f.stack.push(Value::I32(r))
                             }
                             _ => unreachable!(),
@@ -421,8 +428,7 @@ impl Runtime {
                         let x = f.stack.pop().unwrap();
                         match (x, y) {
                             (Value::I32(x), Value::I32(y)) => {
-                                let r = (y > x) as i32;
-                                f.stack.push(Value::I32((y >= x) as i32))
+                                f.stack.push(Value::I32((x >= y) as i32))
                             }
                             _ => unreachable!(),
                         }
@@ -432,7 +438,7 @@ impl Runtime {
                         let x = f.stack.pop().unwrap();
                         match (x, y) {
                             (Value::I64(x), Value::I64(y)) => {
-                                f.stack.push(Value::I64((y != x) as i64))
+                                f.stack.push(Value::I64((x != y) as i64))
                             }
                             _ => unreachable!(),
                         }
@@ -441,7 +447,7 @@ impl Runtime {
                         let y = f.stack.pop().unwrap();
                         let x = f.stack.pop().unwrap();
                         match (x, y) {
-                            (Value::I32(x), Value::I32(y)) => f.stack.push(Value::I32(y + x)),
+                            (Value::I32(x), Value::I32(y)) => f.stack.push(Value::I32(x + y)),
                             _ => unreachable!(),
                         }
                     }
@@ -449,7 +455,15 @@ impl Runtime {
                         let y = f.stack.pop().unwrap();
                         let x = f.stack.pop().unwrap();
                         match (x, y) {
-                            (Value::I32(x), Value::I32(y)) => f.stack.push(Value::I32(y - x)),
+                            (Value::I32(x), Value::I32(y)) => f.stack.push(Value::I32(x - y)),
+                            _ => unreachable!(),
+                        }
+                    }
+                    x6c_i32_mul => {
+                        let y = f.stack.pop().unwrap();
+                        let x = f.stack.pop().unwrap();
+                        match (x, y) {
+                            (Value::I32(x), Value::I32(y)) => f.stack.push(Value::I32(x * y)),
                             _ => unreachable!(),
                         }
                     }
@@ -457,7 +471,15 @@ impl Runtime {
                         let y = f.stack.pop().unwrap();
                         let x = f.stack.pop().unwrap();
                         match (x, y) {
-                            (Value::I32(x), Value::I32(y)) => f.stack.push(Value::I32(y & x)),
+                            (Value::I32(x), Value::I32(y)) => f.stack.push(Value::I32(x & y)),
+                            _ => unreachable!(),
+                        }
+                    }
+                    x72_i32_or => {
+                        let y = f.stack.pop().unwrap();
+                        let x = f.stack.pop().unwrap();
+                        match (x, y) {
+                            (Value::I32(x), Value::I32(y)) => f.stack.push(Value::I32(x | y)),
                             _ => unreachable!(),
                         }
                     }
@@ -465,7 +487,7 @@ impl Runtime {
                         let y = f.stack.pop().unwrap();
                         let x = f.stack.pop().unwrap();
                         match (x, y) {
-                            (Value::I32(x), Value::I32(y)) => f.stack.push(Value::I32(y ^ x)),
+                            (Value::I32(x), Value::I32(y)) => f.stack.push(Value::I32(x ^ y)),
                             _ => unreachable!(),
                         }
                     }
@@ -473,7 +495,7 @@ impl Runtime {
                         let y = f.stack.pop().unwrap();
                         let x = f.stack.pop().unwrap();
                         match (x, y) {
-                            (Value::I32(x), Value::I32(y)) => f.stack.push(Value::I32(y << x)),
+                            (Value::I32(x), Value::I32(y)) => f.stack.push(Value::I32(x << y)),
                             _ => unreachable!(),
                         }
                     }

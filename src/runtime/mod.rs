@@ -259,11 +259,18 @@ impl Runtime {
                     }
                     x0f_return => {
                         let mut last_f = self.stack.pop().unwrap();
-                        self.stack
-                            .last_mut()
-                            .unwrap()
-                            .stack
-                            .append(&mut last_f.stack);
+                        let ty = self.module.functions.get(&last_f.func_id).unwrap();
+                        let ty = match ty {
+                            Function::Import { ty, .. } => ty,
+                            Function::Local { ty, .. } => ty,
+                        };
+                        let mut res = Vec::new();
+                        ty.output
+                            .types
+                            .iter()
+                            .for_each(|_| res.push(last_f.stack.pop().unwrap()));
+                        res.reverse();
+                        self.stack.last_mut().unwrap().stack.append(&mut res);
                     }
                     x10_call(FuncIdx(id)) => {
                         let fun = &self.module.functions[id];

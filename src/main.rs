@@ -101,24 +101,7 @@ impl eframe::App for App {
         egui::SidePanel::new(egui::panel::Side::Left, Id::new("stack_info")).show(ctx, |ui| {
             ui.heading("Frame info:");
             let text = &self.runtime.stack[self.current_frame];
-            // if text.func_id == 3 {
-            //     self.auto = false;
-            // }
-
-            if let Function::Local { labels, code, .. } =
-                &self.runtime.module.functions[&text.func_id]
-            {
-                if matches!(
-                    &code[..],
-                    [
-                        Instr::x23_global_get(_),
-                        Instr::x41_i32_const(_),
-                        Instr::x6b_i32_sub,
-                        ..
-                    ]
-                ) {
-                    self.auto = false;
-                }
+            if let Function::Local { labels, .. } = &self.runtime.module.functions[&text.func_id] {
                 let label = egui::Label::new(format!("Labels: {labels:#?}")).extend();
                 ui.add(label);
             }

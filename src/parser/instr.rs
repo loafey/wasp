@@ -7,10 +7,16 @@ use std::io::Read;
 use Instr::*;
 
 #[derive(Debug, Clone)]
+pub enum BT {
+    Block,
+    Loop,
+}
+
+#[derive(Debug, Clone)]
 #[allow(non_camel_case_types, unused)]
 #[repr(u8)]
 pub enum Instr {
-    block_start = 0xFF,
+    block_start(BT) = 0xFF,
     block_end = 0xFE,
     comment(String, Box<Instr>) = 0xFD,
     x00_unreachable = 0x00,

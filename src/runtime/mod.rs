@@ -7,7 +7,7 @@ use memory::Memory;
 
 use crate::parser::{
     self, ExportDesc, FuncIdx, GlobalIdX, ImportDesc, Instr::*, LabelIdX, LocalIdX, MemArg, Module,
-    NumType, TypeIdX, ValType,
+    NumType, TypeIdX, ValType, BT,
 };
 
 #[derive(Clone, Copy)]
@@ -172,7 +172,7 @@ impl Runtime {
                             .for_each(|(_, r)| *r += modified as u32 + 1);
                         f.labels
                             .insert(f.labels.len() as u32, (pos_before + modified) as u32);
-                        code.insert(f.pc - 1, block_start);
+                        code.insert(f.pc - 1, block_start(BT::Block));
                         f.depth += 1;
 
                         // self.module.code.code[index].code.e.instrs.remove(f.pc - 1);
@@ -370,7 +370,7 @@ impl Runtime {
                             _ => unreachable!(),
                         }
                     }
-                    block_start => f.depth += 1,
+                    block_start(BT::Block) => f.depth += 1,
                     block_end => f.depth -= 1,
                     f => {
                         unimplemented!("instruction not supported : {f:?}")

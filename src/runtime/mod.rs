@@ -6,8 +6,9 @@ use clean_model::{Function, Model};
 use memory::Memory;
 
 use crate::parser::{
-    self, ExportDesc, FuncIdx, Global, GlobalIdX, Instr::*, LabelIdX, LocalIdX, MemArg, Module,
-    RefTyp, Table, TableIdX, TypeIdX, BT,
+    self, ExportDesc, FuncIdx, Global, GlobalIdX,
+    Instr::{self, *},
+    LabelIdX, LocalIdX, MemArg, Module, RefTyp, Table, TableIdX, TypeIdX, BT,
 };
 
 #[derive(Clone, Copy)]
@@ -50,9 +51,12 @@ impl Runtime {
         let mut memory = Memory::new();
         for d in &module.datas.data {
             match d {
-                parser::Data::Mem0(_, vec) => {
+                parser::Data::Mem0(e, vec) => {
+                    let [Instr::x41_i32_const(p)] = &e.instrs[..] else {
+                        panic!()
+                    };
                     for (i, v) in vec.iter().enumerate() {
-                        memory.set_u8(i, *v);
+                        memory.set_u8(*p as usize + i, *v);
                     }
                 }
                 parser::Data::MemB(_) => todo!(),

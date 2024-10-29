@@ -111,14 +111,22 @@ impl Runtime {
                         println!("{s}")
                     }
                     ("wasi_snapshot_preview1", "args_sizes_get") => {
-                        let args = std::env::args().count();
-                        f.stack.push(Value::I32((args - 1) as i32)); // maybe i shouldn't do this?
+                        f.stack.push(Value::I32(0));
                     }
                     ("wasi_snapshot_preview1", "proc_exit") => {
                         let Value::I32(x) = *f.locals.get(&0).unwrap() else {
                             panic!()
                         };
                         std::process::exit(x);
+                    }
+                    ("wasi_snapshot_preview1", "args_get") => {
+                        let Value::I32(_) = *f.locals.get(&0).unwrap() else {
+                            panic!()
+                        };
+                        let Value::I32(_) = *f.locals.get(&0).unwrap() else {
+                            panic!()
+                        };
+                        f.stack.push(Value::I32(0));
                     }
                     (module, function) => panic!("unknown function {module}::{function}"),
                 }

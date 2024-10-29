@@ -1,4 +1,4 @@
-use std::collections::HashMap;
+use std::{collections::HashMap, mem};
 pub mod clean_model;
 mod memory;
 
@@ -144,7 +144,6 @@ impl Runtime {
                 let mut instr = &code[f.pc];
                 instr = if let comment(_, r) = instr { r } else { instr };
                 f.pc += 1;
-
                 match instr {
                     x02_block(bt, ins) => {
                         f.block_count.push(f.stack.len());
@@ -256,6 +255,9 @@ impl Runtime {
                             depth: 0,
                         });
                     }
+                    x1a_drop => {
+                        f.stack.pop().unwrap();
+                    }
                     x20_local_get(LocalIdX(id)) => f.stack.push(*f.locals.get(id).unwrap()),
                     x21_local_set(LocalIdX(id)) => {
                         let val = f.stack.pop().unwrap();
@@ -293,6 +295,16 @@ impl Runtime {
                             self.memory.set_u8(addr as usize + offset + i, b);
                         }
                     }
+                    x3a_i32_store8(MemArg { align, offset }) => {
+                        let Value::I32(v) = f.stack.pop().unwrap() else {
+                            panic!()
+                        };
+                        let Value::I32(addr) = f.stack.pop().unwrap() else {
+                            panic!()
+                        };
+                        let offset = (align * offset) as usize;
+                        self.memory.set_u8(addr as usize + offset, v as u8);
+                    }
                     x41_i32_const(i) => f.stack.push(Value::I32(*i)),
                     x42_i64_const(val) => {
                         f.stack.push(Value::I64(*val));
@@ -302,6 +314,19 @@ impl Runtime {
                             unreachable!()
                         };
                         f.stack.push(Value::I32((val == 0) as i32));
+                    }
+                    x49_i32_lt_u => {
+                        let y = f.stack.pop().unwrap();
+                        let x = f.stack.pop().unwrap();
+                        match (x, y) {
+                            (Value::I32(x), Value::I32(y)) => {
+                                let x = unsafe { mem::transmute::<i32, u32>(x) };
+                                let y = unsafe { mem::transmute::<i32, u32>(y) };
+                                let r = (y < x) as i32;
+                                f.stack.push(Value::I32(r))
+                            }
+                            _ => unreachable!(),
+                        }
                     }
                     x52_i64_ne => {
                         let y = f.stack.pop().unwrap();

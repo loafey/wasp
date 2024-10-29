@@ -5,6 +5,7 @@ use hex::Hex;
 use parser::{Instr, Module, Parsable};
 use runtime::{clean_model::Function, Runtime};
 use std::{
+    env::args,
     io::Cursor,
     mem::MaybeUninit,
     time::{Duration, Instant},
@@ -25,6 +26,24 @@ fn alloc<const N: usize>() -> Hex<N> {
     }
 }
 
+fn runtime() -> Runtime {
+    let bin: &[u8] = include_bytes!("../examples/c_addition.wasm");
+    let mut cursor = Cursor::new(bin);
+    let mut stack = Vec::new();
+    let module = match Module::parse(&mut cursor, &mut stack) {
+        Ok(o) => o,
+        Err(e) => {
+            stack.reverse();
+            eprintln!(
+                "Error: {e:?}, bin pos: {}, stack: {stack:#?}",
+                cursor.position()
+            );
+            std::process::exit(1);
+        }
+    };
+    Runtime::new(module)
+}
+
 struct App {
     runtime: Runtime,
     current_frame: usize,
@@ -35,23 +54,8 @@ struct App {
 }
 impl App {
     pub fn new(_xcc: &eframe::CreationContext<'_>) -> Self {
-        let bin: &[u8] = include_bytes!("../examples/c_addition.wasm");
-        let mut cursor = Cursor::new(bin);
-        let mut stack = Vec::new();
-        let module = match Module::parse(&mut cursor, &mut stack) {
-            Ok(o) => o,
-            Err(e) => {
-                stack.reverse();
-                eprintln!(
-                    "Error: {e:?}, bin pos: {}, stack: {stack:#?}",
-                    cursor.position()
-                );
-                std::process::exit(1);
-            }
-        };
-
         Self {
-            runtime: Runtime::new(module),
+            runtime: runtime(),
             current_frame: 0,
             frame_count: 1,
             frame_duration: 0.5, //0.5,
@@ -159,17 +163,24 @@ impl eframe::App for App {
 fn main() {
     pretty_env_logger::init();
 
-    let native_options = eframe::NativeOptions {
-        viewport: egui::ViewportBuilder::default()
-            .with_inner_size([400.0, 300.0])
-            .with_min_inner_size([300.0, 220.0])
-            .with_maximized(true),
-        ..Default::default()
-    };
-    eframe::run_native(
-        "sasm",
-        native_options,
-        Box::new(|cc| Ok(Box::new(App::new(cc)))),
-    )
-    .unwrap();
+    if args().any(|s| s == "--gui") {
+        let native_options = eframe::NativeOptions {
+            viewport: egui::ViewportBuilder::default()
+                .with_inner_size([400.0, 300.0])
+                .with_min_inner_size([300.0, 220.0])
+                .with_maximized(true),
+            ..Default::default()
+        };
+        eframe::run_native(
+            "sasm",
+            native_options,
+            Box::new(|cc| Ok(Box::new(App::new(cc)))),
+        )
+        .unwrap();
+    } else {
+        let mut runtime = runtime();
+        loop {
+            runtime.step();
+        }
+    }
 }

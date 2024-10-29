@@ -37,6 +37,7 @@ pub struct Frame {
     pub locals: HashMap<u32, Value>,
     pub labels: HashMap<u32, u32>,
     pub block_count: Vec<usize>,
+    pub depth: usize,
 }
 
 pub struct Runtime {
@@ -80,6 +81,7 @@ impl Runtime {
                 locals: HashMap::new(),
                 labels: HashMap::new(),
                 block_count: Vec::new(),
+                depth: 0,
             }],
             memory,
             globals: HashMap::new(),
@@ -154,9 +156,9 @@ impl Runtime {
                         let pos_before = f.pc;
                         let mut modified = 0;
                         code.insert(f.pc - 1, block_end);
-                        for (c, i) in c.into_iter().enumerate().rev() {
+                        for (_, i) in c.into_iter().enumerate().rev() {
                             modified += 1;
-                            code.insert(f.pc - 1, comment(format!("line: {c:?}"), Box::new(i)));
+                            code.insert(f.pc - 1, i);
                         }
                         f.labels
                             .iter_mut()
@@ -164,6 +166,7 @@ impl Runtime {
                         f.labels
                             .insert(f.labels.len() as u32, (pos_before + modified) as u32);
                         code.insert(f.pc - 1, block_start);
+                        f.depth += 1;
 
                         // self.module.code.code[index].code.e.instrs.remove(f.pc - 1);
                         // for i in c.into_iter().rev() {
@@ -180,11 +183,13 @@ impl Runtime {
                         //     .insert(f.pc - 1, block_start);
                     }
                     x0c_br(LabelIdX(label)) => {
-                        (0..*label).for_each(|_| {
+                        let label = f.depth - 1 - *label as usize;
+                        (0..label).for_each(|_| {
                             f.stack.pop();
                         });
-                        let pc = f.labels.get(label).unwrap();
-                        f.pc = *pc as usize;
+                        let pc = f.labels.get(&(label as u32)).unwrap();
+                        f.pc = *pc as usize + 1;
+                        f.depth = label;
                     }
                     x0d_br_if(LabelIdX(label)) => {
                         let Value::I32(val) = f.stack.pop().unwrap() else {
@@ -192,10 +197,12 @@ impl Runtime {
                         };
 
                         if val != 0 {
-                            (0..*label).for_each(|_| {
+                            let label = f.depth - 1 - *label as usize;
+                            f.depth = label;
+                            (0..label).for_each(|_| {
                                 f.stack.pop();
                             });
-                            f.pc = *f.labels.get(label).unwrap() as usize;
+                            f.pc = *f.labels.get(&(label as u32)).unwrap() as usize + 1;
                         }
                     }
                     x10_call(FuncIdx(id)) => {
@@ -238,6 +245,7 @@ impl Runtime {
                             locals,
                             labels: HashMap::new(),
                             block_count: Vec::new(),
+                            depth: 0,
                         });
                     }
                     x20_local_get(LocalIdX(id)) => f.stack.push(*f.locals.get(id).unwrap()),
@@ -321,7 +329,16 @@ impl Runtime {
                             _ => unreachable!(),
                         }
                     }
-                    block_start | block_end => {}
+                    x74_i32_shl => {
+                        let y = f.stack.pop().unwrap();
+                        let x = f.stack.pop().unwrap();
+                        match (x, y) {
+                            (Value::I32(x), Value::I32(y)) => f.stack.push(Value::I32(y << x)),
+                            _ => unreachable!(),
+                        }
+                    }
+                    block_start => f.depth += 1,
+                    block_end => f.depth -= 1,
                     f => {
                         unimplemented!("instruction not supported : {f:?}")
                     }

@@ -7,7 +7,7 @@ use memory::Memory;
 
 use crate::parser::{
     self, ExportDesc, FuncIdx, Global, GlobalIdX, Instr::*, LabelIdX, LocalIdX, MemArg, Module,
-    TypeIdX, BT,
+    RefTyp, Table, TableIdX, TypeIdX, BT,
 };
 
 #[derive(Clone, Copy)]
@@ -286,6 +286,13 @@ impl Runtime {
                             locals,
                             depth: 0,
                         });
+                    }
+                    x11_call_indirect(TypeIdX(ti), TableIdX(tai)) => {
+                        let Table { et, lim } = &self.module.tables[*tai as usize];
+                        if !matches!(et, RefTyp::FuncRef) {
+                            panic!()
+                        }
+                        panic!("call x11_call_indirect {ti} - {tai}")
                     }
                     x1a_drop => {
                         f.stack.pop().unwrap();

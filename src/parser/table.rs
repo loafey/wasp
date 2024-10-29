@@ -7,8 +7,8 @@ use super::{error::ParseError, Limits, Parsable, RefTyp};
 #[derive(Debug)]
 #[allow(unused)]
 pub struct Table {
-    et: RefTyp,
-    lim: Limits,
+    pub et: RefTyp,
+    pub lim: Limits,
 }
 impl Parsable for Table {
     fn parse_inner(

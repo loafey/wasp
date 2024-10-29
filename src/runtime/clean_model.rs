@@ -1,4 +1,4 @@
-use crate::parser::{FuncType, ImportDesc, Instr, Module, Name, TypeIdX};
+use crate::parser::{FuncType, ImportDesc, Instr, Module, Name, Table, TypeIdX};
 use std::collections::HashMap;
 
 pub enum Function {
@@ -43,6 +43,7 @@ impl std::fmt::Debug for Function {
 #[derive(Debug)]
 pub struct Model {
     pub functions: HashMap<u32, Function>,
+    pub tables: Vec<Table>,
 }
 impl From<Module> for Model {
     fn from(value: Module) -> Self {
@@ -82,6 +83,9 @@ impl From<Module> for Model {
             );
         }
 
-        Self { functions }
+        Self {
+            functions,
+            tables: value.tables.tables,
+        }
     }
 }

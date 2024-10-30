@@ -6,13 +6,13 @@ use crate::hex::Hex;
 use std::io::Read;
 use Instr::*;
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq)]
 pub enum BT {
     Block,
     Loop,
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq)]
 #[allow(non_camel_case_types, unused)]
 #[repr(u8)]
 pub enum Instr {

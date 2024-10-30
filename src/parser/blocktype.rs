@@ -1,6 +1,6 @@
 use super::{Parsable, ValType};
 
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone, Copy, PartialEq)]
 #[allow(unused)]
 pub enum BlockType {
     Eps,

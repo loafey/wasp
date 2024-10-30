@@ -153,65 +153,8 @@ impl Runtime {
                 instr = if let comment(_, r) = instr { r } else { instr };
                 f.pc += 1;
                 match instr {
-                    x02_block(bt, ins) => {
-                        match bt {
-                            parser::BlockType::Eps => {}
-                            parser::BlockType::T(_) => todo!(),
-                            parser::BlockType::X(_) => todo!(),
-                        }
-
-                        let c = ins.clone();
-                        let func = self.module.functions.get_mut(&f.func_id).unwrap();
-                        let Function::Local { code, labels, .. } = func else {
-                            unreachable!()
-                        };
-
-                        code.remove(f.pc - 1);
-                        let pos_before = f.pc;
-                        let mut modified = 0;
-                        code.insert(f.pc - 1, block_end(BT::Block));
-                        for (_, i) in c.into_iter().enumerate().rev() {
-                            modified += 1;
-                            code.insert(f.pc - 1, i);
-                        }
-                        labels.iter_mut().for_each(|(_, r)| {
-                            if (*r as usize) >= f.pc {
-                                *r += modified as u32 + 1
-                            }
-                        });
-                        labels.insert(labels.len() as u32, (pos_before + modified) as u32);
-                        code.insert(f.pc - 1, block_start(BT::Block));
-                        f.depth += 1;
-                    }
-                    x03_loop(bt, ins) => {
-                        match bt {
-                            parser::BlockType::Eps => {}
-                            parser::BlockType::T(_) => todo!(),
-                            parser::BlockType::X(_) => todo!(),
-                        }
-
-                        let c = ins.clone();
-                        let func = self.module.functions.get_mut(&f.func_id).unwrap();
-                        let Function::Local { code, labels, .. } = func else {
-                            unreachable!()
-                        };
-
-                        code.remove(f.pc - 1);
-                        labels.insert(labels.len() as u32, (f.pc - 1) as u32);
-                        code.insert(f.pc - 1, block_end(BT::Loop));
-                        let mut modified = 0;
-                        for (_, i) in c.into_iter().enumerate().rev() {
-                            modified += 1;
-                            code.insert(f.pc - 1, i);
-                        }
-                        labels.iter_mut().for_each(|(_, r)| {
-                            if (*r as usize) >= f.pc {
-                                *r += modified as u32 + 1
-                            }
-                        });
-                        code.insert(f.pc - 1, block_start(BT::Loop));
-                        f.depth += 1;
-                    }
+                    x02_block(_, _) => panic!("impossible"),
+                    x03_loop(_, _) => panic!("impossible"),
                     x0c_br(LabelIdX(label)) => {
                         let label = f.depth - 1 - *label as usize;
                         (0..label).for_each(|_| {

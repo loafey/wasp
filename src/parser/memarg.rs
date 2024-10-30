@@ -1,6 +1,6 @@
 use super::Parsable;
 
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone, Copy, PartialEq)]
 #[allow(unused)]
 pub struct MemArg {
     pub align: u32,

@@ -2,7 +2,7 @@ use std::ops::{Deref, DerefMut};
 
 use super::Parsable;
 
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone, Copy, PartialEq)]
 pub struct FuncIdx(pub u32);
 impl Deref for FuncIdx {
     type Target = u32;

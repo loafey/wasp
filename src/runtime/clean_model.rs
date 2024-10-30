@@ -13,14 +13,7 @@ pub enum Function {
         locals: Vec<usize>,
         code: Vec<Instr>,
         labels: HashMap<u32, u32>,
-        label_tree: LabelTree,
     },
-}
-
-#[derive(Debug)]
-pub struct LabelTree {
-    children: Vec<LabelTree>,
-    labels: HashMap<u32, u32>,
 }
 
 #[derive(Debug)]
@@ -140,10 +133,6 @@ impl From<Module> for Model {
                     locals,
                     labels: HashMap::new(),
                     code,
-                    label_tree: LabelTree {
-                        children: Vec::new(),
-                        labels: HashMap::new(),
-                    },
                 },
             );
         }

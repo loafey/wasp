@@ -104,13 +104,8 @@ impl eframe::App for App {
             if text.func_id == 29 {
                 self.auto = false;
             }
-            if let Function::Local {
-                labels, label_tree, ..
-            } = &self.runtime.module.functions[&text.func_id]
-            {
+            if let Function::Local { labels, .. } = &self.runtime.module.functions[&text.func_id] {
                 let label = egui::Label::new(format!("Labels: {labels:#?}")).extend();
-                ui.add(label);
-                let label = egui::Label::new(format!("Labels tree: {label_tree:#?}")).extend();
                 ui.add(label);
             }
 

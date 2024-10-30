@@ -16,8 +16,8 @@ pub enum BT {
 #[allow(non_camel_case_types, unused)]
 #[repr(u8)]
 pub enum Instr {
-    block_start(BT) = 0xFF,
-    block_end(BT) = 0xFE,
+    block_start(BT, usize) = 0xFF,
+    block_end(BT, usize) = 0xFE,
     comment(String, Box<Instr>) = 0xFD,
     x00_unreachable = 0x00,
     x02_block(BlockType, Vec<Instr>) = 0x02,

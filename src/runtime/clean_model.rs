@@ -12,7 +12,7 @@ pub enum Function {
         ty: FuncType,
         locals: Vec<usize>,
         code: Vec<Instr>,
-        labels: HashMap<u32, u32>,
+        labels: HashMap<Vec<u32>, u32>,
     },
 }
 
@@ -62,11 +62,11 @@ impl From<Module> for Model {
                         let c = ins.clone();
 
                         code.remove(pc);
-                        code.insert(pc, Instr::block_end(BT::Block));
+                        code.insert(pc, Instr::block_end(BT::Block, 0));
                         for (_, i) in c.into_iter().enumerate().rev() {
                             code.insert(pc, i);
                         }
-                        code.insert(pc, Instr::block_start(BT::Block));
+                        code.insert(pc, Instr::block_start(BT::Block, 0));
                     }
                     Instr::x03_loop(bt, ins) => {
                         match bt {
@@ -78,53 +78,52 @@ impl From<Module> for Model {
                         let c = ins.clone();
 
                         code.remove(pc);
-                        code.insert(pc, Instr::block_end(BT::Loop));
+                        code.insert(pc, Instr::block_end(BT::Loop, 0));
                         for (_, i) in c.into_iter().enumerate().rev() {
                             code.insert(pc, i);
                         }
-                        code.insert(pc, Instr::block_start(BT::Loop));
+                        code.insert(pc, Instr::block_start(BT::Loop, 0));
                     }
                     _ => {}
                 }
                 pc += 1;
             }
-            // let code = code
-            //     .into_iter()
-            //     .map(|i| match i {
-            //         Instr::x02_block(bt, ins) => {
-            //             match bt {
-            //                 BlockType::Eps => {}
-            //                 BlockType::T(_) => todo!(),
-            //                 BlockType::X(_) => todo!(),
-            //             }
 
-            //             let c = ins.clone();
-            //             let func = self.module.functions.get_mut(&f.func_id).unwrap();
-            //             let Function::Local { code, labels, .. } = func else {
-            //                 unreachable!()
-            //             };
+            let mut pc = 0;
+            while pc < code.len() {
+                let (sp, ep) = if let Instr::block_start(_, _) = &mut code[pc] {
+                    let mut in_pc = pc + 1;
+                    let mut bs = 0;
+                    loop {
+                        match &code[in_pc] {
+                            Instr::block_start(_, _) => {
+                                bs += 1;
+                            }
+                            Instr::block_end(_, _) => {
+                                if bs == 0 {
+                                    break (pc, in_pc);
+                                }
+                                bs -= 1;
+                            }
+                            _ => {}
+                        }
+                        in_pc += 1;
+                    }
+                } else {
+                    pc += 1;
+                    continue;
+                };
 
-            //             code.remove(f.pc - 1);
-            //             let pos_before = f.pc;
-            //             let mut modified = 0;
-            //             code.insert(f.pc - 1, Instr::block_end(BT::Block));
-            //             for (_, i) in c.into_iter().enumerate().rev() {
-            //                 modified += 1;
-            //                 code.insert(f.pc - 1, i);
-            //             }
-            //             labels.iter_mut().for_each(|(_, r)| {
-            //                 if (*r as usize) >= f.pc {
-            //                     *r += modified as u32 + 1
-            //                 }
-            //             });
-            //             labels.insert(labels.len() as u32, (pos_before + modified) as u32);
-            //             code.insert(f.pc - 1, Instr::block_start(BT::Block));
-            //             f.depth += 1;
-            //         }
-            //         Instr::block_end(bt) => todo!(),
-            //         i => i,
-            //     })
-            //     .collect();
+                let Instr::block_start(_, ins) = &mut code[sp] else {
+                    panic!()
+                };
+                *ins = ep;
+                let Instr::block_end(_, ins) = &mut code[ep] else {
+                    panic!()
+                };
+                *ins = sp;
+                pc += 1;
+            }
 
             functions.insert(
                 (k + import_count) as u32,

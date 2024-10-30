@@ -141,17 +141,17 @@ impl eframe::App for App {
                             };
                             let icon = if i == pc { "├╼ " } else { "│  " };
 
-                            if matches!(ins, Instr::block_end(_)) {
+                            if matches!(ins, Instr::block_end(_, _)) {
                                 indent -= 1;
                             }
                             let ind = ". ".repeat(indent);
-                            if matches!(ins, Instr::block_start(_)) {
+                            if matches!(ins, Instr::block_start(_, _)) {
                                 indent += 1;
                             }
 
                             let ins = match ins {
-                                Instr::block_start(bt) => format!("{{ -- {bt:?}"),
-                                Instr::block_end(bt) => format!("}} -- {bt:?}"),
+                                Instr::block_start(bt, end) => format!("{{ -- {bt:?} > {end}"),
+                                Instr::block_end(bt, start) => format!("}} -- {bt:?} > {start}"),
                                 ins => format!("{ins:?}"),
                             };
 

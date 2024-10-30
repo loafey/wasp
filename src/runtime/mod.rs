@@ -37,7 +37,9 @@ pub struct Frame {
     pub stack: Vec<Value>,
     pub locals: HashMap<u32, Value>,
     // pub labels: HashMap<u32, u32>,
-    pub depth: usize,
+    pub depth: u32,
+    pub depth_stack: Vec<u32>,
+    pub depth_stack_count: Vec<u32>,
 }
 
 pub struct Runtime {
@@ -91,6 +93,8 @@ impl Runtime {
                 locals: HashMap::new(),
                 // labels: HashMap::new(),
                 depth: 0,
+                depth_stack: Vec::new(),
+                depth_stack_count: vec![0],
             }],
             memory,
             globals,
@@ -156,35 +160,37 @@ impl Runtime {
                     x02_block(_, _) => panic!("impossible"),
                     x03_loop(_, _) => panic!("impossible"),
                     x0c_br(LabelIdX(label)) => {
-                        let label = f.depth - 1 - *label as usize;
-                        (0..label).for_each(|_| {
-                            f.stack.pop();
-                        });
-                        let pc = labels.get(&(label as u32)).unwrap();
-                        f.pc = *pc as usize + 1;
-                        f.depth = label;
+                        // let label = f.depth - 1 - *label as usize;
+                        // (0..label).for_each(|_| {
+                        //     f.stack.pop();
+                        // });
+                        // let pc = labels.get(&(label as u32)).unwrap();
+                        // f.pc = *pc as usize + 1;
+                        // f.depth = label;
+                        f.pc -= 1;
+                        println!("!LOCK!")
                     }
                     x0d_br_if(LabelIdX(label)) => {
-                        let Value::I32(val) = f.stack.pop().unwrap() else {
-                            unreachable!()
-                        };
+                        // let Value::I32(val) = f.stack.pop().unwrap() else {
+                        // unreachable!()
+                        // };
 
-                        if val != 0 {
-                            let label = f.depth - 1 - *label as usize;
-                            let old = f.depth;
-                            f.depth = label;
-                            (0..label).for_each(|_| {
-                                f.stack.pop();
-                            });
-                            if let Some(pc) = labels.get(&(label as u32)) {
-                                f.pc = *pc as usize + 1;
-                            } else {
-                                f.pc -= 1;
-                                f.stack.push(Value::I32(val));
-                                f.depth = old;
-                                println!("!LOCK!")
-                            }
-                        }
+                        // if val != 0 {
+                        // let label = f.depth - 1 - *label as usize;
+                        // let old = f.depth;
+                        // f.depth = label;
+                        // (0..label).for_each(|_| {
+                        // f.stack.pop();
+                        // });
+                        // if let Some(pc) = labels.get(&(label as u32)) {
+                        // f.pc = *pc as usize + 1;
+                        // } else {
+                        f.pc -= 1;
+                        // f.stack.push(Value::I32(val));
+                        // f.depth = old;
+                        println!("!LOCK!")
+                        // }
+                        // }
                     }
                     x0f_return => {
                         let mut last_f = self.stack.pop().unwrap();
@@ -224,6 +230,8 @@ impl Runtime {
                             stack: Vec::new(),
                             locals,
                             depth: 0,
+                            depth_stack: Vec::new(),
+                            depth_stack_count: vec![0],
                         });
                     }
                     x11_call_indirect(TypeIdX(ti), TableIdX(tai)) => {
@@ -487,8 +495,21 @@ impl Runtime {
                             _ => unreachable!(),
                         }
                     }
-                    block_start(_) => f.depth += 1,
-                    block_end(_) => f.depth -= 1,
+                    block_start(bt, _) => {
+                        f.depth_stack.push(*f.depth_stack_count.last().unwrap());
+                        *f.depth_stack_count.last_mut().unwrap() += 1;
+                        f.depth_stack_count.push(0);
+                        f.depth += 1;
+
+                        if !labels.contains_key(&f.depth_stack) {
+                            todo!()
+                        }
+                    }
+                    block_end(_, _) => {
+                        f.depth_stack.pop();
+                        f.depth_stack_count.pop();
+                        f.depth -= 1;
+                    }
                     f => {
                         unimplemented!("instruction not supported : {f:?}")
                     }

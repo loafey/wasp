@@ -142,7 +142,7 @@ impl Runtime {
                 let last = self.stack.last_mut().unwrap();
                 last.stack.append(&mut frame.stack);
             }
-            Function::Local { code, .. } => {
+            Function::Local { code, labels, .. } => {
                 if f.pc >= code.len() {
                     let mut frame = self.stack.pop().unwrap();
                     let last = self.stack.last_mut().unwrap();
@@ -160,10 +160,6 @@ impl Runtime {
                         (0..label).for_each(|_| {
                             f.stack.pop();
                         });
-                        let func = self.module.functions.get_mut(&f.func_id).unwrap();
-                        let Function::Local { labels, .. } = func else {
-                            unreachable!()
-                        };
                         let pc = labels.get(&(label as u32)).unwrap();
                         f.pc = *pc as usize + 1;
                         f.depth = label;
@@ -180,10 +176,6 @@ impl Runtime {
                             (0..label).for_each(|_| {
                                 f.stack.pop();
                             });
-                            let func = self.module.functions.get_mut(&f.func_id).unwrap();
-                            let Function::Local { labels, .. } = func else {
-                                unreachable!()
-                            };
                             if let Some(pc) = labels.get(&(label as u32)) {
                                 f.pc = *pc as usize + 1;
                             } else {

@@ -74,17 +74,22 @@ impl eframe::App for App {
         }
 
         egui::TopBottomPanel::top("top_panel").show(ctx, |ui| {
-            if ui.button("Step").clicked() {
-                self.runtime.step();
-                if self.frame_count != self.runtime.stack.len() {
-                    self.current_frame = self.runtime.stack.len() - 1;
+            ui.with_layout(egui::Layout::left_to_right(egui::Align::Min), |ui| {
+                if ui.button("Step").clicked() {
+                    self.runtime.step();
+                    if self.frame_count != self.runtime.stack.len() {
+                        self.current_frame = self.runtime.stack.len() - 1;
+                    }
+                    self.frame_count = self.runtime.stack.len();
                 }
-                self.frame_count = self.runtime.stack.len();
-            }
 
-            if ui.button("Auto").clicked() {
-                self.auto = !self.auto;
-            }
+                if ui.button("Auto").clicked() {
+                    self.auto = !self.auto;
+                }
+
+                ui.label("Tick delay:");
+                ui.add(egui::Slider::new(&mut self.frame_duration, 0.0..=2.0));
+            });
         });
 
         egui::SidePanel::new(egui::panel::Side::Left, Id::new("side_panel")).show(ctx, |ui| {
@@ -113,9 +118,9 @@ impl eframe::App for App {
         egui::SidePanel::new(egui::panel::Side::Left, Id::new("stack_info")).show(ctx, |ui| {
             ui.heading("Frame info:");
             let text = &self.runtime.stack[self.current_frame];
-            // if text.func_id == 29 {
-            // self.auto = false;
-            // }
+            if text.func_id == 29 {
+                self.auto = false;
+            }
             if let Function::Local { labels, .. } = &self.runtime.module.functions[&text.func_id] {
                 let label = egui::Label::new(format!("Labels: {labels:#?}")).extend();
                 ui.add(label);

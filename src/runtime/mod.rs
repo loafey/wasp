@@ -325,7 +325,7 @@ impl Runtime {
                         };
                         let bytes = v.to_le_bytes();
                         for (i, b) in bytes.into_iter().enumerate() {
-                            self.memory.set_u8(addr as usize, *mem, b);
+                            self.memory.set_u8(addr as usize + i, *mem, b);
                         }
                     }
                     x37_i64_store(mem) => {
@@ -337,7 +337,7 @@ impl Runtime {
                         };
                         let bytes = v.to_le_bytes();
                         for (i, b) in bytes.into_iter().enumerate() {
-                            self.memory.set_u8(addr as usize, *mem, b);
+                            self.memory.set_u8(addr as usize + i, *mem, b);
                         }
                     }
                     x3a_i32_store8(mem) => {

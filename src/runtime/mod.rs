@@ -168,11 +168,13 @@ impl Runtime {
                 let last = self.stack.last_mut().unwrap();
                 last.stack.append(&mut frame.stack);
             }
-            Function::Local { code, labels, .. } => {
+            Function::Local { code, ty, .. } => {
                 if f.pc >= code.len() {
                     let mut frame = self.stack.pop().unwrap();
                     let last = self.stack.last_mut().unwrap();
-                    last.stack.append(&mut frame.stack);
+                    for _ in 0..ty.output.types.len() {
+                        last.stack.push(frame.stack.pop().unwrap());
+                    }
                     return;
                 }
                 let mut instr = &code[f.pc];

@@ -341,12 +341,34 @@ impl Runtime {
                         };
                         f.stack.push(Value::I32((val == 0) as i32));
                     }
+                    x46_i32_eq => {
+                        let y = f.stack.pop().unwrap();
+                        let x = f.stack.pop().unwrap();
+                        match (x, y) {
+                            (Value::I32(x), Value::I32(y)) => {
+                                let r = (x == y) as i32;
+                                f.stack.push(Value::I32(r))
+                            }
+                            _ => unreachable!(),
+                        }
+                    }
                     x47_i32_ne => {
                         let y = f.stack.pop().unwrap();
                         let x = f.stack.pop().unwrap();
                         match (x, y) {
                             (Value::I32(x), Value::I32(y)) => {
                                 let r = (x != y) as i32;
+                                f.stack.push(Value::I32(r))
+                            }
+                            _ => unreachable!(),
+                        }
+                    }
+                    x48_i32_lt_s => {
+                        let y = f.stack.pop().unwrap();
+                        let x = f.stack.pop().unwrap();
+                        match (x, y) {
+                            (Value::I32(x), Value::I32(y)) => {
+                                let r = (x < y) as i32;
                                 f.stack.push(Value::I32(r))
                             }
                             _ => unreachable!(),

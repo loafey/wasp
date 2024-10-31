@@ -6,6 +6,7 @@ use parser::{Instr, Module, Parsable};
 use runtime::{clean_model::Function, Runtime};
 use std::{
     env::args,
+    fmt::format,
     io::Cursor,
     mem::MaybeUninit,
     time::{Duration, Instant},
@@ -87,6 +88,17 @@ impl eframe::App for App {
         });
 
         egui::SidePanel::new(egui::panel::Side::Left, Id::new("side_panel")).show(ctx, |ui| {
+            ui.heading("Ram usage:");
+            let mem = self.runtime.memory.size();
+            if mem > 1_000_000_000 {
+                ui.label(format!("{}GB", mem as f64 / 1_000_000_000.0))
+            } else if mem > 1_000_000 {
+                ui.label(format!("{}MB", mem as f64 / 1_000_000.0))
+            } else if mem > 1_000 {
+                ui.label(format!("{}KB", mem as f64 / 1_000.0))
+            } else {
+                ui.label(format!("{}B", mem))
+            };
             ui.heading("Stack frames:");
             let width = ui.max_rect().width();
             for i in (0..self.runtime.stack.len()).rev() {

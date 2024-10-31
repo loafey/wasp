@@ -4,6 +4,10 @@ pub struct Memory<const PAGE_SIZE: usize> {
     map: HashMap<usize, [u8; PAGE_SIZE]>,
 }
 impl<const PAGE_SIZE: usize> Memory<PAGE_SIZE> {
+    pub fn size(&self) -> usize {
+        self.map.len() * PAGE_SIZE
+    }
+
     pub fn new() -> Self {
         Self {
             map: HashMap::new(),

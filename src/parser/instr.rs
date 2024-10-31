@@ -6,7 +6,7 @@ use crate::hex::Hex;
 use std::io::Read;
 use Instr::*;
 
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone, PartialEq, Copy)]
 pub enum BT {
     Block,
     Loop,

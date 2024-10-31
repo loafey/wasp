@@ -267,6 +267,18 @@ impl Runtime {
                     x1a_drop => {
                         f.stack.pop().unwrap();
                     }
+                    x1b_select => {
+                        let Value::I32(cond) = f.stack.pop().unwrap() else {
+                            unreachable!()
+                        }; // const 0
+                        let y = f.stack.pop().unwrap(); // const 20
+                        let x = f.stack.pop().unwrap(); // const 10
+                        if cond == 1 {
+                            f.stack.push(x);
+                        } else {
+                            f.stack.push(y);
+                        }
+                    }
                     x20_local_get(LocalIdX(id)) => f.stack.push(*f.locals.get(id).unwrap()),
                     x21_local_set(LocalIdX(id)) => {
                         if f.stack.is_empty() {

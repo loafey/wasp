@@ -16,13 +16,17 @@ impl<const PAGE_SIZE: usize> Memory<PAGE_SIZE> {
         }
     }
 
-    pub fn set_u8(&mut self, address: usize, mem_arg: MemArg, byte: u8) {
+    pub fn set_u8(&mut self, address: usize, MemArg { align: _, offset }: MemArg, byte: u8) {
+        // let align = 2usize.pow(align);
+        let address = address + offset as usize;
         let block = address / PAGE_SIZE;
         let index = address % PAGE_SIZE;
         self.map.entry(block).or_insert([0; PAGE_SIZE])[index] = byte;
     }
 
-    fn get_u8(&self, address: usize, mem_arg: MemArg) -> u8 {
+    fn get_u8(&self, address: usize, MemArg { align: _, offset }: MemArg) -> u8 {
+        // let align = 2usize.pow(align);
+        let address = address + offset as usize;
         let block = address / PAGE_SIZE;
         let index = address % PAGE_SIZE;
         if let Some(v) = self.map.get(&block) {

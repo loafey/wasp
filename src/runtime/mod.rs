@@ -273,10 +273,9 @@ impl Runtime {
                         }; // const 0
                         let y = f.stack.pop().unwrap(); // const 20
                         let x = f.stack.pop().unwrap(); // const 10
-                        if cond == 1 {
-                            f.stack.push(x);
-                        } else {
-                            f.stack.push(y);
+                        match cond == 1 {
+                            true => f.stack.push(x),
+                            false => f.stack.push(y),
                         }
                     }
                     x20_local_get(LocalIdX(id)) => f.stack.push(*f.locals.get(id).unwrap()),

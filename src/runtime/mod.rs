@@ -56,7 +56,14 @@ impl Runtime {
                         panic!()
                     };
                     for (i, v) in vec.iter().enumerate() {
-                        memory.set_u8(*p as usize + i, *v);
+                        memory.set_u8(
+                            *p as usize + i,
+                            MemArg {
+                                align: 0,
+                                offset: 0,
+                            },
+                            *v,
+                        );
                     }
                 }
                 parser::Data::MemB(_) => todo!(),
@@ -112,7 +119,13 @@ impl Runtime {
                         };
                         let mut b = Vec::new();
                         for i in x..y {
-                            let s = self.memory.get_u8(i);
+                            let s = self.memory.get(
+                                i,
+                                MemArg {
+                                    align: 0,
+                                    offset: 0,
+                                },
+                            );
                             b.push(s);
                         }
                         let s = String::from_utf8_lossy(&b);
@@ -275,60 +288,55 @@ impl Runtime {
                         let pop = f.stack.pop().unwrap();
                         self.globals.insert(*id, pop);
                     }
-                    x28_i32_load(MemArg { align, offset }) => {
+                    x28_i32_load(mem) => {
                         let Value::I32(addr) = f.stack.pop().unwrap() else {
                             panic!()
                         };
-                        let offset = (align * offset) as usize;
                         f.stack
-                            .push(Value::I32(self.memory.get(addr as usize + offset)));
+                            .push(Value::I32(self.memory.get(addr as usize, *mem)));
                     }
-                    x2d_i32_load8_u(MemArg { align, offset }) => {
+                    x2d_i32_load8_u(mem) => {
                         let Value::I32(addr) = f.stack.pop().unwrap() else {
                             panic!()
                         };
-                        let offset = (align * offset) as usize;
                         f.stack.push(Value::I32(unsafe {
                             mem::transmute::<u32, i32>(
-                                self.memory.get_u8(addr as usize + offset) as u32
+                                self.memory.get::<u8>(addr as usize, *mem) as u32
                             )
                         }));
                     }
-                    x36_i32_store(MemArg { align, offset }) => {
+                    x36_i32_store(mem) => {
                         let Value::I32(v) = f.stack.pop().unwrap() else {
                             panic!()
                         };
                         let Value::I32(addr) = f.stack.pop().unwrap() else {
                             panic!()
                         };
-                        let offset = (align * offset) as usize;
                         let bytes = v.to_le_bytes();
                         for (i, b) in bytes.into_iter().enumerate() {
-                            self.memory.set_u8(addr as usize + offset + i, b);
+                            self.memory.set_u8(addr as usize, *mem, b);
                         }
                     }
-                    x37_i64_store(MemArg { align, offset }) => {
+                    x37_i64_store(mem) => {
                         let Value::I64(v) = f.stack.pop().unwrap() else {
                             panic!()
                         };
                         let Value::I32(addr) = f.stack.pop().unwrap() else {
                             panic!()
                         };
-                        let offset = (align * offset) as usize;
                         let bytes = v.to_le_bytes();
                         for (i, b) in bytes.into_iter().enumerate() {
-                            self.memory.set_u8(addr as usize + offset + i, b);
+                            self.memory.set_u8(addr as usize, *mem, b);
                         }
                     }
-                    x3a_i32_store8(MemArg { align, offset }) => {
+                    x3a_i32_store8(mem) => {
                         let Value::I32(v) = f.stack.pop().unwrap() else {
                             panic!()
                         };
                         let Value::I32(addr) = f.stack.pop().unwrap() else {
                             panic!()
                         };
-                        let offset = (align * offset) as usize;
-                        self.memory.set_u8(addr as usize + offset, v as u8);
+                        self.memory.set_u8(addr as usize, *mem, v as u8);
                     }
                     x41_i32_const(i) => f.stack.push(Value::I32(*i)),
                     x42_i64_const(val) => {

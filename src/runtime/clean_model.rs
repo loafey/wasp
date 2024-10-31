@@ -1,4 +1,6 @@
-use crate::parser::{BlockType, FuncType, ImportDesc, Instr, Module, Name, Table, TypeIdX, BT};
+use crate::parser::{
+    BlockType, Elem, FuncIdx, FuncType, ImportDesc, Instr, Module, Name, Table, TypeIdX, BT,
+};
 use std::collections::HashMap;
 
 #[derive(Debug)]
@@ -20,6 +22,7 @@ pub enum Function {
 pub struct Model {
     pub functions: HashMap<u32, Function>,
     pub tables: Vec<Table>,
+    pub elems: Vec<u32>,
 }
 impl From<Module> for Model {
     fn from(value: Module) -> Self {
@@ -136,9 +139,21 @@ impl From<Module> for Model {
             );
         }
 
+        let mut elems = Vec::new();
+        for e in value.elems.elems {
+            match e {
+                Elem::E0(e, vec) => {
+                    if let [Instr::x41_i32_const(i)] = &e.instrs[..] {
+                        elems.extend(&mut vec.into_iter().map(|FuncIdx(u)| u))
+                    }
+                }
+                _ => todo!(),
+            }
+        }
         Self {
             functions,
             tables: value.tables.tables,
+            elems,
         }
     }
 }

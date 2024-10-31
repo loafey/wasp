@@ -1,4 +1,4 @@
-use std::{collections::HashMap, mem};
+use std::{collections::HashMap, fmt::Debug, mem};
 pub mod clean_model;
 mod memory;
 
@@ -262,7 +262,30 @@ impl Runtime {
                         if !matches!(et, RefTyp::FuncRef) {
                             panic!()
                         }
-                        panic!("call x11_call_indirect {ti} - {tai}")
+                        let id = self.module.elems[*ti as usize];
+                        let fun = &self.module.functions[&id];
+                        let (ty, _) = match fun {
+                            Function::Import { ty, .. } => {
+                                (ty, (0..=ty.input.types.len()).collect::<Vec<_>>())
+                            }
+                            Function::Local { ty, locals, .. } => (ty, locals.clone()),
+                        };
+
+                        let locals = ty
+                            .input
+                            .types
+                            .iter()
+                            .enumerate()
+                            .map(|(i, _)| (i as u32, f.stack.pop().unwrap()))
+                            .collect();
+
+                        self.stack.push(Frame {
+                            func_id: id,
+                            pc: 0,
+                            stack: Vec::new(),
+                            locals,
+                            depth_stack: Vec::new(),
+                        });
                     }
                     x1a_drop => {
                         f.stack.pop().unwrap();

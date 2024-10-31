@@ -118,7 +118,7 @@ impl eframe::App for App {
         egui::SidePanel::new(egui::panel::Side::Left, Id::new("stack_info")).show(ctx, |ui| {
             ui.heading("Frame info:");
             let text = &self.runtime.stack[self.current_frame];
-            if text.func_id == 29 {
+            if matches!(text.func_id, 24 | 13) {
                 self.auto = false;
             }
             if let Function::Local { labels, .. } = &self.runtime.module.functions[&text.func_id] {

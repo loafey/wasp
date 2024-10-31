@@ -1,9 +1,23 @@
-use std::{collections::HashMap, mem, ptr};
+use std::{collections::HashMap, fmt::Debug, mem, ptr};
 
 use crate::parser::MemArg;
 
 pub struct Memory<const PAGE_SIZE: usize> {
     map: HashMap<usize, [u8; PAGE_SIZE]>,
+}
+impl<const PAGE_SIZE: usize> Debug for Memory<PAGE_SIZE> {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        let mut d = self.map.iter().collect::<Vec<_>>();
+        d.sort_by_key(|(d, _)| *d);
+        for (l, r) in d {
+            write!(f, "{l},")?;
+            for c in r {
+                write!(f, "{},", *c as char)?;
+            }
+            writeln!(f)?
+        }
+        writeln!(f)
+    }
 }
 impl<const PAGE_SIZE: usize> Memory<PAGE_SIZE> {
     pub fn size(&self) -> usize {

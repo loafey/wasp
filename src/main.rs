@@ -3,7 +3,7 @@
 use egui::{Id, Vec2};
 use hex::Hex;
 use parser::{Instr, Module, Parsable};
-use runtime::{clean_model::Function, Runtime};
+use runtime::{clean_model::Function, Runtime, Value};
 use std::{
     env::args,
     fmt::format,
@@ -118,8 +118,16 @@ impl eframe::App for App {
         egui::SidePanel::new(egui::panel::Side::Left, Id::new("stack_info")).show(ctx, |ui| {
             ui.heading("Frame info:");
             let text = &self.runtime.stack[self.current_frame];
-            if matches!(text.func_id, 24 | 13) {
+            self.auto = text.func_id != 30;
+            if text
+                .stack
+                .iter()
+                .filter(|v| matches!(v, Value::BlockLock))
+                .count()
+                > text.depth_stack.len()
+            {
                 self.auto = false;
+                println!("!LOCK!");
             }
             if let Function::Local { labels, .. } = &self.runtime.module.functions[&text.func_id] {
                 let label = egui::Label::new(format!("Labels: {labels:#?}")).extend();

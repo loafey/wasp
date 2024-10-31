@@ -17,6 +17,7 @@ pub enum Value {
     I64(i64),
     F32(f32),
     F64(f32),
+    BlockLock,
 }
 
 impl std::fmt::Debug for Value {
@@ -26,7 +27,19 @@ impl std::fmt::Debug for Value {
             Self::I64(arg0) => write!(f, "i64({arg0})"),
             Self::F32(arg0) => write!(f, "f32({arg0})"),
             Self::F64(arg0) => write!(f, "f64({arg0})"),
+            Self::BlockLock => write!(f, "--- BLOCK ---"),
         }
+    }
+}
+
+pub struct DepthValue {
+    bt: BT,
+    pos: usize,
+}
+
+impl Debug for DepthValue {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{:?} - {}", self.bt, self.pos)
     }
 }
 
@@ -37,7 +50,7 @@ pub struct Frame {
     pub stack: Vec<Value>,
     pub locals: HashMap<u32, Value>,
     // pub labels: HashMap<u32, u32>,
-    pub depth_stack: Vec<(BT, usize)>,
+    pub depth_stack: Vec<DepthValue>,
 }
 
 pub struct Runtime {
@@ -173,12 +186,20 @@ impl Runtime {
                         for _ in 0..=*label {
                             last = f.depth_stack.pop();
                         }
-                        match last.unwrap() {
-                            (BT::Loop, l) => {
-                                f.pc = l;
+                        let bt = last.unwrap();
+                        match bt.bt {
+                            BT::Loop => {
+                                f.pc = bt.pos;
                             }
-                            (BT::Block, l) => {
-                                f.pc = l + 1;
+                            BT::Block => {
+                                f.pc = bt.pos + 1;
+                            }
+                        }
+                        for _ in 0..=*label {
+                            loop {
+                                if matches!(f.stack.pop().unwrap(), Value::BlockLock) {
+                                    break;
+                                }
                             }
                         }
                         // let label = f.depth - 1 - *label as usize;
@@ -199,12 +220,20 @@ impl Runtime {
                             for _ in 0..=*label {
                                 last = f.depth_stack.pop();
                             }
-                            match last.unwrap() {
-                                (BT::Loop, l) => {
-                                    f.pc = l;
+                            let bt = last.unwrap();
+                            match bt.bt {
+                                BT::Loop => {
+                                    f.pc = bt.pos;
                                 }
-                                (BT::Block, l) => {
-                                    f.pc = l + 1;
+                                BT::Block => {
+                                    f.pc = bt.pos + 1;
+                                }
+                            }
+                            for _ in 0..=*label {
+                                loop {
+                                    if matches!(f.stack.pop().unwrap(), Value::BlockLock) {
+                                        break;
+                                    }
                                 }
                             }
                             // let label = f.depth - 1 - *label as usize;
@@ -373,10 +402,7 @@ impl Runtime {
                         self.memory.set_u8(addr as usize, *mem, v as u8);
                     }
                     x41_i32_const(i) => f.stack.push(Value::I32(*i)),
-                    x42_i64_const(val) => {
-                        f.stack.push(Value::I64(*val));
-                    }
-
+                    x42_i64_const(val) => f.stack.push(Value::I64(*val)),
                     x45_i32_eqz => {
                         let Value::I32(val) = f.stack.pop().unwrap() else {
                             unreachable!()
@@ -569,11 +595,24 @@ impl Runtime {
                             _ => unreachable!(),
                         }
                     }
-                    block_start(bt, be) => match bt {
-                        BT::Block => f.depth_stack.push((*bt, *be)),
-                        BT::Loop => f.depth_stack.push((*bt, f.pc - 1)),
-                    },
+                    block_start(bt, be) => {
+                        f.stack.push(Value::BlockLock);
+                        match bt {
+                            BT::Block => f.depth_stack.push(DepthValue { bt: *bt, pos: *be }),
+                            BT::Loop => f.depth_stack.push(DepthValue {
+                                bt: *bt,
+                                pos: f.pc - 1,
+                            }),
+                        }
+                    }
                     block_end(_, _) => {
+                        loop {
+                            if let Some(Value::BlockLock) = f.stack.last() {
+                                f.stack.pop();
+                                break;
+                            }
+                            f.stack.pop();
+                        }
                         f.depth_stack.pop();
                     }
                     f => {

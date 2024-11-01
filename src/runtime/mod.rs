@@ -121,6 +121,7 @@ impl Runtime {
 
         match &self.module.functions[&f.func_id] {
             Function::Import { module, name, .. } => {
+                println!("calling {module:?}::{name:?}");
                 match (&*module.0, &*name.0) {
                     ("console", "log") => {
                         let y = *f.locals.get(&0).unwrap();
@@ -145,6 +146,9 @@ impl Runtime {
                         println!("{s}")
                     }
                     ("wasi_snapshot_preview1", "args_sizes_get") => {
+                        f.stack.push(Value::I32(std::env::args().count() as i32));
+                        let s = std::env::args_os().map(|s| s.len() + 1).sum::<usize>() as i32;
+                        f.stack.push(Value::I32(s));
                         f.stack.push(Value::I32(0));
                     }
                     ("wasi_snapshot_preview1", "proc_exit") => {
@@ -154,12 +158,13 @@ impl Runtime {
                         std::process::exit(x);
                     }
                     ("wasi_snapshot_preview1", "args_get") => {
-                        let Value::I32(_) = *f.locals.get(&0).unwrap() else {
+                        let Value::I32(argv) = *f.locals.get(&0).unwrap() else {
                             panic!()
                         };
-                        let Value::I32(_) = *f.locals.get(&0).unwrap() else {
+                        let Value::I32(argv_buf) = *f.locals.get(&0).unwrap() else {
                             panic!()
                         };
+                        println!("{argv} {argv_buf}");
                         f.stack.push(Value::I32(0));
                     }
                     (module, function) => panic!("unknown function {module}::{function}"),

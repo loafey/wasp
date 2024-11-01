@@ -6,7 +6,6 @@ use parser::{Instr, Module, Parsable};
 use runtime::{clean_model::Function, Runtime, Value};
 use std::{
     env::args,
-    fmt::format,
     io::Cursor,
     mem::MaybeUninit,
     time::{Duration, Instant},

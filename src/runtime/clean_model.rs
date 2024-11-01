@@ -1,7 +1,7 @@
 use crate::parser::{
-    BlockType, Elem, FuncIdx, FuncType, ImportDesc, Instr, Module, Name, Table, TypeIdX, BT,
+    BlockType, Elem, FuncIdx, FuncType, ImportDesc, Instr, Module, Name, TypeIdX, BT,
 };
-use std::collections::HashMap;
+use std::{collections::HashMap, ops::Deref};
 
 #[derive(Debug)]
 pub enum Function {
@@ -19,10 +19,21 @@ pub enum Function {
 }
 
 #[derive(Debug)]
+pub struct Table {
+    table: HashMap<u32, FuncIdx>,
+}
+impl Deref for Table {
+    type Target = HashMap<u32, FuncIdx>;
+
+    fn deref(&self) -> &Self::Target {
+        &self.table
+    }
+}
+
+#[derive(Debug)]
 pub struct Model {
     pub functions: HashMap<u32, Function>,
     pub tables: Vec<Table>,
-    pub elems: Vec<u32>,
 }
 impl From<Module> for Model {
     fn from(value: Module) -> Self {
@@ -139,21 +150,33 @@ impl From<Module> for Model {
             );
         }
 
-        let mut elems = Vec::new();
-        for e in value.elems.elems {
-            match e {
-                Elem::E0(e, vec) => {
-                    if let [Instr::x41_i32_const(i)] = &e.instrs[..] {
-                        elems.extend(&mut vec.into_iter().map(|FuncIdx(u)| u))
+        let mut tables: Vec<_> = value
+            .tables
+            .tables
+            .into_iter()
+            .map(|_| Table {
+                table: HashMap::new(),
+            })
+            .collect();
+        for (ti, elem) in value.elems.elems.into_iter().enumerate() {
+            match elem {
+                Elem::E0(expr, vec) => match &expr.instrs[..] {
+                    [Instr::x41_i32_const(off)] => {
+                        for (i, v) in vec.into_iter().enumerate() {
+                            tables[ti].table.insert(*off as u32 + i as u32, v);
+                        }
                     }
-                }
-                _ => todo!(),
+                    _ => panic!(),
+                },
+                Elem::E1(_, _) => todo!(),
+                Elem::E2(_, _, _, _) => todo!(),
+                Elem::E3(_, _) => todo!(),
+                Elem::E4(_, _) => todo!(),
+                Elem::E5(_, _) => todo!(),
+                Elem::E6(_, _, _, _) => todo!(),
+                Elem::E7(_, _) => todo!(),
             }
         }
-        Self {
-            functions,
-            tables: value.tables.tables,
-            elems,
-        }
+        Self { functions, tables }
     }
 }

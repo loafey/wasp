@@ -294,12 +294,10 @@ impl Runtime {
                         });
                     }
                     x11_call_indirect(TypeIdX(ti), TableIdX(tai)) => {
-                        let Table { et, lim } = &self.module.tables[*tai as usize];
-                        if !matches!(et, RefTyp::FuncRef) {
-                            panic!()
-                        }
-                        let id = self.module.elems[*ti as usize];
-                        let fun = &self.module.functions[&id];
+                        let table = &self.module.tables[*tai as usize];
+                        println!("{ti}|{tai} , {table:?}");
+                        let FuncIdx(id) = table.get(ti).unwrap();
+                        let fun = &self.module.functions[id];
                         let (ty, _) = match fun {
                             Function::Import { ty, .. } => {
                                 (ty, (0..=ty.input.types.len()).collect::<Vec<_>>())
@@ -316,7 +314,7 @@ impl Runtime {
                             .collect();
 
                         self.stack.push(Frame {
-                            func_id: id,
+                            func_id: *id,
                             pc: 0,
                             stack: Vec::new(),
                             locals,

@@ -3,6 +3,9 @@ use std::{collections::HashMap, fmt::Debug, mem, ptr};
 
 pub struct Memory<const PAGE_SIZE: usize> {
     map: HashMap<usize, [u8; PAGE_SIZE]>,
+    pub stack_ptr: usize,
+    pub stack_base: usize,
+    pub stack_end: usize,
 }
 impl<const PAGE_SIZE: usize> Debug for Memory<PAGE_SIZE> {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
@@ -26,6 +29,9 @@ impl<const PAGE_SIZE: usize> Memory<PAGE_SIZE> {
     pub fn new() -> Self {
         Self {
             map: HashMap::new(),
+            stack_ptr: 0,
+            stack_base: 0,
+            stack_end: 0,
         }
     }
 

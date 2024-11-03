@@ -19,6 +19,14 @@ pub enum Value {
     F64(f32),
     BlockLock,
 }
+impl Value {
+    pub fn assume_i32(self) -> i32 {
+        match self {
+            Value::I32(v) => v,
+            _ => panic!(),
+        }
+    }
+}
 
 impl std::fmt::Debug for Value {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
@@ -358,6 +366,12 @@ impl Runtime {
                     x24_global_set(GlobalIdX(id)) => {
                         let pop = f.stack.pop().unwrap();
                         self.globals.insert(*id, pop);
+                        match id {
+                            0 => self.memory.stack_ptr = pop.assume_i32() as usize,
+                            1 => self.memory.stack_end = pop.assume_i32() as usize,
+                            2 => self.memory.stack_base = pop.assume_i32() as usize,
+                            _ => {}
+                        }
                     }
                     x28_i32_load(mem) => {
                         let Value::I32(addr) = f.stack.pop().unwrap() else {

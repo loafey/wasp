@@ -38,6 +38,7 @@ impl<const PAGE_SIZE: usize> Memory<PAGE_SIZE> {
     }
 
     pub fn set<T>(&mut self, address: usize, mem_arg: MemArg, val: T) {
+        // println!("setting {}", address + mem_arg.offset as usize);
         // let align = 2usize.pow(align);
         let t = &val as *const T as *const u8;
         for i in 0..mem::size_of::<T>() {
@@ -59,9 +60,9 @@ impl<const PAGE_SIZE: usize> Memory<PAGE_SIZE> {
 
     // Very nice function! :)
     pub fn get<T>(&self, address: usize, mem_arg: MemArg) -> T {
+        // println!("getting {}", address + mem_arg.offset as usize);
         let mut val = unsafe { mem::zeroed::<T>() };
         let r = &mut val as *mut T as *mut u8;
-        println!("Getting {address}");
         for i in 0..mem::size_of::<T>() {
             let b = self.get_u8(address + i, mem_arg);
             unsafe {

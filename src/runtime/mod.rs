@@ -64,10 +64,12 @@ impl Runtime {
         let mut memory = Memory::new();
         for d in &module.datas.data {
             match d {
-                parser::Data::Mem0(e, vec) => {
+                parser::Data::Active(e, vec) => {
                     let [Instr::x41_i32_const(p)] = &e.instrs[..] else {
                         panic!()
                     };
+                    println!("{p}");
+                    println!("{vec:?}\n------------------------");
                     for (i, v) in vec.iter().enumerate() {
                         memory.set(
                             *p as usize + i,
@@ -79,8 +81,8 @@ impl Runtime {
                         );
                     }
                 }
-                parser::Data::MemB(_) => todo!(),
-                parser::Data::MemX(_, _, _) => todo!(),
+                parser::Data::Passive(_) => todo!(),
+                parser::Data::ActiveX(_, _, _) => todo!(),
             }
         }
 
@@ -314,7 +316,7 @@ impl Runtime {
                         );
                         println!("\ttable: {table:?}");
 
-                        let FuncIdx(id) = table.get(&100).unwrap();
+                        let FuncIdx(id) = table.get(&(function_index as u32)).unwrap();
 
                         self.stack.push(Frame {
                             func_id: *id,

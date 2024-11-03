@@ -77,7 +77,7 @@ impl Runtime {
                         panic!()
                     };
                     for (i, v) in vec.iter().enumerate() {
-                        memory.set(
+                        memory.heap_set(
                             *p as usize + i,
                             MemArg {
                                 align: 0,
@@ -141,7 +141,7 @@ impl Runtime {
                         };
                         let mut b = Vec::new();
                         for i in x..y {
-                            let s = self.memory.get(
+                            let s = self.memory.heap_get(
                                 i,
                                 MemArg {
                                     align: 0,
@@ -378,7 +378,7 @@ impl Runtime {
                             panic!()
                         };
                         f.stack
-                            .push(Value::I32(self.memory.get(addr as usize, *mem)));
+                            .push(Value::I32(self.memory.heap_get(addr as usize, *mem)));
                     }
                     x2d_i32_load8_u(mem) => {
                         let Value::I32(addr) = f.stack.pop().unwrap() else {
@@ -386,7 +386,7 @@ impl Runtime {
                         };
                         f.stack.push(Value::I32(unsafe {
                             mem::transmute::<u32, i32>(
-                                self.memory.get::<u8>(addr as usize, *mem) as u32
+                                self.memory.heap_get::<u8>(addr as usize, *mem) as u32,
                             )
                         }));
                     }
@@ -397,7 +397,7 @@ impl Runtime {
                         let Value::I32(addr) = f.stack.pop().unwrap() else {
                             panic!()
                         };
-                        self.memory.set(addr as usize, *mem, v);
+                        self.memory.heap_set(addr as usize, *mem, v);
                     }
                     x37_i64_store(mem) => {
                         let Value::I64(v) = f.stack.pop().unwrap() else {
@@ -406,7 +406,7 @@ impl Runtime {
                         let Value::I32(addr) = f.stack.pop().unwrap() else {
                             panic!()
                         };
-                        self.memory.set(addr as usize, *mem, v);
+                        self.memory.heap_set(addr as usize, *mem, v);
                     }
                     x3a_i32_store8(mem) => {
                         let Value::I32(v) = f.stack.pop().unwrap() else {
@@ -415,7 +415,7 @@ impl Runtime {
                         let Value::I32(addr) = f.stack.pop().unwrap() else {
                             panic!()
                         };
-                        self.memory.set(addr as usize, *mem, v as u8);
+                        self.memory.heap_set(addr as usize, *mem, v as u8);
                     }
                     x41_i32_const(i) => f.stack.push(Value::I32(*i)),
                     x42_i64_const(val) => f.stack.push(Value::I64(*val)),

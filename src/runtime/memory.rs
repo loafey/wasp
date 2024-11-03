@@ -1,29 +1,32 @@
 use crate::parser::MemArg;
-use std::{collections::HashMap, fmt::Debug, mem, ptr};
+use std::{collections::HashMap, mem, ptr};
+
+use super::Value;
 
 pub struct Memory<const PAGE_SIZE: usize> {
     map: HashMap<usize, [u8; PAGE_SIZE]>,
     pub stack_ptr: usize,
     pub stack_base: usize,
     pub stack_end: usize,
-}
-impl<const PAGE_SIZE: usize> Debug for Memory<PAGE_SIZE> {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        let mut d = self.map.iter().collect::<Vec<_>>();
-        d.sort_by_key(|(d, _)| *d);
-        for (l, r) in d {
-            write!(f, "{l},")?;
-            for c in r {
-                write!(f, "{},", *c as char)?;
-            }
-            writeln!(f)?
-        }
-        writeln!(f)
-    }
+    stack_book: Vec<usize>,
 }
 impl<const PAGE_SIZE: usize> Memory<PAGE_SIZE> {
     pub fn size(&self) -> usize {
         self.map.len() * PAGE_SIZE
+    }
+
+    pub fn stack_new_frame(&mut self, locals: HashMap<u32, Value>) {
+        todo!()
+    }
+    pub fn stack_pop_frame(&mut self, keep: usize) -> Vec<Value> {
+        todo!()
+    }
+
+    pub fn stack_push_value(&mut self, value: Value) {
+        todo!()
+    }
+    pub fn stack_pop_value(&mut self) -> Value {
+        todo!()
     }
 
     pub fn new() -> Self {
@@ -32,6 +35,7 @@ impl<const PAGE_SIZE: usize> Memory<PAGE_SIZE> {
             stack_ptr: 0,
             stack_base: 0,
             stack_end: 0,
+            stack_book: Vec::new(),
         }
     }
 
@@ -43,7 +47,7 @@ impl<const PAGE_SIZE: usize> Memory<PAGE_SIZE> {
         self.map.entry(block).or_insert([0; PAGE_SIZE])[index] = byte;
     }
 
-    pub fn set<T>(&mut self, address: usize, mem_arg: MemArg, val: T) {
+    pub fn heap_set<T>(&mut self, address: usize, mem_arg: MemArg, val: T) {
         // println!("setting {}", address + mem_arg.offset as usize);
         // let align = 2usize.pow(align);
         let t = &val as *const T as *const u8;
@@ -65,7 +69,7 @@ impl<const PAGE_SIZE: usize> Memory<PAGE_SIZE> {
     }
 
     // Very nice function! :)
-    pub fn get<T>(&self, address: usize, mem_arg: MemArg) -> T {
+    pub fn heap_get<T>(&self, address: usize, mem_arg: MemArg) -> T {
         // println!("getting {}", address + mem_arg.offset as usize);
         let mut val = unsafe { mem::zeroed::<T>() };
         let r = &mut val as *mut T as *mut u8;

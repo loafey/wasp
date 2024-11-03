@@ -3,8 +3,13 @@ use std::{collections::HashMap, mem, ptr};
 
 use super::Value;
 
+struct Page<const PAGE_SIZE: usize> {
+    zero: usize,
+    data: [u8; PAGE_SIZE],
+}
+
 pub struct Memory<const PAGE_SIZE: usize> {
-    map: HashMap<usize, [u8; PAGE_SIZE]>,
+    map: HashMap<usize, Page<PAGE_SIZE>>,
     pub stack_ptr: usize,
     pub stack_base: usize,
     pub stack_end: usize,
@@ -44,7 +49,11 @@ impl<const PAGE_SIZE: usize> Memory<PAGE_SIZE> {
         let address = address + offset as usize;
         let block = address / PAGE_SIZE;
         let index = address % PAGE_SIZE;
-        self.map.entry(block).or_insert([0; PAGE_SIZE])[index] = byte;
+        let entry = self.map.entry(block).or_insert(Page {
+            zero: 1,
+            data: [0; PAGE_SIZE],
+        });
+        entry.data[index] = byte;
     }
 
     pub fn heap_set<T>(&mut self, address: usize, mem_arg: MemArg, val: T) {
@@ -62,7 +71,7 @@ impl<const PAGE_SIZE: usize> Memory<PAGE_SIZE> {
         let block = address / PAGE_SIZE;
         let index = address % PAGE_SIZE;
         if let Some(v) = self.map.get(&block) {
-            v[index]
+            v.data[index]
         } else {
             0
         }

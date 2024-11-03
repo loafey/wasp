@@ -69,7 +69,7 @@ impl Runtime {
                         panic!()
                     };
                     for (i, v) in vec.iter().enumerate() {
-                        memory.set_u8(
+                        memory.set(
                             *p as usize + i,
                             MemArg {
                                 align: 0,
@@ -383,10 +383,7 @@ impl Runtime {
                         let Value::I32(addr) = f.stack.pop().unwrap() else {
                             panic!()
                         };
-                        let bytes = v.to_le_bytes();
-                        for (i, b) in bytes.into_iter().enumerate() {
-                            self.memory.set_u8(addr as usize + i, *mem, b);
-                        }
+                        self.memory.set(addr as usize, *mem, v);
                     }
                     x37_i64_store(mem) => {
                         let Value::I64(v) = f.stack.pop().unwrap() else {
@@ -395,10 +392,7 @@ impl Runtime {
                         let Value::I32(addr) = f.stack.pop().unwrap() else {
                             panic!()
                         };
-                        let bytes = v.to_le_bytes();
-                        for (i, b) in bytes.into_iter().enumerate() {
-                            self.memory.set_u8(addr as usize + i, *mem, b);
-                        }
+                        self.memory.set(addr as usize, *mem, v);
                     }
                     x3a_i32_store8(mem) => {
                         let Value::I32(v) = f.stack.pop().unwrap() else {
@@ -407,7 +401,7 @@ impl Runtime {
                         let Value::I32(addr) = f.stack.pop().unwrap() else {
                             panic!()
                         };
-                        self.memory.set_u8(addr as usize, *mem, v as u8);
+                        self.memory.set(addr as usize, *mem, v as u8);
                     }
                     x41_i32_const(i) => f.stack.push(Value::I32(*i)),
                     x42_i64_const(val) => f.stack.push(Value::I64(*val)),

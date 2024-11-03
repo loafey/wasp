@@ -29,12 +29,20 @@ impl<const PAGE_SIZE: usize> Memory<PAGE_SIZE> {
         }
     }
 
-    pub fn set_u8(&mut self, address: usize, MemArg { align: _, offset }: MemArg, byte: u8) {
+    fn set_u8(&mut self, address: usize, MemArg { align: _, offset }: MemArg, byte: u8) {
         // let align = 2usize.pow(align);
         let address = address + offset as usize;
         let block = address / PAGE_SIZE;
         let index = address % PAGE_SIZE;
         self.map.entry(block).or_insert([0; PAGE_SIZE])[index] = byte;
+    }
+
+    pub fn set<T>(&mut self, address: usize, mem_arg: MemArg, val: T) {
+        // let align = 2usize.pow(align);
+        let t = &val as *const T as *const u8;
+        for i in 0..mem::size_of::<T>() {
+            self.set_u8(address + i, mem_arg, unsafe { *t.add(i) })
+        }
     }
 
     fn get_u8(&self, address: usize, MemArg { align: _, offset }: MemArg) -> u8 {

@@ -68,8 +68,6 @@ impl Runtime {
                     let [Instr::x41_i32_const(p)] = &e.instrs[..] else {
                         panic!()
                     };
-                    println!("{p}");
-                    println!("{vec:?}\n------------------------");
                     for (i, v) in vec.iter().enumerate() {
                         memory.set(
                             *p as usize + i,

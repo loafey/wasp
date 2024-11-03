@@ -112,6 +112,11 @@ impl eframe::App for App {
                     self.current_frame = i;
                 }
             }
+
+            ui.heading("Globals:");
+            for (k, v) in &self.runtime.globals {
+                ui.label(format!("{k}: {v:?}"));
+            }
         });
 
         egui::SidePanel::new(egui::panel::Side::Left, Id::new("stack_info")).show(ctx, |ui| {

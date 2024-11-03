@@ -1,6 +1,5 @@
-use std::{collections::HashMap, fmt::Debug, mem, ptr};
-
 use crate::parser::MemArg;
+use std::{collections::HashMap, fmt::Debug, mem, ptr};
 
 pub struct Memory<const PAGE_SIZE: usize> {
     map: HashMap<usize, [u8; PAGE_SIZE]>,
@@ -54,6 +53,7 @@ impl<const PAGE_SIZE: usize> Memory<PAGE_SIZE> {
     pub fn get<T>(&self, address: usize, mem_arg: MemArg) -> T {
         let mut val = unsafe { mem::zeroed::<T>() };
         let r = &mut val as *mut T as *mut u8;
+        println!("Getting {address}");
         for i in 0..mem::size_of::<T>() {
             let b = self.get_u8(address + i, mem_arg);
             unsafe {

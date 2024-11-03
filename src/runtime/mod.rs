@@ -293,18 +293,12 @@ impl Runtime {
                             depth_stack: Vec::new(),
                         });
                     }
-                    x11_call_indirect(TypeIdX(ti), TableIdX(tai)) => {
-                        let table = &self.module.tables[*tai as usize];
-                        println!("{ti}|{tai} , {table:?}");
-                        let FuncIdx(id) = table.get(ti).unwrap();
-                        let fun = &self.module.functions[id];
-                        let (ty, _) = match fun {
-                            Function::Import { ty, .. } => {
-                                (ty, (0..=ty.input.types.len()).collect::<Vec<_>>())
-                            }
-                            Function::Local { ty, locals, .. } => (ty, locals.clone()),
+                    x11_call_indirect(TypeIdX(type_index), TableIdX(table_index)) => {
+                        let Value::I32(function_index) = f.stack.pop().unwrap() else {
+                            unreachable!()
                         };
 
+                        let ty = self.module.function_types.get(type_index).unwrap();
                         let locals = ty
                             .input
                             .types
@@ -312,6 +306,15 @@ impl Runtime {
                             .enumerate()
                             .map(|(i, _)| (i as u32, f.stack.pop().unwrap()))
                             .collect();
+
+                        let table = &self.module.tables[*table_index as usize];
+                        println!(
+                            "Call info ({}): \n\tinputs: {locals:?}\n\tfunction_index: {function_index}",
+                            f.func_id
+                        );
+                        println!("\ttable: {table:?}");
+
+                        let FuncIdx(id) = table.get(&100).unwrap();
 
                         self.stack.push(Frame {
                             func_id: *id,

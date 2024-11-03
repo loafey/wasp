@@ -34,6 +34,7 @@ impl Deref for Table {
 pub struct Model {
     pub functions: HashMap<u32, Function>,
     pub tables: Vec<Table>,
+    pub function_types: HashMap<u32, FuncType>,
 }
 impl From<Module> for Model {
     fn from(value: Module) -> Self {
@@ -158,6 +159,7 @@ impl From<Module> for Model {
                 table: HashMap::new(),
             })
             .collect();
+
         for (ti, elem) in value.elems.elems.into_iter().enumerate() {
             match elem {
                 Elem::E0(expr, vec) => match &expr.instrs[..] {
@@ -177,6 +179,19 @@ impl From<Module> for Model {
                 Elem::E7(_, _) => todo!(),
             }
         }
-        Self { functions, tables }
+
+        let function_types = value
+            .types
+            .function_types
+            .into_iter()
+            .enumerate()
+            .map(|(i, f)| (i as u32, f))
+            .collect();
+
+        Self {
+            functions,
+            tables,
+            function_types,
+        }
     }
 }

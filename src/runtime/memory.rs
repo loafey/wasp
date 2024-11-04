@@ -8,12 +8,6 @@ struct Page<const PAGE_SIZE: usize> {
     data: [u8; PAGE_SIZE],
 }
 
-pub struct Frame {
-    pc: usize,
-    size: usize,
-    locals: HashMap<u32, Value>,
-}
-
 pub struct Memory<const PAGE_SIZE: usize> {
     map: HashMap<usize, Page<PAGE_SIZE>>,
 }

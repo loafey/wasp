@@ -6,6 +6,7 @@
 use egui::{Id, Vec2};
 use hex::Hex;
 use parser::{Instr, Module, Parsable};
+use regex::Regex;
 use runtime::{clean_model::Function, Runtime, RuntimeError, Value};
 use std::{
     env::args,
@@ -13,6 +14,7 @@ use std::{
     io::{Cursor, Read},
     mem::MaybeUninit,
     path::PathBuf,
+    sync::LazyLock,
     time::{Duration, Instant},
 };
 mod hex;
@@ -212,6 +214,9 @@ impl eframe::App for App {
     }
 }
 
+static PATH_CHECK: LazyLock<Regex> =
+    LazyLock::new(|| Regex::new("\\.[0-9]+\\.wasm").expect("failed to compile regex"));
+
 fn main() {
     pretty_env_logger::init();
     let mut path = args()
@@ -249,7 +254,7 @@ fn main() {
                     .to_string();
                 t == file_name
             })
-            .filter(|p| format!("{p:?}").chars().any(|c| c.is_ascii_digit()))
+            .filter(|p| PATH_CHECK.find(&format!("{p:?}")).is_some())
             .collect::<Vec<_>>();
         tests.sort();
         tests.sort_by(|a, b| format!("{a:?}").len().cmp(&format!("{b:?}").len()));

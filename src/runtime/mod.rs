@@ -66,11 +66,13 @@ pub struct Runtime {
     pub stack: Vec<Frame>,
     pub globals: HashMap<u32, Value>,
     pub memory: Memory<1024>,
+    pub datas: HashMap<u32, Vec<u8>>,
 }
 impl Runtime {
     pub fn new(module: Module) -> Self {
         let mut memory = Memory::new();
-        for d in &module.datas.data {
+        let mut datas = HashMap::new();
+        for (i, d) in module.datas.data.iter().enumerate() {
             match d {
                 parser::Data::Active(e, vec) => {
                     let [Instr::x41_i32_const(p)] = &e.instrs[..] else {
@@ -87,7 +89,9 @@ impl Runtime {
                         );
                     }
                 }
-                parser::Data::Passive(_) => todo!(),
+                parser::Data::Passive(v) => {
+                    datas.insert(i as u32, v.clone());
+                }
                 parser::Data::ActiveX(_, _, _) => todo!(),
             }
         }
@@ -122,6 +126,7 @@ impl Runtime {
             }],
             memory,
             globals,
+            datas,
         }
     }
     pub fn step(&mut self) {

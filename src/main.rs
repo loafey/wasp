@@ -6,7 +6,8 @@ use parser::{Instr, Module, Parsable};
 use runtime::{clean_model::Function, Runtime, Value};
 use std::{
     env::args,
-    io::Cursor,
+    fs::File,
+    io::{Cursor, Read},
     mem::MaybeUninit,
     time::{Duration, Instant},
 };
@@ -27,8 +28,17 @@ fn alloc<const N: usize>() -> Hex<N> {
 }
 
 fn runtime() -> Runtime {
-    let bin: &[u8] = include_bytes!("../examples/c_addition.wasm");
-    let mut cursor = Cursor::new(bin);
+    let mut buf = Vec::new();
+    let mut f = File::open(
+        args()
+            .skip(1)
+            .find(|p| !p.starts_with("--"))
+            .unwrap_or("examples/c_addition.wasm".to_string()),
+    )
+    .unwrap();
+    f.read_to_end(&mut buf).unwrap();
+
+    let mut cursor = Cursor::new(&buf[..]);
     let mut stack = Vec::new();
     let module = match Module::parse(&mut cursor, &mut stack) {
         Ok(o) => o,

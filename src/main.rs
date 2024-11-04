@@ -245,7 +245,6 @@ fn main() {
         let mut tests = fs::read_dir(p)
             .expect("failed to read dir")
             .map(|p| p.expect("failed to read dir content").path())
-            .filter(|p| p.extension().map(|a| a == "wasm").unwrap_or_default())
             .filter(|p| {
                 let t = p
                     .file_prefix()
@@ -254,6 +253,7 @@ fn main() {
                     .to_string();
                 t == file_name
             })
+            .filter(|p| p.extension().map(|a| a == "wasm").unwrap_or_default())
             .filter(|p| PATH_CHECK.find(&format!("{p:?}")).is_some())
             .collect::<Vec<_>>();
         tests.sort();

@@ -22,6 +22,7 @@ pub enum Instr {
     x00_unreachable = 0x00,
     x02_block(BlockType, Vec<Instr>) = 0x02,
     x03_loop(BlockType, Vec<Instr>) = 0x03,
+    x04_if_else(BlockType, Vec<Instr>, Option<Vec<Instr>>) = 0x04,
     x0c_br(LabelIdX) = 0x0c,
     x0d_br_if(LabelIdX) = 0x0d,
     x0e_br_table(Vec<LabelIdX>, LabelIdX) = 0x0e,
@@ -52,14 +53,17 @@ pub enum Instr {
     x35_i64_load32_u(MemArg) = 0x35,
     x36_i32_store(MemArg) = 0x36,
     x37_i64_store(MemArg) = 0x37,
+    x38_f32_store(MemArg) = 0x38,
     x39_f64_store(MemArg) = 0x39,
     x3a_i32_store8(MemArg) = 0x3a,
     x3b_i32_store16(MemArg) = 0x3b,
     x3c_i64_store8(MemArg) = 0x3c,
+    x3d_i64_store16(MemArg) = 0x3d,
     x3e_i64_store32(MemArg) = 0x3e,
     x40_grow = 0x40,
     x41_i32_const(i32) = 0x10,
     x42_i64_const(i64) = 0x42,
+    x43_f32_const(f32) = 0x43,
     x44_f64_const(f64) = 0x44,
     x45_i32_eqz = 0x45,
     x46_i32_eq = 0x46,
@@ -171,7 +175,40 @@ impl Parsable for Instr {
                 }
                 x03_loop(block_type, v)
             }
-            0x04 => Err(ParseError::UnknownInstruction(Hex(typ)))?,
+            0x04 => {
+                let block_type = p!();
+                let mut v = Vec::new();
+                loop {
+                    match Instr::parse(data, stack) {
+                        Ok(i) => v.push(i),
+                        Err(ParseError::EndOfInstructions) => {
+                            stack.pop();
+                            break;
+                        }
+                        Err(e) => Err(e)?,
+                    }
+                }
+                let before = data.position();
+                let p: u8 = p!();
+                let els = if p == 0x05 {
+                    let mut v = Vec::new();
+                    loop {
+                        match Instr::parse(data, stack) {
+                            Ok(i) => v.push(i),
+                            Err(ParseError::EndOfInstructions) => {
+                                stack.pop();
+                                break;
+                            }
+                            Err(e) => Err(e)?,
+                        }
+                    }
+                    Some(v)
+                } else {
+                    data.set_position(before);
+                    None
+                };
+                x04_if_else(block_type, v, els)
+            }
             0x05 => Err(ParseError::EndOfInstructions)?,
             0x06 => Err(ParseError::UnknownInstruction(Hex(typ)))?,
             0x07 => Err(ParseError::UnknownInstruction(Hex(typ)))?,
@@ -223,12 +260,12 @@ impl Parsable for Instr {
             0x35 => x35_i64_load32_u(p!()),
             0x36 => x36_i32_store(p!()),
             0x37 => x37_i64_store(p!()),
-            0x38 => Err(ParseError::UnknownInstruction(Hex(typ)))?,
+            0x38 => x38_f32_store(p!()),
             0x39 => x39_f64_store(p!()),
             0x3a => x3a_i32_store8(p!()),
             0x3b => x3b_i32_store16(p!()),
             0x3c => x3c_i64_store8(p!()),
-            0x3d => Err(ParseError::UnknownInstruction(Hex(typ)))?,
+            0x3d => x3d_i64_store16(p!()),
             0x3e => x3e_i64_store32(p!()),
             0x3f => Err(ParseError::UnknownInstruction(Hex(typ)))?,
             0x40 => {
@@ -240,7 +277,7 @@ impl Parsable for Instr {
             }
             0x41 => x41_i32_const(p!()),
             0x42 => x42_i64_const(p!()),
-            0x43 => Err(ParseError::UnknownInstruction(Hex(typ)))?,
+            0x43 => x43_f32_const(p!()),
             0x44 => x44_f64_const(p!()),
             0x45 => x45_i32_eqz,
             0x46 => x46_i32_eq,

@@ -79,6 +79,17 @@ impl Parsable for u32 {
     }
 }
 
+impl Parsable for f32 {
+    fn parse_inner(data: &mut Cursor<&[u8]>, _: DebugStack) -> Result<Self, ParseError>
+    where
+        Self: std::marker::Sized,
+    {
+        let mut buf = alloc::<4>();
+        data.read_exact(&mut buf.0)?;
+        Ok(f32::from_le_bytes(buf.0))
+    }
+}
+
 impl Parsable for f64 {
     fn parse_inner(data: &mut Cursor<&[u8]>, _: DebugStack) -> Result<Self, ParseError>
     where

@@ -74,14 +74,14 @@ impl eframe::App for App {
     fn update(&mut self, ctx: &egui::Context, _frame: &mut eframe::Frame) {
         if self.auto && self.last_tick.elapsed().as_secs_f64() > self.frame_duration {
             self.last_tick = Instant::now();
-            self.runtime.step();
+            self.runtime.step().unwrap();
             self.current_frame = self.runtime.stack.len() - 1;
         }
 
         egui::TopBottomPanel::top("top_panel").show(ctx, |ui| {
             ui.with_layout(egui::Layout::left_to_right(egui::Align::Min), |ui| {
                 if ui.button("Step").clicked() {
-                    self.runtime.step();
+                    self.runtime.step().unwrap();
                     if self.frame_count != self.runtime.stack.len() {
                         self.current_frame = self.runtime.stack.len() - 1;
                     }

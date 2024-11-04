@@ -40,7 +40,7 @@ impl<const PAGE_SIZE: usize> Memory<PAGE_SIZE> {
         entry.data[index] = byte;
     }
 
-    pub fn heap_set<T>(&mut self, address: usize, mem_arg: MemArg, val: T) {
+    pub fn set<T>(&mut self, address: usize, mem_arg: MemArg, val: T) {
         // println!("setting {}", address + mem_arg.offset as usize);
         // let align = 2usize.pow(align);
         let t = &val as *const T as *const u8;
@@ -62,7 +62,7 @@ impl<const PAGE_SIZE: usize> Memory<PAGE_SIZE> {
     }
 
     // Very nice function! :)
-    pub fn heap_get<T>(&self, address: usize, mem_arg: MemArg) -> T {
+    pub fn get<T>(&self, address: usize, mem_arg: MemArg) -> T {
         // println!("getting {}", address + mem_arg.offset as usize);
         let mut val = unsafe { mem::zeroed::<T>() };
         let r = &mut val as *mut T as *mut u8;

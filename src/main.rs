@@ -1,14 +1,15 @@
 #![feature(const_type_name)]
+#![feature(path_file_prefix)]
 use egui::{Id, Vec2};
 use hex::Hex;
 use parser::{Instr, Module, Parsable};
-use runtime::{clean_model::Function, Runtime, Value};
-use std::io::Write;
+use runtime::{clean_model::Function, Runtime, RuntimeError, Value};
 use std::{
     env::args,
-    fs::File,
+    fs::{self, File},
     io::{Cursor, Read},
     mem::MaybeUninit,
+    path::PathBuf,
     time::{Duration, Instant},
 };
 mod hex;
@@ -27,28 +28,10 @@ fn alloc<const N: usize>() -> Hex<N> {
     }
 }
 
-fn runtime() -> Runtime {
+fn runtime(path: PathBuf) -> Result<Runtime, RuntimeError> {
     let mut buf = Vec::new();
-    let mut path = args()
-        .skip(1)
-        .find(|p| !p.starts_with("-"))
-        .unwrap_or("examples/c_addition.wasm".to_string());
 
-    if path.ends_with(".wast") || path.ends_with(".wat") {
-        let input = path.to_string();
-        path = path.replace(".wast", ".wasm").replace(".wat", ".wasm");
-        std::process::Command::new("wast2json")
-            .arg(input)
-            .arg("-o")
-            .arg(&path)
-            .output()
-            .unwrap();
-    }
-    path = path.replace(".wasm", ".0.wasm");
-
-    println!("running path: {path}");
-
-    let mut f = File::open(path).unwrap();
+    let mut f = File::open(&path).unwrap();
     f.read_to_end(&mut buf).unwrap();
 
     let mut cursor = Cursor::new(&buf[..]);
@@ -58,7 +41,7 @@ fn runtime() -> Runtime {
         Err(e) => {
             stack.reverse();
             eprintln!(
-                "Error: {e:?}, bin pos: {}, stack: {stack:#?}",
+                "File: {path:?}\nError: {e:?}, bin pos: {}, stack: {stack:#?}",
                 cursor.position()
             );
             std::process::exit(1);
@@ -76,9 +59,9 @@ struct App {
     auto: bool,
 }
 impl App {
-    pub fn new(_xcc: &eframe::CreationContext<'_>) -> Self {
+    pub fn new(_xcc: &eframe::CreationContext<'_>, path: PathBuf) -> Self {
         Self {
-            runtime: runtime(),
+            runtime: runtime(path).unwrap(),
             current_frame: 0,
             frame_count: 1,
             frame_duration: 0.01, //0.5,
@@ -223,8 +206,46 @@ impl eframe::App for App {
 
 fn main() {
     pretty_env_logger::init();
+    let mut path = args()
+        .skip(1)
+        .find(|p| !p.starts_with("-"))
+        .unwrap_or("examples/c_addition.wasm".to_string());
 
-    if args().any(|s| s == "--gui") {
+    // God awful way to run spec tests
+    if path.ends_with(".wast") {
+        let input = path.to_string();
+        path = path.replace(".wast", ".wasm").replace(".wat", ".wasm");
+        std::process::Command::new("wast2json")
+            .arg(input)
+            .arg("-o")
+            .arg(&path)
+            .output()
+            .unwrap();
+
+        let mut p = PathBuf::from(path);
+        let file_name = p.file_prefix().unwrap().to_string_lossy().to_string();
+        p.pop();
+        let mut tests = fs::read_dir(p)
+            .unwrap()
+            .map(|p| p.unwrap().path())
+            .filter(|p| p.extension().map(|a| a == "wasm").unwrap_or_default())
+            .filter(|p| {
+                let t = p.file_prefix().unwrap().to_string_lossy().to_string();
+                t == file_name
+            })
+            .filter(|p| format!("{p:?}").chars().any(|c| c.is_ascii_digit()))
+            .collect::<Vec<_>>();
+        tests.sort();
+        tests.sort_by(|a, b| format!("{a:?}").len().cmp(&format!("{b:?}").len()));
+
+        for test in tests {
+            let mut rt = match runtime(test) {
+                Ok(rt) => rt,
+                Err(RuntimeError::NoMain) => continue,
+            };
+            while rt.step() {}
+        }
+    } else if args().any(|s| s == "--gui") {
         let native_options = eframe::NativeOptions {
             viewport: egui::ViewportBuilder::default()
                 .with_inner_size([400.0, 300.0])
@@ -235,13 +256,11 @@ fn main() {
         eframe::run_native(
             "sasm",
             native_options,
-            Box::new(|cc| Ok(Box::new(App::new(cc)))),
+            Box::new(|cc| Ok(Box::new(App::new(cc, path.into())))),
         )
         .unwrap();
     } else {
-        let mut runtime = runtime();
-        loop {
-            runtime.step();
-        }
+        let mut runtime = runtime(path.into()).unwrap();
+        while runtime.step() {}
     }
 }

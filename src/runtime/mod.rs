@@ -61,6 +61,11 @@ pub struct Frame {
     pub depth_stack: Vec<DepthValue>,
 }
 
+#[derive(Debug)]
+pub enum RuntimeError {
+    NoMain,
+}
+
 pub struct Runtime {
     pub module: Model,
     pub stack: Vec<Frame>,
@@ -69,7 +74,7 @@ pub struct Runtime {
     pub datas: HashMap<u32, Vec<u8>>,
 }
 impl Runtime {
-    pub fn new(module: Module) -> Self {
+    pub fn new(module: Module) -> Result<Self, RuntimeError> {
         let mut memory = Memory::new();
         let mut datas = HashMap::new();
         for (i, d) in module.datas.data.iter().enumerate() {
@@ -103,7 +108,7 @@ impl Runtime {
             .find(|s| matches!(&*s.nm.0, "main" | "_start"))
             .map(|f| f.d)
         else {
-            panic!("no main :(")
+            return Err(RuntimeError::NoMain);
         };
         let mut globals = HashMap::new();
         for (i, Global { e, .. }) in module.globals.globals.iter().enumerate() {
@@ -114,7 +119,7 @@ impl Runtime {
         }
 
         let module = Model::from(module);
-        Self {
+        Ok(Self {
             module,
             stack: vec![Frame {
                 func_id: main_id,
@@ -127,9 +132,9 @@ impl Runtime {
             memory,
             globals,
             datas,
-        }
+        })
     }
-    pub fn step(&mut self) {
+    pub fn step(&mut self) -> bool {
         let f = self.stack.last_mut().unwrap();
 
         match &self.module.functions[&f.func_id] {
@@ -185,6 +190,7 @@ impl Runtime {
                 let mut frame = self.stack.pop().unwrap();
                 let last = self.stack.last_mut().unwrap();
                 last.stack.append(&mut frame.stack);
+                true
             }
             Function::Local { code, ty, .. } => {
                 if f.pc >= code.len() {
@@ -193,7 +199,7 @@ impl Runtime {
                     for _ in 0..ty.output.types.len() {
                         last.stack.push(frame.stack.pop().unwrap());
                     }
-                    return;
+                    return true;
                 }
                 let mut instr = &code[f.pc];
                 instr = if let comment(_, r) = instr { r } else { instr };
@@ -356,7 +362,7 @@ impl Runtime {
                         if f.stack.is_empty() {
                             f.pc -= 1;
                             println!("!LOCK!");
-                            return;
+                            return true;
                         }
                         let val = f.stack.pop().unwrap();
                         f.locals.insert(*id, val);
@@ -633,7 +639,8 @@ impl Runtime {
                     f => {
                         unimplemented!("instruction not supported : {f:?}")
                     }
-                }
+                };
+                true
             }
         }
 

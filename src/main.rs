@@ -45,10 +45,8 @@ fn runtime(path: PathBuf) -> Result<Runtime, RuntimeError> {
         Ok(o) => o,
         Err(e) => {
             stack.reverse();
-            error!(
-                "File: {path:?}\nError: {e:?}, bin pos: {}, stack: {stack:#?}",
-                cursor.position()
-            );
+            error!("File: {path:?}");
+            error!("{e:?}, bin pos: {}, stack: {stack:#?}", cursor.position());
             std::process::exit(1);
         }
     };

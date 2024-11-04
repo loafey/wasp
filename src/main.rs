@@ -211,19 +211,30 @@ impl eframe::App for App {
     }
 }
 
-#[derive(Debug, Deserialize, Clone, Copy)]
-enum TestType {
-    #[serde(rename = "assert_malformed")]
-    Module,
-    #[serde(rename = "module")]
-    AssertMalformed,
-}
-
+/// https://github.com/WebAssembly/wabt/blob/main/docs/wast2json.md#json-format
 #[derive(Debug, Deserialize, Clone)]
-struct Case {
-    #[serde(rename = "type")]
-    type_: TestType,
-    filename: String,
+#[serde(tag = "type")]
+enum Case {
+    #[serde(rename = "module")]
+    Module {},
+    #[serde(rename = "action")]
+    Action {},
+    #[serde(rename = "assert_return")]
+    AssertReturn {},
+    #[serde(rename = "assert_exhaustion")]
+    AssertExhaustion {},
+    #[serde(rename = "assert_trap")]
+    AssertTrap {},
+    #[serde(rename = "assert_invalid")]
+    AssertInvalid {},
+    #[serde(rename = "assert_malformed")]
+    AssertMalformed {},
+    #[serde(rename = "assert_uninstantiable")]
+    AssertUninstantiable {},
+    #[serde(rename = "assert_unlinkable")]
+    AssertUnlinkable {},
+    #[serde(rename = "register")]
+    Register {},
 }
 
 #[derive(Debug, Deserialize)]
@@ -255,46 +266,46 @@ fn main() {
             &fs::read_to_string(&p).expect("failed to open test data"),
         )
         .expect("failed to parse test data");
-
-        for test in tests.commands {
-            let mut p = p.clone();
-            p.pop();
-            p.push(&test.filename);
-            let mut rt = match (runtime(p), test.type_) {
-                (Ok(rt), TestType::Module) => rt,
-                (Ok(_) | Err(RuntimeError::NoMain), TestType::AssertMalformed) => {
-                    error!("A malformed test passed parsing: {test:?}");
-                    std::process::exit(1);
-                }
-                (Err(RuntimeError::NoMain), TestType::Module) => continue,
-                (Err(RuntimeError::ParseError(_)), TestType::AssertMalformed) => continue,
-                (Err(RuntimeError::ParseError(err)), TestType::Module) => {
-                    error!("A valid module failed parsing: {err}");
-                    std::process::exit(1);
-                }
-                (Err(err), _) => {
-                    error!("Other error: {err:?}");
-                    std::process::exit(1);
-                }
-            };
-            loop {
-                if let Err(e) = rt.step() {
-                    match e {
-                        RuntimeError::Exit(x) => {
-                            if x != 0 {
-                                std::process::exit(x);
-                            } else {
-                                break;
-                            }
-                        }
-                        e => {
-                            error!("{e:?}");
-                            std::process::exit(1);
-                        }
-                    }
-                }
-            }
-        }
+        todo!("{tests:#?}")
+        // for test in tests.commands {
+        //     let mut p = p.clone();
+        //     p.pop();
+        //     p.push(&test.filename);
+        //     let mut rt = match (runtime(p), test.type_) {
+        //         (Ok(rt), TestType::Module) => rt,
+        //         (Ok(_) | Err(RuntimeError::NoMain), TestType::AssertMalformed) => {
+        //             error!("A malformed test passed parsing: {test:?}");
+        //             std::process::exit(1);
+        //         }
+        //         (Err(RuntimeError::NoMain), TestType::Module) => continue,
+        //         (Err(RuntimeError::ParseError(_)), TestType::AssertMalformed) => continue,
+        //         (Err(RuntimeError::ParseError(err)), TestType::Module) => {
+        //             error!("A valid module failed parsing: {err}");
+        //             std::process::exit(1);
+        //         }
+        //         (_, _) => {
+        //             error!("Unhandled test: {test:?}");
+        //             std::process::exit(1);
+        //         }
+        //     };
+        //     loop {
+        //         if let Err(e) = rt.step() {
+        //             match e {
+        //                 RuntimeError::Exit(x) => {
+        //                     if x != 0 {
+        //                         std::process::exit(x);
+        //                     } else {
+        //                         break;
+        //                     }
+        //                 }
+        //                 e => {
+        //                     error!("{e:?}");
+        //                     std::process::exit(1);
+        //                 }
+        //             }
+        //         }
+        //     }
+        // }
     } else if args().any(|s| s == "--gui") {
         let native_options = eframe::NativeOptions {
             viewport: egui::ViewportBuilder::default()

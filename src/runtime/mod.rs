@@ -61,14 +61,14 @@ pub enum RuntimeError {
     Exit(i32),
     GlobalWithoutOffset,
     ActiveDataWithoutOffset,
-    NoFrame(&'static str, u32, u32),
-    EmptyStack(&'static str, u32, u32),
-    WrongType(&'static str, u32, u32),
-    MissingLocal(&'static str, u32, u32),
     UnknownFunction(String, String),
+    NoFrame(&'static str, u32, u32),
+    WrongType(&'static str, u32, u32),
+    EmptyStack(&'static str, u32, u32),
     Impossible(&'static str, u32, u32),
-    MissingJumpLabel(&'static str, u32, u32),
+    MissingLocal(&'static str, u32, u32),
     MissingFunction(&'static str, u32, u32),
+    MissingJumpLabel(&'static str, u32, u32),
     MissingTableIndex(&'static str, u32, u32),
 }
 
@@ -155,6 +155,42 @@ impl Runtime {
         }
 
         macro_rules! pop {
+            (i32) => {{
+                let Value::I32(val) = unwrap!(f.stack.pop(), EmptyStack) else {
+                    throw!(WrongType)
+                };
+                val
+            }};
+            (i64) => {{
+                let Value::I64(val) = unwrap!(f.stack.pop(), EmptyStack) else {
+                    throw!(WrongType)
+                };
+                val
+            }};
+            (u32) => {{
+                let Value::I32(val) = unwrap!(f.stack.pop(), EmptyStack) else {
+                    throw!(WrongType)
+                };
+                unsafe { std::mem::transmute::<i32, u32>(val) }
+            }};
+            (u64) => {{
+                let Value::I64(val) = unwrap!(f.stack.pop(), EmptyStack) else {
+                    throw!(WrongType)
+                };
+                unsafe { std::mem::transmute::<i64, u64>(val) }
+            }};
+            (f32) => {{
+                let Value::F32(val) = unwrap!(f.stack.pop(), EmptyStack) else {
+                    throw!(WrongType)
+                };
+                val
+            }};
+            (f64) => {{
+                let Value::F64(val) = unwrap!(f.stack.pop(), EmptyStack) else {
+                    throw!(WrongType)
+                };
+                val
+            }};
             () => {
                 unwrap!(f.stack.pop(), EmptyStack)
             };
@@ -261,9 +297,7 @@ impl Runtime {
                         }
                     }
                     x0d_br_if(LabelIdX(label)) => {
-                        let Value::I32(val) = pop!() else {
-                            throw!(WrongType)
-                        };
+                        let val = pop!(i32);
 
                         if val != 0 {
                             let mut last = None;
@@ -286,14 +320,6 @@ impl Runtime {
                                     }
                                 }
                             }
-                            // let label = f.depth - 1 - *label as usize;
-                            // let old = f.depth;
-                            // f.depth = label;
-                            // (0..label).for_each(|_| {
-                            // f.stack.pop();
-                            // });
-                            // if let Some(pc) = labels.get(&(label as u32)) {
-                            // f.pc = *pc as usize + 1;
                         }
                     }
                     x0f_return => {
@@ -336,9 +362,7 @@ impl Runtime {
                         });
                     }
                     x11_call_indirect(TypeIdX(type_index), TableIdX(table_index)) => {
-                        let Value::I32(function_index) = pop!() else {
-                            throw!(WrongType)
-                        };
+                        let function_index = pop!(i32);
 
                         let ty =
                             unwrap!(self.module.function_types.get(type_index), MissingFunction);
@@ -370,11 +394,9 @@ impl Runtime {
                         pop!();
                     }
                     x1b_select => {
-                        let Value::I32(cond) = pop!() else {
-                            throw!(WrongType)
-                        }; // const 0
-                        let y = pop!(); // const 20
-                        let x = pop!(); // const 10
+                        let cond = pop!(i32);
+                        let y = pop!();
+                        let x = pop!();
                         match cond == 1 {
                             true => f.stack.push(x),
                             false => f.stack.push(y),
@@ -398,16 +420,12 @@ impl Runtime {
                         self.globals.insert(*id, pop);
                     }
                     x28_i32_load(mem) => {
-                        let Value::I32(addr) = pop!() else {
-                            throw!(WrongType)
-                        };
+                        let addr = pop!(i32);
                         f.stack
                             .push(Value::I32(self.memory.get(addr as usize, *mem)));
                     }
                     x2d_i32_load8_u(mem) => {
-                        let Value::I32(addr) = pop!() else {
-                            throw!(WrongType)
-                        };
+                        let addr = pop!(i32);
                         f.stack.push(Value::I32(unsafe {
                             mem::transmute::<u32, i32>(
                                 self.memory.get::<u8>(addr as usize, *mem) as u32
@@ -415,225 +433,120 @@ impl Runtime {
                         }));
                     }
                     x36_i32_store(mem) => {
-                        let Value::I32(v) = pop!() else {
-                            throw!(WrongType)
-                        };
-                        let Value::I32(addr) = pop!() else {
-                            throw!(WrongType)
-                        };
+                        let v = pop!(i32);
+                        let addr = pop!(i32);
                         self.memory.set(addr as usize, *mem, v);
                     }
                     x37_i64_store(mem) => {
-                        let Value::I64(v) = pop!() else {
-                            throw!(WrongType)
-                        };
-                        let Value::I32(addr) = pop!() else {
-                            throw!(WrongType)
-                        };
+                        let v = pop!(i64);
+                        let addr = pop!(i32);
                         self.memory.set(addr as usize, *mem, v);
                     }
                     x3a_i32_store8(mem) => {
-                        let Value::I32(v) = pop!() else {
-                            throw!(WrongType)
-                        };
-                        let Value::I32(addr) = pop!() else {
-                            throw!(WrongType)
-                        };
+                        let v = pop!(i32);
+                        let addr = pop!(i32);
                         self.memory.set(addr as usize, *mem, v as u8);
                     }
                     x41_i32_const(i) => f.stack.push(Value::I32(*i)),
                     x42_i64_const(val) => f.stack.push(Value::I64(*val)),
                     x45_i32_eqz => {
-                        let Value::I32(val) = pop!() else {
-                            throw!(WrongType)
-                        };
+                        let val = pop!(i32);
                         f.stack.push(Value::I32((val == 0) as i32));
                     }
                     x46_i32_eq => {
-                        let y = pop!();
-                        let x = pop!();
-                        match (x, y) {
-                            (Value::I32(x), Value::I32(y)) => {
-                                let r = (x == y) as i32;
-                                f.stack.push(Value::I32(r))
-                            }
-                            _ => throw!(WrongType),
-                        }
+                        let y = pop!(i32);
+                        let x = pop!(i32);
+                        f.stack.push(Value::I32((x == y) as i32))
                     }
                     x47_i32_ne => {
-                        let y = pop!();
-                        let x = pop!();
-                        match (x, y) {
-                            (Value::I32(x), Value::I32(y)) => {
-                                let r = (x != y) as i32;
-                                f.stack.push(Value::I32(r))
-                            }
-                            _ => throw!(WrongType),
-                        }
+                        let y = pop!(i32);
+                        let x = pop!(i32);
+                        f.stack.push(Value::I32((x != y) as i32))
                     }
                     x48_i32_lt_s => {
-                        let y = pop!();
-                        let x = pop!();
-                        match (x, y) {
-                            (Value::I32(x), Value::I32(y)) => {
-                                let r = (x < y) as i32;
-                                f.stack.push(Value::I32(r))
-                            }
-                            _ => throw!(WrongType),
-                        }
+                        let y = pop!(i32);
+                        let x = pop!(i32);
+                        f.stack.push(Value::I32((x < y) as i32))
                     }
                     x49_i32_lt_u => {
-                        let y = pop!();
-                        let x = pop!();
-                        match (x, y) {
-                            (Value::I32(x), Value::I32(y)) => {
-                                let x = unsafe { mem::transmute::<i32, u32>(x) };
-                                let y = unsafe { mem::transmute::<i32, u32>(y) };
-                                let r = (x < y) as i32;
-                                f.stack.push(Value::I32(r))
-                            }
-                            _ => throw!(WrongType),
-                        }
+                        let y = pop!(u32);
+                        let x = pop!(u32);
+                        f.stack.push(Value::I32((x < y) as i32))
                     }
                     x4a_i32_gt_s => {
-                        let y = pop!();
-                        let x = pop!();
-                        match (x, y) {
-                            (Value::I32(x), Value::I32(y)) => {
-                                let r = (x > y) as i32;
-                                f.stack.push(Value::I32(r))
-                            }
-                            _ => throw!(WrongType),
-                        }
+                        let y = pop!(i32);
+                        let x = pop!(i32);
+                        f.stack.push(Value::I32((x > y) as i32))
                     }
                     x4b_i32_gt_u => {
-                        let y = pop!();
-                        let x = pop!();
-                        match (x, y) {
-                            (Value::I32(x), Value::I32(y)) => {
-                                let x = unsafe { mem::transmute::<i32, u32>(x) };
-                                let y = unsafe { mem::transmute::<i32, u32>(y) };
-                                let r = (y > x) as i32;
-                                f.stack.push(Value::I32(r))
-                            }
-                            _ => throw!(WrongType),
-                        }
+                        let y = pop!(u32);
+                        let x = pop!(u32);
+                        f.stack.push(Value::I32((y > x) as i32))
                     }
                     x4d_i32_le_u => {
-                        let y = pop!();
-                        let x = pop!();
-                        match (x, y) {
-                            (Value::I32(x), Value::I32(y)) => {
-                                let x = unsafe { mem::transmute::<i32, u32>(x) };
-                                let y = unsafe { mem::transmute::<i32, u32>(y) };
-                                let r = (x <= y) as i32;
-                                f.stack.push(Value::I32(r))
-                            }
-                            _ => throw!(WrongType),
-                        }
+                        let y = pop!(u32);
+                        let x = pop!(u32);
+                        f.stack.push(Value::I32((x <= y) as i32))
                     }
                     x4e_i32_ge_s => {
-                        let y = pop!();
-                        let x = pop!();
-                        match (x, y) {
-                            (Value::I32(x), Value::I32(y)) => {
-                                f.stack.push(Value::I32((x >= y) as i32))
-                            }
-                            _ => throw!(WrongType),
-                        }
+                        let y = pop!(i32);
+                        let x = pop!(i32);
+                        f.stack.push(Value::I32((x >= y) as i32))
                     }
                     x4f_i32_ge_u => {
-                        let y = pop!();
-                        let x = pop!();
-                        match (x, y) {
-                            (Value::I32(x), Value::I32(y)) => {
-                                let x = unsafe { mem::transmute::<i32, u32>(x) };
-                                let y = unsafe { mem::transmute::<i32, u32>(y) };
-                                f.stack.push(Value::I32((x >= y) as i32))
-                            }
-                            _ => throw!(WrongType),
-                        }
+                        let y = pop!(u32);
+                        let x = pop!(u32);
+                        f.stack.push(Value::I32((x >= y) as i32))
                     }
                     x52_i64_ne => {
-                        let y = pop!();
-                        let x = pop!();
-                        match (x, y) {
-                            (Value::I64(x), Value::I64(y)) => {
-                                f.stack.push(Value::I64((x != y) as i64))
-                            }
-                            _ => throw!(WrongType),
-                        }
+                        let y = pop!(i64);
+                        let x = pop!(i64);
+                        f.stack.push(Value::I64((x != y) as i64))
                     }
                     x6a_i32_add => {
-                        let y = pop!();
-                        let x = pop!();
-                        match (x, y) {
-                            (Value::I32(x), Value::I32(y)) => f.stack.push(Value::I32(x + y)),
-                            _ => throw!(WrongType),
-                        }
+                        let y = pop!(i32);
+                        let x = pop!(i32);
+                        f.stack.push(Value::I32(x + y))
                     }
                     x6b_i32_sub => {
-                        let y = pop!();
-                        let x = pop!();
-                        match (x, y) {
-                            (Value::I32(x), Value::I32(y)) => f.stack.push(Value::I32(x - y)),
-                            _ => throw!(WrongType),
-                        }
+                        let y = pop!(i32);
+                        let x = pop!(i32);
+                        f.stack.push(Value::I32(x - y))
                     }
                     x6c_i32_mul => {
-                        let y = pop!();
-                        let x = pop!();
-                        match (x, y) {
-                            (Value::I32(x), Value::I32(y)) => f.stack.push(Value::I32(x * y)),
-                            _ => throw!(WrongType),
-                        }
+                        let y = pop!(i32);
+                        let x = pop!(i32);
+                        f.stack.push(Value::I32(x * y))
                     }
                     x71_i32_and => {
-                        let y = pop!();
-                        let x = pop!();
-                        match (x, y) {
-                            (Value::I32(x), Value::I32(y)) => f.stack.push(Value::I32(x & y)),
-                            _ => throw!(WrongType),
-                        }
+                        let y = pop!(i32);
+                        let x = pop!(i32);
+                        f.stack.push(Value::I32(x & y))
                     }
                     x72_i32_or => {
-                        let y = pop!();
-                        let x = pop!();
-                        match (x, y) {
-                            (Value::I32(x), Value::I32(y)) => f.stack.push(Value::I32(x | y)),
-                            _ => throw!(WrongType),
-                        }
+                        let y = pop!(i32);
+                        let x = pop!(i32);
+                        f.stack.push(Value::I32(x | y))
                     }
                     x73_i32_xor => {
-                        let y = pop!();
-                        let x = pop!();
-                        match (x, y) {
-                            (Value::I32(x), Value::I32(y)) => f.stack.push(Value::I32(x ^ y)),
-                            _ => throw!(WrongType),
-                        }
+                        let y = pop!(i32);
+                        let x = pop!(i32);
+                        f.stack.push(Value::I32(x ^ y))
                     }
                     x74_i32_shl => {
-                        let y = pop!();
-                        let x = pop!();
-                        match (x, y) {
-                            (Value::I32(x), Value::I32(y)) => f.stack.push(Value::I32(x << y)),
-                            _ => throw!(WrongType),
-                        }
+                        let y = pop!(i32);
+                        let x = pop!(i32);
+                        f.stack.push(Value::I32(x << y))
                     }
                     x7e_i64_mul => {
-                        let y = pop!();
-                        let x = pop!();
-                        match (x, y) {
-                            (Value::I64(x), Value::I64(y)) => f.stack.push(Value::I64(x * y)),
-                            _ => throw!(WrongType),
-                        }
+                        let y = pop!(i64);
+                        let x = pop!(i64);
+                        f.stack.push(Value::I64(x * y))
                     }
                     xad_i64_extend_i32_u => {
-                        let x = pop!();
-                        match x {
-                            Value::I32(x) => f.stack.push(Value::I64(x as i64)),
-                            _ => throw!(WrongType),
-                        }
+                        todo!()
+                        // let x = pop!(i32);
+                        // f.stack.push(Value::I64(x as i64))
                     }
                     block_start(bt, be) => {
                         f.stack.push(Value::BlockLock);
@@ -662,27 +575,5 @@ impl Runtime {
                 Ok(())
             }
         }
-
-        // if f.func_id < self.import_count {
-        //     let func = &self.module.imports.imports[f.func_id];
-        //     match &*func.module.0 {
-        //         m @ "console" => match &*func.name.0 {
-        //             "log" => {
-        //                 let st = self.stack.last_mut().unwrap();
-        //                 let Some((Value::I32(y), Value::I32(x))) =
-        //                     st.stack.pop().zip(st.stack.pop())
-        //                 else {
-        //                     unimplemented!()
-        //                 };
-        //                 let (x, y) = (x as usize, y as usize);
-
-        //                 let str = String::from_utf8_lossy(&self.data[x..y]);
-        //                 println!("{str}");
-        //             }
-        //             n => panic!("no function named {n:?} in module {m:?}"),
-        //         },
-        //         m => panic!("unknown module {m:?}"),
-        //     }
-        // } else {
     }
 }

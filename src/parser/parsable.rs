@@ -14,9 +14,9 @@ pub trait Parsable: Debug {
     where
         Self: std::marker::Sized,
     {
+        stack.push(Self::STACK_NAME);
         #[cfg(target_os = "windows")] // ugly fix to disable this on all important platforms
         {
-            stack.push(Self::STACK_NAME);
             println!(
                 "{}┌─Parsing {} 💅",
                 "│ ".repeat(stack.len()),
@@ -35,8 +35,8 @@ pub trait Parsable: Debug {
                 ""
             };
             println!("{}├─Result: {formatted}{eps} 🏳️‍🌈", "│ ".repeat(stack.len()),);
-            stack.pop();
         }
+        stack.pop();
         Ok(res)
     }
     #[deprecated]

@@ -3,6 +3,8 @@ pub mod clean_model;
 mod memory;
 use clean_model::{Function, Model};
 use memory::Memory;
+mod error;
+pub use error::RuntimeError;
 use RuntimeError::*;
 
 use crate::parser::{
@@ -52,24 +54,6 @@ pub struct Frame {
     pub locals: HashMap<u32, Value>,
     // pub labels: HashMap<u32, u32>,
     pub depth_stack: Vec<DepthValue>,
-}
-
-#[derive(Debug)]
-#[allow(unused)]
-pub enum RuntimeError {
-    NoMain,
-    Exit(i32),
-    GlobalWithoutOffset,
-    ActiveDataWithoutOffset,
-    UnknownFunction(String, String),
-    NoFrame(&'static str, u32, u32),
-    WrongType(&'static str, u32, u32),
-    EmptyStack(&'static str, u32, u32),
-    Impossible(&'static str, u32, u32),
-    MissingLocal(&'static str, u32, u32),
-    MissingFunction(&'static str, u32, u32),
-    MissingJumpLabel(&'static str, u32, u32),
-    MissingTableIndex(&'static str, u32, u32),
 }
 
 pub struct Runtime {
@@ -544,7 +528,7 @@ impl Runtime {
                         f.stack.push(Value::I64(x * y))
                     }
                     xad_i64_extend_i32_u => {
-                        todo!()
+                        throw!(WrongType)
                         // let x = pop!(i32);
                         // f.stack.push(Value::I64(x as i64))
                     }

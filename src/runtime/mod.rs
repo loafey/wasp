@@ -64,6 +64,7 @@ pub struct Frame {
 #[derive(Debug)]
 pub enum RuntimeError {
     NoMain,
+    Exit,
 }
 
 pub struct Runtime {
@@ -134,7 +135,7 @@ impl Runtime {
             datas,
         })
     }
-    pub fn step(&mut self) -> bool {
+    pub fn step(&mut self) -> Result<(), RuntimeError> {
         let f = self.stack.last_mut().unwrap();
 
         match &self.module.functions[&f.func_id] {
@@ -173,7 +174,7 @@ impl Runtime {
                         let Value::I32(x) = *f.locals.get(&0).unwrap() else {
                             panic!()
                         };
-                        std::process::exit(x);
+                        return Err(RuntimeError::Exit);
                     }
                     ("wasi_snapshot_preview1", "args_get") => {
                         let Value::I32(argv) = *f.locals.get(&0).unwrap() else {
@@ -190,7 +191,7 @@ impl Runtime {
                 let mut frame = self.stack.pop().unwrap();
                 let last = self.stack.last_mut().unwrap();
                 last.stack.append(&mut frame.stack);
-                true
+                Ok(())
             }
             Function::Local { code, ty, .. } => {
                 if f.pc >= code.len() {
@@ -199,7 +200,7 @@ impl Runtime {
                     for _ in 0..ty.output.types.len() {
                         last.stack.push(frame.stack.pop().unwrap());
                     }
-                    return true;
+                    return Ok(());
                 }
                 let mut instr = &code[f.pc];
                 instr = if let comment(_, r) = instr { r } else { instr };
@@ -359,11 +360,6 @@ impl Runtime {
                     }
                     x20_local_get(LocalIdX(id)) => f.stack.push(*f.locals.get(id).unwrap()),
                     x21_local_set(LocalIdX(id)) => {
-                        if f.stack.is_empty() {
-                            f.pc -= 1;
-                            println!("!LOCK!");
-                            return true;
-                        }
                         let val = f.stack.pop().unwrap();
                         f.locals.insert(*id, val);
                     }
@@ -640,7 +636,7 @@ impl Runtime {
                         unimplemented!("instruction not supported : {f:?}")
                     }
                 };
-                true
+                Ok(())
             }
         }
 

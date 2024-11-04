@@ -242,8 +242,16 @@ fn main() {
             let mut rt = match runtime(test) {
                 Ok(rt) => rt,
                 Err(RuntimeError::NoMain) => continue,
+                Err(_) => unreachable!(),
             };
-            while rt.step() {}
+            loop {
+                if let Err(e) = rt.step() {
+                    match e {
+                        RuntimeError::Exit => break,
+                        e => panic!("Error: {e:?}"),
+                    }
+                }
+            }
         }
     } else if args().any(|s| s == "--gui") {
         let native_options = eframe::NativeOptions {
@@ -261,6 +269,13 @@ fn main() {
         .unwrap();
     } else {
         let mut runtime = runtime(path.into()).unwrap();
-        while runtime.step() {}
+        loop {
+            if let Err(e) = runtime.step() {
+                match e {
+                    RuntimeError::Exit => break,
+                    _ => panic!("Error: {e:?}"),
+                }
+            }
+        }
     }
 }

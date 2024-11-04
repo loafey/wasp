@@ -1,5 +1,7 @@
 #![feature(const_type_name)]
 #![feature(path_file_prefix)]
+#![forbid(clippy::unwrap_used)]
+#![forbid(clippy::panic)]
 use egui::{Id, Vec2};
 use hex::Hex;
 use parser::{Instr, Module, Parsable};
@@ -31,8 +33,8 @@ fn alloc<const N: usize>() -> Hex<N> {
 fn runtime(path: PathBuf) -> Result<Runtime, RuntimeError> {
     let mut buf = Vec::new();
 
-    let mut f = File::open(&path).unwrap();
-    f.read_to_end(&mut buf).unwrap();
+    let mut f = File::open(&path).expect("Failed to open file");
+    f.read_to_end(&mut buf).expect("Failed to read file");
 
     let mut cursor = Cursor::new(&buf[..]);
     let mut stack = Vec::new();
@@ -61,7 +63,7 @@ struct App {
 impl App {
     pub fn new(_xcc: &eframe::CreationContext<'_>, path: PathBuf) -> Self {
         Self {
-            runtime: runtime(path).unwrap(),
+            runtime: runtime(path).expect("Failed to load runtime"),
             current_frame: 0,
             frame_count: 1,
             frame_duration: 0.01, //0.5,
@@ -74,14 +76,14 @@ impl eframe::App for App {
     fn update(&mut self, ctx: &egui::Context, _frame: &mut eframe::Frame) {
         if self.auto && self.last_tick.elapsed().as_secs_f64() > self.frame_duration {
             self.last_tick = Instant::now();
-            self.runtime.step().unwrap();
+            self.runtime.step().expect("Failed to step in runtime");
             self.current_frame = self.runtime.stack.len() - 1;
         }
 
         egui::TopBottomPanel::top("top_panel").show(ctx, |ui| {
             ui.with_layout(egui::Layout::left_to_right(egui::Align::Min), |ui| {
                 if ui.button("Step").clicked() {
-                    self.runtime.step().unwrap();
+                    self.runtime.step().expect("Failed to step in runtime");
                     if self.frame_count != self.runtime.stack.len() {
                         self.current_frame = self.runtime.stack.len() - 1;
                     }
@@ -158,7 +160,12 @@ impl eframe::App for App {
                         let pc = self.runtime.stack[self.current_frame].pc;
                         let func = self.runtime.stack[self.current_frame].func_id;
 
-                        let func = self.runtime.module.functions.get(&func).unwrap();
+                        let func = self
+                            .runtime
+                            .module
+                            .functions
+                            .get(&func)
+                            .expect("Failed to get function");
                         let Function::Local { code, .. } = func else {
                             return;
                         };
@@ -220,17 +227,25 @@ fn main() {
             .arg("-o")
             .arg(&path)
             .output()
-            .unwrap();
+            .expect("Failed to run wast2json");
 
         let mut p = PathBuf::from(path);
-        let file_name = p.file_prefix().unwrap().to_string_lossy().to_string();
+        let file_name = p
+            .file_prefix()
+            .expect("failed to get file prefix")
+            .to_string_lossy()
+            .to_string();
         p.pop();
         let mut tests = fs::read_dir(p)
-            .unwrap()
-            .map(|p| p.unwrap().path())
+            .expect("failed to read dir")
+            .map(|p| p.expect("failed to read dir content").path())
             .filter(|p| p.extension().map(|a| a == "wasm").unwrap_or_default())
             .filter(|p| {
-                let t = p.file_prefix().unwrap().to_string_lossy().to_string();
+                let t = p
+                    .file_prefix()
+                    .expect("failed to get prefix")
+                    .to_string_lossy()
+                    .to_string();
                 t == file_name
             })
             .filter(|p| format!("{p:?}").chars().any(|c| c.is_ascii_digit()))
@@ -248,7 +263,10 @@ fn main() {
                 if let Err(e) = rt.step() {
                     match e {
                         RuntimeError::Exit => break,
-                        e => panic!("Error: {e:?}"),
+                        e => {
+                            eprintln!("Error: {e:?}");
+                            std::process::exit(1);
+                        }
                     }
                 }
             }
@@ -266,14 +284,17 @@ fn main() {
             native_options,
             Box::new(|cc| Ok(Box::new(App::new(cc, path.into())))),
         )
-        .unwrap();
+        .expect("Failed to run window");
     } else {
-        let mut runtime = runtime(path.into()).unwrap();
+        let mut runtime = runtime(path.into()).expect("Failed to load runtime");
         loop {
             if let Err(e) = runtime.step() {
                 match e {
                     RuntimeError::Exit => break,
-                    _ => panic!("Error: {e:?}"),
+                    _ => {
+                        eprintln!("Error: {e:?}");
+                        std::process::exit(1)
+                    }
                 }
             }
         }

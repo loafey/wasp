@@ -1,7 +1,6 @@
 #![feature(const_type_name)]
 #![feature(path_file_prefix)]
 #![forbid(clippy::unwrap_used)]
-#![forbid(clippy::panic)]
 use egui::{Id, Vec2};
 use hex::Hex;
 use parser::{Instr, Module, Parsable};
@@ -257,12 +256,23 @@ fn main() {
             let mut rt = match runtime(test) {
                 Ok(rt) => rt,
                 Err(RuntimeError::NoMain) => continue,
-                Err(_) => unreachable!(),
+                Err(_) => {
+                    eprintln!(
+                        "The unthinkable happened and runtime creating returned a runtime error!"
+                    );
+                    std::process::exit(1);
+                }
             };
             loop {
                 if let Err(e) = rt.step() {
                     match e {
-                        RuntimeError::Exit => break,
+                        RuntimeError::Exit(x) => {
+                            if x != 0 {
+                                std::process::exit(x);
+                            } else {
+                                break;
+                            }
+                        }
                         e => {
                             eprintln!("Error: {e:?}");
                             std::process::exit(1);
@@ -290,7 +300,7 @@ fn main() {
         loop {
             if let Err(e) = runtime.step() {
                 match e {
-                    RuntimeError::Exit => break,
+                    RuntimeError::Exit(x) => std::process::exit(x),
                     _ => {
                         eprintln!("Error: {e:?}");
                         std::process::exit(1)

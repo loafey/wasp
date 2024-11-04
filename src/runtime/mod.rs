@@ -1,31 +1,24 @@
 use std::{collections::HashMap, fmt::Debug, mem};
 pub mod clean_model;
 mod memory;
-
 use clean_model::{Function, Model};
 use memory::Memory;
+use RuntimeError::*;
 
 use crate::parser::{
     self, ExportDesc, FuncIdx, Global, GlobalIdX,
     Instr::{self, *},
-    LabelIdX, LocalIdX, MemArg, Module, RefTyp, Table, TableIdX, TypeIdX, BT,
+    LabelIdX, LocalIdX, MemArg, Module, TableIdX, TypeIdX, BT,
 };
 
 #[derive(Clone, Copy)]
+#[allow(unused)]
 pub enum Value {
     I32(i32),
     I64(i64),
     F32(f32),
     F64(f32),
     BlockLock,
-}
-impl Value {
-    pub fn assume_i32(self) -> i32 {
-        match self {
-            Value::I32(v) => v,
-            _ => panic!(),
-        }
-    }
 }
 
 impl std::fmt::Debug for Value {
@@ -62,9 +55,21 @@ pub struct Frame {
 }
 
 #[derive(Debug)]
+#[allow(unused)]
 pub enum RuntimeError {
     NoMain,
-    Exit,
+    Exit(i32),
+    GlobalWithoutOffset,
+    ActiveDataWithoutOffset,
+    NoFrame(&'static str, u32, u32),
+    EmptyStack(&'static str, u32, u32),
+    WrongType(&'static str, u32, u32),
+    MissingLocal(&'static str, u32, u32),
+    UnknownFunction(String, String),
+    Impossible(&'static str, u32, u32),
+    MissingJumpLabel(&'static str, u32, u32),
+    MissingFunction(&'static str, u32, u32),
+    MissingTableIndex(&'static str, u32, u32),
 }
 
 pub struct Runtime {
@@ -82,7 +87,7 @@ impl Runtime {
             match d {
                 parser::Data::Active(e, vec) => {
                     let [Instr::x41_i32_const(p)] = &e.instrs[..] else {
-                        panic!()
+                        return Err(ActiveDataWithoutOffset);
                     };
                     for (i, v) in vec.iter().enumerate() {
                         memory.set(
@@ -109,12 +114,12 @@ impl Runtime {
             .find(|s| matches!(&*s.nm.0, "main" | "_start"))
             .map(|f| f.d)
         else {
-            return Err(RuntimeError::NoMain);
+            return Err(NoMain);
         };
         let mut globals = HashMap::new();
         for (i, Global { e, .. }) in module.globals.globals.iter().enumerate() {
             let x41_i32_const(x) = e.instrs[0] else {
-                panic!()
+                return Err(GlobalWithoutOffset);
             };
             globals.insert(i as u32, Value::I32(x));
         }
@@ -136,19 +141,42 @@ impl Runtime {
         })
     }
     pub fn step(&mut self) -> Result<(), RuntimeError> {
-        let f = self.stack.last_mut().unwrap();
+        macro_rules! unwrap {
+            ($expr:expr, $err:expr) => {
+                $expr.ok_or($err(file!(), line!(), column!()))?
+            };
+        }
+        let f = unwrap!(self.stack.last_mut(), NoFrame);
+
+        macro_rules! local {
+            ($index:expr) => {
+                unwrap!(f.locals.get($index), MissingLocal)
+            };
+        }
+
+        macro_rules! pop {
+            () => {
+                unwrap!(f.stack.pop(), EmptyStack)
+            };
+        }
+
+        macro_rules! throw {
+            ($expr:expr) => {
+                unwrap!(None, $expr)
+            };
+        }
 
         match &self.module.functions[&f.func_id] {
             Function::Import { module, name, .. } => {
                 println!("calling {module:?}::{name:?}");
                 match (&*module.0, &*name.0) {
                     ("console", "log") => {
-                        let y = *f.locals.get(&0).unwrap();
-                        let x = *f.locals.get(&1).unwrap();
+                        let y = *local!(&0);
+                        let x = *local!(&1);
                         let (x, y) = if let (Value::I32(x), Value::I32(y)) = (x, y) {
                             (x as usize, y as usize)
                         } else {
-                            panic!()
+                            throw!(WrongType)
                         };
                         let mut b = Vec::new();
                         for i in x..y {
@@ -171,34 +199,36 @@ impl Runtime {
                         f.stack.push(Value::I32(0));
                     }
                     ("wasi_snapshot_preview1", "proc_exit") => {
-                        let Value::I32(x) = *f.locals.get(&0).unwrap() else {
-                            panic!()
+                        let Value::I32(x) = *local!(&0) else {
+                            throw!(WrongType)
                         };
-                        return Err(RuntimeError::Exit);
+                        return Err(Exit(x));
                     }
                     ("wasi_snapshot_preview1", "args_get") => {
-                        let Value::I32(argv) = *f.locals.get(&0).unwrap() else {
-                            panic!()
+                        let Value::I32(argv) = *local!(&0) else {
+                            throw!(WrongType)
                         };
-                        let Value::I32(argv_buf) = *f.locals.get(&0).unwrap() else {
-                            panic!()
+                        let Value::I32(argv_buf) = *local!(&0) else {
+                            throw!(WrongType)
                         };
                         println!("{argv} {argv_buf}");
                         f.stack.push(Value::I32(0));
                     }
-                    (module, function) => panic!("unknown function {module}::{function}"),
+                    (module, function) => {
+                        return Err(UnknownFunction(module.to_string(), function.to_string()))
+                    }
                 }
-                let mut frame = self.stack.pop().unwrap();
-                let last = self.stack.last_mut().unwrap();
+                let mut frame = unwrap!(self.stack.pop(), NoFrame);
+                let last = unwrap!(self.stack.last_mut(), NoFrame);
                 last.stack.append(&mut frame.stack);
                 Ok(())
             }
             Function::Local { code, ty, .. } => {
                 if f.pc >= code.len() {
-                    let mut frame = self.stack.pop().unwrap();
-                    let last = self.stack.last_mut().unwrap();
+                    let mut frame = unwrap!(self.stack.pop(), NoFrame);
+                    let last = unwrap!(self.stack.last_mut(), NoFrame);
                     for _ in 0..ty.output.types.len() {
-                        last.stack.push(frame.stack.pop().unwrap());
+                        last.stack.push(unwrap!(frame.stack.pop(), EmptyStack));
                     }
                     return Ok(());
                 }
@@ -206,14 +236,14 @@ impl Runtime {
                 instr = if let comment(_, r) = instr { r } else { instr };
                 f.pc += 1;
                 match instr {
-                    x02_block(_, _) => panic!("impossible"),
-                    x03_loop(_, _) => panic!("impossible"),
+                    x02_block(_, _) => throw!(Impossible),
+                    x03_loop(_, _) => throw!(Impossible),
                     x0c_br(LabelIdX(label)) => {
                         let mut last = None;
                         for _ in 0..=*label {
                             last = f.depth_stack.pop();
                         }
-                        let bt = last.unwrap();
+                        let bt = unwrap!(last, MissingJumpLabel);
                         match bt.bt {
                             BT::Loop => {
                                 f.pc = bt.pos;
@@ -224,22 +254,15 @@ impl Runtime {
                         }
                         for _ in 0..=*label {
                             loop {
-                                if matches!(f.stack.pop().unwrap(), Value::BlockLock) {
+                                if matches!(pop!(), Value::BlockLock) {
                                     break;
                                 }
                             }
                         }
-                        // let label = f.depth - 1 - *label as usize;
-                        // (0..label).for_each(|_| {
-                        //     f.stack.pop();
-                        // });
-                        // let pc = labels.get(&(label as u32)).unwrap();
-                        // f.pc = *pc as usize + 1;
-                        // f.depth = label;
                     }
                     x0d_br_if(LabelIdX(label)) => {
-                        let Value::I32(val) = f.stack.pop().unwrap() else {
-                            unreachable!()
+                        let Value::I32(val) = pop!() else {
+                            throw!(WrongType)
                         };
 
                         if val != 0 {
@@ -247,7 +270,7 @@ impl Runtime {
                             for _ in 0..=*label {
                                 last = f.depth_stack.pop();
                             }
-                            let bt = last.unwrap();
+                            let bt = unwrap!(last, MissingJumpLabel);
                             match bt.bt {
                                 BT::Loop => {
                                     f.pc = bt.pos;
@@ -258,7 +281,7 @@ impl Runtime {
                             }
                             for _ in 0..=*label {
                                 loop {
-                                    if matches!(f.stack.pop().unwrap(), Value::BlockLock) {
+                                    if matches!(pop!(), Value::BlockLock) {
                                         break;
                                     }
                                 }
@@ -274,19 +297,21 @@ impl Runtime {
                         }
                     }
                     x0f_return => {
-                        let mut last_f = self.stack.pop().unwrap();
-                        let ty = self.module.functions.get(&last_f.func_id).unwrap();
+                        let mut last_f = unwrap!(self.stack.pop(), NoFrame);
+                        let ty =
+                            unwrap!(self.module.functions.get(&last_f.func_id), MissingFunction);
                         let ty = match ty {
                             Function::Import { ty, .. } => ty,
                             Function::Local { ty, .. } => ty,
                         };
                         let mut res = Vec::new();
-                        ty.output
-                            .types
-                            .iter()
-                            .for_each(|_| res.push(last_f.stack.pop().unwrap()));
+                        for _ in ty.output.types.iter() {
+                            res.push(unwrap!(last_f.stack.pop(), EmptyStack))
+                        }
                         res.reverse();
-                        self.stack.last_mut().unwrap().stack.append(&mut res);
+                        unwrap!(self.stack.last_mut(), NoFrame)
+                            .stack
+                            .append(&mut res);
                     }
                     x10_call(FuncIdx(id)) => {
                         let fun = &self.module.functions[id];
@@ -297,13 +322,10 @@ impl Runtime {
                             Function::Local { ty, locals, .. } => (ty, locals.clone()),
                         };
 
-                        let locals = ty
-                            .input
-                            .types
-                            .iter()
-                            .enumerate()
-                            .map(|(i, _)| (i as u32, f.stack.pop().unwrap()))
-                            .collect();
+                        let mut locals = HashMap::new();
+                        for (i, _) in ty.input.types.iter().enumerate() {
+                            locals.insert(i as u32, pop!());
+                        }
 
                         self.stack.push(Frame {
                             func_id: *id,
@@ -314,18 +336,17 @@ impl Runtime {
                         });
                     }
                     x11_call_indirect(TypeIdX(type_index), TableIdX(table_index)) => {
-                        let Value::I32(function_index) = f.stack.pop().unwrap() else {
-                            unreachable!()
+                        let Value::I32(function_index) = pop!() else {
+                            throw!(WrongType)
                         };
 
-                        let ty = self.module.function_types.get(type_index).unwrap();
-                        let locals = ty
-                            .input
-                            .types
-                            .iter()
-                            .enumerate()
-                            .map(|(i, _)| (i as u32, f.stack.pop().unwrap()))
-                            .collect();
+                        let ty =
+                            unwrap!(self.module.function_types.get(type_index), MissingFunction);
+
+                        let mut locals = HashMap::new();
+                        for (i, _) in ty.input.types.iter().enumerate() {
+                            locals.insert(i as u32, pop!());
+                        }
 
                         let table = &self.module.tables[*table_index as usize];
                         println!(
@@ -334,7 +355,8 @@ impl Runtime {
                         );
                         println!("\ttable: {table:?}");
 
-                        let FuncIdx(id) = table.get(&(function_index as u32)).unwrap();
+                        let FuncIdx(id) =
+                            unwrap!(table.get(&(function_index as u32)), MissingTableIndex);
 
                         self.stack.push(Frame {
                             func_id: *id,
@@ -345,45 +367,46 @@ impl Runtime {
                         });
                     }
                     x1a_drop => {
-                        f.stack.pop().unwrap();
+                        pop!();
                     }
                     x1b_select => {
-                        let Value::I32(cond) = f.stack.pop().unwrap() else {
-                            unreachable!()
+                        let Value::I32(cond) = pop!() else {
+                            throw!(WrongType)
                         }; // const 0
-                        let y = f.stack.pop().unwrap(); // const 20
-                        let x = f.stack.pop().unwrap(); // const 10
+                        let y = pop!(); // const 20
+                        let x = pop!(); // const 10
                         match cond == 1 {
                             true => f.stack.push(x),
                             false => f.stack.push(y),
                         }
                     }
-                    x20_local_get(LocalIdX(id)) => f.stack.push(*f.locals.get(id).unwrap()),
+                    x20_local_get(LocalIdX(id)) => f.stack.push(*local!(id)),
                     x21_local_set(LocalIdX(id)) => {
-                        let val = f.stack.pop().unwrap();
+                        let val = pop!();
                         f.locals.insert(*id, val);
                     }
                     x22_local_tee(LocalIdX(id)) => {
-                        let last = f.stack.last().unwrap();
-                        f.locals.insert(*id, *last);
+                        let last = pop!();
+                        f.locals.insert(*id, last);
+                        f.stack.push(last);
                     }
                     x23_global_get(GlobalIdX(id)) => f
                         .stack
                         .push(self.globals.get(id).copied().unwrap_or(Value::I32(0))),
                     x24_global_set(GlobalIdX(id)) => {
-                        let pop = f.stack.pop().unwrap();
+                        let pop = pop!();
                         self.globals.insert(*id, pop);
                     }
                     x28_i32_load(mem) => {
-                        let Value::I32(addr) = f.stack.pop().unwrap() else {
-                            panic!()
+                        let Value::I32(addr) = pop!() else {
+                            throw!(WrongType)
                         };
                         f.stack
                             .push(Value::I32(self.memory.get(addr as usize, *mem)));
                     }
                     x2d_i32_load8_u(mem) => {
-                        let Value::I32(addr) = f.stack.pop().unwrap() else {
-                            panic!()
+                        let Value::I32(addr) = pop!() else {
+                            throw!(WrongType)
                         };
                         f.stack.push(Value::I32(unsafe {
                             mem::transmute::<u32, i32>(
@@ -392,76 +415,76 @@ impl Runtime {
                         }));
                     }
                     x36_i32_store(mem) => {
-                        let Value::I32(v) = f.stack.pop().unwrap() else {
-                            panic!()
+                        let Value::I32(v) = pop!() else {
+                            throw!(WrongType)
                         };
-                        let Value::I32(addr) = f.stack.pop().unwrap() else {
-                            panic!()
+                        let Value::I32(addr) = pop!() else {
+                            throw!(WrongType)
                         };
                         self.memory.set(addr as usize, *mem, v);
                     }
                     x37_i64_store(mem) => {
-                        let Value::I64(v) = f.stack.pop().unwrap() else {
-                            panic!()
+                        let Value::I64(v) = pop!() else {
+                            throw!(WrongType)
                         };
-                        let Value::I32(addr) = f.stack.pop().unwrap() else {
-                            panic!()
+                        let Value::I32(addr) = pop!() else {
+                            throw!(WrongType)
                         };
                         self.memory.set(addr as usize, *mem, v);
                     }
                     x3a_i32_store8(mem) => {
-                        let Value::I32(v) = f.stack.pop().unwrap() else {
-                            panic!()
+                        let Value::I32(v) = pop!() else {
+                            throw!(WrongType)
                         };
-                        let Value::I32(addr) = f.stack.pop().unwrap() else {
-                            panic!()
+                        let Value::I32(addr) = pop!() else {
+                            throw!(WrongType)
                         };
                         self.memory.set(addr as usize, *mem, v as u8);
                     }
                     x41_i32_const(i) => f.stack.push(Value::I32(*i)),
                     x42_i64_const(val) => f.stack.push(Value::I64(*val)),
                     x45_i32_eqz => {
-                        let Value::I32(val) = f.stack.pop().unwrap() else {
-                            unreachable!()
+                        let Value::I32(val) = pop!() else {
+                            throw!(WrongType)
                         };
                         f.stack.push(Value::I32((val == 0) as i32));
                     }
                     x46_i32_eq => {
-                        let y = f.stack.pop().unwrap();
-                        let x = f.stack.pop().unwrap();
+                        let y = pop!();
+                        let x = pop!();
                         match (x, y) {
                             (Value::I32(x), Value::I32(y)) => {
                                 let r = (x == y) as i32;
                                 f.stack.push(Value::I32(r))
                             }
-                            _ => unreachable!(),
+                            _ => throw!(WrongType),
                         }
                     }
                     x47_i32_ne => {
-                        let y = f.stack.pop().unwrap();
-                        let x = f.stack.pop().unwrap();
+                        let y = pop!();
+                        let x = pop!();
                         match (x, y) {
                             (Value::I32(x), Value::I32(y)) => {
                                 let r = (x != y) as i32;
                                 f.stack.push(Value::I32(r))
                             }
-                            _ => unreachable!(),
+                            _ => throw!(WrongType),
                         }
                     }
                     x48_i32_lt_s => {
-                        let y = f.stack.pop().unwrap();
-                        let x = f.stack.pop().unwrap();
+                        let y = pop!();
+                        let x = pop!();
                         match (x, y) {
                             (Value::I32(x), Value::I32(y)) => {
                                 let r = (x < y) as i32;
                                 f.stack.push(Value::I32(r))
                             }
-                            _ => unreachable!(),
+                            _ => throw!(WrongType),
                         }
                     }
                     x49_i32_lt_u => {
-                        let y = f.stack.pop().unwrap();
-                        let x = f.stack.pop().unwrap();
+                        let y = pop!();
+                        let x = pop!();
                         match (x, y) {
                             (Value::I32(x), Value::I32(y)) => {
                                 let x = unsafe { mem::transmute::<i32, u32>(x) };
@@ -469,23 +492,23 @@ impl Runtime {
                                 let r = (x < y) as i32;
                                 f.stack.push(Value::I32(r))
                             }
-                            _ => unreachable!(),
+                            _ => throw!(WrongType),
                         }
                     }
                     x4a_i32_gt_s => {
-                        let y = f.stack.pop().unwrap();
-                        let x = f.stack.pop().unwrap();
+                        let y = pop!();
+                        let x = pop!();
                         match (x, y) {
                             (Value::I32(x), Value::I32(y)) => {
                                 let r = (x > y) as i32;
                                 f.stack.push(Value::I32(r))
                             }
-                            _ => unreachable!(),
+                            _ => throw!(WrongType),
                         }
                     }
                     x4b_i32_gt_u => {
-                        let y = f.stack.pop().unwrap();
-                        let x = f.stack.pop().unwrap();
+                        let y = pop!();
+                        let x = pop!();
                         match (x, y) {
                             (Value::I32(x), Value::I32(y)) => {
                                 let x = unsafe { mem::transmute::<i32, u32>(x) };
@@ -493,12 +516,12 @@ impl Runtime {
                                 let r = (y > x) as i32;
                                 f.stack.push(Value::I32(r))
                             }
-                            _ => unreachable!(),
+                            _ => throw!(WrongType),
                         }
                     }
                     x4d_i32_le_u => {
-                        let y = f.stack.pop().unwrap();
-                        let x = f.stack.pop().unwrap();
+                        let y = pop!();
+                        let x = pop!();
                         match (x, y) {
                             (Value::I32(x), Value::I32(y)) => {
                                 let x = unsafe { mem::transmute::<i32, u32>(x) };
@@ -506,110 +529,110 @@ impl Runtime {
                                 let r = (x <= y) as i32;
                                 f.stack.push(Value::I32(r))
                             }
-                            _ => unreachable!(),
+                            _ => throw!(WrongType),
                         }
                     }
                     x4e_i32_ge_s => {
-                        let y = f.stack.pop().unwrap();
-                        let x = f.stack.pop().unwrap();
+                        let y = pop!();
+                        let x = pop!();
                         match (x, y) {
                             (Value::I32(x), Value::I32(y)) => {
                                 f.stack.push(Value::I32((x >= y) as i32))
                             }
-                            _ => unreachable!(),
+                            _ => throw!(WrongType),
                         }
                     }
                     x4f_i32_ge_u => {
-                        let y = f.stack.pop().unwrap();
-                        let x = f.stack.pop().unwrap();
+                        let y = pop!();
+                        let x = pop!();
                         match (x, y) {
                             (Value::I32(x), Value::I32(y)) => {
                                 let x = unsafe { mem::transmute::<i32, u32>(x) };
                                 let y = unsafe { mem::transmute::<i32, u32>(y) };
                                 f.stack.push(Value::I32((x >= y) as i32))
                             }
-                            _ => unreachable!(),
+                            _ => throw!(WrongType),
                         }
                     }
                     x52_i64_ne => {
-                        let y = f.stack.pop().unwrap();
-                        let x = f.stack.pop().unwrap();
+                        let y = pop!();
+                        let x = pop!();
                         match (x, y) {
                             (Value::I64(x), Value::I64(y)) => {
                                 f.stack.push(Value::I64((x != y) as i64))
                             }
-                            _ => unreachable!(),
+                            _ => throw!(WrongType),
                         }
                     }
                     x6a_i32_add => {
-                        let y = f.stack.pop().unwrap();
-                        let x = f.stack.pop().unwrap();
+                        let y = pop!();
+                        let x = pop!();
                         match (x, y) {
                             (Value::I32(x), Value::I32(y)) => f.stack.push(Value::I32(x + y)),
-                            _ => unreachable!(),
+                            _ => throw!(WrongType),
                         }
                     }
                     x6b_i32_sub => {
-                        let y = f.stack.pop().unwrap();
-                        let x = f.stack.pop().unwrap();
+                        let y = pop!();
+                        let x = pop!();
                         match (x, y) {
                             (Value::I32(x), Value::I32(y)) => f.stack.push(Value::I32(x - y)),
-                            _ => unreachable!(),
+                            _ => throw!(WrongType),
                         }
                     }
                     x6c_i32_mul => {
-                        let y = f.stack.pop().unwrap();
-                        let x = f.stack.pop().unwrap();
+                        let y = pop!();
+                        let x = pop!();
                         match (x, y) {
                             (Value::I32(x), Value::I32(y)) => f.stack.push(Value::I32(x * y)),
-                            _ => unreachable!(),
+                            _ => throw!(WrongType),
                         }
                     }
                     x71_i32_and => {
-                        let y = f.stack.pop().unwrap();
-                        let x = f.stack.pop().unwrap();
+                        let y = pop!();
+                        let x = pop!();
                         match (x, y) {
                             (Value::I32(x), Value::I32(y)) => f.stack.push(Value::I32(x & y)),
-                            _ => unreachable!(),
+                            _ => throw!(WrongType),
                         }
                     }
                     x72_i32_or => {
-                        let y = f.stack.pop().unwrap();
-                        let x = f.stack.pop().unwrap();
+                        let y = pop!();
+                        let x = pop!();
                         match (x, y) {
                             (Value::I32(x), Value::I32(y)) => f.stack.push(Value::I32(x | y)),
-                            _ => unreachable!(),
+                            _ => throw!(WrongType),
                         }
                     }
                     x73_i32_xor => {
-                        let y = f.stack.pop().unwrap();
-                        let x = f.stack.pop().unwrap();
+                        let y = pop!();
+                        let x = pop!();
                         match (x, y) {
                             (Value::I32(x), Value::I32(y)) => f.stack.push(Value::I32(x ^ y)),
-                            _ => unreachable!(),
+                            _ => throw!(WrongType),
                         }
                     }
                     x74_i32_shl => {
-                        let y = f.stack.pop().unwrap();
-                        let x = f.stack.pop().unwrap();
+                        let y = pop!();
+                        let x = pop!();
                         match (x, y) {
                             (Value::I32(x), Value::I32(y)) => f.stack.push(Value::I32(x << y)),
-                            _ => unreachable!(),
+                            _ => throw!(WrongType),
                         }
                     }
                     x7e_i64_mul => {
-                        let y = f.stack.pop().unwrap();
-                        let x = f.stack.pop().unwrap();
+                        let y = pop!();
+                        let x = pop!();
                         match (x, y) {
                             (Value::I64(x), Value::I64(y)) => f.stack.push(Value::I64(x * y)),
-                            _ => unreachable!(),
+                            _ => throw!(WrongType),
                         }
                     }
                     xad_i64_extend_i32_u => {
-                        let x = f.stack.pop().unwrap();
+                        let x = pop!();
                         match x {
                             Value::I32(x) => f.stack.push(Value::I64(x as i64)),
-                            _ => unreachable!(),
+                            _ => throw!(WrongType),
                         }
                     }
                     block_start(bt, be) => {

@@ -39,7 +39,7 @@
           openssl
           gcc
           emscripten
-
+          gnumake
           libxkbcommon
           libGL
           fontconfig
@@ -49,6 +49,7 @@
           xorg.libXi
           xorg.libX11
           python3
+          wabt
         ];
       in
       {

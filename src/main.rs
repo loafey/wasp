@@ -1,9 +1,9 @@
 #![feature(const_type_name)]
-
 use egui::{Id, Vec2};
 use hex::Hex;
 use parser::{Instr, Module, Parsable};
 use runtime::{clean_model::Function, Runtime, Value};
+use std::io::Write;
 use std::{
     env::args,
     fs::File,
@@ -29,13 +29,26 @@ fn alloc<const N: usize>() -> Hex<N> {
 
 fn runtime() -> Runtime {
     let mut buf = Vec::new();
-    let mut f = File::open(
-        args()
-            .skip(1)
-            .find(|p| !p.starts_with("--"))
-            .unwrap_or("examples/c_addition.wasm".to_string()),
-    )
-    .unwrap();
+    let mut path = args()
+        .skip(1)
+        .find(|p| !p.starts_with("-"))
+        .unwrap_or("examples/c_addition.wasm".to_string());
+
+    if path.ends_with(".wast") || path.ends_with(".wat") {
+        let input = path.to_string();
+        path = path.replace(".wast", ".wasm").replace(".wat", ".wasm");
+        std::process::Command::new("wast2json")
+            .arg(input)
+            .arg("-o")
+            .arg(&path)
+            .output()
+            .unwrap();
+    }
+    path = path.replace(".wasm", ".0.wasm");
+
+    println!("running path: {path}");
+
+    let mut f = File::open(path).unwrap();
     f.read_to_end(&mut buf).unwrap();
 
     let mut cursor = Cursor::new(&buf[..]);

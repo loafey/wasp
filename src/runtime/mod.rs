@@ -530,9 +530,9 @@ impl Runtime {
                         f.stack.push(Value::I64(x * y))
                     }
                     xad_i64_extend_i32_u => {
-                        throw!(WrongType)
-                        // let x = pop!(i32);
-                        // f.stack.push(Value::I64(x as i64))
+                        let x = pop!(u32) as u64;
+                        f.stack
+                            .push(Value::I64(unsafe { std::mem::transmute::<u64, i64>(x) }))
                     }
                     block_start(bt, be) => {
                         f.stack.push(Value::BlockLock);

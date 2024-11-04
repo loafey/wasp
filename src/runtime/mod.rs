@@ -61,6 +61,7 @@ pub struct Runtime {
     pub stack: Vec<Frame>,
     pub globals: HashMap<u32, Value>,
     pub memory: Memory<1024>,
+    #[allow(unused)]
     pub datas: HashMap<u32, Vec<u8>>,
 }
 impl Runtime {
@@ -188,8 +189,9 @@ impl Runtime {
 
         match &self.module.functions[&f.func_id] {
             Function::Import { module, name, .. } => {
-                println!("calling {module:?}::{name:?}");
+                // println!("calling {module:?}::{name:?}");
                 match (&*module.0, &*name.0) {
+                    #[allow(clippy::print_stdout)]
                     ("console", "log") => {
                         let y = *local!(&0);
                         let x = *local!(&1);
@@ -210,6 +212,7 @@ impl Runtime {
                             b.push(s);
                         }
                         let s = String::from_utf8_lossy(&b);
+
                         println!("{s}")
                     }
                     ("wasi_snapshot_preview1", "args_sizes_get") => {
@@ -231,7 +234,6 @@ impl Runtime {
                         let Value::I32(argv_buf) = *local!(&0) else {
                             throw!(WrongType)
                         };
-                        println!("{argv} {argv_buf}");
                         f.stack.push(Value::I32(0));
                     }
                     (module, function) => {
@@ -357,11 +359,11 @@ impl Runtime {
                         }
 
                         let table = &self.module.tables[*table_index as usize];
-                        println!(
-                            "Call info ({}): \n\tinputs: {locals:?}\n\tfunction_index: {function_index}",
-                            f.func_id
-                        );
-                        println!("\ttable: {table:?}");
+                        // println!(
+                        //     "Call info ({}): \n\tinputs: {locals:?}\n\tfunction_index: {function_index}",
+                        //     f.func_id
+                        // );
+                        // println!("\ttable: {table:?}");
 
                         let FuncIdx(id) =
                             unwrap!(table.get(&(function_index as u32)), MissingTableIndex);

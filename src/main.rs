@@ -1,6 +1,8 @@
 #![feature(const_type_name)]
 #![feature(path_file_prefix)]
 #![forbid(clippy::unwrap_used)]
+#![deny(clippy::print_stdout)]
+#![deny(clippy::print_stderr)]
 use egui::{Id, Vec2};
 use hex::Hex;
 use parser::{Instr, Module, Parsable};
@@ -41,7 +43,7 @@ fn runtime(path: PathBuf) -> Result<Runtime, RuntimeError> {
         Ok(o) => o,
         Err(e) => {
             stack.reverse();
-            eprintln!(
+            error!(
                 "File: {path:?}\nError: {e:?}, bin pos: {}, stack: {stack:#?}",
                 cursor.position()
             );
@@ -139,7 +141,7 @@ impl eframe::App for App {
                 > text.depth_stack.len()
             {
                 self.auto = false;
-                println!("!LOCK!");
+                error!("!LOCK!");
             }
             if let Function::Local { labels, .. } = &self.runtime.module.functions[&text.func_id] {
                 let label = egui::Label::new(format!("Labels: {labels:#?}")).extend();
@@ -257,7 +259,7 @@ fn main() {
                 Ok(rt) => rt,
                 Err(RuntimeError::NoMain) => continue,
                 Err(_) => {
-                    eprintln!(
+                    error!(
                         "The unthinkable happened and runtime creating returned a runtime error!"
                     );
                     std::process::exit(1);
@@ -274,7 +276,7 @@ fn main() {
                             }
                         }
                         e => {
-                            eprintln!("Error: {e:?}");
+                            error!("{e:?}");
                             std::process::exit(1);
                         }
                     }
@@ -302,7 +304,7 @@ fn main() {
                 match e {
                     RuntimeError::Exit(x) => std::process::exit(x),
                     _ => {
-                        eprintln!("Error: {e:?}");
+                        error!("{e:?}");
                         std::process::exit(1)
                     }
                 }

@@ -123,7 +123,7 @@ impl eframe::App for App {
         egui::SidePanel::new(egui::panel::Side::Left, Id::new("stack_info")).show(ctx, |ui| {
             ui.heading("Frame info:");
             let text = &self.runtime.stack[self.current_frame];
-            self.auto = text.func_id != 29;
+            // self.auto = text.func_id != 29;
             if text
                 .stack
                 .iter()

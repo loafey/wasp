@@ -1,7 +1,5 @@
 use crate::parser::MemArg;
-use std::{collections::HashMap, mem, ptr};
-
-use super::Value;
+use std::{collections::HashMap, mem};
 
 struct Page<const PAGE_SIZE: usize> {
     zero: usize,
@@ -58,13 +56,13 @@ impl<const PAGE_SIZE: usize> Memory<PAGE_SIZE> {
     // Very nice function! :)
     pub fn get<T>(&self, address: usize, mem_arg: MemArg) -> T {
         // println!("getting {}", address + mem_arg.offset as usize);
+
         let mut val = unsafe { mem::zeroed::<T>() };
         let r = &mut val as *mut T as *mut u8;
+
         for i in 0..mem::size_of::<T>() {
             let b = self.get_u8(address + i, mem_arg);
-            unsafe {
-                ptr::write(r.add(i), b);
-            }
+            unsafe { *r.add(i) = b };
         }
 
         val

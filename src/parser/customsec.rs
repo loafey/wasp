@@ -3,12 +3,14 @@ use std::io::ErrorKind;
 use super::{error::ParseError, Name, Parsable};
 
 #[derive(Debug, Default)]
+#[allow(unused)]
 pub struct CustomSection {
     pub size: u32,
     pub name: Name,
     pub sections: Vec<Vec<u8>>,
 }
 impl CustomSection {
+    #[allow(unused)]
     pub fn concat(&mut self, mut other: Self) {
         self.size += other.size;
         self.sections.append(&mut other.sections);

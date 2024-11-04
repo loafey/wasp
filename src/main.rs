@@ -1,20 +1,18 @@
 #![feature(const_type_name)]
-#![feature(path_file_prefix)]
 #![forbid(clippy::unwrap_used)]
 #![deny(clippy::print_stdout)]
 #![deny(clippy::print_stderr)]
 use egui::{Id, Vec2};
 use hex::Hex;
 use parser::{Instr, Module, Parsable};
-use regex::Regex;
 use runtime::{clean_model::Function, Runtime, RuntimeError, Value};
+use serde::Deserialize;
 use std::{
     env::args,
     fs::{self, File},
     io::{Cursor, Read},
     mem::MaybeUninit,
     path::PathBuf,
-    sync::LazyLock,
     time::{Duration, Instant},
 };
 mod hex;
@@ -45,9 +43,10 @@ fn runtime(path: PathBuf) -> Result<Runtime, RuntimeError> {
         Ok(o) => o,
         Err(e) => {
             stack.reverse();
-            error!("File: {path:?}");
-            error!("{e:?}, bin pos: {}, stack: {stack:#?}", cursor.position());
-            std::process::exit(1);
+            return Err(RuntimeError::ParseError(format!(
+                "File: {path:?}\n{e:?}, bin pos: {}, stack: {stack:#?}",
+                cursor.position()
+            )));
         }
     };
     Runtime::new(module)
@@ -212,8 +211,26 @@ impl eframe::App for App {
     }
 }
 
-static PATH_CHECK: LazyLock<Regex> =
-    LazyLock::new(|| Regex::new("\\.[0-9]+\\.wasm").expect("failed to compile regex"));
+#[derive(Debug, Deserialize, Clone, Copy)]
+enum TestType {
+    #[serde(rename = "assert_malformed")]
+    Module,
+    #[serde(rename = "module")]
+    AssertMalformed,
+}
+
+#[derive(Debug, Deserialize, Clone)]
+struct Case {
+    #[serde(rename = "type")]
+    type_: TestType,
+    filename: String,
+}
+
+#[derive(Debug, Deserialize)]
+struct TestCases {
+    source_filename: String,
+    commands: Vec<Case>,
+}
 
 fn main() {
     pretty_env_logger::init();
@@ -225,7 +242,7 @@ fn main() {
     // God awful way to run spec tests
     if path.ends_with(".wast") {
         let input = path.to_string();
-        path = path.replace(".wast", ".wasm").replace(".wat", ".wasm");
+        path = path.replace(".wast", ".wasm");
         std::process::Command::new("wast2json")
             .arg(input)
             .arg("-o")
@@ -233,38 +250,30 @@ fn main() {
             .output()
             .expect("Failed to run wast2json");
 
-        let mut p = PathBuf::from(path);
-        let file_name = p
-            .file_prefix()
-            .expect("failed to get file prefix")
-            .to_string_lossy()
-            .to_string();
-        p.pop();
-        let mut tests = fs::read_dir(p)
-            .expect("failed to read dir")
-            .map(|p| p.expect("failed to read dir content").path())
-            .filter(|p| {
-                let t = p
-                    .file_prefix()
-                    .expect("failed to get prefix")
-                    .to_string_lossy()
-                    .to_string();
-                t == file_name
-            })
-            .filter(|p| p.extension().map(|a| a == "wasm").unwrap_or_default())
-            .filter(|p| PATH_CHECK.find(&format!("{p:?}")).is_some())
-            .collect::<Vec<_>>();
-        tests.sort();
-        tests.sort_by(|a, b| format!("{a:?}").len().cmp(&format!("{b:?}").len()));
+        let p = PathBuf::from(path);
+        let tests = serde_json::from_str::<TestCases>(
+            &fs::read_to_string(&p).expect("failed to open test data"),
+        )
+        .expect("failed to parse test data");
 
-        for test in tests {
-            let mut rt = match runtime(test) {
-                Ok(rt) => rt,
-                Err(RuntimeError::NoMain) => continue,
-                Err(_) => {
-                    error!(
-                        "The unthinkable happened and runtime creating returned a runtime error!"
-                    );
+        for test in tests.commands {
+            let mut p = p.clone();
+            p.pop();
+            p.push(&test.filename);
+            let mut rt = match (runtime(p), test.type_) {
+                (Ok(rt), TestType::Module) => rt,
+                (Ok(_) | Err(RuntimeError::NoMain), TestType::AssertMalformed) => {
+                    error!("A malformed test passed parsing: {test:?}");
+                    std::process::exit(1);
+                }
+                (Err(RuntimeError::NoMain), TestType::Module) => continue,
+                (Err(RuntimeError::ParseError(_)), TestType::AssertMalformed) => continue,
+                (Err(RuntimeError::ParseError(err)), TestType::Module) => {
+                    error!("A valid module failed parsing: {err}");
+                    std::process::exit(1);
+                }
+                (Err(err), _) => {
+                    error!("Other error: {err:?}");
                     std::process::exit(1);
                 }
             };

@@ -1,6 +1,5 @@
 use super::{Expr, MemIdX, Parsable};
 use crate::{hex::Hex, parser::error::ParseError};
-use std::io::Read;
 
 #[derive(Debug)]
 #[allow(unused)]
@@ -17,9 +16,8 @@ impl Parsable for Data {
     where
         Self: std::marker::Sized,
     {
-        let mut header = [0];
-        data.read_exact(&mut header)?;
-        Ok(match header[0] {
+        let header = u32::parse(data, stack)?;
+        Ok(match header {
             0 => Data::Active(Expr::parse(data, stack)?, Vec::parse(data, stack)?),
             1 => Data::Passive(Vec::parse(data, stack)?),
             2 => Data::ActiveX(
@@ -27,7 +25,7 @@ impl Parsable for Data {
                 Expr::parse(data, stack)?,
                 Vec::parse(data, stack)?,
             ),
-            _ => Err(ParseError::InvalidData(Hex(header)))?,
+            _ => Err(ParseError::InvalidData(Hex([header.to_le_bytes()[0]])))?,
         })
     }
 }

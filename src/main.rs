@@ -104,11 +104,6 @@ impl eframe::App for App {
                 ui.label(format!("{}B", mem))
             };
 
-            ui.heading("Stack info usage:");
-            ui.label(format!("PTR: {}", self.runtime.memory.stack_ptr));
-            ui.label(format!("Base: {}", self.runtime.memory.stack_base));
-            ui.label(format!("End: {}", self.runtime.memory.stack_end));
-
             ui.heading("Stack frames:");
             let width = ui.max_rect().width();
             for i in (0..self.runtime.stack.len()).rev() {

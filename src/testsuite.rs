@@ -1,10 +1,10 @@
 use monostate::MustBe;
-use serde::Deserialize;
+use serde::{de::Expected, Deserialize};
 use std::{cell::RefCell, collections::HashMap, fs, path::PathBuf, rc::Rc};
 
 use crate::{
     parser::{ExportDesc, FuncIdx, TypeIdX},
-    runtime::{self, Frame, RuntimeError, Value},
+    runtime::{self, Frame, Runtime, RuntimeError, Value},
 };
 
 #[derive(Debug, Deserialize, Clone)]
@@ -198,6 +198,47 @@ fn remove_floats(vals: Vec<Value>) -> Vec<Value> {
         .collect()
 }
 
+fn handle_action<T>(
+    rt: &mut Runtime,
+    action: Action,
+    loop_func: impl FnOnce(&mut Runtime, &String) -> T,
+) -> T {
+    match action {
+        Action::Invoke {
+            module,
+            field,
+            args,
+        } => {
+            if module.is_some() {
+                todo!()
+            }
+
+            let fid = rt.exports.get(&field).expect("no function");
+
+            let ExportDesc::Func(TypeIdX(fid)) = fid else {
+                panic!("no function with this id")
+            };
+
+            let args = const_to_val(args)
+                .into_iter()
+                .enumerate()
+                .map(|(a, b)| (a as u32, b))
+                .collect::<HashMap<_, _>>();
+
+            rt.stack.push(Frame {
+                func_id: *fid,
+                pc: 0,
+                stack: Vec::new(),
+                locals: args,
+                depth_stack: Vec::new(),
+            });
+
+            loop_func(rt, &field)
+        }
+        Action::Get { module, field } => todo!(),
+    }
+}
+
 pub fn test(mut path: String) {
     let input = path.to_string();
     path = path.replace(".wast", ".wasm");
@@ -252,62 +293,32 @@ pub fn test(mut path: String) {
                 }
                 let mut rt = runtime.borrow_mut();
                 let rt = rt.as_mut().expect("no rt set");
-                match action {
-                    Action::Invoke {
-                        module,
-                        field,
-                        args,
-                    } => {
-                        if module.is_some() {
-                            todo!()
-                        }
 
-                        let fid = rt.exports.get(&field).expect("no function");
+                let expected = const_to_val(expected);
 
-                        let ExportDesc::Func(TypeIdX(fid)) = fid else {
-                            panic!("no function with this id")
-                        };
-
-                        let args = const_to_val(args)
-                            .into_iter()
-                            .enumerate()
-                            .map(|(a, b)| (a as u32, b))
-                            .collect::<HashMap<_, _>>();
-
-                        let mut expected = const_to_val(expected);
-
-                        rt.stack.push(Frame {
-                            func_id: *fid,
-                            pc: 0,
-                            stack: Vec::new(),
-                            locals: args,
-                            depth_stack: Vec::new(),
-                        });
-
-                        let mut last;
-                        loop {
-                            last = rt.stack.first().expect("no first").stack.clone();
-                            match rt.step() {
-                                Err(RuntimeError::NoFrame(_, _, _)) => {
-                                    expected = remove_floats(expected);
-                                    last = remove_floats(last);
-                                    if last == expected {
-                                        break;
-                                    } else {
-                                        error!("test {test_i}/{total_tests} failed (module: {module_index}, invoke: {field:?}, got {last:?}, but expected {expected:?})");
-                                        std::process::exit(1);
-                                    }
-                                }
-                                Err(e) => {
-                                    error!("{e:?}");
+                handle_action(rt, action, move |rt, field| {
+                    let mut last;
+                    loop {
+                        last = rt.stack.first().expect("no first").stack.clone();
+                        match rt.step() {
+                            Err(RuntimeError::NoFrame(_, _, _)) => {
+                                let expected = remove_floats(expected);
+                                last = remove_floats(last);
+                                if last == expected {
+                                    break;
+                                } else {
+                                    error!("test {test_i}/{total_tests} failed (module: {module_index}, invoke: {field:?}, got {last:?}, but expected {expected:?})");
                                     std::process::exit(1);
                                 }
-                                Ok(()) => (),
                             }
+                            Err(e) => {
+                                error!("{e:?}");
+                                std::process::exit(1);
+                            }
+                            Ok(()) => (),
                         }
                     }
-                    Action::Get { module, field } => todo!("ActionGet"),
-                }
+                })
             }
             Case::Action(ActionWrap { action, .. }) => {
                 if skip {
@@ -315,51 +326,18 @@ pub fn test(mut path: String) {
                 }
                 let mut rt = runtime.borrow_mut();
                 let rt = rt.as_mut().expect("no rt set");
-                match action {
-                    Action::Invoke {
-                        module,
-                        field,
-                        args,
-                    } => {
-                        if module.is_some() {
-                            todo!()
+                handle_action(rt, action, move |rt, _| loop {
+                    match rt.step() {
+                        Err(RuntimeError::NoFrame(_, _, _)) => {
+                            break;
                         }
-
-                        let fid = rt.exports.get(&field).expect("no function");
-
-                        let ExportDesc::Func(TypeIdX(fid)) = fid else {
-                            panic!("no function with this id")
-                        };
-
-                        let args = const_to_val(args)
-                            .into_iter()
-                            .enumerate()
-                            .map(|(a, b)| (a as u32, b))
-                            .collect::<HashMap<_, _>>();
-
-                        rt.stack.push(Frame {
-                            func_id: *fid,
-                            pc: 0,
-                            stack: Vec::new(),
-                            locals: args,
-                            depth_stack: Vec::new(),
-                        });
-
-                        loop {
-                            match rt.step() {
-                                Err(RuntimeError::NoFrame(_, _, _)) => {
-                                    break;
-                                }
-                                Err(e) => {
-                                    error!("{e:?}");
-                                    std::process::exit(1);
-                                }
-                                Ok(()) => (),
-                            }
+                        Err(e) => {
+                            error!("{e:?}");
+                            std::process::exit(1);
                         }
+                        Ok(()) => (),
                     }
-                    Action::Get { module, field } => todo!(),
-                }
+                })
             }
             Case::AssertExhaustion(assert_exhaustion) => {
                 if skip {
@@ -369,13 +347,25 @@ pub fn test(mut path: String) {
                 let rt = rt.as_mut().expect("no rt set");
                 todo!("AssertExhaustion")
             }
-            Case::AssertTrap(assert_trap) => {
+            Case::AssertTrap(AssertTrap { action, text, .. }) => {
                 if skip {
                     continue;
                 }
                 let mut rt = runtime.borrow_mut();
                 let rt = rt.as_mut().expect("no rt set");
-                todo!("AssertTrap")
+                std::process::exit(1);
+                handle_action(rt, action, move |rt, _| loop {
+                    match rt.step() {
+                        Err(RuntimeError::NoFrame(_, _, _)) => {
+                            break;
+                        }
+                        Err(e) => {
+                            error!("{e:?}");
+                            std::process::exit(1);
+                        }
+                        Ok(()) => (),
+                    }
+                })
             }
             Case::AssertInvalid(assert_invalid) => {
                 if skip {

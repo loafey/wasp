@@ -61,6 +61,7 @@ pub struct Runtime {
     pub stack: Vec<Frame>,
     pub globals: HashMap<u32, Value>,
     pub memory: Memory<1024>,
+    pub exports: HashMap<String, ExportDesc>,
     #[allow(unused)]
     pub datas: HashMap<u32, Vec<u8>>,
 }
@@ -118,6 +119,13 @@ impl Runtime {
             globals.insert(i as u32, Value::I32(x));
         }
 
+        let exports = module
+            .exports
+            .exports
+            .iter()
+            .map(|exp| (exp.nm.0.clone(), exp.d))
+            .collect();
+
         let module = Model::from(module);
         Ok(Self {
             module,
@@ -125,6 +133,7 @@ impl Runtime {
             memory,
             globals,
             datas,
+            exports,
         })
     }
     pub fn step(&mut self) -> Result<(), RuntimeError> {

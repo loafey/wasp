@@ -161,7 +161,14 @@ fn const_to_val(consts: Vec<ConstValue>) -> Vec<Value> {
                         .expect("failed to parse") as u32,
                 )
             }),
-            ConstValue::F64 { value } => Value::F64(value.parse().expect("failed to parse")),
+            ConstValue::F64 { value } => Value::F64(unsafe {
+                f64::from_bits(
+                    value
+                        .parse::<i64>()
+                        .or_else(|_| value.parse().map(|v| std::mem::transmute::<u64, i64>(v)))
+                        .expect("failed to parse") as u64,
+                )
+            }),
         })
         .collect()
 }

@@ -417,17 +417,17 @@ impl Runtime {
                         self.globals.insert(*id, pop);
                     }
                     x28_i32_load(mem) => {
-                        let addr = pop!(i32);
+                        let addr = pop!(u32);
                         f.stack
                             .push(Value::I32(self.memory.get(addr as usize, *mem)));
                     }
                     x2c_i32_load8_s(mem) => {
-                        let addr = pop!(i32);
+                        let addr = pop!(u32);
                         f.stack
                             .push(Value::I32(self.memory.get::<i8>(addr as usize, *mem) as i32));
                     }
                     x2d_i32_load8_u(mem) => {
-                        let addr = pop!(i32);
+                        let addr = pop!(u32);
                         f.stack.push(Value::I32(unsafe {
                             mem::transmute::<u32, i32>(
                                 self.memory.get::<u8>(addr as usize, *mem) as u32
@@ -435,13 +435,13 @@ impl Runtime {
                         }));
                     }
                     x2e_i32_load16_s(mem) => {
-                        let addr = pop!(i32);
+                        let addr = pop!(u32);
                         f.stack.push(Value::I32(
                             self.memory.get::<u16>(addr as usize, *mem) as i32
                         ));
                     }
                     x2f_i32_load16_u(mem) => {
-                        let addr = pop!(i32);
+                        let addr = pop!(u32);
                         f.stack.push(Value::I32(unsafe {
                             mem::transmute::<u32, i32>(
                                 self.memory.get::<u16>(addr as usize, *mem) as u32
@@ -450,17 +450,17 @@ impl Runtime {
                     }
                     x36_i32_store(mem) => {
                         let v = pop!(i32);
-                        let addr = pop!(i32);
+                        let addr = pop!(u32);
                         self.memory.set(addr as usize, *mem, v);
                     }
                     x37_i64_store(mem) => {
                         let v = pop!(i64);
-                        let addr = pop!(i32);
+                        let addr = pop!(u32);
                         self.memory.set(addr as usize, *mem, v);
                     }
                     x3a_i32_store8(mem) => {
                         let v = pop!(i32);
-                        let addr = pop!(i32);
+                        let addr = pop!(u32);
                         self.memory.set(addr as usize, *mem, v as u8);
                     }
                     x41_i32_const(i) => f.stack.push(Value::I32(*i)),

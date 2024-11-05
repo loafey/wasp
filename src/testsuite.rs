@@ -180,6 +180,7 @@ pub fn test(mut path: String) {
     let mut recreate_runtime: Box<dyn Fn()> = Box::new(|| {});
 
     for (test_i, test) in tests.commands.into_iter().enumerate() {
+        println!("test: {test_i}");
         recreate_runtime();
         match test {
             Case::Module(module) => {
@@ -268,12 +269,14 @@ pub fn test(mut path: String) {
                         let ExportDesc::Func(TypeIdX(fid)) = fid else {
                             panic!("no function with this id")
                         };
+                        println!("{args:?}");
 
                         let args = const_to_val(args)
                             .into_iter()
                             .enumerate()
                             .map(|(a, b)| (a as u32, b))
                             .collect::<HashMap<_, _>>();
+                        println!("{args:?}");
 
                         rt.stack.push(Frame {
                             func_id: *fid,

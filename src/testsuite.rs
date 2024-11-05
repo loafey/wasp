@@ -378,12 +378,18 @@ pub fn test(mut path: String) {
                 let rt = rt.as_mut().expect("no rt set");
                 todo!("AssertInvalid")
             }
-            Case::AssertMalformed(assert_malformed) => {
-                if skip {
+            Case::AssertMalformed(AssertMalformed {
+                filename,
+                text,
+                module_type,
+                ..
+            }) => {
+                if skip && filename.extension().map(|x| x == "wat").unwrap_or_default() {
                     continue;
                 }
-                let mut rt = runtime.borrow_mut();
-                let rt = rt.as_mut().expect("no rt set");
+                // let mut rt = runtime.borrow_mut();
+                // let rt = rt.as_mut().expect("no rt set");
+                println!("{filename:?}");
                 todo!("AssertMalformed")
             }
             Case::AssertUninstantiable(assert_uninstantiable) => {

@@ -92,14 +92,23 @@ impl Runtime {
             }
         }
 
-        let Some(ExportDesc::Func(TypeIdX(main_id))) = module
+        let stack = if let Some(ExportDesc::Func(TypeIdX(main_id))) = module
             .exports
             .exports
             .iter()
             .find(|s| matches!(&*s.nm.0, "main" | "_start"))
             .map(|f| f.d)
-        else {
-            return Err(NoMain);
+        {
+            vec![Frame {
+                func_id: main_id,
+                pc: 0,
+                stack: Vec::new(),
+                locals: HashMap::new(),
+                // labels: HashMap::new(),
+                depth_stack: Vec::new(),
+            }]
+        } else {
+            Vec::new()
         };
         let mut globals = HashMap::new();
         for (i, Global { e, .. }) in module.globals.globals.iter().enumerate() {
@@ -112,14 +121,7 @@ impl Runtime {
         let module = Model::from(module);
         Ok(Self {
             module,
-            stack: vec![Frame {
-                func_id: main_id,
-                pc: 0,
-                stack: Vec::new(),
-                locals: HashMap::new(),
-                // labels: HashMap::new(),
-                depth_stack: Vec::new(),
-            }],
+            stack,
             memory,
             globals,
             datas,

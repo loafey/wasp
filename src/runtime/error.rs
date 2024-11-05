@@ -1,6 +1,5 @@
 #[allow(unused)]
 pub enum RuntimeError {
-    NoMain,
     ParseError(String),
     Exit(i32),
     GlobalWithoutOffset,
@@ -20,7 +19,6 @@ impl std::fmt::Debug for RuntimeError {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
             Self::ParseError(string) => write!(f, "ParseError({string})"),
-            Self::NoMain => write!(f, "NoMain"),
             Self::Exit(arg0) => f.debug_tuple("Exit").field(arg0).finish(),
             Self::GlobalWithoutOffset => write!(f, "GlobalWithoutOffset"),
             Self::ActiveDataWithoutOffset => write!(f, "ActiveDataWithoutOffset"),

@@ -153,8 +153,25 @@ fn const_to_val(consts: Vec<ConstValue>) -> Vec<Value> {
                     })
                     .expect("failed to parse"),
             ),
-            ConstValue::F32 { value } => Value::F32(value.parse().expect("failed to parse")),
+            ConstValue::F32 { value } => Value::F32(unsafe {
+                f32::from_bits(
+                    value
+                        .parse::<i32>()
+                        .or_else(|_| value.parse().map(|v| std::mem::transmute::<u32, i32>(v)))
+                        .expect("failed to parse") as u32,
+                )
+            }),
             ConstValue::F64 { value } => Value::F64(value.parse().expect("failed to parse")),
+        })
+        .collect()
+}
+
+fn remove_floats(vals: Vec<Value>) -> Vec<Value> {
+    vals.into_iter()
+        .map(|v| match v {
+            Value::F32(x) => Value::I32(unsafe { std::mem::transmute::<u32, i32>(x.to_bits()) }),
+            Value::F64(_) => todo!(),
+            x => x,
         })
         .collect()
 }
@@ -232,7 +249,7 @@ pub fn test(mut path: String) {
                             .map(|(a, b)| (a as u32, b))
                             .collect::<HashMap<_, _>>();
 
-                        let expected = const_to_val(expected);
+                        let mut expected = const_to_val(expected);
 
                         rt.stack.push(Frame {
                             func_id: *fid,
@@ -247,16 +264,11 @@ pub fn test(mut path: String) {
                             last = rt.stack.first().expect("no first").stack.clone();
                             match rt.step() {
                                 Err(RuntimeError::NoFrame(_, _, _)) => {
+                                    expected = remove_floats(expected);
+                                    last = remove_floats(last);
                                     if last == expected {
                                         break;
                                     } else {
-                                        let Value::F32(x) = last[0] else { panic!() };
-                                        let x = x.to_bits();
-                                        let Value::F32(y) = expected[0] else { panic!() };
-                                        let y = y.to_bits();
-                                        println!("Gotten:   {x:032b}");
-                                        println!("Expected: {y:032b}");
-
                                         error!("test {test_i}/{total_tests} failed (module: {module_index}, invoke: {field:?}, got {last:?}, but expected {expected:?})");
                                         std::process::exit(1);
                                     }

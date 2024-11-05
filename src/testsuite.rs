@@ -179,7 +179,7 @@ pub fn test(mut path: String) {
 
     let mut recreate_runtime: Box<dyn Fn()> = Box::new(|| {});
     let mut skip = false;
-    let mut module_index = 0;
+    let mut module_index = -1;
 
     for (test_i, test) in tests.commands.into_iter().enumerate() {
         recreate_runtime();
@@ -194,10 +194,10 @@ pub fn test(mut path: String) {
                     .extension()
                     .map(|s| s == "wat")
                     .unwrap_or_default();
+                module_index += 1;
                 if skip {
                     continue;
                 }
-                module_index += 1;
                 recreate_runtime = Box::new(move || {
                     *runtime.borrow_mut() =
                         Some(crate::runtime(p.clone()).expect("failed to load module"));

@@ -478,7 +478,7 @@ impl Runtime {
                     x34_i64_load32_s(mem) => {
                         let addr = pop!(u32);
                         f.stack.push(Value::I64(
-                            self.memory.get::<i64>(addr as usize, *mem) as i64
+                            self.memory.get::<i32>(addr as usize, *mem) as i64
                         ));
                     }
                     x35_i64_load32_u(mem) => {

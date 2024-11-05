@@ -421,6 +421,16 @@ impl Runtime {
                         f.stack
                             .push(Value::I32(self.memory.get(addr as usize, *mem)));
                     }
+                    x29_i64_load(mem) => {
+                        let addr = pop!(u32);
+                        f.stack
+                            .push(Value::I64(self.memory.get(addr as usize, *mem)));
+                    }
+                    x2a_f32_load(mem) => {
+                        let addr = pop!(u32);
+                        f.stack
+                            .push(Value::F32(self.memory.get(addr as usize, *mem)));
+                    }
                     x2c_i32_load8_s(mem) => {
                         let addr = pop!(u32);
                         f.stack

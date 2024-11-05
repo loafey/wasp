@@ -131,6 +131,7 @@ struct TestCases {
 }
 
 fn const_to_val(consts: Vec<ConstValue>) -> Vec<Value> {
+    println!("{consts:?}");
     consts
         .into_iter()
         .map(|v| match v {
@@ -184,7 +185,7 @@ pub fn test(mut path: String) {
                         field,
                         args,
                     } => {
-                        if let Some(_) = module {
+                        if module.is_some() {
                             todo!()
                         }
 
@@ -233,10 +234,54 @@ pub fn test(mut path: String) {
                     Action::Get { module, field } => todo!("ActionGet"),
                 }
             }
-            Case::Action(action_wrap) => {
+            Case::Action(ActionWrap { action }) => {
                 let mut rt = runtime.borrow_mut();
                 let rt = rt.as_mut().expect("no rt set");
-                todo!("Action")
+                match action {
+                    Action::Invoke {
+                        module,
+                        field,
+                        args,
+                    } => {
+                        if module.is_some() {
+                            todo!()
+                        }
+
+                        let fid = rt.exports.get(&field).expect("no function");
+
+                        let ExportDesc::Func(TypeIdX(fid)) = fid else {
+                            panic!("no function with this id")
+                        };
+
+                        let args = const_to_val(args)
+                            .into_iter()
+                            .enumerate()
+                            .map(|(a, b)| (a as u32, b))
+                            .collect::<HashMap<_, _>>();
+
+                        rt.stack.push(Frame {
+                            func_id: *fid,
+                            pc: 0,
+                            stack: Vec::new(),
+                            locals: args,
+                            depth_stack: Vec::new(),
+                        });
+
+                        loop {
+                            match rt.step() {
+                                Err(RuntimeError::NoFrame(_, _, _)) => {
+                                    break;
+                                }
+                                Err(e) => {
+                                    error!("{e:?}");
+                                    std::process::exit(1);
+                                }
+                                _ => (),
+                            }
+                        }
+                    }
+                    Action::Get { module, field } => todo!(),
+                }
             }
             Case::AssertExhaustion(assert_exhaustion) => {
                 let mut rt = runtime.borrow_mut();

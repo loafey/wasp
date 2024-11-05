@@ -178,9 +178,9 @@ pub fn test(mut path: String) {
     let runtime = Rc::new(RefCell::new(None));
 
     let mut recreate_runtime: Box<dyn Fn()> = Box::new(|| {});
+    let mut skip = false;
 
     for (test_i, test) in tests.commands.into_iter().enumerate() {
-        println!("test: {test_i}");
         recreate_runtime();
         match test {
             Case::Module(module) => {
@@ -188,12 +188,19 @@ pub fn test(mut path: String) {
                 let mut p = p.clone();
                 p.pop();
                 p.push(&module.filename);
+                skip = !module.filename.ends_with(".wat");
+                if skip {
+                    continue;
+                }
                 recreate_runtime = Box::new(move || {
                     *runtime.borrow_mut() =
                         Some(crate::runtime(p.clone()).expect("failed to load module"));
                 });
             }
             Case::AssertReturn(AssertReturn { action, expected }) => {
+                if skip {
+                    continue;
+                }
                 let mut rt = runtime.borrow_mut();
                 let rt = rt.as_mut().expect("no rt set");
                 match action {
@@ -252,6 +259,9 @@ pub fn test(mut path: String) {
                 }
             }
             Case::Action(ActionWrap { action }) => {
+                if skip {
+                    continue;
+                }
                 let mut rt = runtime.borrow_mut();
                 let rt = rt.as_mut().expect("no rt set");
                 match action {
@@ -269,14 +279,12 @@ pub fn test(mut path: String) {
                         let ExportDesc::Func(TypeIdX(fid)) = fid else {
                             panic!("no function with this id")
                         };
-                        println!("{args:?}");
 
                         let args = const_to_val(args)
                             .into_iter()
                             .enumerate()
                             .map(|(a, b)| (a as u32, b))
                             .collect::<HashMap<_, _>>();
-                        println!("{args:?}");
 
                         rt.stack.push(Frame {
                             func_id: *fid,
@@ -303,36 +311,57 @@ pub fn test(mut path: String) {
                 }
             }
             Case::AssertExhaustion(assert_exhaustion) => {
+                if skip {
+                    continue;
+                }
                 let mut rt = runtime.borrow_mut();
                 let rt = rt.as_mut().expect("no rt set");
                 todo!("AssertExhaustion")
             }
             Case::AssertTrap(assert_trap) => {
+                if skip {
+                    continue;
+                }
                 let mut rt = runtime.borrow_mut();
                 let rt = rt.as_mut().expect("no rt set");
                 todo!("AssertTrap")
             }
             Case::AssertInvalid(assert_invalid) => {
+                if skip {
+                    continue;
+                }
                 let mut rt = runtime.borrow_mut();
                 let rt = rt.as_mut().expect("no rt set");
                 todo!("AssertInvalid")
             }
             Case::AssertMalformed(assert_malformed) => {
+                if skip {
+                    continue;
+                }
                 let mut rt = runtime.borrow_mut();
                 let rt = rt.as_mut().expect("no rt set");
                 todo!("AssertMalformed")
             }
             Case::AssertUninstantiable(assert_uninstantiable) => {
+                if skip {
+                    continue;
+                }
                 let mut rt = runtime.borrow_mut();
                 let rt = rt.as_mut().expect("no rt set");
                 todo!("AssertUninstantiable")
             }
             Case::AssertUnlinkable(assert_unlinkable) => {
+                if skip {
+                    continue;
+                }
                 let mut rt = runtime.borrow_mut();
                 let rt = rt.as_mut().expect("no rt set");
                 todo!("AssertUnlinkable")
             }
             Case::Register(register) => {
+                if skip {
+                    continue;
+                }
                 let mut rt = runtime.borrow_mut();
                 let rt = rt.as_mut().expect("no rt set");
                 todo!("Register")

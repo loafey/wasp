@@ -250,6 +250,13 @@ pub fn test(mut path: String) {
                                     if last == expected {
                                         break;
                                     } else {
+                                        let Value::F32(x) = last[0] else { panic!() };
+                                        let x = x.to_bits();
+                                        let Value::F32(y) = expected[0] else { panic!() };
+                                        let y = y.to_bits();
+                                        println!("Gotten:   {x:032b}");
+                                        println!("Expected: {y:032b}");
+
                                         error!("test {test_i}/{total_tests} failed (module: {module_index}, invoke: {field:?}, got {last:?}, but expected {expected:?})");
                                         std::process::exit(1);
                                     }

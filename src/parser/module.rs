@@ -21,7 +21,7 @@ pub struct Module {
     pub funcs: FunctionSection,
     pub exports: ExportSection,
     pub tables: TableSection,   //tablesec
-    pub mems: Vec<u8>,          // memsec
+    pub mems: MemorySection,    // memsec
     pub globals: GlobalSection, // globalsec
     pub start: Option<()>,      // startsec
     pub elems: ElementSection,  //elemsec
@@ -96,7 +96,7 @@ impl Parsable for Module {
             code,
             datas: datasec,
             tables,
-            mems: Vec::new(),
+            mems,
             globals,
             start: None,
             elems: elements,

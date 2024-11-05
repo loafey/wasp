@@ -60,14 +60,23 @@ pub struct Runtime {
     pub module: Model,
     pub stack: Vec<Frame>,
     pub globals: HashMap<u32, Value>,
-    pub memory: Memory<1024>,
+    pub memory: Memory<65536>,
     pub exports: HashMap<String, ExportDesc>,
     #[allow(unused)]
     pub datas: HashMap<u32, Vec<u8>>,
 }
 impl Runtime {
     pub fn new(module: Module) -> Result<Self, RuntimeError> {
-        let mut memory = Memory::new();
+        let (mem_cur, mem_max) = module
+            .mems
+            .mems
+            .first()
+            .map(|m| match m.limits {
+                parser::Limits::Min(i) => (i as usize, usize::MAX),
+                parser::Limits::MinMax(i, m) => (i as usize, m as usize),
+            })
+            .unwrap_or((1, usize::MAX));
+        let mut memory = Memory::new(mem_cur, mem_max);
         let mut datas = HashMap::new();
         for (i, d) in module.datas.data.iter().enumerate() {
             match d {
@@ -219,7 +228,7 @@ impl Runtime {
                                     align: 0,
                                     offset: 0,
                                 },
-                            );
+                            )?;
                             b.push(s);
                         }
                         let s = String::from_utf8_lossy(&b);
@@ -419,105 +428,107 @@ impl Runtime {
                     x28_i32_load(mem) => {
                         let addr = pop!(u32);
                         f.stack
-                            .push(Value::I32(self.memory.get(addr as usize, *mem)));
+                            .push(Value::I32(self.memory.get(addr as usize, *mem)?));
                     }
                     x29_i64_load(mem) => {
                         let addr = pop!(u32);
                         f.stack
-                            .push(Value::I64(self.memory.get(addr as usize, *mem)));
+                            .push(Value::I64(self.memory.get(addr as usize, *mem)?));
                     }
                     x2a_f32_load(mem) => {
                         let addr = pop!(u32);
                         f.stack
-                            .push(Value::F32(self.memory.get(addr as usize, *mem)));
+                            .push(Value::F32(self.memory.get(addr as usize, *mem)?));
                     }
                     x2b_f64_load(mem) => {
                         let addr = pop!(u32);
                         f.stack
-                            .push(Value::F64(self.memory.get(addr as usize, *mem)));
+                            .push(Value::F64(self.memory.get(addr as usize, *mem)?));
                     }
                     x2c_i32_load8_s(mem) => {
                         let addr = pop!(u32);
-                        f.stack
-                            .push(Value::I32(self.memory.get::<i8>(addr as usize, *mem) as i32));
+                        f.stack.push(Value::I32(
+                            self.memory.get::<i8>(addr as usize, *mem)? as i32
+                        ));
                     }
                     x2d_i32_load8_u(mem) => {
                         let addr = pop!(u32);
                         f.stack.push(Value::I32(unsafe {
                             mem::transmute::<u32, i32>(
-                                self.memory.get::<u8>(addr as usize, *mem) as u32
+                                self.memory.get::<u8>(addr as usize, *mem)? as u32
                             )
                         }));
                     }
                     x2e_i32_load16_s(mem) => {
                         let addr = pop!(u32);
                         f.stack.push(Value::I32(
-                            self.memory.get::<u16>(addr as usize, *mem) as i32
+                            self.memory.get::<u16>(addr as usize, *mem)? as i32
                         ));
                     }
                     x2f_i32_load16_u(mem) => {
                         let addr = pop!(u32);
                         f.stack.push(Value::I32(unsafe {
                             mem::transmute::<u32, i32>(
-                                self.memory.get::<u16>(addr as usize, *mem) as u32
+                                self.memory.get::<u16>(addr as usize, *mem)? as u32,
                             )
                         }));
                     }
                     x30_i64_load8_s(mem) => {
                         let addr = pop!(u32);
-                        f.stack
-                            .push(Value::I64(self.memory.get::<i8>(addr as usize, *mem) as i64));
+                        f.stack.push(Value::I64(
+                            self.memory.get::<i8>(addr as usize, *mem)? as i64
+                        ));
                     }
                     x31_i64_load8_u(mem) => {
                         let addr = pop!(u32);
                         f.stack.push(Value::I64(unsafe {
                             mem::transmute::<u64, i64>(
-                                self.memory.get::<u8>(addr as usize, *mem) as u64
+                                self.memory.get::<u8>(addr as usize, *mem)? as u64
                             )
                         }));
                     }
                     x32_i64_load16_s(mem) => {
                         let addr = pop!(u32);
                         f.stack.push(Value::I64(
-                            self.memory.get::<i16>(addr as usize, *mem) as i64
+                            self.memory.get::<i16>(addr as usize, *mem)? as i64
                         ));
                     }
                     x33_i64_load16_u(mem) => {
                         let addr = pop!(u32);
                         f.stack.push(Value::I64(unsafe {
                             mem::transmute::<u64, i64>(
-                                self.memory.get::<u16>(addr as usize, *mem) as u64
+                                self.memory.get::<u16>(addr as usize, *mem)? as u64,
                             )
                         }));
                     }
                     x34_i64_load32_s(mem) => {
                         let addr = pop!(u32);
                         f.stack.push(Value::I64(
-                            self.memory.get::<i32>(addr as usize, *mem) as i64
+                            self.memory.get::<i32>(addr as usize, *mem)? as i64
                         ));
                     }
                     x35_i64_load32_u(mem) => {
                         let addr = pop!(u32);
                         f.stack.push(Value::I64(unsafe {
                             mem::transmute::<u64, i64>(
-                                self.memory.get::<u32>(addr as usize, *mem) as u64
+                                self.memory.get::<u32>(addr as usize, *mem)? as u64,
                             )
                         }));
                     }
                     x36_i32_store(mem) => {
                         let v = pop!(i32);
                         let addr = pop!(u32);
-                        self.memory.set(addr as usize, *mem, v);
+                        self.memory.set(addr as usize, *mem, v)?;
                     }
                     x37_i64_store(mem) => {
                         let v = pop!(i64);
                         let addr = pop!(u32);
-                        self.memory.set(addr as usize, *mem, v);
+                        self.memory.set(addr as usize, *mem, v)?;
                     }
                     x3a_i32_store8(mem) => {
                         let v = pop!(i32);
                         let addr = pop!(u32);
-                        self.memory.set(addr as usize, *mem, v as u8);
+                        self.memory.set(addr as usize, *mem, v as u8)?;
                     }
                     x41_i32_const(i) => f.stack.push(Value::I32(*i)),
                     x42_i64_const(val) => f.stack.push(Value::I64(*val)),

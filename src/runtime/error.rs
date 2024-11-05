@@ -13,11 +13,13 @@ pub enum RuntimeError {
     MissingFunction(&'static str, u32, u32),
     MissingJumpLabel(&'static str, u32, u32),
     MissingTableIndex(&'static str, u32, u32),
+    OutOfBoundsMemoryAccess,
 }
 
 impl std::fmt::Debug for RuntimeError {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
+            Self::OutOfBoundsMemoryAccess => write!(f, "out of bounds memory access"),
             Self::ParseError(string) => write!(f, "ParseError({string})"),
             Self::Exit(arg0) => f.debug_tuple("Exit").field(arg0).finish(),
             Self::GlobalWithoutOffset => write!(f, "GlobalWithoutOffset"),

@@ -188,7 +188,11 @@ pub fn test(mut path: String) {
                 let mut p = p.clone();
                 p.pop();
                 p.push(&module.filename);
-                skip = !module.filename.ends_with(".wat");
+                skip = module
+                    .filename
+                    .extension()
+                    .map(|s| s == "wat")
+                    .unwrap_or_default();
                 if skip {
                     continue;
                 }
@@ -251,7 +255,7 @@ pub fn test(mut path: String) {
                                     error!("{e:?}");
                                     std::process::exit(1);
                                 }
-                                _ => (),
+                                Ok(()) => (),
                             }
                         }
                     }
@@ -303,7 +307,7 @@ pub fn test(mut path: String) {
                                     error!("{e:?}");
                                     std::process::exit(1);
                                 }
-                                _ => (),
+                                Ok(()) => (),
                             }
                         }
                     }

@@ -126,17 +126,33 @@ enum Case {
 
 #[derive(Debug, Deserialize)]
 struct TestCases {
-    source_filename: String,
     commands: Vec<Case>,
 }
 
 fn const_to_val(consts: Vec<ConstValue>) -> Vec<Value> {
-    println!("{consts:?}");
     consts
         .into_iter()
         .map(|v| match v {
-            ConstValue::I32 { value } => Value::I32(value.parse().expect("failed to parse")),
-            ConstValue::I64 { value } => Value::I64(value.parse().expect("failed to parse")),
+            ConstValue::I32 { value } => Value::I32(
+                value
+                    .parse()
+                    .or_else(|_| {
+                        value
+                            .parse()
+                            .map(|v| unsafe { std::mem::transmute::<u32, i32>(v) })
+                    })
+                    .expect("failed to parse"),
+            ),
+            ConstValue::I64 { value } => Value::I64(
+                value
+                    .parse()
+                    .or_else(|_| {
+                        value
+                            .parse()
+                            .map(|v| unsafe { std::mem::transmute::<u64, i64>(v) })
+                    })
+                    .expect("failed to parse"),
+            ),
             ConstValue::F32 { value } => Value::F32(value.parse().expect("failed to parse")),
             ConstValue::F64 { value } => Value::F64(value.parse().expect("failed to parse")),
         })

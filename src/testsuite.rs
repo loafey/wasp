@@ -353,11 +353,11 @@ pub fn test(mut path: String) {
                 }
                 let mut rt = runtime.borrow_mut();
                 let rt = rt.as_mut().expect("no rt set");
-                std::process::exit(1);
-                handle_action(rt, action, move |rt, _| loop {
+                handle_action(rt, action, move |rt, field| loop {
                     match rt.step() {
                         Err(RuntimeError::NoFrame(_, _, _)) => {
-                            break;
+                            error!("test {test_i}/{total_tests} did not fail, expected error: {text:?} (module: {module_index}, function {field:?})");
+                            std::process::exit(1);
                         }
                         Err(e) => {
                             error!("{e:?}");

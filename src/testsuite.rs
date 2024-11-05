@@ -179,6 +179,7 @@ pub fn test(mut path: String) {
 
     let mut recreate_runtime: Box<dyn Fn()> = Box::new(|| {});
     let mut skip = false;
+    let mut module_index = 0;
 
     for (test_i, test) in tests.commands.into_iter().enumerate() {
         recreate_runtime();
@@ -196,6 +197,7 @@ pub fn test(mut path: String) {
                 if skip {
                     continue;
                 }
+                module_index += 1;
                 recreate_runtime = Box::new(move || {
                     *runtime.borrow_mut() =
                         Some(crate::runtime(p.clone()).expect("failed to load module"));
@@ -247,7 +249,7 @@ pub fn test(mut path: String) {
                                     if last == expected {
                                         break;
                                     } else {
-                                        error!("test {test_i} failed (got {last:?}, but expected{expected:?})");
+                                        error!("test {test_i} failed (module: {module_index}, invoke: {field:?}, got {last:?}, but expected {expected:?})");
                                         std::process::exit(1);
                                     }
                                 }

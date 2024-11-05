@@ -1,3 +1,4 @@
+use monostate::MustBe;
 use serde::Deserialize;
 use std::{cell::RefCell, collections::HashMap, fs, path::PathBuf, rc::Rc};
 
@@ -32,85 +33,99 @@ enum Action {
 }
 
 #[derive(Debug, Deserialize, Clone)]
-enum ModuleType {}
+#[serde(rename_all = "snake_case")]
+enum ModuleType {
+    Binary,
+    Text,
+}
 
 #[derive(Debug, Deserialize, Clone)]
-#[serde(tag = "type", rename_all = "snake_case")]
 struct Module {
+    #[serde(rename = "type")]
+    _type: MustBe!("module"),
     name: Option<String>,
     filename: PathBuf,
 }
 
 #[derive(Debug, Deserialize, Clone)]
-#[serde(tag = "type", rename_all = "snake_case")]
 struct AssertReturn {
+    #[serde(rename = "type")]
+    _type: MustBe!("assert_return"),
     action: Action,
     expected: Vec<ConstValue>,
 }
 
 #[derive(Debug, Deserialize, Clone)]
-#[serde(tag = "type", rename_all = "snake_case")]
 struct AssertExhaustion {
+    #[serde(rename = "type")]
+    _type: MustBe!("assert_return"),
     action: Action,
     text: String,
 }
 
 #[derive(Debug, Deserialize, Clone)]
-#[serde(tag = "type", rename_all = "snake_case")]
 struct AssertTrap {
+    #[serde(rename = "type")]
+    _type: MustBe!("assert_trap"),
     action: Action,
     text: String,
 }
 
 #[derive(Debug, Deserialize, Clone)]
-#[serde(tag = "type", rename_all = "snake_case")]
 struct AssertInvalid {
+    #[serde(rename = "type")]
+    _type: MustBe!("assert_invalid"),
     filename: PathBuf,
     text: String,
     module_type: ModuleType,
 }
 
 #[derive(Debug, Deserialize, Clone)]
-#[serde(tag = "type", rename_all = "snake_case")]
 struct AssertMalformed {
+    #[serde(rename = "type")]
+    _type: MustBe!("assert_malformed"),
     filename: PathBuf,
     text: String,
     module_type: ModuleType,
 }
 
 #[derive(Debug, Deserialize, Clone)]
-#[serde(tag = "type", rename_all = "snake_case")]
 struct AssertUninstantiable {
+    #[serde(rename = "type")]
+    _type: MustBe!("assert_uninstantiable"),
     filename: PathBuf,
     text: String,
     module_type: ModuleType,
 }
 
 #[derive(Debug, Deserialize, Clone)]
-#[serde(tag = "type", rename_all = "snake_case")]
 struct AssertUnlinkable {
+    #[serde(rename = "type")]
+    _type: MustBe!("assert_unlinkable"),
     filename: PathBuf,
     text: String,
     module_type: ModuleType,
 }
 
 #[derive(Debug, Deserialize, Clone)]
-#[serde(tag = "type", rename_all = "snake_case")]
 struct Register {
+    #[serde(rename = "type")]
+    _type: MustBe!("assert_register"),
     name: String,
     #[serde(rename = "as")]
     _as: String,
 }
 
 #[derive(Debug, Deserialize, Clone)]
-#[serde(tag = "type", rename_all = "snake_case")]
 struct ActionWrap {
+    #[serde(rename = "type")]
+    _type: MustBe!("action"),
     action: Action,
 }
 
 /// https://github.com/WebAssembly/wabt/blob/main/docs/wast2json.md#json-format
 #[derive(Debug, Deserialize, Clone)]
-#[serde(rename_all = "snake_case", untagged)]
+#[serde(untagged)]
 enum Case {
     Module(Module),
     AssertReturn(AssertReturn),
@@ -208,6 +223,7 @@ pub fn test(mut path: String) {
 
     for (test_i, test) in tests.commands.into_iter().enumerate() {
         recreate_runtime();
+
         match test {
             Case::Module(module) => {
                 let runtime = runtime.clone();
@@ -228,7 +244,9 @@ pub fn test(mut path: String) {
                         Some(crate::runtime(p.clone()).expect("failed to load module"));
                 });
             }
-            Case::AssertReturn(AssertReturn { action, expected }) => {
+            Case::AssertReturn(AssertReturn {
+                action, expected, ..
+            }) => {
                 if skip {
                     continue;
                 }
@@ -291,7 +309,7 @@ pub fn test(mut path: String) {
                     Action::Get { module, field } => todo!("ActionGet"),
                 }
             }
-            Case::Action(ActionWrap { action }) => {
+            Case::Action(ActionWrap { action, .. }) => {
                 if skip {
                     continue;
                 }

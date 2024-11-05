@@ -13,7 +13,7 @@ use crate::parser::{
     LabelIdX, LocalIdX, MemArg, Module, TableIdX, TypeIdX, BT,
 };
 
-#[derive(Clone, Copy)]
+#[derive(Clone, Copy, PartialEq)]
 #[allow(unused)]
 pub enum Value {
     I32(i32),

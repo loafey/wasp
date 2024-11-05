@@ -1,8 +1,10 @@
 use serde::Deserialize;
-use serde_json::Value;
-use std::{fs, path::PathBuf};
+use std::{cell::RefCell, collections::HashMap, fs, path::PathBuf, rc::Rc};
 
-use crate::runtime;
+use crate::{
+    parser::{ExportDesc, FuncIdx, TypeIdX},
+    runtime::{self, Frame, RuntimeError, Value},
+};
 
 #[derive(Debug, Deserialize, Clone)]
 #[serde(tag = "type", rename_all = "snake_case")]
@@ -128,6 +130,18 @@ struct TestCases {
     commands: Vec<Case>,
 }
 
+fn const_to_val(consts: Vec<ConstValue>) -> Vec<Value> {
+    consts
+        .into_iter()
+        .map(|v| match v {
+            ConstValue::I32 { value } => Value::I32(value.parse().expect("failed to parse")),
+            ConstValue::I64 { value } => Value::I64(value.parse().expect("failed to parse")),
+            ConstValue::F32 { value } => Value::F32(value.parse().expect("failed to parse")),
+            ConstValue::F64 { value } => Value::F64(value.parse().expect("failed to parse")),
+        })
+        .collect()
+}
+
 pub fn test(mut path: String) {
     let input = path.to_string();
     path = path.replace(".wast", ".wasm");
@@ -143,24 +157,122 @@ pub fn test(mut path: String) {
         &fs::read_to_string(&p).expect("failed to open test data"),
     )
     .expect("failed to parse test data");
-    let mut runtime = None;
-    for test in tests.commands {
+
+    let runtime = Rc::new(RefCell::new(None));
+
+    let mut recreate_runtime: Box<dyn Fn()> = Box::new(|| {});
+
+    for (test_i, test) in tests.commands.into_iter().enumerate() {
+        recreate_runtime();
         match test {
             Case::Module(module) => {
+                let runtime = runtime.clone();
                 let mut p = p.clone();
                 p.pop();
                 p.push(&module.filename);
-                runtime = Some(crate::runtime(p).expect("failed to load module"));
+                recreate_runtime = Box::new(move || {
+                    *runtime.borrow_mut() =
+                        Some(crate::runtime(p.clone()).expect("failed to load module"));
+                });
             }
-            Case::AssertReturn(assert_return) => todo!("AssertReturn"),
-            Case::Action(action_wrap) => todo!("Action"),
-            Case::AssertExhaustion(assert_exhaustion) => todo!("AssertExhaustion"),
-            Case::AssertTrap(assert_trap) => todo!("AssertTrap"),
-            Case::AssertInvalid(assert_invalid) => todo!("AssertInvalid"),
-            Case::AssertMalformed(assert_malformed) => todo!("AssertMalformed"),
-            Case::AssertUninstantiable(assert_uninstantiable) => todo!("AssertUninstantiable"),
-            Case::AssertUnlinkable(assert_unlinkable) => todo!("AssertUnlinkable"),
-            Case::Register(register) => todo!("Register"),
+            Case::AssertReturn(AssertReturn { action, expected }) => {
+                let mut rt = runtime.borrow_mut();
+                let rt = rt.as_mut().expect("no rt set");
+                match action {
+                    Action::Invoke {
+                        module,
+                        field,
+                        args,
+                    } => {
+                        if let Some(_) = module {
+                            todo!()
+                        }
+
+                        let fid = rt.exports.get(&field).expect("no function");
+
+                        let ExportDesc::Func(TypeIdX(fid)) = fid else {
+                            panic!("no function with this id")
+                        };
+
+                        let args = const_to_val(args)
+                            .into_iter()
+                            .enumerate()
+                            .map(|(a, b)| (a as u32, b))
+                            .collect::<HashMap<_, _>>();
+
+                        let expected = const_to_val(expected);
+
+                        rt.stack.push(Frame {
+                            func_id: *fid,
+                            pc: 0,
+                            stack: Vec::new(),
+                            locals: args,
+                            depth_stack: Vec::new(),
+                        });
+
+                        let mut last;
+                        loop {
+                            last = rt.stack.first().expect("no first").stack.clone();
+                            match rt.step() {
+                                Err(RuntimeError::NoFrame(_, _, _)) => {
+                                    if last == expected {
+                                        break;
+                                    } else {
+                                        error!("test {test_i} failed (got {last:?}, but expected{expected:?})");
+                                        std::process::exit(1);
+                                    }
+                                }
+                                Err(e) => {
+                                    error!("{e:?}");
+                                    std::process::exit(1);
+                                }
+                                _ => (),
+                            }
+                        }
+                    }
+                    Action::Get { module, field } => todo!("ActionGet"),
+                }
+            }
+            Case::Action(action_wrap) => {
+                let mut rt = runtime.borrow_mut();
+                let rt = rt.as_mut().expect("no rt set");
+                todo!("Action")
+            }
+            Case::AssertExhaustion(assert_exhaustion) => {
+                let mut rt = runtime.borrow_mut();
+                let rt = rt.as_mut().expect("no rt set");
+                todo!("AssertExhaustion")
+            }
+            Case::AssertTrap(assert_trap) => {
+                let mut rt = runtime.borrow_mut();
+                let rt = rt.as_mut().expect("no rt set");
+                todo!("AssertTrap")
+            }
+            Case::AssertInvalid(assert_invalid) => {
+                let mut rt = runtime.borrow_mut();
+                let rt = rt.as_mut().expect("no rt set");
+                todo!("AssertInvalid")
+            }
+            Case::AssertMalformed(assert_malformed) => {
+                let mut rt = runtime.borrow_mut();
+                let rt = rt.as_mut().expect("no rt set");
+                todo!("AssertMalformed")
+            }
+            Case::AssertUninstantiable(assert_uninstantiable) => {
+                let mut rt = runtime.borrow_mut();
+                let rt = rt.as_mut().expect("no rt set");
+                todo!("AssertUninstantiable")
+            }
+            Case::AssertUnlinkable(assert_unlinkable) => {
+                let mut rt = runtime.borrow_mut();
+                let rt = rt.as_mut().expect("no rt set");
+                todo!("AssertUnlinkable")
+            }
+            Case::Register(register) => {
+                let mut rt = runtime.borrow_mut();
+                let rt = rt.as_mut().expect("no rt set");
+                todo!("Register")
+            }
         }
     }
 }

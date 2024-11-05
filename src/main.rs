@@ -6,10 +6,9 @@ use egui::{Id, Vec2};
 use hex::Hex;
 use parser::{Instr, Module, Parsable};
 use runtime::{clean_model::Function, Runtime, RuntimeError, Value};
-use serde::Deserialize;
 use std::{
     env::args,
-    fs::{self, File},
+    fs::File,
     io::{Cursor, Read},
     mem::MaybeUninit,
     path::PathBuf,
@@ -18,6 +17,7 @@ use std::{
 mod hex;
 mod parser;
 mod runtime;
+mod testsuite;
 
 #[allow(unused_imports)]
 #[macro_use]
@@ -211,101 +211,16 @@ impl eframe::App for App {
     }
 }
 
-/// https://github.com/WebAssembly/wabt/blob/main/docs/wast2json.md#json-format
-#[derive(Debug, Deserialize, Clone)]
-#[serde(tag = "type")]
-enum Case {
-    #[serde(rename = "module")]
-    Module {},
-    #[serde(rename = "action")]
-    Action {},
-    #[serde(rename = "assert_return")]
-    AssertReturn {},
-    #[serde(rename = "assert_exhaustion")]
-    AssertExhaustion {},
-    #[serde(rename = "assert_trap")]
-    AssertTrap {},
-    #[serde(rename = "assert_invalid")]
-    AssertInvalid {},
-    #[serde(rename = "assert_malformed")]
-    AssertMalformed {},
-    #[serde(rename = "assert_uninstantiable")]
-    AssertUninstantiable {},
-    #[serde(rename = "assert_unlinkable")]
-    AssertUnlinkable {},
-    #[serde(rename = "register")]
-    Register {},
-}
-
-#[derive(Debug, Deserialize)]
-struct TestCases {
-    source_filename: String,
-    commands: Vec<Case>,
-}
-
 fn main() {
     pretty_env_logger::init();
-    let mut path = args()
+    let path = args()
         .skip(1)
         .find(|p| !p.starts_with("-"))
         .unwrap_or("examples/c_addition.wasm".to_string());
 
     // God awful way to run spec tests
     if path.ends_with(".wast") {
-        let input = path.to_string();
-        path = path.replace(".wast", ".wasm");
-        std::process::Command::new("wast2json")
-            .arg(input)
-            .arg("-o")
-            .arg(&path)
-            .output()
-            .expect("Failed to run wast2json");
-
-        let p = PathBuf::from(path);
-        let tests = serde_json::from_str::<TestCases>(
-            &fs::read_to_string(&p).expect("failed to open test data"),
-        )
-        .expect("failed to parse test data");
-        todo!("{tests:#?}")
-        // for test in tests.commands {
-        //     let mut p = p.clone();
-        //     p.pop();
-        //     p.push(&test.filename);
-        //     let mut rt = match (runtime(p), test.type_) {
-        //         (Ok(rt), TestType::Module) => rt,
-        //         (Ok(_) | Err(RuntimeError::NoMain), TestType::AssertMalformed) => {
-        //             error!("A malformed test passed parsing: {test:?}");
-        //             std::process::exit(1);
-        //         }
-        //         (Err(RuntimeError::NoMain), TestType::Module) => continue,
-        //         (Err(RuntimeError::ParseError(_)), TestType::AssertMalformed) => continue,
-        //         (Err(RuntimeError::ParseError(err)), TestType::Module) => {
-        //             error!("A valid module failed parsing: {err}");
-        //             std::process::exit(1);
-        //         }
-        //         (_, _) => {
-        //             error!("Unhandled test: {test:?}");
-        //             std::process::exit(1);
-        //         }
-        //     };
-        //     loop {
-        //         if let Err(e) = rt.step() {
-        //             match e {
-        //                 RuntimeError::Exit(x) => {
-        //                     if x != 0 {
-        //                         std::process::exit(x);
-        //                     } else {
-        //                         break;
-        //                     }
-        //                 }
-        //                 e => {
-        //                     error!("{e:?}");
-        //                     std::process::exit(1);
-        //                 }
-        //             }
-        //         }
-        //     }
-        // }
+        testsuite::test(path);
     } else if args().any(|s| s == "--gui") {
         let native_options = eframe::NativeOptions {
             viewport: egui::ViewportBuilder::default()

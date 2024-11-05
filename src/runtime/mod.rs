@@ -448,6 +448,47 @@ impl Runtime {
                             )
                         }));
                     }
+                    x30_i64_load8_s(mem) => {
+                        let addr = pop!(u32);
+                        f.stack
+                            .push(Value::I64(self.memory.get::<i8>(addr as usize, *mem) as i64));
+                    }
+                    x31_i64_load8_u(mem) => {
+                        let addr = pop!(u32);
+                        f.stack.push(Value::I64(unsafe {
+                            mem::transmute::<u64, i64>(
+                                self.memory.get::<u8>(addr as usize, *mem) as u64
+                            )
+                        }));
+                    }
+                    x32_i64_load16_s(mem) => {
+                        let addr = pop!(u32);
+                        f.stack.push(Value::I64(
+                            self.memory.get::<i16>(addr as usize, *mem) as i64
+                        ));
+                    }
+                    x33_i64_load16_u(mem) => {
+                        let addr = pop!(u32);
+                        f.stack.push(Value::I64(unsafe {
+                            mem::transmute::<u64, i64>(
+                                self.memory.get::<u16>(addr as usize, *mem) as u64
+                            )
+                        }));
+                    }
+                    x34_i64_load32_s(mem) => {
+                        let addr = pop!(u32);
+                        f.stack.push(Value::I64(
+                            self.memory.get::<i64>(addr as usize, *mem) as i64
+                        ));
+                    }
+                    x35_i64_load32_u(mem) => {
+                        let addr = pop!(u32);
+                        f.stack.push(Value::I64(unsafe {
+                            mem::transmute::<u64, i64>(
+                                self.memory.get::<u32>(addr as usize, *mem) as u64
+                            )
+                        }));
+                    }
                     x36_i32_store(mem) => {
                         let v = pop!(i32);
                         let addr = pop!(u32);

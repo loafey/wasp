@@ -1,5 +1,4 @@
 use crate::{
-    create_runtime,
     parser::Instr,
     runtime::{clean_model::Function, Runtime, Value},
 };
@@ -36,7 +35,7 @@ struct App {
 impl App {
     pub fn new(_xcc: &eframe::CreationContext<'_>, path: PathBuf) -> Self {
         Self {
-            runtime: create_runtime(path).expect("Failed to load runtime"),
+            runtime: Runtime::new(path).expect("Failed to load runtime"),
             current_frame: 0,
             frame_count: 1,
             frame_duration: 0.01, //0.5,

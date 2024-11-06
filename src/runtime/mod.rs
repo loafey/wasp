@@ -1,4 +1,11 @@
-use std::{collections::HashMap, fmt::Debug, mem};
+use std::{
+    collections::HashMap,
+    fmt::Debug,
+    fs::File,
+    io::{Cursor, Read},
+    mem,
+    path::Path,
+};
 pub mod clean_model;
 mod memory;
 use clean_model::{Function, Model};
@@ -10,7 +17,7 @@ use RuntimeError::*;
 use crate::parser::{
     self, ExportDesc, FuncIdx, Global, GlobalIdX,
     Instr::{self, *},
-    LabelIdX, LocalIdX, MemArg, Module, TableIdX, TypeIdX, BT,
+    LabelIdX, LocalIdX, MemArg, Module, Parsable, TableIdX, TypeIdX, BT,
 };
 
 #[derive(Clone, Copy, PartialEq)]
@@ -66,7 +73,26 @@ pub struct Runtime {
     pub datas: HashMap<u32, Vec<u8>>,
 }
 impl Runtime {
-    pub fn new(module: Module) -> Result<Self, RuntimeError> {
+    pub fn new<P: AsRef<Path>>(path: P) -> Result<Self, RuntimeError> {
+        let mut buf = Vec::new();
+
+        let mut f = File::open(path.as_ref()).expect("Failed to open file");
+        f.read_to_end(&mut buf).expect("Failed to read file");
+
+        let mut cursor = Cursor::new(&buf[..]);
+        let mut stack = Vec::new();
+        let module = match Module::parse(&mut cursor, &mut stack) {
+            Ok(o) => o,
+            Err(e) => {
+                stack.reverse();
+                return Err(RuntimeError::ParseError(format!(
+                    "File: {:?}\n{e:?}, bin pos: {}, stack: {stack:#?}",
+                    path.as_ref(),
+                    cursor.position()
+                )));
+            }
+        };
+
         let (mem_cur, mem_max) = module
             .mems
             .mems

@@ -4,15 +4,8 @@
 #![deny(clippy::print_stderr)]
 use gui::gui;
 use hex::Hex;
-use parser::{Module, Parsable};
 use runtime::{Runtime, RuntimeError};
-use std::{
-    env::args,
-    fs::File,
-    io::{Cursor, Read},
-    mem::MaybeUninit,
-    path::PathBuf,
-};
+use std::{env::args, mem::MaybeUninit};
 mod gui;
 mod hex;
 mod parser;
@@ -31,27 +24,6 @@ fn alloc<const N: usize>() -> Hex<N> {
     }
 }
 
-fn create_runtime(path: PathBuf) -> Result<Runtime, RuntimeError> {
-    let mut buf = Vec::new();
-
-    let mut f = File::open(&path).expect("Failed to open file");
-    f.read_to_end(&mut buf).expect("Failed to read file");
-
-    let mut cursor = Cursor::new(&buf[..]);
-    let mut stack = Vec::new();
-    let module = match Module::parse(&mut cursor, &mut stack) {
-        Ok(o) => o,
-        Err(e) => {
-            stack.reverse();
-            return Err(RuntimeError::ParseError(format!(
-                "File: {path:?}\n{e:?}, bin pos: {}, stack: {stack:#?}",
-                cursor.position()
-            )));
-        }
-    };
-    Runtime::new(module)
-}
-
 fn main() {
     pretty_env_logger::init();
     let path = args()
@@ -64,7 +36,7 @@ fn main() {
     } else if args().any(|s| s == "--gui") {
         gui(path)
     } else {
-        let mut runtime = create_runtime(path.into()).expect("Failed to load runtime");
+        let mut runtime = Runtime::new(path).expect("Failed to load runtime");
         loop {
             if let Err(e) = runtime.step() {
                 match e {

@@ -389,7 +389,9 @@ pub fn test(mut path: String) {
                 }
                 // let mut rt = runtime.borrow_mut();
                 // let rt = rt.as_mut().expect("no rt set");
-                println!("{filename:?}");
+                if let ModuleType::Text = module_type {
+                    continue;
+                }
                 todo!("AssertMalformed")
             }
             Case::AssertUninstantiable(assert_uninstantiable) => {

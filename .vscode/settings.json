@@ -25,6 +25,7 @@
         "memidx",
         "memorysec",
         "memtype",
+        "monostate",
         "repr",
         "resulttype",
         "sasm",

@@ -1,10 +1,10 @@
 use monostate::MustBe;
-use serde::{de::Expected, Deserialize};
+use serde::Deserialize;
 use std::{cell::RefCell, collections::HashMap, fs, path::PathBuf, rc::Rc};
 
 use crate::{
-    parser::{ExportDesc, FuncIdx, TypeIdX},
-    runtime::{self, Frame, Runtime, RuntimeError, Value},
+    parser::{ExportDesc, TypeIdX},
+    runtime::{Frame, Runtime, RuntimeError, Value},
 };
 
 #[derive(Debug, Deserialize, Clone)]

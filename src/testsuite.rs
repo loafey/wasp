@@ -282,7 +282,7 @@ pub fn test(mut path: String) {
                 }
                 recreate_runtime = Box::new(move || {
                     *runtime.borrow_mut() =
-                        Some(crate::create_runtime(p.clone()).expect("failed to load module"));
+                        Some(Runtime::new(p.clone()).expect("failed to load module"));
                 });
             }
             Case::AssertReturn(AssertReturn {

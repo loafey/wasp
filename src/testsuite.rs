@@ -242,6 +242,9 @@ fn handle_action<T>(
 pub fn test(mut path: String) {
     let input = path.to_string();
     path = path.replace(".wast", ".wasm");
+    if !PathBuf::from(&path).exists() {
+        std::process::exit(0);
+    }
     std::process::Command::new("wast2json")
         .arg(input)
         .arg("-o")

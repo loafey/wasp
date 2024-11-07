@@ -354,6 +354,35 @@ impl Runtime {
                             }
                         }
                     }
+                    x0e_br_table(labels, def) => {
+                        let index = pop!(u32) as usize;
+                        let label = if index > labels.len() {
+                            *def
+                        } else {
+                            labels[index]
+                        };
+
+                        let mut last = None;
+                        for _ in 0..=*label {
+                            last = f.depth_stack.pop();
+                        }
+                        let bt = unwrap!(last, MissingJumpLabel);
+                        match bt.bt {
+                            BT::Loop => {
+                                f.pc = bt.pos;
+                            }
+                            BT::Block => {
+                                f.pc = bt.pos + 1;
+                            }
+                        }
+                        for _ in 0..=*label {
+                            loop {
+                                if matches!(pop!(), Value::BlockLock) {
+                                    break;
+                                }
+                            }
+                        }
+                    }
                     x0f_return => {
                         let mut last_f = unwrap!(self.stack.pop(), NoFrame);
                         let ty =
@@ -551,6 +580,16 @@ impl Runtime {
                         let addr = pop!(u32);
                         self.memory.set(addr as usize, *mem, v)?;
                     }
+                    x38_f32_store(mem) => {
+                        let v = pop!(f32);
+                        let addr = pop!(u32);
+                        self.memory.set(addr as usize, *mem, v)?;
+                    }
+                    x39_f64_store(mem) => {
+                        let v = pop!(f64);
+                        let addr = pop!(u32);
+                        self.memory.set(addr as usize, *mem, v)?;
+                    }
                     x3a_i32_store8(mem) => {
                         let v = pop!(i32);
                         let addr = pop!(u32);
@@ -559,6 +598,7 @@ impl Runtime {
                     x41_i32_const(i) => f.stack.push(Value::I32(*i)),
                     x42_i64_const(val) => f.stack.push(Value::I64(*val)),
                     x43_f32_const(val) => f.stack.push(Value::F32(*val)),
+                    x44_f64_const(val) => f.stack.push(Value::F64(*val)),
                     x45_i32_eqz => {
                         let val = pop!(i32);
                         f.stack.push(Value::I32((val == 0) as i32));

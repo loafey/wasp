@@ -1,1 +1,0 @@
-echo "💩: ${#${$(head -n 1 dump.tests)//[^F]}}"

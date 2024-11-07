@@ -118,7 +118,7 @@ impl Runtime {
                                 offset: 0,
                             },
                             *v,
-                        );
+                        )?;
                     }
                 }
                 parser::Data::Passive(v) => {
@@ -558,6 +558,7 @@ impl Runtime {
                     }
                     x41_i32_const(i) => f.stack.push(Value::I32(*i)),
                     x42_i64_const(val) => f.stack.push(Value::I64(*val)),
+                    x43_f32_const(val) => f.stack.push(Value::F32(*val)),
                     x45_i32_eqz => {
                         let val = pop!(i32);
                         f.stack.push(Value::I32((val == 0) as i32));

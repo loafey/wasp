@@ -16,7 +16,7 @@ impl Parsable for MemArg {
         Self: std::marker::Sized,
     {
         Ok(Self {
-            align: Parsable::parse(data, stack)?,
+            align: 2u32.pow(u32::parse(data, stack)?),
             offset: Parsable::parse(data, stack)?,
         })
     }

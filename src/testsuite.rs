@@ -373,13 +373,30 @@ pub fn test(mut path: String) {
                     }
                 })
             }
-            Case::AssertInvalid(assert_invalid) => {
+            Case::AssertInvalid(AssertInvalid {
+                _type,
+                filename,
+                text,
+                module_type,
+            }) => {
                 if skip {
                     continue;
                 }
-                let mut rt = runtime.borrow_mut();
-                let rt = rt.as_mut().expect("no rt set");
-                todo!("AssertInvalid")
+                if let ModuleType::Text = module_type {
+                    continue;
+                }
+
+                let mut p = p.clone();
+                p.pop();
+                p.push(&filename);
+
+                match Runtime::new(&p) {
+                    Ok(_) => {
+                        error!("test {test_i}/{total_tests} did not fail invalidating, expected error: {text:?} (module: {p:?})");
+                        std::process::exit(1);
+                    }
+                    Err(_) => continue,
+                }
             }
             Case::AssertMalformed(AssertMalformed {
                 filename,

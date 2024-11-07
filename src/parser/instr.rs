@@ -140,6 +140,15 @@ impl Parsable for Instr {
                 Parsable::parse(data, stack)?
             };
         }
+        macro_rules! val {
+            ($cons:expr, $size:expr) => {{
+                let p = MemArg::parse(data, stack)?;
+                if p.align > $size {
+                    return Err(ParseError::AlignmentError);
+                }
+                $cons(p)
+            }};
+        }
         let mut typ = [0];
         data.read_exact(&mut typ)?;
         Ok(match typ[0] {
@@ -244,29 +253,29 @@ impl Parsable for Instr {
             0x25 => Err(ParseError::UnknownInstruction(Hex(typ)))?,
             0x26 => x26_table_set(p!()),
             0x27 => Err(ParseError::UnknownInstruction(Hex(typ)))?,
-            0x28 => x28_i32_load(p!()),
-            0x29 => x29_i64_load(p!()),
-            0x2a => x2a_f32_load(p!()),
-            0x2b => x2b_f64_load(p!()),
-            0x2c => x2c_i32_load8_s(p!()),
-            0x2d => x2d_i32_load8_u(p!()),
-            0x2e => x2e_i32_load16_s(p!()),
-            0x2f => x2f_i32_load16_u(p!()),
-            0x30 => x30_i64_load8_s(p!()),
-            0x31 => x31_i64_load8_u(p!()),
-            0x32 => x32_i64_load16_s(p!()),
-            0x33 => x33_i64_load16_u(p!()),
-            0x34 => x34_i64_load32_s(p!()),
-            0x35 => x35_i64_load32_u(p!()),
-            0x36 => x36_i32_store(p!()),
-            0x37 => x37_i64_store(p!()),
-            0x38 => x38_f32_store(p!()),
-            0x39 => x39_f64_store(p!()),
-            0x3a => x3a_i32_store8(p!()),
-            0x3b => x3b_i32_store16(p!()),
-            0x3c => x3c_i64_store8(p!()),
-            0x3d => x3d_i64_store16(p!()),
-            0x3e => x3e_i64_store32(p!()),
+            0x28 => val!(x28_i32_load, 4),
+            0x29 => val!(x29_i64_load, 8),
+            0x2a => val!(x2a_f32_load, 4),
+            0x2b => val!(x2b_f64_load, 8),
+            0x2c => val!(x2c_i32_load8_s, 1),
+            0x2d => val!(x2d_i32_load8_u, 1),
+            0x2e => val!(x2e_i32_load16_s, 2),
+            0x2f => val!(x2f_i32_load16_u, 2),
+            0x30 => val!(x30_i64_load8_s, 1),
+            0x31 => val!(x31_i64_load8_u, 1),
+            0x32 => val!(x32_i64_load16_s, 2),
+            0x33 => val!(x33_i64_load16_u, 2),
+            0x34 => val!(x34_i64_load32_s, 4),
+            0x35 => val!(x35_i64_load32_u, 4),
+            0x36 => val!(x36_i32_store, 4),
+            0x37 => val!(x37_i64_store, 8),
+            0x38 => val!(x38_f32_store, 4),
+            0x39 => val!(x39_f64_store, 8),
+            0x3a => val!(x3a_i32_store8, 1),
+            0x3b => val!(x3b_i32_store16, 2),
+            0x3c => val!(x3c_i64_store8, 1),
+            0x3d => val!(x3d_i64_store16, 2),
+            0x3e => val!(x3e_i64_store32, 4),
             0x3f => Err(ParseError::UnknownInstruction(Hex(typ)))?,
             0x40 => {
                 let parse = u8::parse(data, stack)?;

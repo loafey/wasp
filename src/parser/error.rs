@@ -20,6 +20,7 @@ pub enum ParseError {
     InvalidRefType(Hex<1>),
     InvalidElem(u32),
     EndOfInstructions,
+    AlignmentError,
 }
 impl From<io::Error> for ParseError {
     fn from(value: io::Error) -> Self {

@@ -82,7 +82,12 @@ impl Parsable for Module {
                 9 => elements.concat(ElementSection::parse(data, stack)?),
                 10 => code.concat(CodeSection::parse(data, stack)?),
                 11 => datasec.concat(DataSection::parse(data, stack)?),
-                12 => unimplemented!("\"data count\" sections (12)"),
+                12 => {
+                    let _size = u32::parse(data, stack)? as usize;
+                    if (u32::parse(data, stack)? as usize) != datasec.data.len() {
+                        return Err(ParseError::InvalidDataCount);
+                    }
+                }
                 _ => Err(SectionError::UnknownHeader(Hex(section_header)))?,
             }
         }

@@ -27,6 +27,7 @@ pub enum ParseError {
     SectionSizeMismatch,
     TooManyLocals(u32),
     InconsistentFunctionAndCodeSectionLength,
+    InvalidDataCount,
 }
 impl From<io::Error> for ParseError {
     fn from(value: io::Error) -> Self {

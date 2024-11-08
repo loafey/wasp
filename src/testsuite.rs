@@ -374,10 +374,16 @@ pub fn test(mut path: String) {
                 })
             }
             Case::AssertInvalid(AssertInvalid {
-                _type,
                 filename,
                 text,
                 module_type,
+                ..
+            })
+            | Case::AssertMalformed(AssertMalformed {
+                filename,
+                text,
+                module_type,
+                ..
             }) => {
                 if skip {
                     continue;
@@ -392,27 +398,11 @@ pub fn test(mut path: String) {
 
                 match Runtime::new(&p) {
                     Ok(_) => {
-                        error!("test {test_i}/{total_tests} did not fail invalidating, expected error: {text:?} (module: {p:?})");
+                        error!("test {test_i}/{total_tests} did not fail invalidating/parsing, expected error: {text:?} (module: {p:?})");
                         std::process::exit(1);
                     }
                     Err(_) => continue,
                 }
-            }
-            Case::AssertMalformed(AssertMalformed {
-                filename,
-                text,
-                module_type,
-                ..
-            }) => {
-                if skip && filename.extension().map(|x| x == "wat").unwrap_or_default() {
-                    continue;
-                }
-                // let mut rt = runtime.borrow_mut();
-                // let rt = rt.as_mut().expect("no rt set");
-                if let ModuleType::Text = module_type {
-                    continue;
-                }
-                todo!("AssertMalformed")
             }
             Case::AssertUninstantiable(assert_uninstantiable) => {
                 if skip {

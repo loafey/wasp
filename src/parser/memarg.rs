@@ -1,4 +1,4 @@
-use super::Parsable;
+use super::{error::ParseError, Parsable};
 
 #[derive(Debug, Clone, Copy, PartialEq)]
 #[allow(unused)]
@@ -15,8 +15,12 @@ impl Parsable for MemArg {
     where
         Self: std::marker::Sized,
     {
+        let exp = u32::parse(data, stack)?;
+        if exp >= 32 {
+            return Err(ParseError::ExponentTooLarge(exp));
+        }
         Ok(Self {
-            align: 2u32.pow(u32::parse(data, stack)?),
+            align: 2u32.pow(exp),
             offset: Parsable::parse(data, stack)?,
         })
     }

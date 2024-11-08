@@ -4,6 +4,7 @@ use std::io;
 #[derive(Debug)]
 #[allow(unused)]
 pub enum ParseError {
+    ExponentTooLarge(u32),
     InvalidModule(ModuleError),
     InvalidSection(SectionError),
     NotImplemented(&'static str),

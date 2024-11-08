@@ -315,7 +315,7 @@ pub fn test(mut path: String) {
                                 }
                             }
                             Err(e) => {
-                                error!("{e:?}");
+                                error!("{e:?} ({:?})", rt.path);
                                 std::process::exit(1);
                             }
                             Ok(()) => (),

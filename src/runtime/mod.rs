@@ -4,7 +4,7 @@ use std::{
     fs::File,
     io::{Cursor, Read},
     mem,
-    path::Path,
+    path::{Path, PathBuf},
 };
 pub mod clean_model;
 mod memory;
@@ -64,6 +64,7 @@ pub struct Frame {
 }
 
 pub struct Runtime {
+    pub path: PathBuf,
     pub module: Model,
     pub stack: Vec<Frame>,
     pub globals: HashMap<u32, Value>,
@@ -169,6 +170,7 @@ impl Runtime {
             globals,
             datas,
             exports,
+            path: path.as_ref().to_path_buf(),
         })
     }
     pub fn step(&mut self) -> Result<(), RuntimeError> {
@@ -306,6 +308,7 @@ impl Runtime {
                 match instr {
                     x02_block(_, _) => throw!(Impossible),
                     x03_loop(_, _) => throw!(Impossible),
+                    x04_if_else(_, _, _) => throw!(Impossible),
                     x0c_br(LabelIdX(label)) => {
                         let mut last = None;
                         for _ in 0..=*label {
@@ -593,7 +596,27 @@ impl Runtime {
                     x3a_i32_store8(mem) => {
                         let v = pop!(i32);
                         let addr = pop!(u32);
-                        self.memory.set(addr as usize, *mem, v as u8)?;
+                        self.memory.set(addr as usize, *mem, v as i8)?;
+                    }
+                    x3b_i32_store16(mem) => {
+                        let v = pop!(i32);
+                        let addr = pop!(u32);
+                        self.memory.set(addr as usize, *mem, v as i16)?;
+                    }
+                    x3c_i64_store8(mem) => {
+                        let v = pop!(i64);
+                        let addr = pop!(u32);
+                        self.memory.set(addr as usize, *mem, v as i8)?;
+                    }
+                    x3d_i64_store16(mem) => {
+                        let v = pop!(i64);
+                        let addr = pop!(u32);
+                        self.memory.set(addr as usize, *mem, v as i16)?;
+                    }
+                    x3e_i64_store32(mem) => {
+                        let v = pop!(i64);
+                        let addr = pop!(u32);
+                        self.memory.set(addr as usize, *mem, v as i32)?;
                     }
                     x41_i32_const(i) => f.stack.push(Value::I32(*i)),
                     x42_i64_const(val) => f.stack.push(Value::I64(*val)),

@@ -1,7 +1,8 @@
 use crate::parser::{
-    BlockType, Elem, FuncIdx, FuncType, ImportDesc, Instr, Module, Name, TypeIdX, BT,
+    BlockType, Elem, FuncIdx, FuncType, ImportDesc, Instr, LabelIdX, LocalIdX, Module, Name,
+    TypeIdX, BT,
 };
-use std::{collections::HashMap, ops::Deref};
+use std::{collections::HashMap, ops::Deref, u32};
 
 #[derive(Debug)]
 pub enum Function {
@@ -98,6 +99,44 @@ impl From<Module> for Model {
                             code.insert(pc, i);
                         }
                         code.insert(pc, Instr::block_start(BT::Loop, 0));
+                    }
+                    Instr::x04_if_else(bt, then, els) => {
+                        match bt {
+                            BlockType::Eps => {}
+                            BlockType::T(_) => todo!(),
+                            BlockType::X(_) => todo!(),
+                        };
+
+                        let then = then.clone();
+                        let els = els.clone();
+                        let els_exists = els.is_some();
+                        code.remove(pc);
+
+                        if let Some(els) = els {
+                            for i in els.into_iter().rev() {
+                                code.insert(pc, i);
+                            }
+                            code.insert(pc, Instr::block_end(BT::Block, 0)); // els block end
+                        }
+                        code.insert(pc, Instr::block_end(BT::Block, 0)); // then block end
+                        code.insert(pc, Instr::x0c_br(LabelIdX(1))); // then block end
+                        for i in then.into_iter().rev() {
+                            code.insert(pc, i);
+                        }
+
+                        // check
+                        code.insert(pc, Instr::x0d_br_if(LabelIdX(0))); // then block end
+                        code.insert(pc, Instr::x73_i32_xor);
+                        code.insert(pc, Instr::x41_i32_const(1));
+                        code.insert(pc, Instr::x20_local_get(LocalIdX(u32::MAX)));
+                        // THIS IS SO DISGUSTING
+
+                        if els_exists {
+                            code.insert(pc, Instr::block_start(BT::Block, 0)); // then block end
+                        }
+                        code.insert(pc, Instr::block_start(BT::Block, 0)); // then block end
+                        code.insert(pc, Instr::x21_local_set(LocalIdX(u32::MAX)));
+                        // THIS IS SO DISGUSTING
                     }
                     _ => {}
                 }

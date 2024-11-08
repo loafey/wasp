@@ -12,6 +12,7 @@
         "funcidx",
         "funcs",
         "funcsec",
+        "trunc",
         "functype",
         "globalidx",
         "globalsec",

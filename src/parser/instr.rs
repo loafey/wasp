@@ -14,10 +14,8 @@ pub enum BT {
 
 #[derive(Debug, Clone, PartialEq)]
 #[allow(non_camel_case_types, unused)]
-#[repr(u8)]
+#[repr(u16)]
 pub enum Instr {
-    block_start(BT, usize) = 0xFF,
-    block_end(BT, usize) = 0xFE,
     comment(String, Box<Instr>) = 0xFD,
     x00_unreachable = 0x00,
     x02_block(BlockType, Vec<Instr>) = 0x02,
@@ -126,6 +124,16 @@ pub enum Instr {
     xb8_f64_convert_i32_u = 0xb8,
     xbd_i64_reinterpret_f64 = 0xbd,
     xbf_f64_reinterpret_i64 = 0xbf,
+    xfc_0_i32_trunc_sat_f32_s = 0xfc00,
+    xfc_1_i32_trunc_sat_f32_u = 0xfc01,
+    xfc_2_i32_trunc_sat_f64_u = 0xfc02,
+    xfc_3_i32_trunc_sat_f64_s = 0xfc03,
+    xfc_4_i64_trunc_sat_f32_s = 0xfc04,
+    xfc_5_i64_trunc_sat_f32_u = 0xfc05,
+    xfc_6_i64_trunc_sat_f64_s = 0xfc06,
+    xfc_7_i64_trunc_sat_f64_u = 0xfc07,
+    block_start(BT, usize),
+    block_end(BT, usize),
 }
 impl Parsable for Instr {
     fn parse_inner(
@@ -471,7 +479,17 @@ impl Parsable for Instr {
             0xf9 => Err(ParseError::UnknownInstruction(Hex(typ)))?,
             0xfa => Err(ParseError::UnknownInstruction(Hex(typ)))?,
             0xfb => Err(ParseError::UnknownInstruction(Hex(typ)))?,
-            0xfc => Err(ParseError::UnknownInstruction(Hex(typ)))?,
+            0xfc => match u32::parse(data, stack)? {
+                0 => xfc_0_i32_trunc_sat_f32_s,
+                1 => xfc_1_i32_trunc_sat_f32_u,
+                2 => xfc_2_i32_trunc_sat_f64_u,
+                3 => xfc_3_i32_trunc_sat_f64_s,
+                4 => xfc_4_i64_trunc_sat_f32_s,
+                5 => xfc_5_i64_trunc_sat_f32_u,
+                6 => xfc_6_i64_trunc_sat_f64_s,
+                7 => xfc_7_i64_trunc_sat_f64_u,
+                ind => todo!("0xfc {ind}"),
+            },
             0xfd => Err(ParseError::UnknownInstruction(Hex(typ)))?,
             0xfe => Err(ParseError::UnknownInstruction(Hex(typ)))?,
             0xff => Err(ParseError::UnknownInstruction(Hex(typ)))?,

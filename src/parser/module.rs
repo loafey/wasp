@@ -60,6 +60,7 @@ impl Parsable for Module {
         let mut globals = GlobalSection::default();
         let mut elements = ElementSection::default();
         let customs = CustomSection::default();
+
         let mut section_header = [0];
         loop {
             if let Err(e) = data.read_exact(&mut section_header) {
@@ -84,6 +85,9 @@ impl Parsable for Module {
                 12 => unimplemented!("\"data count\" sections (12)"),
                 _ => Err(SectionError::UnknownHeader(Hex(section_header)))?,
             }
+        }
+        if typeidx.functions.len() != code.code.len() {
+            return Err(ParseError::InconsistentFunctionAndCodeSectionLength);
         }
 
         Ok(Module {

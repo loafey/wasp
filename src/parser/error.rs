@@ -25,6 +25,8 @@ pub enum ParseError {
     EndOfInstructions,
     AlignmentError,
     SectionSizeMismatch,
+    TooManyLocals(u32),
+    InconsistentFunctionAndCodeSectionLength,
 }
 impl From<io::Error> for ParseError {
     fn from(value: io::Error) -> Self {

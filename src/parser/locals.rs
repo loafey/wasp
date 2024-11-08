@@ -1,4 +1,4 @@
-use super::{Parsable, ValType};
+use super::{error::ParseError, Parsable, ValType};
 
 #[derive(Debug)]
 #[allow(unused)]
@@ -14,9 +14,12 @@ impl Parsable for Locals {
     where
         Self: std::marker::Sized,
     {
-        Ok(Self {
-            n: Parsable::parse(data, stack)?,
-            t: Parsable::parse(data, stack)?,
-        })
+        let n = Parsable::parse(data, stack)?;
+        let t = Parsable::parse(data, stack)?;
+        if n >= 0x10000000 {
+            return Err(ParseError::TooManyLocals(n));
+        }
+
+        Ok(Self { n, t })
     }
 }

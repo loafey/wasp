@@ -266,6 +266,7 @@ pub fn test(mut path: String) {
     let total_tests = tests.commands.len();
 
     for (test_i, test) in tests.commands.into_iter().enumerate() {
+        // println!("{test_i}/{total_tests}");
         recreate_runtime();
 
         match test {

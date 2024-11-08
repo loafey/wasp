@@ -62,6 +62,7 @@ impl Parsable for Module {
         let customs = CustomSection::default();
 
         let mut section_header = [0];
+        let mut found_data_count = false;
         loop {
             if let Err(e) = data.read_exact(&mut section_header) {
                 match e.kind() {
@@ -84,6 +85,7 @@ impl Parsable for Module {
                 11 => datasec.concat(DataSection::parse(data, stack)?),
                 12 => {
                     let _size = u32::parse(data, stack)? as usize;
+                    found_data_count = true;
                     if (u32::parse(data, stack)? as usize) != datasec.data.len() {
                         return Err(ParseError::InvalidDataCount);
                     }
@@ -93,6 +95,18 @@ impl Parsable for Module {
         }
         if typeidx.functions.len() != code.code.len() {
             return Err(ParseError::InconsistentFunctionAndCodeSectionLength);
+        }
+        if !found_data_count
+            && code.code.iter().any(|c| {
+                c.code.e.instrs.iter().any(|i| {
+                    matches!(
+                        i,
+                        super::Instr::xfc_8_memory_init(_) | super::Instr::xfc_9_data_drop(_)
+                    )
+                })
+            })
+        {
+            return Err(ParseError::NoDataCountSection);
         }
 
         Ok(Module {

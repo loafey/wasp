@@ -2,6 +2,7 @@
     "cSpell.words": [
         "codesec",
         "customsec",
+        "dataidx",
         "datas",
         "datasec",
         "eframe",
@@ -12,7 +13,6 @@
         "funcidx",
         "funcs",
         "funcsec",
-        "trunc",
         "functype",
         "globalidx",
         "globalsec",
@@ -33,6 +33,7 @@
         "tableidx",
         "tablesec",
         "tabletype",
+        "trunc",
         "typeidx",
         "typesec",
         "uninit",

@@ -1,6 +1,6 @@
 use super::{
-    error::ParseError, BlockType, FuncIdx, GlobalIdX, LabelIdX, LocalIdX, MemArg, Parsable,
-    TableIdX, TypeIdX,
+    error::ParseError, BlockType, DataIdx as DataIdX, FuncIdx, GlobalIdX, LabelIdX, LocalIdX,
+    MemArg, Parsable, TableIdX, TypeIdX,
 };
 use crate::hex::Hex;
 use std::io::Read;
@@ -132,6 +132,11 @@ pub enum Instr {
     xfc_5_i64_trunc_sat_f32_u = 0xfc05,
     xfc_6_i64_trunc_sat_f64_s = 0xfc06,
     xfc_7_i64_trunc_sat_f64_u = 0xfc07,
+    xfc_8_memory_init(DataIdX) = 0xfc08,
+    xfc_9_data_drop(DataIdX) = 0xfc09,
+    xfc_10_memory_copy(u8, u8) = 0xfc0a,
+    xfc_11_memory_fill(u8) = 0xfc0b,
+
     block_start(BT, usize),
     block_end(BT, usize),
 }
@@ -488,6 +493,10 @@ impl Parsable for Instr {
                 5 => xfc_5_i64_trunc_sat_f32_u,
                 6 => xfc_6_i64_trunc_sat_f64_s,
                 7 => xfc_7_i64_trunc_sat_f64_u,
+                8 => xfc_8_memory_init(p!()),
+                9 => xfc_9_data_drop(p!()),
+                10 => xfc_10_memory_copy(p!(), p!()),
+                11 => xfc_11_memory_fill(p!()),
                 ind => todo!("0xfc {ind}"),
             },
             0xfd => Err(ParseError::UnknownInstruction(Hex(typ)))?,

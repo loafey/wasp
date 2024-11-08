@@ -3,7 +3,7 @@ use std::ops::{Deref, DerefMut};
 use super::Parsable;
 
 #[derive(Debug, PartialEq, Eq, PartialOrd, Ord, Clone, Copy)]
-pub struct MemIdX(u32);
+pub struct MemIdX(pub u32);
 impl Deref for MemIdX {
     type Target = u32;
 

@@ -17,7 +17,7 @@ use RuntimeError::*;
 use crate::parser::{
     self, ExportDesc, FuncIdx, Global, GlobalIdX,
     Instr::{self, *},
-    LabelIdX, LocalIdX, MemArg, Module, Parsable, TableIdX, TypeIdX, BT,
+    LabelIdX, LocalIdX, MemArg, MemIdX, Module, Parsable, TableIdX, TypeIdX, BT,
 };
 
 #[derive(Clone, Copy, PartialEq)]
@@ -107,7 +107,7 @@ impl Runtime {
         let mut datas = HashMap::new();
         for (i, d) in module.datas.data.iter().enumerate() {
             match d {
-                parser::Data::Active(e, vec) => {
+                parser::Data::ActiveX(MemIdX(0), e, vec) | parser::Data::Active(e, vec) => {
                     let [Instr::x41_i32_const(p)] = &e.instrs[..] else {
                         return Err(ActiveDataWithoutOffset);
                     };
@@ -125,7 +125,7 @@ impl Runtime {
                 parser::Data::Passive(v) => {
                     datas.insert(i as u32, v.clone());
                 }
-                parser::Data::ActiveX(_, _, _) => todo!(),
+                parser::Data::ActiveX(_, _, _) => todo!(""),
             }
         }
 

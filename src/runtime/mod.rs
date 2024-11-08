@@ -149,10 +149,14 @@ impl Runtime {
         };
         let mut globals = HashMap::new();
         for (i, Global { e, .. }) in module.globals.globals.iter().enumerate() {
-            let x41_i32_const(x) = e.instrs[0] else {
-                return Err(GlobalWithoutOffset);
+            let val = match e.instrs[0] {
+                x41_i32_const(x) => Value::I32(x),
+                x42_i64_const(x) => Value::I64(x),
+                x43_f32_const(x) => Value::F32(x),
+                x44_f64_const(x) => Value::F64(x),
+                _ => return Err(GlobalWithoutValue),
             };
-            globals.insert(i as u32, Value::I32(x));
+            globals.insert(i as u32, val);
         }
 
         let exports = module

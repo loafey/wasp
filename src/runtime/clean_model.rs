@@ -1,6 +1,6 @@
 use crate::parser::{
     BlockType, Elem, FuncIdx, FuncType, ImportDesc, Instr, LabelIdX, LocalIdX, Module, Name,
-    TypeIdX, BT,
+    TableIdX, TypeIdX, BT,
 };
 use std::{collections::HashMap, ops::Deref, u32};
 
@@ -199,18 +199,25 @@ impl From<Module> for Model {
             })
             .collect();
 
-        for (ti, elem) in value.elems.elems.into_iter().enumerate() {
+        for elem in value.elems.elems.into_iter() {
             match elem {
                 Elem::E0(expr, vec) => match &expr.instrs[..] {
                     [Instr::x41_i32_const(off)] => {
                         for (i, v) in vec.into_iter().enumerate() {
-                            tables[ti].table.insert(*off as u32 + i as u32, v);
+                            tables[0].table.insert(*off as u32 + i as u32, v);
                         }
                     }
                     _ => panic!(),
                 },
                 Elem::E1(_, _) => todo!(),
-                Elem::E2(_, _, _, _) => todo!(),
+                Elem::E2(TableIdX(t), expr, _rt, vec) => match &expr.instrs[..] {
+                    [Instr::x41_i32_const(off)] => {
+                        for (i, v) in vec.into_iter().enumerate() {
+                            tables[t as usize].table.insert(*off as u32 + i as u32, v);
+                        }
+                    }
+                    _ => panic!(),
+                },
                 Elem::E3(_, _) => todo!(),
                 Elem::E4(_, _) => todo!(),
                 Elem::E5(_, _) => todo!(),

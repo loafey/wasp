@@ -2,7 +2,7 @@
 pub enum RuntimeError {
     ParseError(String),
     Exit(i32),
-    GlobalWithoutOffset,
+    GlobalWithoutValue,
     ActiveDataWithoutOffset,
     UnknownFunction(String, String),
     NoFrame(&'static str, u32, u32),
@@ -22,7 +22,7 @@ impl std::fmt::Debug for RuntimeError {
             Self::OutOfBoundsMemoryAccess => write!(f, "out of bounds memory access"),
             Self::ParseError(string) => write!(f, "ParseError({string})"),
             Self::Exit(arg0) => f.debug_tuple("Exit").field(arg0).finish(),
-            Self::GlobalWithoutOffset => write!(f, "GlobalWithoutOffset"),
+            Self::GlobalWithoutValue => write!(f, "GlobalWithoutOffset"),
             Self::ActiveDataWithoutOffset => write!(f, "ActiveDataWithoutOffset"),
             Self::UnknownFunction(arg0, arg1) => write!(f, "unknown function: {arg0}::{arg1}"),
             Self::NoFrame(arg0, arg1, arg2) => {

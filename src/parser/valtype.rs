@@ -34,8 +34,8 @@ impl Parsable for RefTyp {
         let mut h = [0];
         data.read_exact(&mut h)?;
         match h[0] {
-            0x00 => Ok(RefTyp::FuncRef),
-            0x01 => Ok(RefTyp::ExternRef),
+            0x00 | 0x70 => Ok(RefTyp::FuncRef),
+            0x01 | 0x6f => Ok(RefTyp::ExternRef),
             _ => Err(super::error::ParseError::InvalidRefType(Hex(h))),
         }
     }

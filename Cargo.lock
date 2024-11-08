@@ -1527,12 +1527,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "e2db585e1d738fc771bf08a151420d3ed193d9d895a36df7f6f8a9456b911ddc"
 
 [[package]]
-name = "leb128"
-version = "0.2.5"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "884e2677b40cc8c339eaefcb701c32ef1fd2493d71118dc0ca4b6a736c93bd67"
-
-[[package]]
 name = "libc"
 version = "0.2.161"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2345,12 +2339,12 @@ version = "0.1.0"
 dependencies = [
  "eframe",
  "egui",
- "leb128",
  "log",
  "monostate",
  "pretty_env_logger",
  "serde",
  "serde_json",
+ "wasabi_leb128",
 ]
 
 [[package]]
@@ -2791,6 +2785,15 @@ checksum = "29790946404f91d9c5d06f9874efddea1dc06c5efe94541a7d6863108e3a5e4b"
 dependencies = [
  "same-file",
  "winapi-util",
+]
+
+[[package]]
+name = "wasabi_leb128"
+version = "0.4.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "1ef95b2fc26dab4b706f4763b297aa7277a1660e83450fa39e6832e64aeeb637"
+dependencies = [
+ "num-traits",
 ]
 
 [[package]]

@@ -1,3 +1,5 @@
+use wasabi_leb128::ReadLeb128;
+
 use crate::alloc;
 
 use super::error::ParseError;
@@ -75,7 +77,7 @@ impl Parsable for u32 {
     where
         Self: std::marker::Sized,
     {
-        Ok(leb128::read::unsigned(data)? as u32)
+        Ok(data.read_leb128()?.0)
     }
 }
 
@@ -106,7 +108,7 @@ impl Parsable for i32 {
     where
         Self: std::marker::Sized,
     {
-        Ok(leb128::read::signed(data)? as i32)
+        Ok(data.read_leb128()?.0)
     }
 }
 impl Parsable for i64 {
@@ -114,6 +116,6 @@ impl Parsable for i64 {
     where
         Self: std::marker::Sized,
     {
-        Ok(leb128::read::signed(data)?)
+        Ok(data.read_leb128()?.0)
     }
 }

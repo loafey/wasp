@@ -9,7 +9,9 @@ pub enum ParseError {
     InvalidSection(SectionError),
     NotImplemented(&'static str),
     IOError(io::Error),
-    Leb128(leb128::read::Error),
+    Leb128(wasabi_leb128::ParseLeb128Error),
+    SignedIntegerTooLarge(i64),
+    UnsignedIntegerTooLarge(u64),
     UnknownType(Hex<1>),
     InvalidFuncType(Hex<1>),
     InvalidImportDesc(Hex<1>),
@@ -38,8 +40,8 @@ impl From<SectionError> for ParseError {
         Self::InvalidSection(value)
     }
 }
-impl From<leb128::read::Error> for ParseError {
-    fn from(value: leb128::read::Error) -> Self {
+impl From<wasabi_leb128::ParseLeb128Error> for ParseError {
+    fn from(value: wasabi_leb128::ParseLeb128Error) -> Self {
         Self::Leb128(value)
     }
 }

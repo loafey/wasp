@@ -1,4 +1,4 @@
-use super::{Global, Parsable};
+use super::{error::ParseError, Global, Parsable};
 
 #[derive(Debug, Default)]
 pub struct GlobalSection {
@@ -20,7 +20,11 @@ impl Parsable for GlobalSection {
         Self: std::marker::Sized,
     {
         let size = u32::parse(data, stack)?;
+        let expected = data.position() + size as u64;
         let globals = Vec::parse(data, stack)?;
+        if data.position() != expected {
+            return Err(ParseError::SectionSizeMismatch);
+        }
         Ok(Self { size, globals })
     }
 }

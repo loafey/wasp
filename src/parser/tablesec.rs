@@ -1,4 +1,4 @@
-use super::{Parsable, Table};
+use super::{error::ParseError, Parsable, Table};
 
 #[derive(Debug, Default)]
 #[allow(unused)]
@@ -18,7 +18,11 @@ impl Parsable for TableSection {
         stack: super::DebugStack,
     ) -> Result<Self, super::error::ParseError> {
         let size = u32::parse(data, stack)?;
+        let expected = data.position() + size as u64;
         let tables = Vec::parse(data, stack)?;
+        if data.position() != expected {
+            return Err(ParseError::SectionSizeMismatch);
+        }
         Ok(Self { size, tables })
     }
 }

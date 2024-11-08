@@ -1,4 +1,4 @@
-use super::{Data, Parsable};
+use super::{error::ParseError, Data, Parsable};
 
 #[derive(Debug, Default)]
 #[allow(unused)]
@@ -21,7 +21,11 @@ impl Parsable for DataSection {
         Self: std::marker::Sized,
     {
         let size = u32::parse(data, stack)?;
-        let data = Vec::parse(data, stack)?;
-        Ok(Self { size, data })
+        let expected = data.position() + size as u64;
+        let data_ = Vec::parse(data, stack)?;
+        if data.position() != expected {
+            return Err(ParseError::SectionSizeMismatch);
+        }
+        Ok(Self { size, data: data_ })
     }
 }

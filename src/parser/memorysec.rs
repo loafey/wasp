@@ -1,4 +1,4 @@
-use super::{Mem, Parsable};
+use super::{error::ParseError, Mem, Parsable};
 
 #[derive(Debug, Default)]
 pub struct MemorySection {
@@ -20,7 +20,11 @@ impl Parsable for MemorySection {
         Self: std::marker::Sized,
     {
         let size = u32::parse(data, stack)?;
+        let expected = data.position() + size as u64;
         let mems = Vec::parse(data, stack)?;
+        if data.position() != expected {
+            return Err(ParseError::SectionSizeMismatch);
+        }
         Ok(Self { size, mems })
     }
 }

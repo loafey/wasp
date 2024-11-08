@@ -1,4 +1,4 @@
-use super::{Import, Parsable};
+use super::{error::ParseError, Import, Parsable};
 
 #[derive(Debug, Default)]
 #[allow(unused)]
@@ -21,7 +21,11 @@ impl Parsable for ImportSection {
         Self: std::marker::Sized,
     {
         let size = u32::parse(data, stack)?;
+        let expected = data.position() + size as u64;
         let imports = Vec::parse(data, stack)?;
+        if data.position() != expected {
+            return Err(ParseError::SectionSizeMismatch);
+        }
         Ok(Self { imports, size })
     }
 }

@@ -20,7 +20,11 @@ impl Parsable for TypeSection {
         stack: super::DebugStack,
     ) -> Result<TypeSection, ParseError> {
         let size = u32::parse(data, stack)?;
+        let expected = data.position() + size as u64;
         let function_types: Vec<FuncType> = Vec::parse(data, stack)?;
+        if data.position() != expected {
+            return Err(ParseError::SectionSizeMismatch);
+        }
         Ok(Self {
             size,
             function_types,

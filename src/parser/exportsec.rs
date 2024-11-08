@@ -1,4 +1,4 @@
-use super::{Export, Parsable};
+use super::{error::ParseError, Export, Parsable};
 use std::collections::BTreeSet as Set;
 
 #[derive(Debug, Default)]
@@ -22,7 +22,11 @@ impl Parsable for ExportSection {
         Self: std::marker::Sized,
     {
         let size = u32::parse(data, stack)?;
+        let expected = data.position() + size as u64;
         let exports = Set::from_iter(Vec::parse(data, stack)?);
+        if data.position() != expected {
+            return Err(ParseError::SectionSizeMismatch);
+        }
         Ok(ExportSection { size, exports })
     }
 }

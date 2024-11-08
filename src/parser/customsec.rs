@@ -32,6 +32,8 @@ impl Parsable for CustomSection {
         Self: std::marker::Sized,
     {
         let size = u32::parse(data, stack)?;
+        let expected = data.position() + size as u64;
+
         let name = Name::parse(data, stack)?;
         let mut section = Vec::new();
         loop {
@@ -41,6 +43,10 @@ impl Parsable for CustomSection {
                 Err(ParseError::IOError(e)) if e.kind() == ErrorKind::UnexpectedEof => break,
                 Err(e) => Err(e)?,
             }
+        }
+
+        if data.position() != expected {
+            return Err(ParseError::SectionSizeMismatch);
         }
         Ok(Self {
             size,

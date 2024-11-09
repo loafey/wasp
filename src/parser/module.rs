@@ -8,7 +8,10 @@ use crate::{
     hex::Hex,
     parser::{CodeSection, DataSection, ExportSection, FunctionSection},
 };
-use std::io::{Cursor, ErrorKind, Read};
+use std::{
+    collections::HashSet,
+    io::{Cursor, ErrorKind, Read},
+};
 
 /// https://webassembly.github.io/spec/core/binary/modules.html#binary-module
 #[derive(Debug)]
@@ -49,9 +52,9 @@ impl Parsable for Module {
             Err(ModuleError::InvalidVersion(version))?;
         }
 
-        let mut functype = TypeSection::default();
+        let mut types = TypeSection::default();
         let mut import = ImportSection::default();
-        let mut typeidx = FunctionSection::default();
+        let mut functions = FunctionSection::default();
         let mut export = ExportSection::default();
         let mut code = CodeSection::default();
         let mut datasec = DataSection::default();
@@ -64,6 +67,9 @@ impl Parsable for Module {
         let mut section_header = [0];
         let mut found_data_count = false;
         let mut start = None;
+        let mut parsed_sections = HashSet::new();
+        let mut last_section = 0;
+
         loop {
             if let Err(e) = data.read_exact(&mut section_header) {
                 match e.kind() {
@@ -71,11 +77,19 @@ impl Parsable for Module {
                     _ => Err(e)?,
                 }
             }
+            if section_header[0] != 12 && parsed_sections.contains(&section_header[0]) {
+                return Err(ParseError::DuplicateSection(section_header[0] as u32));
+            }
+            parsed_sections.insert(section_header[0]);
+            if last_section > section_header[0] {
+                return Err(ParseError::OutOfOrderSection);
+            }
+            last_section = section_header[0];
             match section_header[0] {
                 0 => drop(CustomSection::parse(data, stack)?), // customs.concat(CustomSection::parse(data, stack)?),
-                1 => functype.concat(TypeSection::parse(data, stack)?),
+                1 => types.concat(TypeSection::parse(data, stack)?),
                 2 => import.concat(ImportSection::parse(data, stack)?),
-                3 => typeidx.concat(FunctionSection::parse(data, stack)?),
+                3 => functions.concat(FunctionSection::parse(data, stack)?),
                 4 => tables.concat(TableSection::parse(data, stack)?),
                 5 => mems.concat(MemorySection::parse(data, stack)?),
                 6 => globals.concat(GlobalSection::parse(data, stack)?),
@@ -97,7 +111,7 @@ impl Parsable for Module {
                 _ => Err(SectionError::UnknownHeader(Hex(section_header)))?,
             }
         }
-        if typeidx.functions.len() != code.code.len() {
+        if functions.functions.len() != code.code.len() {
             return Err(ParseError::InconsistentFunctionAndCodeSectionLength);
         }
         if !found_data_count
@@ -116,9 +130,9 @@ impl Parsable for Module {
         Ok(Module {
             magic,
             version,
-            types: functype,
+            types,
             imports: import,
-            funcs: typeidx,
+            funcs: functions,
             exports: export,
             code,
             datas: datasec,

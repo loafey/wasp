@@ -29,6 +29,8 @@ pub enum ParseError {
     InconsistentFunctionAndCodeSectionLength,
     InvalidDataCount,
     NoDataCountSection,
+    DuplicateSection(u32),
+    OutOfOrderSection,
 }
 impl From<io::Error> for ParseError {
     fn from(value: io::Error) -> Self {

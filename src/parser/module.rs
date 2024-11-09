@@ -1,6 +1,6 @@
 use super::{
     error::{ModuleError, ParseError, SectionError},
-    CustomSection, ElementSection, GlobalSection, ImportSection, MemorySection, Parsable,
+    CustomSection, ElementSection, FuncIdx, GlobalSection, ImportSection, MemorySection, Parsable,
     TableSection, TypeSection,
 };
 use crate::{
@@ -23,7 +23,7 @@ pub struct Module {
     pub tables: TableSection,   //tablesec
     pub mems: MemorySection,    // memsec
     pub globals: GlobalSection, // globalsec
-    pub start: Option<()>,      // startsec
+    pub start: Option<u32>,     // startsec
     pub elems: ElementSection,  //elemsec
     pub data_count: Vec<()>,    //datacountsec
     pub code: CodeSection,
@@ -63,6 +63,7 @@ impl Parsable for Module {
 
         let mut section_header = [0];
         let mut found_data_count = false;
+        let mut start = None;
         loop {
             if let Err(e) = data.read_exact(&mut section_header) {
                 match e.kind() {
@@ -79,7 +80,10 @@ impl Parsable for Module {
                 5 => mems.concat(MemorySection::parse(data, stack)?),
                 6 => globals.concat(GlobalSection::parse(data, stack)?),
                 7 => export.concat(ExportSection::parse(data, stack)?),
-                8 => unimplemented!("\"start\" sections (8)"),
+                8 => {
+                    let _size = u32::parse(data, stack)? as usize;
+                    start = Some(u32::parse(data, stack)?)
+                }
                 9 => elements.concat(ElementSection::parse(data, stack)?),
                 10 => code.concat(CodeSection::parse(data, stack)?),
                 11 => datasec.concat(DataSection::parse(data, stack)?),
@@ -121,7 +125,7 @@ impl Parsable for Module {
             tables,
             mems,
             globals,
-            start: None,
+            start,
             elems: elements,
             data_count: Vec::new(),
             customs,

@@ -15,10 +15,10 @@ impl Parsable for Locals {
         Self: std::marker::Sized,
     {
         let n = Parsable::parse(data, stack)?;
-        let t = Parsable::parse(data, stack)?;
         if n >= 0x10000000 {
             return Err(ParseError::TooManyLocals(n));
         }
+        let t = Parsable::parse(data, stack)?;
 
         Ok(Self { n, t })
     }

@@ -1,141 +1,1213 @@
 # W.A.S.P
 
-## Latest spec test (24-11-09 17:51)
+## Latest spec test (24-11-09 18:09)
 💅: 11\
 💩: 136\
-FAILED: test-suite/test/core/block.wast\
-FAILED: test-suite/test/core/br.wast\
-FAILED: test-suite/test/core/br_if.wast\
-FAILED: test-suite/test/core/br_table.wast\
-FAILED: test-suite/test/core/bulk.wast\
-FAILED: test-suite/test/core/call.wast\
-FAILED: test-suite/test/core/call_indirect.wast\
-FAILED: test-suite/test/core/comments.wast\
-FAILED: test-suite/test/core/conversions.wast\
-FAILED: test-suite/test/core/custom.wast\
-FAILED: test-suite/test/core/data.wast\
-FAILED: test-suite/test/core/elem.wast\
-FAILED: test-suite/test/core/endianness.wast\
-FAILED: test-suite/test/core/exports.wast\
-FAILED: test-suite/test/core/f32.wast\
-FAILED: test-suite/test/core/f32_bitwise.wast\
-FAILED: test-suite/test/core/f32_cmp.wast\
-FAILED: test-suite/test/core/f64.wast\
-FAILED: test-suite/test/core/f64_bitwise.wast\
-FAILED: test-suite/test/core/f64_cmp.wast\
-FAILED: test-suite/test/core/fac.wast\
-FAILED: test-suite/test/core/float_exprs.wast\
-FAILED: test-suite/test/core/float_literals.wast\
-FAILED: test-suite/test/core/float_memory.wast\
-FAILED: test-suite/test/core/float_misc.wast\
-FAILED: test-suite/test/core/forward.wast\
-FAILED: test-suite/test/core/func.wast\
-FAILED: test-suite/test/core/func_ptrs.wast\
-FAILED: test-suite/test/core/global.wast\
-FAILED: test-suite/test/core/i32.wast\
-FAILED: test-suite/test/core/i64.wast\
-FAILED: test-suite/test/core/if.wast\
-FAILED: test-suite/test/core/imports.wast\
-FAILED: test-suite/test/core/int_exprs.wast\
-FAILED: test-suite/test/core/int_literals.wast\
-FAILED: test-suite/test/core/labels.wast\
-FAILED: test-suite/test/core/left-to-right.wast\
-FAILED: test-suite/test/core/linking.wast\
-FAILED: test-suite/test/core/load.wast\
-FAILED: test-suite/test/core/local_get.wast\
-FAILED: test-suite/test/core/local_set.wast\
-FAILED: test-suite/test/core/local_tee.wast\
-FAILED: test-suite/test/core/loop.wast\
-FAILED: test-suite/test/core/memory.wast\
-FAILED: test-suite/test/core/memory_copy.wast\
-FAILED: test-suite/test/core/memory_fill.wast\
-FAILED: test-suite/test/core/memory_grow.wast\
-FAILED: test-suite/test/core/memory_init.wast\
-FAILED: test-suite/test/core/memory_size.wast\
-FAILED: test-suite/test/core/memory_trap.wast\
-FAILED: test-suite/test/core/names.wast\
-FAILED: test-suite/test/core/nop.wast\
-FAILED: test-suite/test/core/ref_func.wast\
-FAILED: test-suite/test/core/ref_is_null.wast\
-FAILED: test-suite/test/core/ref_null.wast\
-FAILED: test-suite/test/core/return.wast\
-FAILED: test-suite/test/core/select.wast\
-FAILED: test-suite/test/core/simd_address.wast\
-FAILED: test-suite/test/core/simd_align.wast\
-FAILED: test-suite/test/core/simd_bit_shift.wast\
-FAILED: test-suite/test/core/simd_bitwise.wast\
-FAILED: test-suite/test/core/simd_boolean.wast\
-FAILED: test-suite/test/core/simd_const.wast\
-FAILED: test-suite/test/core/simd_conversions.wast\
-FAILED: test-suite/test/core/simd_f32x4.wast\
-FAILED: test-suite/test/core/simd_f32x4_arith.wast\
-FAILED: test-suite/test/core/simd_f32x4_cmp.wast\
-FAILED: test-suite/test/core/simd_f32x4_pmin_pmax.wast\
-FAILED: test-suite/test/core/simd_f32x4_rounding.wast\
-FAILED: test-suite/test/core/simd_f64x2.wast\
-FAILED: test-suite/test/core/simd_f64x2_arith.wast\
-FAILED: test-suite/test/core/simd_f64x2_cmp.wast\
-FAILED: test-suite/test/core/simd_f64x2_pmin_pmax.wast\
-FAILED: test-suite/test/core/simd_f64x2_rounding.wast\
-FAILED: test-suite/test/core/simd_i16x8_arith.wast\
-FAILED: test-suite/test/core/simd_i16x8_arith2.wast\
-FAILED: test-suite/test/core/simd_i16x8_cmp.wast\
-FAILED: test-suite/test/core/simd_i16x8_extadd_pairwise_i8x16.wast\
-FAILED: test-suite/test/core/simd_i16x8_extmul_i8x16.wast\
-FAILED: test-suite/test/core/simd_i16x8_q15mulr_sat_s.wast\
-FAILED: test-suite/test/core/simd_i16x8_sat_arith.wast\
-FAILED: test-suite/test/core/simd_i32x4_arith.wast\
-FAILED: test-suite/test/core/simd_i32x4_arith2.wast\
-FAILED: test-suite/test/core/simd_i32x4_cmp.wast\
-FAILED: test-suite/test/core/simd_i32x4_dot_i16x8.wast\
-FAILED: test-suite/test/core/simd_i32x4_extadd_pairwise_i16x8.wast\
-FAILED: test-suite/test/core/simd_i32x4_extmul_i16x8.wast\
-FAILED: test-suite/test/core/simd_i32x4_trunc_sat_f32x4.wast\
-FAILED: test-suite/test/core/simd_i32x4_trunc_sat_f64x2.wast\
-FAILED: test-suite/test/core/simd_i64x2_arith.wast\
-FAILED: test-suite/test/core/simd_i64x2_arith2.wast\
-FAILED: test-suite/test/core/simd_i64x2_cmp.wast\
-FAILED: test-suite/test/core/simd_i64x2_extmul_i32x4.wast\
-FAILED: test-suite/test/core/simd_i8x16_arith.wast\
-FAILED: test-suite/test/core/simd_i8x16_arith2.wast\
-FAILED: test-suite/test/core/simd_i8x16_cmp.wast\
-FAILED: test-suite/test/core/simd_i8x16_sat_arith.wast\
-FAILED: test-suite/test/core/simd_int_to_int_extend.wast\
-FAILED: test-suite/test/core/simd_lane.wast\
-FAILED: test-suite/test/core/simd_linking.wast\
-FAILED: test-suite/test/core/simd_load.wast\
-FAILED: test-suite/test/core/simd_load16_lane.wast\
-FAILED: test-suite/test/core/simd_load32_lane.wast\
-FAILED: test-suite/test/core/simd_load64_lane.wast\
-FAILED: test-suite/test/core/simd_load8_lane.wast\
-FAILED: test-suite/test/core/simd_load_extend.wast\
-FAILED: test-suite/test/core/simd_load_splat.wast\
-FAILED: test-suite/test/core/simd_load_zero.wast\
-FAILED: test-suite/test/core/simd_splat.wast\
-FAILED: test-suite/test/core/simd_store.wast\
-FAILED: test-suite/test/core/simd_store16_lane.wast\
-FAILED: test-suite/test/core/simd_store32_lane.wast\
-FAILED: test-suite/test/core/simd_store64_lane.wast\
-FAILED: test-suite/test/core/simd_store8_lane.wast\
-FAILED: test-suite/test/core/skip-stack-guard-page.wast\
-FAILED: test-suite/test/core/stack.wast\
-FAILED: test-suite/test/core/start.wast\
-FAILED: test-suite/test/core/store.wast\
-FAILED: test-suite/test/core/switch.wast\
-FAILED: test-suite/test/core/table-sub.wast\
-FAILED: test-suite/test/core/table.wast\
-FAILED: test-suite/test/core/table_copy.wast\
-FAILED: test-suite/test/core/table_fill.wast\
-FAILED: test-suite/test/core/table_get.wast\
-FAILED: test-suite/test/core/table_grow.wast\
-FAILED: test-suite/test/core/table_init.wast\
-FAILED: test-suite/test/core/table_set.wast\
-FAILED: test-suite/test/core/table_size.wast\
-FAILED: test-suite/test/core/traps.wast\
-FAILED: test-suite/test/core/unreachable.wast\
-FAILED: test-suite/test/core/unreached-invalid.wast\
-FAILED: test-suite/test/core/unreached-valid.wast\
-FAILED: test-suite/test/core/unwind.wast\
-FAILED: test-suite/test/core/utf8-custom-section-id.wast\
-FAILED: test-suite/test/core/utf8-import-field.wast\
-FAILED: test-suite/test/core/utf8-import-module.wast\
+## Failed: test-suite/test/core/block.wast
+```bash
+thread 'main' panicked at src/testsuite.rs:302:54:
+failed to load module: ParseError(File: "test-suite/test/core/block.0.wasm"
+UnknownType(<41>), bin pos: 1360, stack: [
+    "wasp::parser::valtype::ValType",
+    "wasp::parser::locals::Locals",
+    "alloc::vec::Vec<wasp::parser::locals::Locals>",
+    "wasp::parser::func::Func",
+    "wasp::parser::code::Code",
+    "alloc::vec::Vec<wasp::parser::code::Code>",
+    "wasp::parser::codesec::CodeSection",
+    "wasp::parser::module::Module",
+])
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+```
+
+
+## Failed: test-suite/test/core/br.wast
+```bash
+thread 'main' panicked at src/testsuite.rs:302:54:
+failed to load module: ParseError(File: "test-suite/test/core/br.0.wasm"
+UnknownInstruction(<7a>), bin pos: 1484, stack: [
+    "wasp::parser::instr::Instr",
+    "wasp::parser::instr::Instr",
+    "wasp::parser::expr::Expr",
+    "wasp::parser::func::Func",
+    "wasp::parser::code::Code",
+    "alloc::vec::Vec<wasp::parser::code::Code>",
+    "wasp::parser::codesec::CodeSection",
+    "wasp::parser::module::Module",
+])
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+```
+
+
+## Failed: test-suite/test/core/br_if.wast
+```bash
+thread 'main' panicked at src/testsuite.rs:302:54:
+failed to load module: ParseError(File: "test-suite/test/core/br_if.0.wasm"
+UnknownInstruction(<7a>), bin pos: 1286, stack: [
+    "wasp::parser::instr::Instr",
+    "wasp::parser::instr::Instr",
+    "wasp::parser::expr::Expr",
+    "wasp::parser::func::Func",
+    "wasp::parser::code::Code",
+    "alloc::vec::Vec<wasp::parser::code::Code>",
+    "wasp::parser::codesec::CodeSection",
+    "wasp::parser::module::Module",
+])
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+```
+
+
+## Failed: test-suite/test/core/br_table.wast
+```bash
+thread 'main' panicked at src/testsuite.rs:273:6:
+failed to parse test data: Error("data did not match any variant of untagged enum Case", line: 151, column: 2)
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+```
+
+
+## Failed: test-suite/test/core/bulk.wast
+```bash
+thread 'main' panicked at src/runtime/mod.rs:749:25:
+not implemented: instruction not supported : xfc_11_memory_fill(0)
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+```
+
+
+## Failed: test-suite/test/core/call.wast
+```bash
+thread 'main' panicked at src/testsuite.rs:273:6:
+failed to parse test data: Error("data did not match any variant of untagged enum Case", line: 46, column: 2)
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+```
+
+
+## Failed: test-suite/test/core/call_indirect.wast
+```bash
+thread 'main' panicked at src/testsuite.rs:273:6:
+failed to parse test data: Error("data did not match any variant of untagged enum Case", line: 100, column: 2)
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+```
+
+
+## Failed: test-suite/test/core/comments.wast
+```bash
+ ERROR wasp::testsuite > test 5/8 failed (module: 4, invoke: "f1", got [i32(1), i32(2)], but expected [i32(2)])
+```
+
+
+## Failed: test-suite/test/core/conversions.wast
+```bash
+thread 'main' panicked at src/testsuite.rs:302:54:
+failed to load module: ParseError(File: "test-suite/test/core/conversions.0.wasm"
+UnknownInstruction(<a8>), bin pos: 794, stack: [
+    "wasp::parser::instr::Instr",
+    "wasp::parser::expr::Expr",
+    "wasp::parser::func::Func",
+    "wasp::parser::code::Code",
+    "alloc::vec::Vec<wasp::parser::code::Code>",
+    "wasp::parser::codesec::CodeSection",
+    "wasp::parser::module::Module",
+])
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+```
+
+
+## Failed: test-suite/test/core/custom.wast
+```bash
+thread 'main' panicked at src/testsuite.rs:302:54:
+failed to load module: ParseError(File: "test-suite/test/core/custom.0.wasm"
+SectionSizeMismatch, bin pos: 267, stack: [
+    "u8",
+    "wasp::parser::customsec::CustomSection",
+    "wasp::parser::module::Module",
+])
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+```
+
+
+## Failed: test-suite/test/core/data.wast
+```bash
+thread 'main' panicked at src/testsuite.rs:302:54:
+failed to load module: ActiveDataWithoutOffset
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+```
+
+
+## Failed: test-suite/test/core/elem.wast
+```bash
+thread 'main' panicked at src/testsuite.rs:273:6:
+failed to parse test data: Error("data did not match any variant of untagged enum Case", line: 71, column: 2)
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+```
+
+
+## Failed: test-suite/test/core/endianness.wast
+```bash
+thread 'main' panicked at src/testsuite.rs:302:54:
+failed to load module: ParseError(File: "test-suite/test/core/endianness.0.wasm"
+UnknownInstruction(<bc>), bin pos: 557, stack: [
+    "wasp::parser::instr::Instr",
+    "wasp::parser::expr::Expr",
+    "wasp::parser::func::Func",
+    "wasp::parser::code::Code",
+    "alloc::vec::Vec<wasp::parser::code::Code>",
+    "wasp::parser::codesec::CodeSection",
+    "wasp::parser::module::Module",
+])
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+```
+
+
+## Failed: test-suite/test/core/exports.wast
+```bash
+thread 'main' panicked at src/testsuite.rs:219:17:
+not yet implemented
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+```
+
+
+## Failed: test-suite/test/core/f32.wast
+```bash
+thread 'main' panicked at src/testsuite.rs:302:54:
+failed to load module: ParseError(File: "test-suite/test/core/f32.0.wasm"
+UnknownInstruction(<92>), bin pos: 125, stack: [
+    "wasp::parser::instr::Instr",
+    "wasp::parser::expr::Expr",
+    "wasp::parser::func::Func",
+    "wasp::parser::code::Code",
+    "alloc::vec::Vec<wasp::parser::code::Code>",
+    "wasp::parser::codesec::CodeSection",
+    "wasp::parser::module::Module",
+])
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+```
+
+
+## Failed: test-suite/test/core/f32_bitwise.wast
+```bash
+thread 'main' panicked at src/testsuite.rs:302:54:
+failed to load module: ParseError(File: "test-suite/test/core/f32_bitwise.0.wasm"
+UnknownInstruction(<8b>), bin pos: 62, stack: [
+    "wasp::parser::instr::Instr",
+    "wasp::parser::expr::Expr",
+    "wasp::parser::func::Func",
+    "wasp::parser::code::Code",
+    "alloc::vec::Vec<wasp::parser::code::Code>",
+    "wasp::parser::codesec::CodeSection",
+    "wasp::parser::module::Module",
+])
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+```
+
+
+## Failed: test-suite/test/core/f32_cmp.wast
+```bash
+thread 'main' panicked at src/testsuite.rs:302:54:
+failed to load module: ParseError(File: "test-suite/test/core/f32_cmp.0.wasm"
+UnknownInstruction(<5b>), bin pos: 69, stack: [
+    "wasp::parser::instr::Instr",
+    "wasp::parser::expr::Expr",
+    "wasp::parser::func::Func",
+    "wasp::parser::code::Code",
+    "alloc::vec::Vec<wasp::parser::code::Code>",
+    "wasp::parser::codesec::CodeSection",
+    "wasp::parser::module::Module",
+])
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+```
+
+
+## Failed: test-suite/test/core/f64.wast
+```bash
+thread 'main' panicked at src/testsuite.rs:302:54:
+failed to load module: ParseError(File: "test-suite/test/core/f64.0.wasm"
+UnknownInstruction(<a3>), bin pos: 149, stack: [
+    "wasp::parser::instr::Instr",
+    "wasp::parser::expr::Expr",
+    "wasp::parser::func::Func",
+    "wasp::parser::code::Code",
+    "alloc::vec::Vec<wasp::parser::code::Code>",
+    "wasp::parser::codesec::CodeSection",
+    "wasp::parser::module::Module",
+])
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+```
+
+
+## Failed: test-suite/test/core/f64_bitwise.wast
+```bash
+thread 'main' panicked at src/testsuite.rs:302:54:
+failed to load module: ParseError(File: "test-suite/test/core/f64_bitwise.0.wasm"
+UnknownInstruction(<a6>), bin pos: 76, stack: [
+    "wasp::parser::instr::Instr",
+    "wasp::parser::expr::Expr",
+    "wasp::parser::func::Func",
+    "wasp::parser::code::Code",
+    "alloc::vec::Vec<wasp::parser::code::Code>",
+    "wasp::parser::codesec::CodeSection",
+    "wasp::parser::module::Module",
+])
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+```
+
+
+## Failed: test-suite/test/core/f64_cmp.wast
+```bash
+thread 'main' panicked at src/testsuite.rs:302:54:
+failed to load module: ParseError(File: "test-suite/test/core/f64_cmp.0.wasm"
+UnknownInstruction(<65>), bin pos: 93, stack: [
+    "wasp::parser::instr::Instr",
+    "wasp::parser::expr::Expr",
+    "wasp::parser::func::Func",
+    "wasp::parser::code::Code",
+    "alloc::vec::Vec<wasp::parser::code::Code>",
+    "wasp::parser::codesec::CodeSection",
+    "wasp::parser::module::Module",
+])
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+```
+
+
+## Failed: test-suite/test/core/fac.wast
+```bash
+thread 'main' panicked at src/testsuite.rs:273:6:
+failed to parse test data: Error("data did not match any variant of untagged enum Case", line: 10, column: 208)
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+```
+
+
+## Failed: test-suite/test/core/float_exprs.wast
+```bash
+thread 'main' panicked at src/runtime/mod.rs:749:25:
+not implemented: instruction not supported : xa2_f64_mul
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+```
+
+
+## Failed: test-suite/test/core/float_literals.wast
+```bash
+thread 'main' panicked at src/testsuite.rs:302:54:
+failed to load module: ParseError(File: "test-suite/test/core/float_literals.0.wasm"
+UnknownInstruction(<bc>), bin pos: 1960, stack: [
+    "wasp::parser::instr::Instr",
+    "wasp::parser::expr::Expr",
+    "wasp::parser::func::Func",
+    "wasp::parser::code::Code",
+    "alloc::vec::Vec<wasp::parser::code::Code>",
+    "wasp::parser::codesec::CodeSection",
+    "wasp::parser::module::Module",
+])
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+```
+
+
+## Failed: test-suite/test/core/float_memory.wast
+```bash
+ ERROR wasp::testsuite > test 4/90 failed (module: 0, invoke: "i32.load", got [i32(2141192192)], but expected [i32(0)])
+```
+
+
+## Failed: test-suite/test/core/float_misc.wast
+```bash
+thread 'main' panicked at src/testsuite.rs:302:54:
+failed to load module: ParseError(File: "test-suite/test/core/float_misc.0.wasm"
+UnknownInstruction(<92>), bin pos: 389, stack: [
+    "wasp::parser::instr::Instr",
+    "wasp::parser::expr::Expr",
+    "wasp::parser::func::Func",
+    "wasp::parser::code::Code",
+    "alloc::vec::Vec<wasp::parser::code::Code>",
+    "wasp::parser::codesec::CodeSection",
+    "wasp::parser::module::Module",
+])
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+```
+
+
+## Failed: test-suite/test/core/forward.wast
+```bash
+thread 'main' panicked at src/testsuite.rs:302:54:
+failed to load module: ParseError(File: "test-suite/test/core/forward.0.wasm"
+UnknownType(<20>), bin pos: 64, stack: [
+    "wasp::parser::valtype::ValType",
+    "wasp::parser::locals::Locals",
+    "alloc::vec::Vec<wasp::parser::locals::Locals>",
+    "wasp::parser::func::Func",
+    "wasp::parser::code::Code",
+    "alloc::vec::Vec<wasp::parser::code::Code>",
+    "wasp::parser::codesec::CodeSection",
+    "wasp::parser::module::Module",
+])
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+```
+
+
+## Failed: test-suite/test/core/func.wast
+```bash
+thread 'main' panicked at src/testsuite.rs:302:54:
+failed to load module: ParseError(File: "test-suite/test/core/func.0.wasm"
+UnknownInstruction(<8c>), bin pos: 1723, stack: [
+    "wasp::parser::instr::Instr",
+    "wasp::parser::expr::Expr",
+    "wasp::parser::func::Func",
+    "wasp::parser::code::Code",
+    "alloc::vec::Vec<wasp::parser::code::Code>",
+    "wasp::parser::codesec::CodeSection",
+    "wasp::parser::module::Module",
+])
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+```
+
+
+## Failed: test-suite/test/core/func_ptrs.wast
+```bash
+ ERROR wasp::testsuite > unknown function: spectest::print_i32
+```
+
+
+## Failed: test-suite/test/core/global.wast
+```bash
+thread 'main' panicked at src/testsuite.rs:273:6:
+failed to parse test data: Error("data did not match any variant of untagged enum Case", line: 7, column: 2)
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+```
+
+
+## Failed: test-suite/test/core/i32.wast
+```bash
+thread 'main' panicked at src/testsuite.rs:302:54:
+failed to load module: ParseError(File: "test-suite/test/core/i32.0.wasm"
+UnknownInstruction(<6f>), bin pos: 332, stack: [
+    "wasp::parser::instr::Instr",
+    "wasp::parser::expr::Expr",
+    "wasp::parser::func::Func",
+    "wasp::parser::code::Code",
+    "alloc::vec::Vec<wasp::parser::code::Code>",
+    "wasp::parser::codesec::CodeSection",
+    "wasp::parser::module::Module",
+])
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+```
+
+
+## Failed: test-suite/test/core/i64.wast
+```bash
+thread 'main' panicked at src/testsuite.rs:302:54:
+failed to load module: ParseError(File: "test-suite/test/core/i64.0.wasm"
+UnknownInstruction(<7f>), bin pos: 341, stack: [
+    "wasp::parser::instr::Instr",
+    "wasp::parser::expr::Expr",
+    "wasp::parser::func::Func",
+    "wasp::parser::code::Code",
+    "alloc::vec::Vec<wasp::parser::code::Code>",
+    "wasp::parser::codesec::CodeSection",
+    "wasp::parser::module::Module",
+])
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+```
+
+
+## Failed: test-suite/test/core/if.wast
+```bash
+thread 'main' panicked at src/testsuite.rs:302:54:
+failed to load module: ParseError(File: "test-suite/test/core/if.0.wasm"
+UnknownType(<20>), bin pos: 1097, stack: [
+    "wasp::parser::valtype::ValType",
+    "wasp::parser::locals::Locals",
+    "alloc::vec::Vec<wasp::parser::locals::Locals>",
+    "wasp::parser::func::Func",
+    "wasp::parser::code::Code",
+    "alloc::vec::Vec<wasp::parser::code::Code>",
+    "wasp::parser::codesec::CodeSection",
+    "wasp::parser::module::Module",
+])
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+```
+
+
+## Failed: test-suite/test/core/imports.wast
+```bash
+thread 'main' panicked at src/testsuite.rs:273:6:
+failed to parse test data: Error("data did not match any variant of untagged enum Case", line: 5, column: 2)
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+```
+
+
+## Failed: test-suite/test/core/int_exprs.wast
+```bash
+thread 'main' panicked at src/runtime/mod.rs:686:49:
+attempt to add with overflow
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+```
+
+
+## Failed: test-suite/test/core/int_literals.wast
+```bash
+thread 'main' panicked at src/runtime/mod.rs:749:25:
+not implemented: instruction not supported : x7c_i64_add
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+```
+
+
+## Failed: test-suite/test/core/labels.wast
+```bash
+thread 'main' panicked at src/testsuite.rs:302:54:
+failed to load module: ParseError(File: "test-suite/test/core/labels.0.wasm"
+SectionSizeMismatch, bin pos: 712, stack: [
+    "wasp::parser::codesec::CodeSection",
+    "wasp::parser::module::Module",
+])
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+```
+
+
+## Failed: test-suite/test/core/left-to-right.wast
+```bash
+thread 'main' panicked at src/testsuite.rs:302:54:
+failed to load module: ParseError(File: "test-suite/test/core/left-to-right.0.wasm"
+UnknownInstruction(<6f>), bin pos: 1805, stack: [
+    "wasp::parser::instr::Instr",
+    "wasp::parser::expr::Expr",
+    "wasp::parser::func::Func",
+    "wasp::parser::code::Code",
+    "alloc::vec::Vec<wasp::parser::code::Code>",
+    "wasp::parser::codesec::CodeSection",
+    "wasp::parser::module::Module",
+])
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+```
+
+
+## Failed: test-suite/test/core/linking.wast
+```bash
+thread 'main' panicked at src/testsuite.rs:273:6:
+failed to parse test data: Error("data did not match any variant of untagged enum Case", line: 5, column: 2)
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+```
+
+
+## Failed: test-suite/test/core/load.wast
+```bash
+thread 'main' panicked at src/testsuite.rs:302:54:
+failed to load module: ParseError(File: "test-suite/test/core/load.0.wasm"
+UnknownType(<41>), bin pos: 948, stack: [
+    "wasp::parser::valtype::ValType",
+    "wasp::parser::locals::Locals",
+    "alloc::vec::Vec<wasp::parser::locals::Locals>",
+    "wasp::parser::func::Func",
+    "wasp::parser::code::Code",
+    "alloc::vec::Vec<wasp::parser::code::Code>",
+    "wasp::parser::codesec::CodeSection",
+    "wasp::parser::module::Module",
+])
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+```
+
+
+## Failed: test-suite/test/core/local_get.wast
+```bash
+thread 'main' panicked at src/testsuite.rs:302:54:
+failed to load module: ParseError(File: "test-suite/test/core/local_get.0.wasm"
+UnknownInstruction(<8c>), bin pos: 463, stack: [
+    "wasp::parser::instr::Instr",
+    "wasp::parser::expr::Expr",
+    "wasp::parser::func::Func",
+    "wasp::parser::code::Code",
+    "alloc::vec::Vec<wasp::parser::code::Code>",
+    "wasp::parser::codesec::CodeSection",
+    "wasp::parser::module::Module",
+])
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+```
+
+
+## Failed: test-suite/test/core/local_set.wast
+```bash
+thread 'main' panicked at src/testsuite.rs:302:54:
+failed to load module: ParseError(File: "test-suite/test/core/local_set.0.wasm"
+UnknownInstruction(<ba>), bin pos: 581, stack: [
+    "wasp::parser::instr::Instr",
+    "wasp::parser::expr::Expr",
+    "wasp::parser::func::Func",
+    "wasp::parser::code::Code",
+    "alloc::vec::Vec<wasp::parser::code::Code>",
+    "wasp::parser::codesec::CodeSection",
+    "wasp::parser::module::Module",
+])
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+```
+
+
+## Failed: test-suite/test/core/local_tee.wast
+```bash
+thread 'main' panicked at src/testsuite.rs:302:54:
+failed to load module: ParseError(File: "test-suite/test/core/local_tee.0.wasm"
+UnknownInstruction(<8c>), bin pos: 1275, stack: [
+    "wasp::parser::instr::Instr",
+    "wasp::parser::expr::Expr",
+    "wasp::parser::func::Func",
+    "wasp::parser::code::Code",
+    "alloc::vec::Vec<wasp::parser::code::Code>",
+    "wasp::parser::codesec::CodeSection",
+    "wasp::parser::module::Module",
+])
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+```
+
+
+## Failed: test-suite/test/core/loop.wast
+```bash
+thread 'main' panicked at src/testsuite.rs:302:54:
+failed to load module: ParseError(File: "test-suite/test/core/loop.0.wasm"
+UnknownType(<41>), bin pos: 1329, stack: [
+    "wasp::parser::valtype::ValType",
+    "wasp::parser::locals::Locals",
+    "alloc::vec::Vec<wasp::parser::locals::Locals>",
+    "wasp::parser::func::Func",
+    "wasp::parser::code::Code",
+    "alloc::vec::Vec<wasp::parser::code::Code>",
+    "wasp::parser::codesec::CodeSection",
+    "wasp::parser::module::Module",
+])
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+```
+
+
+## Failed: test-suite/test/core/memory.wast
+```bash
+ ERROR wasp::testsuite > test 6/88 did not fail invalidating/parsing, expected error: "multiple memories" (module: "test-suite/test/core/memory.6.wasm")
+```
+
+
+## Failed: test-suite/test/core/memory_copy.wast
+```bash
+thread 'main' panicked at src/runtime/mod.rs:749:25:
+not implemented: instruction not supported : x01_nop
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+```
+
+
+## Failed: test-suite/test/core/memory_fill.wast
+```bash
+thread 'main' panicked at src/runtime/mod.rs:749:25:
+not implemented: instruction not supported : xfc_11_memory_fill(0)
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+```
+
+
+## Failed: test-suite/test/core/memory_grow.wast
+```bash
+thread 'main' panicked at src/testsuite.rs:273:6:
+failed to parse test data: Error("data did not match any variant of untagged enum Case", line: 94, column: 2)
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+```
+
+
+## Failed: test-suite/test/core/memory_init.wast
+```bash
+thread 'main' panicked at src/runtime/mod.rs:749:25:
+not implemented: instruction not supported : x01_nop
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+```
+
+
+## Failed: test-suite/test/core/memory_size.wast
+```bash
+thread 'main' panicked at src/testsuite.rs:302:54:
+failed to load module: ParseError(File: "test-suite/test/core/memory_size.0.wasm"
+UnknownInstruction(<3f>), bin pos: 52, stack: [
+    "wasp::parser::instr::Instr",
+    "wasp::parser::expr::Expr",
+    "wasp::parser::func::Func",
+    "wasp::parser::code::Code",
+    "alloc::vec::Vec<wasp::parser::code::Code>",
+    "wasp::parser::codesec::CodeSection",
+    "wasp::parser::module::Module",
+])
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+```
+
+
+## Failed: test-suite/test/core/memory_trap.wast
+```bash
+thread 'main' panicked at src/testsuite.rs:302:54:
+failed to load module: ParseError(File: "test-suite/test/core/memory_trap.0.wasm"
+UnknownInstruction(<3f>), bin pos: 75, stack: [
+    "wasp::parser::instr::Instr",
+    "wasp::parser::expr::Expr",
+    "wasp::parser::func::Func",
+    "wasp::parser::code::Code",
+    "alloc::vec::Vec<wasp::parser::code::Code>",
+    "wasp::parser::codesec::CodeSection",
+    "wasp::parser::module::Module",
+])
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+```
+
+
+## Failed: test-suite/test/core/names.wast
+```bash
+ ERROR wasp::testsuite > unknown function: spectest::print_i32 ("test-suite/test/core/names.3.wasm")
+```
+
+
+## Failed: test-suite/test/core/nop.wast
+```bash
+thread 'main' panicked at src/testsuite.rs:302:54:
+failed to load module: ParseError(File: "test-suite/test/core/nop.0.wasm"
+UnknownType(<20>), bin pos: 1933, stack: [
+    "wasp::parser::valtype::ValType",
+    "wasp::parser::locals::Locals",
+    "alloc::vec::Vec<wasp::parser::locals::Locals>",
+    "wasp::parser::func::Func",
+    "wasp::parser::code::Code",
+    "alloc::vec::Vec<wasp::parser::code::Code>",
+    "wasp::parser::codesec::CodeSection",
+    "wasp::parser::module::Module",
+])
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+```
+
+
+## Failed: test-suite/test/core/ref_func.wast
+```bash
+thread 'main' panicked at src/testsuite.rs:273:6:
+failed to parse test data: Error("data did not match any variant of untagged enum Case", line: 5, column: 2)
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+```
+
+
+## Failed: test-suite/test/core/ref_is_null.wast
+```bash
+thread 'main' panicked at src/testsuite.rs:273:6:
+failed to parse test data: Error("data did not match any variant of untagged enum Case", line: 5, column: 2)
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+```
+
+
+## Failed: test-suite/test/core/ref_null.wast
+```bash
+thread 'main' panicked at src/testsuite.rs:273:6:
+failed to parse test data: Error("data did not match any variant of untagged enum Case", line: 5, column: 2)
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+```
+
+
+## Failed: test-suite/test/core/return.wast
+```bash
+thread 'main' panicked at src/testsuite.rs:302:54:
+failed to load module: ParseError(File: "test-suite/test/core/return.0.wasm"
+UnknownInstruction(<7a>), bin pos: 1172, stack: [
+    "wasp::parser::instr::Instr",
+    "wasp::parser::expr::Expr",
+    "wasp::parser::func::Func",
+    "wasp::parser::code::Code",
+    "alloc::vec::Vec<wasp::parser::code::Code>",
+    "wasp::parser::codesec::CodeSection",
+    "wasp::parser::module::Module",
+])
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+```
+
+
+## Failed: test-suite/test/core/select.wast
+```bash
+thread 'main' panicked at src/testsuite.rs:273:6:
+failed to parse test data: Error("data did not match any variant of untagged enum Case", line: 33, column: 2)
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+```
+
+
+## Failed: test-suite/test/core/simd_address.wast
+```bash
+```
+
+
+## Failed: test-suite/test/core/simd_align.wast
+```bash
+```
+
+
+## Failed: test-suite/test/core/simd_bit_shift.wast
+```bash
+```
+
+
+## Failed: test-suite/test/core/simd_bitwise.wast
+```bash
+```
+
+
+## Failed: test-suite/test/core/simd_boolean.wast
+```bash
+```
+
+
+## Failed: test-suite/test/core/simd_const.wast
+```bash
+```
+
+
+## Failed: test-suite/test/core/simd_conversions.wast
+```bash
+```
+
+
+## Failed: test-suite/test/core/simd_f32x4.wast
+```bash
+```
+
+
+## Failed: test-suite/test/core/simd_f32x4_arith.wast
+```bash
+```
+
+
+## Failed: test-suite/test/core/simd_f32x4_cmp.wast
+```bash
+```
+
+
+## Failed: test-suite/test/core/simd_f32x4_pmin_pmax.wast
+```bash
+```
+
+
+## Failed: test-suite/test/core/simd_f32x4_rounding.wast
+```bash
+```
+
+
+## Failed: test-suite/test/core/simd_f64x2.wast
+```bash
+```
+
+
+## Failed: test-suite/test/core/simd_f64x2_arith.wast
+```bash
+```
+
+
+## Failed: test-suite/test/core/simd_f64x2_cmp.wast
+```bash
+```
+
+
+## Failed: test-suite/test/core/simd_f64x2_pmin_pmax.wast
+```bash
+```
+
+
+## Failed: test-suite/test/core/simd_f64x2_rounding.wast
+```bash
+```
+
+
+## Failed: test-suite/test/core/simd_i16x8_arith.wast
+```bash
+```
+
+
+## Failed: test-suite/test/core/simd_i16x8_arith2.wast
+```bash
+```
+
+
+## Failed: test-suite/test/core/simd_i16x8_cmp.wast
+```bash
+```
+
+
+## Failed: test-suite/test/core/simd_i16x8_extadd_pairwise_i8x16.wast
+```bash
+```
+
+
+## Failed: test-suite/test/core/simd_i16x8_extmul_i8x16.wast
+```bash
+```
+
+
+## Failed: test-suite/test/core/simd_i16x8_q15mulr_sat_s.wast
+```bash
+```
+
+
+## Failed: test-suite/test/core/simd_i16x8_sat_arith.wast
+```bash
+```
+
+
+## Failed: test-suite/test/core/simd_i32x4_arith.wast
+```bash
+```
+
+
+## Failed: test-suite/test/core/simd_i32x4_arith2.wast
+```bash
+```
+
+
+## Failed: test-suite/test/core/simd_i32x4_cmp.wast
+```bash
+```
+
+
+## Failed: test-suite/test/core/simd_i32x4_dot_i16x8.wast
+```bash
+```
+
+
+## Failed: test-suite/test/core/simd_i32x4_extadd_pairwise_i16x8.wast
+```bash
+```
+
+
+## Failed: test-suite/test/core/simd_i32x4_extmul_i16x8.wast
+```bash
+```
+
+
+## Failed: test-suite/test/core/simd_i32x4_trunc_sat_f32x4.wast
+```bash
+```
+
+
+## Failed: test-suite/test/core/simd_i32x4_trunc_sat_f64x2.wast
+```bash
+```
+
+
+## Failed: test-suite/test/core/simd_i64x2_arith.wast
+```bash
+```
+
+
+## Failed: test-suite/test/core/simd_i64x2_arith2.wast
+```bash
+```
+
+
+## Failed: test-suite/test/core/simd_i64x2_cmp.wast
+```bash
+```
+
+
+## Failed: test-suite/test/core/simd_i64x2_extmul_i32x4.wast
+```bash
+```
+
+
+## Failed: test-suite/test/core/simd_i8x16_arith.wast
+```bash
+```
+
+
+## Failed: test-suite/test/core/simd_i8x16_arith2.wast
+```bash
+```
+
+
+## Failed: test-suite/test/core/simd_i8x16_cmp.wast
+```bash
+```
+
+
+## Failed: test-suite/test/core/simd_i8x16_sat_arith.wast
+```bash
+```
+
+
+## Failed: test-suite/test/core/simd_int_to_int_extend.wast
+```bash
+```
+
+
+## Failed: test-suite/test/core/simd_lane.wast
+```bash
+```
+
+
+## Failed: test-suite/test/core/simd_linking.wast
+```bash
+```
+
+
+## Failed: test-suite/test/core/simd_load.wast
+```bash
+```
+
+
+## Failed: test-suite/test/core/simd_load16_lane.wast
+```bash
+```
+
+
+## Failed: test-suite/test/core/simd_load32_lane.wast
+```bash
+```
+
+
+## Failed: test-suite/test/core/simd_load64_lane.wast
+```bash
+```
+
+
+## Failed: test-suite/test/core/simd_load8_lane.wast
+```bash
+```
+
+
+## Failed: test-suite/test/core/simd_load_extend.wast
+```bash
+```
+
+
+## Failed: test-suite/test/core/simd_load_splat.wast
+```bash
+```
+
+
+## Failed: test-suite/test/core/simd_load_zero.wast
+```bash
+```
+
+
+## Failed: test-suite/test/core/simd_splat.wast
+```bash
+```
+
+
+## Failed: test-suite/test/core/simd_store.wast
+```bash
+```
+
+
+## Failed: test-suite/test/core/simd_store16_lane.wast
+```bash
+```
+
+
+## Failed: test-suite/test/core/simd_store32_lane.wast
+```bash
+```
+
+
+## Failed: test-suite/test/core/simd_store64_lane.wast
+```bash
+```
+
+
+## Failed: test-suite/test/core/simd_store8_lane.wast
+```bash
+```
+
+
+## Failed: test-suite/test/core/skip-stack-guard-page.wast
+```bash
+thread 'main' panicked at src/testsuite.rs:273:6:
+failed to parse test data: Error("data did not match any variant of untagged enum Case", line: 5, column: 2)
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+```
+
+
+## Failed: test-suite/test/core/stack.wast
+```bash
+thread 'main' panicked at src/testsuite.rs:302:54:
+failed to load module: ParseError(File: "test-suite/test/core/stack.0.wasm"
+UnknownType(<2f>), bin pos: 184, stack: [
+    "wasp::parser::valtype::ValType",
+    "wasp::parser::locals::Locals",
+    "alloc::vec::Vec<wasp::parser::locals::Locals>",
+    "wasp::parser::func::Func",
+    "wasp::parser::code::Code",
+    "alloc::vec::Vec<wasp::parser::code::Code>",
+    "wasp::parser::codesec::CodeSection",
+    "wasp::parser::module::Module",
+])
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+```
+
+
+## Failed: test-suite/test/core/start.wast
+```bash
+ ERROR wasp::testsuite > test 0/20 did not fail invalidating/parsing, expected error: "unknown function" (module: "test-suite/test/core/start.0.wasm")
+```
+
+
+## Failed: test-suite/test/core/store.wast
+```bash
+thread 'main' panicked at src/testsuite.rs:302:54:
+failed to load module: ParseError(File: "test-suite/test/core/store.0.wasm"
+SectionSizeMismatch, bin pos: 323, stack: [
+    "wasp::parser::codesec::CodeSection",
+    "wasp::parser::module::Module",
+])
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+```
+
+
+## Failed: test-suite/test/core/switch.wast
+```bash
+thread 'main' panicked at src/runtime/clean_model.rs:75:48:
+not yet implemented
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+```
+
+
+## Failed: test-suite/test/core/table-sub.wast
+```bash
+thread 'main' panicked at src/parser/instr.rs:503:24:
+not yet implemented: 0xfc 14
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+```
+
+
+## Failed: test-suite/test/core/table.wast
+```bash
+thread 'main' panicked at src/parser/tabletype.rs:13:9:
+not yet implemented
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+```
+
+
+## Failed: test-suite/test/core/table_copy.wast
+```bash
+thread 'main' panicked at src/testsuite.rs:273:6:
+failed to parse test data: Error("data did not match any variant of untagged enum Case", line: 5, column: 2)
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+```
+
+
+## Failed: test-suite/test/core/table_fill.wast
+```bash
+thread 'main' panicked at src/testsuite.rs:273:6:
+failed to parse test data: Error("data did not match any variant of untagged enum Case", line: 5, column: 2)
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+```
+
+
+## Failed: test-suite/test/core/table_get.wast
+```bash
+thread 'main' panicked at src/testsuite.rs:273:6:
+failed to parse test data: Error("data did not match any variant of untagged enum Case", line: 5, column: 2)
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+```
+
+
+## Failed: test-suite/test/core/table_grow.wast
+```bash
+thread 'main' panicked at src/testsuite.rs:273:6:
+failed to parse test data: Error("data did not match any variant of untagged enum Case", line: 6, column: 2)
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+```
+
+
+## Failed: test-suite/test/core/table_init.wast
+```bash
+thread 'main' panicked at src/testsuite.rs:273:6:
+failed to parse test data: Error("data did not match any variant of untagged enum Case", line: 5, column: 2)
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+```
+
+
+## Failed: test-suite/test/core/table_set.wast
+```bash
+thread 'main' panicked at src/testsuite.rs:273:6:
+failed to parse test data: Error("data did not match any variant of untagged enum Case", line: 5, column: 2)
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+```
+
+
+## Failed: test-suite/test/core/table_size.wast
+```bash
+thread 'main' panicked at src/parser/instr.rs:503:24:
+not yet implemented: 0xfc 16
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+```
+
+
+## Failed: test-suite/test/core/traps.wast
+```bash
+thread 'main' panicked at src/testsuite.rs:302:54:
+failed to load module: ParseError(File: "test-suite/test/core/traps.0.wasm"
+UnknownInstruction(<7f>), bin pos: 135, stack: [
+    "wasp::parser::instr::Instr",
+    "wasp::parser::expr::Expr",
+    "wasp::parser::func::Func",
+    "wasp::parser::code::Code",
+    "alloc::vec::Vec<wasp::parser::code::Code>",
+    "wasp::parser::codesec::CodeSection",
+    "wasp::parser::module::Module",
+])
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+```
+
+
+## Failed: test-suite/test/core/unreachable.wast
+```bash
+thread 'main' panicked at src/testsuite.rs:302:54:
+failed to load module: ParseError(File: "test-suite/test/core/unreachable.0.wasm"
+UnknownType(<20>), bin pos: 1465, stack: [
+    "wasp::parser::valtype::ValType",
+    "wasp::parser::locals::Locals",
+    "alloc::vec::Vec<wasp::parser::locals::Locals>",
+    "wasp::parser::func::Func",
+    "wasp::parser::code::Code",
+    "alloc::vec::Vec<wasp::parser::code::Code>",
+    "wasp::parser::codesec::CodeSection",
+    "wasp::parser::module::Module",
+])
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+```
+
+
+## Failed: test-suite/test/core/unreached-invalid.wast
+```bash
+ ERROR wasp::testsuite > test 0/118 did not fail invalidating/parsing, expected error: "unknown local" (module: "test-suite/test/core/unreached-invalid.0.wasm")
+```
+
+
+## Failed: test-suite/test/core/unreached-valid.wast
+```bash
+thread 'main' panicked at src/testsuite.rs:302:54:
+failed to load module: ParseError(File: "test-suite/test/core/unreached-valid.0.wasm"
+UnknownInstruction(<d1>), bin pos: 273, stack: [
+    "wasp::parser::instr::Instr",
+    "wasp::parser::expr::Expr",
+    "wasp::parser::func::Func",
+    "wasp::parser::code::Code",
+    "alloc::vec::Vec<wasp::parser::code::Code>",
+    "wasp::parser::codesec::CodeSection",
+    "wasp::parser::module::Module",
+])
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+```
+
+
+## Failed: test-suite/test/core/unwind.wast
+```bash
+thread 'main' panicked at src/runtime/clean_model.rs:75:48:
+not yet implemented
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+```
+
+
+## Failed: test-suite/test/core/utf8-custom-section-id.wast
+```bash
+ ERROR wasp::testsuite > test 0/176 did not fail invalidating/parsing, expected error: "malformed UTF-8 encoding" (module: "test-suite/test/core/utf8-custom-section-id.0.wasm")
+```
+
+
+## Failed: test-suite/test/core/utf8-import-field.wast
+```bash
+ ERROR wasp::testsuite > test 0/176 did not fail invalidating/parsing, expected error: "malformed UTF-8 encoding" (module: "test-suite/test/core/utf8-import-field.0.wasm")
+```
+
+
+## Failed: test-suite/test/core/utf8-import-module.wast
+```bash
+ ERROR wasp::testsuite > test 0/176 did not fail invalidating/parsing, expected error: "malformed UTF-8 encoding" (module: "test-suite/test/core/utf8-import-module.0.wasm")
+```
+
+

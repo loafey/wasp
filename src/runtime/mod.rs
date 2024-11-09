@@ -15,7 +15,7 @@ pub use error::RuntimeError;
 use RuntimeError::*;
 
 use crate::parser::{
-    self, ExportDesc, FuncIdx, Global, GlobalIdX,
+    self, ExportDesc, Expr, FuncIdx, Global, GlobalIdX,
     Instr::{self, *},
     LabelIdX, LocalIdX, MemArg, MemIdX, Module, Parsable, TableIdX, TypeIdX, BT,
 };

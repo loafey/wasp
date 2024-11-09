@@ -23,6 +23,11 @@ impl Parsable for BlockType {
             data.set_position(pos);
         }
 
-        todo!()
+        match ValType::parse(data, stack) {
+            Ok(t) => return Ok(BlockType::T(t)),
+            Err(_) => data.set_position(pos),
+        }
+
+        Ok(BlockType::X(i64::parse(data, stack)?))
     }
 }

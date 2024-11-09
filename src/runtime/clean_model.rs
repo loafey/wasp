@@ -1,5 +1,5 @@
 use crate::parser::{
-    BlockType, Elem, FuncIdx, FuncType, ImportDesc, Instr, LabelIdX, LocalIdX, Module, Name,
+    BlockType, Elem, Expr, FuncIdx, FuncType, ImportDesc, Instr, LabelIdX, LocalIdX, Module, Name,
     TableIdX, TypeIdX, BT,
 };
 use std::{collections::HashMap, ops::Deref, u32};
@@ -35,6 +35,7 @@ impl Deref for Table {
 pub struct Model {
     pub functions: HashMap<u32, Function>,
     pub tables: Vec<Table>,
+    pub passive_elems: HashMap<u32, Expr>,
     pub function_types: HashMap<u32, FuncType>,
 }
 impl From<Module> for Model {
@@ -199,7 +200,8 @@ impl From<Module> for Model {
             })
             .collect();
 
-        for elem in value.elems.elems.into_iter() {
+        let mut passive_elems = HashMap::new();
+        for (i, elem) in value.elems.elems.into_iter().enumerate() {
             match elem {
                 Elem::E0(expr, vec) => match &expr.instrs[..] {
                     [Instr::x41_i32_const(off)] => {
@@ -220,7 +222,12 @@ impl From<Module> for Model {
                 },
                 Elem::E3(_, _) => todo!(),
                 Elem::E4(_, _) => todo!(),
-                Elem::E5(_, _) => todo!(),
+                Elem::E5(_rt, vec) => {
+                    // might be wrong
+                    for expr in vec {
+                        passive_elems.insert(i as u32, expr);
+                    }
+                }
                 Elem::E6(_, _, _, _) => todo!(),
                 Elem::E7(_, _) => todo!(),
             }
@@ -238,6 +245,7 @@ impl From<Module> for Model {
             functions,
             tables,
             function_types,
+            passive_elems,
         }
     }
 }

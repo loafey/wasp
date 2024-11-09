@@ -1,6 +1,6 @@
 # W.A.S.P
 
-## Latest spec test (24-11-09 11:39)
+## Latest spec test (24-11-09 11:44)
 💅: 10\
 💩: 137\
 FAILED: test-suite/test/core/block.wast\

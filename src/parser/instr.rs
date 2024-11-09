@@ -18,6 +18,7 @@ pub enum BT {
 pub enum Instr {
     comment(String, Box<Instr>) = 0xFD,
     x00_unreachable = 0x00,
+    x01_nop = 0x01,
     x02_block(BlockType, Vec<Instr>) = 0x02,
     x03_loop(BlockType, Vec<Instr>) = 0x03,
     x04_if_else(BlockType, Vec<Instr>, Option<Vec<Instr>>) = 0x04,
@@ -168,7 +169,7 @@ impl Parsable for Instr {
         data.read_exact(&mut typ)?;
         Ok(match typ[0] {
             0x00 => x00_unreachable,
-            0x01 => Err(ParseError::UnknownInstruction(Hex(typ)))?,
+            0x01 => x01_nop,
             0x02 => {
                 let block_type = p!();
                 let mut v = Vec::new();

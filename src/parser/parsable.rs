@@ -17,7 +17,7 @@ pub trait Parsable: Debug {
         Self: std::marker::Sized,
     {
         stack.push(Self::STACK_NAME);
-        //#[cfg(target_os = "windows")] // ugly fix to disable this on all important platforms
+        #[cfg(target_os = "windows")] // ugly fix to disable this on all important platforms
         {
             println!(
                 "{}┌─Parsing {} 💅",
@@ -27,7 +27,7 @@ pub trait Parsable: Debug {
         }
         #[allow(deprecated)]
         let res = Self::parse_inner(data, stack)?;
-        // #[cfg(target_os = "windows")] // ugly fix to disable this on all important platforms
+        #[cfg(target_os = "windows")] // ugly fix to disable this on all important platforms
         {
             let format = format!("{res:?}");
             let formatted = &format[0..(format.len().min(128))];

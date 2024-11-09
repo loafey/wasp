@@ -4,7 +4,7 @@ use std::{collections::HashMap, mem};
 use super::RuntimeError;
 
 struct Page<const PAGE_SIZE: usize> {
-    zero: usize,
+    _zero: usize,
     data: [u8; PAGE_SIZE],
 }
 
@@ -40,7 +40,7 @@ impl<const PAGE_SIZE: usize> Memory<PAGE_SIZE> {
         }
         let index = address % PAGE_SIZE;
         let entry = self.map.entry(block).or_insert(Page {
-            zero: 1,
+            _zero: 1,
             data: [0; PAGE_SIZE],
         });
         entry.data[index] = byte;

@@ -15,7 +15,7 @@ pub use error::RuntimeError;
 use RuntimeError::*;
 
 use crate::parser::{
-    self, ExportDesc, Expr, FuncIdx, Global, GlobalIdX,
+    self, ExportDesc, FuncIdx, Global, GlobalIdX,
     Instr::{self, *},
     LabelIdX, LocalIdX, MemArg, MemIdX, Module, Parsable, TableIdX, TypeIdX, BT,
 };
@@ -280,10 +280,10 @@ impl Runtime {
                         return Err(Exit(x));
                     }
                     ("wasi_snapshot_preview1", "args_get") => {
-                        let Value::I32(argv) = *local!(&0) else {
+                        let Value::I32(_) = *local!(&0) else {
                             throw!(WrongType)
                         };
-                        let Value::I32(argv_buf) = *local!(&0) else {
+                        let Value::I32(_) = *local!(&0) else {
                             throw!(WrongType)
                         };
                         f.stack.push(Value::I32(0));

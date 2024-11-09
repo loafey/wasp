@@ -2,7 +2,7 @@ use crate::parser::{
     BlockType, Elem, Expr, FuncIdx, FuncType, ImportDesc, Instr, LabelIdX, LocalIdX, Module, Name,
     TableIdX, TypeIdX, BT,
 };
-use std::{collections::HashMap, ops::Deref, u32};
+use std::{collections::HashMap, ops::Deref};
 
 #[derive(Debug)]
 pub enum Function {
@@ -35,7 +35,7 @@ impl Deref for Table {
 pub struct Model {
     pub functions: HashMap<u32, Function>,
     pub tables: Vec<Table>,
-    pub passive_elems: HashMap<u32, Expr>,
+    pub _passive_elems: HashMap<u32, Expr>,
     pub function_types: HashMap<u32, FuncType>,
 }
 impl From<Module> for Model {
@@ -245,7 +245,7 @@ impl From<Module> for Model {
             functions,
             tables,
             function_types,
-            passive_elems,
+            _passive_elems: passive_elems,
         }
     }
 }

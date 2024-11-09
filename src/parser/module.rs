@@ -1,6 +1,6 @@
 use super::{
     error::{ModuleError, ParseError, SectionError},
-    CustomSection, ElementSection, FuncIdx, GlobalSection, ImportSection, MemorySection, Parsable,
+    CustomSection, ElementSection, GlobalSection, ImportSection, MemorySection, Parsable,
     TableSection, TypeSection,
 };
 use crate::{

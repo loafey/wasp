@@ -18,6 +18,7 @@ enum ConstValue {
 
 #[derive(Debug, Deserialize, Clone)]
 #[serde(tag = "type")]
+#[allow(unused)]
 enum Action {
     #[serde(rename = "invoke")]
     Invoke {
@@ -43,7 +44,7 @@ enum ModuleType {
 struct Module {
     #[serde(rename = "type")]
     _type: MustBe!("module"),
-    name: Option<String>,
+    _name: Option<String>,
     filename: PathBuf,
 }
 
@@ -56,6 +57,7 @@ struct AssertReturn {
 }
 
 #[derive(Debug, Deserialize, Clone)]
+#[allow(unused)]
 struct AssertExhaustion {
     #[serde(rename = "type")]
     _type: MustBe!("assert_return"),
@@ -90,6 +92,7 @@ struct AssertMalformed {
 }
 
 #[derive(Debug, Deserialize, Clone)]
+#[allow(unused)]
 struct AssertUninstantiable {
     #[serde(rename = "type")]
     _type: MustBe!("assert_uninstantiable"),
@@ -99,6 +102,7 @@ struct AssertUninstantiable {
 }
 
 #[derive(Debug, Deserialize, Clone)]
+#[allow(unused)]
 struct AssertUnlinkable {
     #[serde(rename = "type")]
     _type: MustBe!("assert_unlinkable"),
@@ -108,6 +112,7 @@ struct AssertUnlinkable {
 }
 
 #[derive(Debug, Deserialize, Clone)]
+#[allow(unused)]
 struct Register {
     #[serde(rename = "type")]
     _type: MustBe!("assert_register"),
@@ -126,6 +131,7 @@ struct ActionWrap {
 /// https://github.com/WebAssembly/wabt/blob/main/docs/wast2json.md#json-format
 #[derive(Debug, Deserialize, Clone)]
 #[serde(untagged)]
+#[allow(unused)]
 enum Case {
     Module(Module),
     AssertReturn(AssertReturn),
@@ -235,7 +241,7 @@ fn handle_action<T>(
 
             loop_func(rt, &field)
         }
-        Action::Get { module, field } => todo!(),
+        Action::Get { .. } => todo!(),
     }
 }
 
@@ -350,12 +356,12 @@ pub fn test(mut path: String) {
                     }
                 })
             }
-            Case::AssertExhaustion(assert_exhaustion) => {
+            Case::AssertExhaustion(_) => {
                 if skip {
                     continue;
                 }
                 let mut rt = runtime.borrow_mut();
-                let rt = rt.as_mut().expect("no rt set");
+                let _rt = rt.as_mut().expect("no rt set");
                 todo!("AssertExhaustion")
             }
             Case::AssertTrap(AssertTrap { action, text, .. }) => {
@@ -412,28 +418,28 @@ pub fn test(mut path: String) {
                     Err(_) => continue,
                 }
             }
-            Case::AssertUninstantiable(assert_uninstantiable) => {
+            Case::AssertUninstantiable(_) => {
                 if skip {
                     continue;
                 }
                 let mut rt = runtime.borrow_mut();
-                let rt = rt.as_mut().expect("no rt set");
+                let _rt = rt.as_mut().expect("no rt set");
                 todo!("AssertUninstantiable")
             }
-            Case::AssertUnlinkable(assert_unlinkable) => {
+            Case::AssertUnlinkable(_) => {
                 if skip {
                     continue;
                 }
                 let mut rt = runtime.borrow_mut();
-                let rt = rt.as_mut().expect("no rt set");
+                let _rt = rt.as_mut().expect("no rt set");
                 todo!("AssertUnlinkable")
             }
-            Case::Register(register) => {
+            Case::Register(_) => {
                 if skip {
                     continue;
                 }
                 let mut rt = runtime.borrow_mut();
-                let rt = rt.as_mut().expect("no rt set");
+                let _rt = rt.as_mut().expect("no rt set");
                 todo!("Register")
             }
         }

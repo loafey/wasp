@@ -241,16 +241,24 @@ fn handle_action<T>(
 
 pub fn test(mut path: String) {
     let input = path.to_string();
-    path = path.replace(".wast", ".wasm");
+    path = path.replace(".wast", ".json");
     if !PathBuf::from(&path).exists() {
+        // ugly fix to work around spec test weirdness
         std::process::exit(0);
     }
-    std::process::Command::new("wast2json")
+    let o = std::process::Command::new("wast2json")
         .arg(input)
         .arg("-o")
         .arg(&path)
         .output()
         .expect("Failed to run wast2json");
+    if !o.status.success() {
+        error!(
+            "failed calling wast2json: {}",
+            String::from_utf8_lossy(&o.stderr)
+        );
+        std::process::exit(o.status.code().unwrap_or(1));
+    }
 
     let p = PathBuf::from(path);
     let tests = serde_json::from_str::<TestCases>(
@@ -266,7 +274,6 @@ pub fn test(mut path: String) {
     let total_tests = tests.commands.len();
 
     for (test_i, test) in tests.commands.into_iter().enumerate() {
-        // println!("{test_i}/{total_tests}");
         recreate_runtime();
 
         match test {

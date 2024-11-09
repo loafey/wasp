@@ -2334,20 +2334,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "sasm"
-version = "0.1.0"
-dependencies = [
- "eframe",
- "egui",
- "log",
- "monostate",
- "pretty_env_logger",
- "serde",
- "serde_json",
- "wasabi_leb128",
-]
-
-[[package]]
 name = "scoped-tls"
 version = "1.0.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2868,6 +2854,20 @@ name = "wasm-bindgen-shared"
 version = "0.2.95"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "65fc09f10666a9f147042251e0dda9c18f166ff7de300607007e96bdebc1068d"
+
+[[package]]
+name = "wasp"
+version = "0.1.0"
+dependencies = [
+ "eframe",
+ "egui",
+ "log",
+ "monostate",
+ "pretty_env_logger",
+ "serde",
+ "serde_json",
+ "wasabi_leb128",
+]
 
 [[package]]
 name = "wayland-backend"

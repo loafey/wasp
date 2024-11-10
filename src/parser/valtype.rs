@@ -59,7 +59,7 @@ impl Parsable for ValType {
             0x7B => ValType::Vec,
             0x70 => ValType::Ref(RefTyp::FuncRef),
             0x6F => ValType::Ref(RefTyp::ExternRef),
-            x => ValType::Other(x), // might be an invalid fix
+            _ => Err(super::error::ParseError::UnknownType(Hex(b)))?,
         })
     }
 }

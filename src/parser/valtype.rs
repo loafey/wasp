@@ -7,6 +7,7 @@ use super::Parsable;
 #[derive(Debug, PartialEq, Eq, PartialOrd, Ord, Clone, Copy)]
 #[allow(unused)]
 pub enum ValType {
+    Other(u8),
     Num(NumType),
     Vec,
     Ref(RefTyp),
@@ -58,7 +59,7 @@ impl Parsable for ValType {
             0x7B => ValType::Vec,
             0x70 => ValType::Ref(RefTyp::FuncRef),
             0x6F => ValType::Ref(RefTyp::ExternRef),
-            _ => Err(super::error::ParseError::UnknownType(Hex(b)))?,
+            x => ValType::Other(x), // might be an invalid fix
         })
     }
 }

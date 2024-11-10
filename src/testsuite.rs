@@ -247,11 +247,11 @@ fn handle_action<T>(
 
 pub fn test(mut path: String) {
     let input = path.to_string();
-    path = path.replace(".wast", ".json");
     if !PathBuf::from(&path).exists() {
         // ugly fix to work around spec test weirdness
         std::process::exit(0);
     }
+    path = path.replace(".wast", ".json");
     let o = std::process::Command::new("wast2json")
         .arg(input)
         .arg("-o")

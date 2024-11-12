@@ -310,6 +310,7 @@ impl Runtime {
                 instr = if let comment(_, r) = instr { r } else { instr };
                 f.pc += 1;
                 match instr {
+                    x01_nop => (),
                     x02_block(_, _) => throw!(Impossible),
                     x03_loop(_, _) => throw!(Impossible),
                     x04_if_else(_, _, _) => throw!(Impossible),

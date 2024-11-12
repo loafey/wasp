@@ -659,7 +659,7 @@ impl Runtime {
                     }
                     x40_grow => {
                         let amount = pop!(i32);
-                        self.memory.grow(amount as usize);
+                        f.stack.push(Value::I32(self.memory.grow(amount as usize)))
                     }
                     x41_i32_const(i) => f.stack.push(Value::I32(*i)),
                     x42_i64_const(val) => f.stack.push(Value::I64(*val)),

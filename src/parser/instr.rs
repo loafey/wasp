@@ -208,7 +208,7 @@ impl Parsable for Instr {
                 loop {
                     match Instr::parse(data, stack) {
                         Ok(i) => v.push(i),
-                        Err(ParseError::EndOfInstructions) => {
+                        Err(ParseError::ElseHit) => {
                             stack.pop();
                             break;
                         }
@@ -222,7 +222,7 @@ impl Parsable for Instr {
                     loop {
                         match Instr::parse(data, stack) {
                             Ok(i) => v.push(i),
-                            Err(ParseError::EndOfInstructions) => {
+                            Err(ParseError::ElseHit) => {
                                 stack.pop();
                                 break;
                             }

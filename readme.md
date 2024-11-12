@@ -5,7 +5,273 @@
 💩: 136
 ## Failed: test-suite/test/core/block.wast
 ```bash
- ERROR wasp::testsuite > test 2/223 failed (module: 0, invoke: "singular", got [], but expected [i32(7)])
+
+block_end: Eps
+stack bef: []
+last: []
+stack aft: []
+
+block_end: Eps
+stack bef: []
+last: []
+stack aft: []
+
+block_end: Eps
+stack bef: []
+last: []
+stack aft: []
+
+block_end: T(Num(I32))
+stack bef: []
+last: [i32(7)]
+stack aft: [i32(7)]
+
+block_end: Eps
+stack bef: []
+last: []
+stack aft: []
+
+block_end: T(Num(I32))
+stack bef: []
+last: [i32(7)]
+stack aft: [i32(7)]
+
+block_end: TypIdx(5)
+stack bef: []
+last: [i32(9), i64(7), i32(8)]
+stack aft: [i32(8), i64(7), i32(9)]
+
+block_end: Eps
+stack bef: [--- BLOCK ---, --- BLOCK ---]
+last: []
+stack aft: [--- BLOCK ---, --- BLOCK ---]
+
+block_end: Eps
+stack bef: [--- BLOCK ---]
+last: []
+stack aft: [--- BLOCK ---]
+
+block_end: T(Num(I32))
+stack bef: [--- BLOCK ---]
+last: [i32(9)]
+stack aft: [--- BLOCK ---, i32(9)]
+
+block_end: T(Num(I32))
+stack bef: []
+last: [i32(9)]
+stack aft: [i32(9)]
+
+block_end: T(Num(I32))
+stack bef: [--- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---]
+last: [i32(150)]
+stack aft: [--- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, i32(150)]
+
+block_end: T(Num(I32))
+stack bef: [--- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---]
+last: [i32(150)]
+stack aft: [--- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, i32(150)]
+
+block_end: T(Num(I32))
+stack bef: [--- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---]
+last: [i32(150)]
+stack aft: [--- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, i32(150)]
+
+block_end: T(Num(I32))
+stack bef: [--- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---]
+last: [i32(150)]
+stack aft: [--- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, i32(150)]
+
+block_end: T(Num(I32))
+stack bef: [--- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---]
+last: [i32(150)]
+stack aft: [--- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, i32(150)]
+
+block_end: T(Num(I32))
+stack bef: [--- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---]
+last: [i32(150)]
+stack aft: [--- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, i32(150)]
+
+block_end: T(Num(I32))
+stack bef: [--- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---]
+last: [i32(150)]
+stack aft: [--- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, i32(150)]
+
+block_end: T(Num(I32))
+stack bef: [--- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---]
+last: [i32(150)]
+stack aft: [--- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, i32(150)]
+
+block_end: T(Num(I32))
+stack bef: [--- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---]
+last: [i32(150)]
+stack aft: [--- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, i32(150)]
+
+block_end: T(Num(I32))
+stack bef: [--- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---]
+last: [i32(150)]
+stack aft: [--- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, i32(150)]
+
+block_end: T(Num(I32))
+stack bef: [--- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---]
+last: [i32(150)]
+stack aft: [--- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, i32(150)]
+
+block_end: T(Num(I32))
+stack bef: [--- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---]
+last: [i32(150)]
+stack aft: [--- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, i32(150)]
+
+block_end: T(Num(I32))
+stack bef: [--- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---]
+last: [i32(150)]
+stack aft: [--- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, i32(150)]
+
+block_end: T(Num(I32))
+stack bef: [--- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---]
+last: [i32(150)]
+stack aft: [--- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, i32(150)]
+
+block_end: T(Num(I32))
+stack bef: [--- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---]
+last: [i32(150)]
+stack aft: [--- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, i32(150)]
+
+block_end: T(Num(I32))
+stack bef: [--- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---]
+last: [i32(150)]
+stack aft: [--- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, i32(150)]
+
+block_end: T(Num(I32))
+stack bef: [--- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---]
+last: [i32(150)]
+stack aft: [--- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, i32(150)]
+
+block_end: T(Num(I32))
+stack bef: [--- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---]
+last: [i32(150)]
+stack aft: [--- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, i32(150)]
+
+block_end: T(Num(I32))
+stack bef: [--- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---]
+last: [i32(150)]
+stack aft: [--- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, i32(150)]
+
+block_end: T(Num(I32))
+stack bef: [--- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---]
+last: [i32(150)]
+stack aft: [--- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, i32(150)]
+
+block_end: T(Num(I32))
+stack bef: [--- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---]
+last: [i32(150)]
+stack aft: [--- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, i32(150)]
+
+block_end: T(Num(I32))
+stack bef: [--- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---]
+last: [i32(150)]
+stack aft: [--- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, i32(150)]
+
+block_end: T(Num(I32))
+stack bef: [--- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---]
+last: [i32(150)]
+stack aft: [--- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, i32(150)]
+
+block_end: T(Num(I32))
+stack bef: [--- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---]
+last: [i32(150)]
+stack aft: [--- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, i32(150)]
+
+block_end: T(Num(I32))
+stack bef: [--- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---]
+last: [i32(150)]
+stack aft: [--- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, i32(150)]
+
+block_end: T(Num(I32))
+stack bef: [--- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---]
+last: [i32(150)]
+stack aft: [--- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, i32(150)]
+
+block_end: T(Num(I32))
+stack bef: [--- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---]
+last: [i32(150)]
+stack aft: [--- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, i32(150)]
+
+block_end: T(Num(I32))
+stack bef: [--- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---]
+last: [i32(150)]
+stack aft: [--- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, i32(150)]
+
+block_end: T(Num(I32))
+stack bef: [--- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---]
+last: [i32(150)]
+stack aft: [--- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, i32(150)]
+
+block_end: T(Num(I32))
+stack bef: [--- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---]
+last: [i32(150)]
+stack aft: [--- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, i32(150)]
+
+block_end: T(Num(I32))
+stack bef: [--- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---]
+last: [i32(150)]
+stack aft: [--- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, i32(150)]
+
+block_end: T(Num(I32))
+stack bef: [--- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---]
+last: [i32(150)]
+stack aft: [--- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, i32(150)]
+
+block_end: T(Num(I32))
+stack bef: [--- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---]
+last: [i32(150)]
+stack aft: [--- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, i32(150)]
+
+block_end: T(Num(I32))
+stack bef: [--- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---]
+last: [i32(150)]
+stack aft: [--- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, i32(150)]
+
+block_end: T(Num(I32))
+stack bef: [--- BLOCK ---, --- BLOCK ---, --- BLOCK ---]
+last: [i32(150)]
+stack aft: [--- BLOCK ---, --- BLOCK ---, --- BLOCK ---, i32(150)]
+
+block_end: T(Num(I32))
+stack bef: [--- BLOCK ---, --- BLOCK ---]
+last: [i32(150)]
+stack aft: [--- BLOCK ---, --- BLOCK ---, i32(150)]
+
+block_end: T(Num(I32))
+stack bef: [--- BLOCK ---]
+last: [i32(150)]
+stack aft: [--- BLOCK ---, i32(150)]
+
+block_end: T(Num(I32))
+stack bef: []
+last: [i32(150)]
+stack aft: [i32(150)]
+
+block_end: T(Num(I32))
+stack bef: []
+last: [i32(1)]
+stack aft: [i32(1)]
+[i32(1), i32(2), i32(3)]
+3 i32(2) i32(1)
+
+block_end: T(Num(I32))
+stack bef: [i32(2)]
+last: [i32(1)]
+stack aft: [i32(2), i32(1)]
+[i32(2), i32(1), i32(3)]
+3 i32(1) i32(2)
+
+block_end: T(Num(I32))
+stack bef: [i32(2), i32(3)]
+last: [i32(1)]
+stack aft: [i32(2), i32(3), i32(1)]
+[i32(2), i32(3), i32(1)]
+1 i32(3) i32(2)
+ ERROR wasp::testsuite > test 8/223 failed (module: 0, invoke: "as-select-last", got [i32(3)], but expected [i32(2)])
 ```
 
 ## Failed: test-suite/test/core/br.wast
@@ -51,7 +317,7 @@ note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 
 ## Failed: test-suite/test/core/bulk.wast
 ```bash
-thread 'main' panicked at src/runtime/mod.rs:750:25:
+thread 'main' panicked at src/runtime/mod.rs:774:25:
 not implemented: instruction not supported : xfc_11_memory_fill(0)
 note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 ```
@@ -245,7 +511,7 @@ note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 
 ## Failed: test-suite/test/core/float_exprs.wast
 ```bash
-thread 'main' panicked at src/runtime/mod.rs:750:25:
+thread 'main' panicked at src/runtime/mod.rs:774:25:
 not implemented: instruction not supported : xa2_f64_mul
 note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 ```
@@ -383,14 +649,14 @@ note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 
 ## Failed: test-suite/test/core/int_exprs.wast
 ```bash
-thread 'main' panicked at src/runtime/mod.rs:687:49:
+thread 'main' panicked at src/runtime/mod.rs:689:49:
 attempt to add with overflow
 note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 ```
 
 ## Failed: test-suite/test/core/int_literals.wast
 ```bash
-thread 'main' panicked at src/runtime/mod.rs:750:25:
+thread 'main' panicked at src/runtime/mod.rs:774:25:
 not implemented: instruction not supported : x7c_i64_add
 note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 ```
@@ -507,14 +773,14 @@ note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 
 ## Failed: test-suite/test/core/memory_copy.wast
 ```bash
-thread 'main' panicked at src/runtime/mod.rs:750:25:
+thread 'main' panicked at src/runtime/mod.rs:774:25:
 not implemented: instruction not supported : xfc_10_memory_copy(0, 0)
 note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 ```
 
 ## Failed: test-suite/test/core/memory_fill.wast
 ```bash
-thread 'main' panicked at src/runtime/mod.rs:750:25:
+thread 'main' panicked at src/runtime/mod.rs:774:25:
 not implemented: instruction not supported : xfc_11_memory_fill(0)
 note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 ```
@@ -575,7 +841,59 @@ note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 
 ## Failed: test-suite/test/core/nop.wast
 ```bash
- ERROR wasp::testsuite > test 13/88 failed (module: 0, invoke: "as-block-first", got [], but expected [i32(2)])
+[i32(3), i32(3), i32(3)]
+3 i32(3) i32(3)
+[i32(3), i32(3), i32(3)]
+3 i32(3) i32(3)
+[i32(3), i32(3), i32(3)]
+3 i32(3) i32(3)
+[i32(3), i32(3), i32(3)]
+3 i32(3) i32(3)
+[i32(3), i32(3), i32(3)]
+3 i32(3) i32(3)
+
+block_end: T(Num(I32))
+stack bef: []
+last: [i32(2)]
+stack aft: [i32(2)]
+
+block_end: T(Num(I32))
+stack bef: []
+last: [i32(2)]
+stack aft: [i32(2)]
+
+block_end: T(Num(I32))
+stack bef: []
+last: [i32(3)]
+stack aft: [i32(3)]
+
+block_end: T(Num(I32))
+stack bef: []
+last: [i32(4)]
+stack aft: [i32(4)]
+
+block_end: T(Num(I32))
+stack bef: []
+last: [i32(2)]
+stack aft: [i32(2)]
+
+block_end: T(Num(I32))
+stack bef: []
+last: [i32(2)]
+stack aft: [i32(2)]
+
+block_end: T(Num(I32))
+stack bef: []
+last: [i32(3)]
+stack aft: [i32(3)]
+
+block_end: T(Num(I32))
+stack bef: []
+last: [i32(4)]
+stack aft: [i32(4)]
+thread 'main' panicked at src/runtime/mod.rs:774:25:
+not implemented: instruction not supported : x00_unreachable
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 ```
 
 ## Failed: test-suite/test/core/ref_func.wast
@@ -859,7 +1177,7 @@ note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 
 ## Failed: test-suite/test/core/stack.wast
 ```bash
-thread 'main' panicked at src/runtime/mod.rs:750:25:
+thread 'main' panicked at src/runtime/mod.rs:774:25:
 not implemented: instruction not supported : x51_i64_eq
 note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 ```
@@ -950,7 +1268,7 @@ note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 
 ## Failed: test-suite/test/core/traps.wast
 ```bash
-thread 'main' panicked at src/runtime/mod.rs:750:25:
+thread 'main' panicked at src/runtime/mod.rs:774:25:
 not implemented: instruction not supported : x6d_i32_div_s
 note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 ```
@@ -994,7 +1312,7 @@ note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 
 ## Failed: test-suite/test/core/unwind.wast
 ```bash
-thread 'main' panicked at src/runtime/mod.rs:750:25:
+thread 'main' panicked at src/runtime/mod.rs:774:25:
 not implemented: instruction not supported : x00_unreachable
 note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 ```

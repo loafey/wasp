@@ -15,7 +15,7 @@ pub use error::RuntimeError;
 use RuntimeError::*;
 
 use crate::parser::{
-    self, ExportDesc, FuncIdx, Global, GlobalIdX,
+    self, BlockType, ExportDesc, FuncIdx, Global, GlobalIdX,
     Instr::{self, *},
     LabelIdX, LocalIdX, MemArg, MemIdX, Module, Parsable, TableIdX, TypeIdX, BT,
 };
@@ -463,12 +463,14 @@ impl Runtime {
                         pop!();
                     }
                     x1b_select => {
+                        println!("{:?}", f.stack);
                         let cond = pop!(i32);
                         let y = pop!();
                         let x = pop!();
+                        println!("{cond:?} {y:?} {x:?}");
                         match cond == 1 {
-                            true => f.stack.push(x),
-                            false => f.stack.push(y),
+                            true => f.stack.push(y),
+                            false => f.stack.push(x),
                         }
                     }
                     x20_local_get(LocalIdX(id)) => f.stack.push(*local!(id)),
@@ -727,6 +729,7 @@ impl Runtime {
                             .push(Value::I64(unsafe { std::mem::transmute::<u64, i64>(x) }))
                     }
                     block_start(bt, be, _bt) => {
+                        // println!("block_start: {_bt:?}");
                         f.stack.push(Value::BlockLock);
                         match bt {
                             BT::Block => f.depth_stack.push(DepthValue { bt: *bt, pos: *be }),
@@ -736,14 +739,35 @@ impl Runtime {
                             }),
                         }
                     }
-                    block_end(_, _, _bt) => {
+                    block_end(_, _, bt) => {
+                        println!("\nblock_end: {bt:?}");
+                        let mut last = Vec::new();
                         loop {
                             if let Some(Value::BlockLock) = f.stack.last() {
-                                f.stack.pop();
+                                pop!();
                                 break;
                             }
-                            f.stack.pop();
+                            last.push(pop!());
                         }
+                        println!("stack bef: {:?}", f.stack);
+                        println!("last: {last:?}");
+                        match bt {
+                            BlockType::Eps => {}
+                            BlockType::T(_) => match last.last() {
+                                Some(p) => f.stack.push(*p),
+                                None => throw!(EmptyStack),
+                            },
+                            BlockType::TypIdx(t) => {
+                                let func = unwrap!(
+                                    self.module.function_types.get(&(*t as u32)),
+                                    MissingFunction
+                                );
+                                for _ in 0..func.output.types.len() {
+                                    f.stack.push(unwrap!(last.pop(), EmptyStack));
+                                }
+                            }
+                        }
+                        println!("stack aft: {:?}", f.stack);
                         f.depth_stack.pop();
                     }
                     f => {

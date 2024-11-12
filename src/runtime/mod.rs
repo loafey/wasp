@@ -452,7 +452,7 @@ impl Runtime {
                         };
 
                         let mut locals = HashMap::new();
-                        for (i, _) in ty.input.types.iter().enumerate() {
+                        for (i, _) in ty.input.types.iter().enumerate().rev() {
                             locals.insert(i as u32, pop!());
                         }
 
@@ -471,7 +471,7 @@ impl Runtime {
                             unwrap!(self.module.function_types.get(type_index), MissingFunction);
 
                         let mut locals = HashMap::new();
-                        for (i, _) in ty.input.types.iter().enumerate() {
+                        for (i, _) in ty.input.types.iter().enumerate().rev() {
                             locals.insert(i as u32, pop!());
                         }
 

@@ -10,12 +10,13 @@ struct Page<const PAGE_SIZE: usize> {
 
 pub struct Memory<const PAGE_SIZE: usize> {
     current_pages: usize,
-    _max_pages: usize,
+    max_pages: usize,
     map: HashMap<usize, Page<PAGE_SIZE>>,
 }
 impl<const PAGE_SIZE: usize> Memory<PAGE_SIZE> {
     pub fn grow(&mut self, m: usize) -> i32 {
-        if (Wrapping(self.current_pages) + Wrapping(m)).0 < self.current_pages {
+        let calc = (Wrapping(self.current_pages) + Wrapping(m)).0;
+        if calc < self.current_pages || calc > self.max_pages {
             -1
         } else {
             self.current_pages += m;
@@ -30,7 +31,7 @@ impl<const PAGE_SIZE: usize> Memory<PAGE_SIZE> {
     pub fn new(current_pages: usize, max_pages: usize) -> Self {
         Self {
             current_pages,
-            _max_pages: max_pages,
+            max_pages,
             map: HashMap::new(),
         }
     }

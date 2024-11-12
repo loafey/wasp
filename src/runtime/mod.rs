@@ -201,6 +201,48 @@ impl Runtime {
             ($index:expr) => {
                 unwrap!(f.locals.get($index), MissingLocal)
             };
+            (i32, $index:expr) => {{
+                let val = match unwrap!(f.locals.get($index), MissingLocal) {
+                    Value::I32(val) => val,
+                    x => throw!(|a, b, c| WrongType(a, "i32", x.to_static(), b, c)),
+                };
+                val
+            }};
+            (i64, $index:expr) => {{
+                let val = match unwrap!(f.locals.get($index), MissingLocal) {
+                    Value::I64(val) => val,
+                    x => throw!(|a, b, c| WrongType(a, "i64", x.to_static(), b, c)),
+                };
+                val
+            }};
+            (u32, $index:expr) => {{
+                let val = match unwrap!(f.locals.get($index), MissingLocal) {
+                    Value::I32(val) => val,
+                    x => throw!(|a, b, c| WrongType(a, "u32", x.to_static(), b, c)),
+                };
+                unsafe { std::mem::transmute::<i32, u32>(val) }
+            }};
+            (u64, $index:expr) => {{
+                let val = match unwrap!(f.locals.get($index), MissingLocal) {
+                    Value::I64(val) => val,
+                    x => throw!(|a, b, c| WrongType(a, "u64", x.to_static(), b, c)),
+                };
+                unsafe { std::mem::transmute::<i64, u64>(val) }
+            }};
+            (f32, $index:expr) => {{
+                let val = match unwrap!(f.locals.get($index), MissingLocal) {
+                    Value::F32(val) => val,
+                    x => throw!(|a, b, c| WrongType(a, "f32", x.to_static(), b, c)),
+                };
+                val
+            }};
+            (f64, $index:expr) => {{
+                let val = match unwrap!(f.locals.get($index), MissingLocal) {
+                    Value::F64(val) => val,
+                    x => throw!(|a, b, c| WrongType(a, "f64", x.to_static(), b, c)),
+                };
+                val
+            }};
         }
 
         macro_rules! pop {
@@ -263,13 +305,8 @@ impl Runtime {
                 match (&*module.0, &*name.0) {
                     #[allow(clippy::print_stdout)]
                     ("console", "log") => {
-                        let y = *local!(&0);
-                        let x = *local!(&1);
-                        let (x, y) = if let (Value::I32(x), Value::I32(y)) = (x, y) {
-                            (x as usize, y as usize)
-                        } else {
-                            throw!(|a, b, c| WrongType(a, "", "", b, c))
-                        };
+                        let y = *local!(i32, &0) as usize;
+                        let x = *local!(i32, &1) as usize;
                         let mut b = Vec::new();
                         for i in x..y {
                             let s = self.memory.get(
@@ -292,19 +329,12 @@ impl Runtime {
                         f.stack.push(Value::I32(0));
                     }
                     ("wasi_snapshot_preview1", "proc_exit") => {
-                        let x = match *local!(&0) {
-                            Value::I32(x) => x,
-                            _ => throw!(|a, b, c| WrongType(a, "", "", b, c)),
-                        };
+                        let x = *local!(i32, &0);
                         return Err(Exit(x));
                     }
                     ("wasi_snapshot_preview1", "args_get") => {
-                        let Value::I32(_) = *local!(&0) else {
-                            throw!(|a, b, c| WrongType(a, "", "", b, c))
-                        };
-                        let Value::I32(_) = *local!(&0) else {
-                            throw!(|a, b, c| WrongType(a, "", "", b, c))
-                        };
+                        let _ = *local!(i32, &0);
+                        let _ = *local!(i32, &0);
                         f.stack.push(Value::I32(0));
                     }
                     (module, function) => {

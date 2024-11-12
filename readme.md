@@ -5,9 +5,7 @@
 💩: 135
 ## Failed: test-suite/test/core/block.wast
 ```bash
-thread 'main' panicked at src/runtime/mod.rs:811:25:
-not implemented: instruction not supported : x68_i32_ctz
-note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+ ERROR wasp::testsuite > test 45/223 failed (module: 0, invoke: "param", error: wrong type popped from stack (got BlockLock, expected i32): src/runtime/mod.rs:789:33)
 ```
 
 ## Failed: test-suite/test/core/br.wast
@@ -53,7 +51,7 @@ note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 
 ## Failed: test-suite/test/core/bulk.wast
 ```bash
-thread 'main' panicked at src/runtime/mod.rs:811:25:
+thread 'main' panicked at src/runtime/mod.rs:876:25:
 not implemented: instruction not supported : xfc_11_memory_fill(0)
 note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 ```
@@ -247,7 +245,7 @@ note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 
 ## Failed: test-suite/test/core/float_exprs.wast
 ```bash
-thread 'main' panicked at src/runtime/mod.rs:811:25:
+thread 'main' panicked at src/runtime/mod.rs:876:25:
 not implemented: instruction not supported : xa2_f64_mul
 note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 ```
@@ -286,7 +284,7 @@ note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 
 ## Failed: test-suite/test/core/forward.wast
 ```bash
- ERROR wasp::testsuite > test 1/5 failed (module: 0, invoke: "even", error: empty stack: src/runtime/mod.rs:376:62)
+ ERROR wasp::testsuite > test 1/5 failed (module: 0, invoke: "even", error: empty stack: src/runtime/mod.rs:432:62)
 ```
 
 ## Failed: test-suite/test/core/func.wast
@@ -351,7 +349,7 @@ note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 
 ## Failed: test-suite/test/core/if.wast
 ```bash
- ERROR wasp::testsuite > test 5/241 failed (module: 0, invoke: "singular", error: empty stack: src/runtime/mod.rs:376:62)
+ ERROR wasp::testsuite > test 5/241 failed (module: 0, invoke: "singular", error: empty stack: src/runtime/mod.rs:432:62)
 ```
 
 ## Failed: test-suite/test/core/imports.wast
@@ -363,21 +361,21 @@ note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 
 ## Failed: test-suite/test/core/int_exprs.wast
 ```bash
-thread 'main' panicked at src/runtime/mod.rs:725:49:
+thread 'main' panicked at src/runtime/mod.rs:790:49:
 attempt to add with overflow
 note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 ```
 
 ## Failed: test-suite/test/core/int_literals.wast
 ```bash
-thread 'main' panicked at src/runtime/mod.rs:811:25:
+thread 'main' panicked at src/runtime/mod.rs:876:25:
 not implemented: instruction not supported : x7c_i64_add
 note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 ```
 
 ## Failed: test-suite/test/core/labels.wast
 ```bash
- ERROR wasp::testsuite > test 2/29 failed (module: 0, invoke: "loop1", error: empty stack: src/runtime/mod.rs:340:58)
+ ERROR wasp::testsuite > test 2/29 failed (module: 0, invoke: "loop1", error: empty stack: src/runtime/mod.rs:388:58)
 ```
 
 ## Failed: test-suite/test/core/left-to-right.wast
@@ -405,7 +403,7 @@ note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 
 ## Failed: test-suite/test/core/load.wast
 ```bash
- ERROR wasp::testsuite > test 9/97 failed (module: 0, invoke: "as-if-cond", error: empty stack: src/runtime/mod.rs:376:62)
+ ERROR wasp::testsuite > test 9/97 failed (module: 0, invoke: "as-if-cond", error: empty stack: src/runtime/mod.rs:432:62)
 ```
 
 ## Failed: test-suite/test/core/local_get.wast
@@ -481,14 +479,14 @@ note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 
 ## Failed: test-suite/test/core/memory_copy.wast
 ```bash
-thread 'main' panicked at src/runtime/mod.rs:811:25:
+thread 'main' panicked at src/runtime/mod.rs:876:25:
 not implemented: instruction not supported : xfc_10_memory_copy(0, 0)
 note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 ```
 
 ## Failed: test-suite/test/core/memory_fill.wast
 ```bash
-thread 'main' panicked at src/runtime/mod.rs:811:25:
+thread 'main' panicked at src/runtime/mod.rs:876:25:
 not implemented: instruction not supported : xfc_11_memory_fill(0)
 note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 ```
@@ -549,8 +547,8 @@ note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 
 ## Failed: test-suite/test/core/nop.wast
 ```bash
-thread 'main' panicked at src/runtime/mod.rs:811:25:
-not implemented: instruction not supported : x68_i32_ctz
+thread 'main' panicked at src/runtime/mod.rs:876:25:
+not implemented: instruction not supported : x4c_i32_le_s
 note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 ```
 
@@ -835,7 +833,7 @@ note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 
 ## Failed: test-suite/test/core/stack.wast
 ```bash
-thread 'main' panicked at src/runtime/mod.rs:811:25:
+thread 'main' panicked at src/runtime/mod.rs:876:25:
 not implemented: instruction not supported : x51_i64_eq
 note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 ```
@@ -920,7 +918,7 @@ note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 
 ## Failed: test-suite/test/core/traps.wast
 ```bash
-thread 'main' panicked at src/runtime/mod.rs:811:25:
+thread 'main' panicked at src/runtime/mod.rs:876:25:
 not implemented: instruction not supported : x6d_i32_div_s
 note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 ```
@@ -964,7 +962,7 @@ note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 
 ## Failed: test-suite/test/core/unwind.wast
 ```bash
-thread 'main' panicked at src/runtime/mod.rs:811:25:
+thread 'main' panicked at src/runtime/mod.rs:876:25:
 not implemented: instruction not supported : x00_unreachable
 note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 ```

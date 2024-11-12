@@ -70,43 +70,29 @@ impl From<Module> for Model {
             while pc < code.len() {
                 match &code[pc] {
                     Instr::x02_block(bt, ins) => {
-                        match bt {
-                            BlockType::Eps => {}
-                            BlockType::T(_) => todo!(),
-                            BlockType::X(_) => todo!(),
-                        }
-
                         let c = ins.clone();
+                        let bt = *bt;
 
                         code.remove(pc);
-                        code.insert(pc, Instr::block_end(BT::Block, 0));
+                        code.insert(pc, Instr::block_end(BT::Block, 0, bt));
                         for (_, i) in c.into_iter().enumerate().rev() {
                             code.insert(pc, i);
                         }
-                        code.insert(pc, Instr::block_start(BT::Block, 0));
+                        code.insert(pc, Instr::block_start(BT::Block, 0, bt));
                     }
                     Instr::x03_loop(bt, ins) => {
-                        match bt {
-                            BlockType::Eps => {}
-                            BlockType::T(_) => todo!(),
-                            BlockType::X(_) => todo!(),
-                        }
-
                         let c = ins.clone();
+                        let bt = *bt;
 
                         code.remove(pc);
-                        code.insert(pc, Instr::block_end(BT::Loop, 0));
+                        code.insert(pc, Instr::block_end(BT::Loop, 0, bt));
                         for (_, i) in c.into_iter().enumerate().rev() {
                             code.insert(pc, i);
                         }
-                        code.insert(pc, Instr::block_start(BT::Loop, 0));
+                        code.insert(pc, Instr::block_start(BT::Loop, 0, bt));
                     }
                     Instr::x04_if_else(bt, then, els) => {
-                        match bt {
-                            BlockType::Eps => {}
-                            BlockType::T(_) => todo!(),
-                            BlockType::X(_) => todo!(),
-                        };
+                        let bt = *bt;
 
                         let then = then.clone();
                         let els = els.clone();
@@ -117,9 +103,10 @@ impl From<Module> for Model {
                             for i in els.into_iter().rev() {
                                 code.insert(pc, i);
                             }
-                            code.insert(pc, Instr::block_end(BT::Block, 0)); // els block end
+                            code.insert(pc, Instr::block_end(BT::Block, 0, bt));
+                            // els block end
                         }
-                        code.insert(pc, Instr::block_end(BT::Block, 0)); // then block end
+                        code.insert(pc, Instr::block_end(BT::Block, 0, bt)); // then block end
                         code.insert(pc, Instr::x0c_br(LabelIdX(1))); // then block end
                         for i in then.into_iter().rev() {
                             code.insert(pc, i);
@@ -133,9 +120,10 @@ impl From<Module> for Model {
                         // THIS IS SO DISGUSTING
 
                         if els_exists {
-                            code.insert(pc, Instr::block_start(BT::Block, 0)); // then block end
+                            code.insert(pc, Instr::block_start(BT::Block, 0, bt));
+                            // then block end
                         }
-                        code.insert(pc, Instr::block_start(BT::Block, 0)); // then block end
+                        code.insert(pc, Instr::block_start(BT::Block, 0, bt)); // then block end
                         code.insert(pc, Instr::x21_local_set(LocalIdX(u32::MAX)));
                         // THIS IS SO DISGUSTING
                     }
@@ -146,15 +134,15 @@ impl From<Module> for Model {
 
             let mut pc = 0;
             while pc < code.len() {
-                let (sp, ep) = if let Instr::block_start(_, _) = &mut code[pc] {
+                let (sp, ep) = if let Instr::block_start(_, _, _bt) = &mut code[pc] {
                     let mut in_pc = pc + 1;
                     let mut bs = 0;
                     loop {
                         match &code[in_pc] {
-                            Instr::block_start(_, _) => {
+                            Instr::block_start(_, _, _bt) => {
                                 bs += 1;
                             }
-                            Instr::block_end(_, _) => {
+                            Instr::block_end(_, _, _bt) => {
                                 if bs == 0 {
                                     break (pc, in_pc);
                                 }
@@ -169,11 +157,11 @@ impl From<Module> for Model {
                     continue;
                 };
 
-                let Instr::block_start(_, ins) = &mut code[sp] else {
+                let Instr::block_start(_, ins, _bt) = &mut code[sp] else {
                     panic!()
                 };
                 *ins = ep;
-                let Instr::block_end(_, ins) = &mut code[ep] else {
+                let Instr::block_end(_, ins, _bt) = &mut code[ep] else {
                     panic!()
                 };
                 *ins = sp;

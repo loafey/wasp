@@ -142,8 +142,8 @@ pub enum Instr {
     xfc_10_memory_copy(u8, u8) = 0xfc0a,
     xfc_11_memory_fill(u8) = 0xfc0b,
 
-    block_start(BT, usize),
-    block_end(BT, usize),
+    block_start(BT, usize, BlockType),
+    block_end(BT, usize, BlockType),
 }
 impl Parsable for Instr {
     fn parse_inner(

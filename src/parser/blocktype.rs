@@ -5,7 +5,7 @@ use super::{Parsable, ValType};
 pub enum BlockType {
     Eps,
     T(ValType),
-    X(i64),
+    TypIdx(i64),
 }
 impl Parsable for BlockType {
     fn parse_inner(
@@ -31,6 +31,6 @@ impl Parsable for BlockType {
             }
         }
 
-        Ok(BlockType::X(i64::parse(data, stack)?))
+        Ok(BlockType::TypIdx(i64::parse(data, stack)?))
     }
 }

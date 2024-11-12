@@ -725,7 +725,7 @@ impl Runtime {
                         f.stack
                             .push(Value::I64(unsafe { std::mem::transmute::<u64, i64>(x) }))
                     }
-                    block_start(bt, be) => {
+                    block_start(bt, be, _bt) => {
                         f.stack.push(Value::BlockLock);
                         match bt {
                             BT::Block => f.depth_stack.push(DepthValue { bt: *bt, pos: *be }),
@@ -735,7 +735,7 @@ impl Runtime {
                             }),
                         }
                     }
-                    block_end(_, _) => {
+                    block_end(_, _, _bt) => {
                         loop {
                             if let Some(Value::BlockLock) = f.stack.last() {
                                 f.stack.pop();

@@ -1,5 +1,5 @@
 use crate::parser::MemArg;
-use std::{collections::HashMap, mem};
+use std::{collections::HashMap, mem, num::Wrapping};
 
 use super::RuntimeError;
 
@@ -14,6 +14,15 @@ pub struct Memory<const PAGE_SIZE: usize> {
     map: HashMap<usize, Page<PAGE_SIZE>>,
 }
 impl<const PAGE_SIZE: usize> Memory<PAGE_SIZE> {
+    pub fn grow(&mut self, m: usize) -> i32 {
+        if (Wrapping(self.current_pages) + Wrapping(m)).0 < self.current_pages {
+            -1
+        } else {
+            self.current_pages += m;
+            1
+        }
+    }
+
     pub fn size(&self) -> usize {
         self.map.len() * PAGE_SIZE
     }

@@ -657,6 +657,10 @@ impl Runtime {
                         let addr = pop!(u32);
                         self.memory.set(addr as usize, *mem, v as i32)?;
                     }
+                    x40_grow => {
+                        let amount = pop!(i32);
+                        self.memory.grow(amount as usize);
+                    }
                     x41_i32_const(i) => f.stack.push(Value::I32(*i)),
                     x42_i64_const(val) => f.stack.push(Value::I64(*val)),
                     x43_f32_const(val) => f.stack.push(Value::F32(*val)),

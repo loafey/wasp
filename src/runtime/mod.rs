@@ -387,7 +387,7 @@ impl Runtime {
                     }
                     x0e_br_table(labels, def) => {
                         let index = pop!(u32) as usize;
-                        let label = if index > labels.len() {
+                        let label = if index >= labels.len() {
                             *def
                         } else {
                             labels[index]

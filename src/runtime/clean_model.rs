@@ -107,7 +107,9 @@ impl From<Module> for Model {
                             // els block end
                         }
                         code.insert(pc, Instr::block_end(BT::Block, 0, bt)); // then block end
-                        code.insert(pc, Instr::x0c_br(LabelIdX(1))); // then block end
+                        if els_exists {
+                            code.insert(pc, Instr::x0c_br(LabelIdX(1))); // then block end
+                        }
                         for i in then.into_iter().rev() {
                             code.insert(pc, i);
                         }

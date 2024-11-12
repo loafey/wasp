@@ -25,7 +25,7 @@ impl Parsable for ExportSection {
         let expected = data.position() + size as u64;
         let exports = Set::from_iter(Vec::parse(data, stack)?);
         if data.position() != expected {
-            return Err(ParseError::SectionSizeMismatch);
+            return Err(ParseError::SectionSizeMismatch(expected, data.position()));
         }
         Ok(ExportSection { size, exports })
     }

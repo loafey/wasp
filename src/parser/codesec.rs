@@ -26,7 +26,7 @@ impl Parsable for CodeSection {
         let code = Vec::parse(data, stack)?;
 
         if data.position() != expected {
-            return Err(ParseError::SectionSizeMismatch);
+            return Err(ParseError::SectionSizeMismatch(expected, data.position()));
         }
 
         Ok(Self { size, code })

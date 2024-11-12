@@ -212,6 +212,10 @@ impl Parsable for Instr {
                             stack.pop();
                             break;
                         }
+                        Err(ParseError::EndOfInstructions) => {
+                            stack.pop();
+                            return Ok(x04_if_else(block_type, v, None));
+                        }
                         Err(e) => Err(e)?,
                     }
                 }
@@ -222,7 +226,7 @@ impl Parsable for Instr {
                     loop {
                         match Instr::parse(data, stack) {
                             Ok(i) => v.push(i),
-                            Err(ParseError::ElseHit) => {
+                            Err(ParseError::EndOfInstructions) => {
                                 stack.pop();
                                 break;
                             }

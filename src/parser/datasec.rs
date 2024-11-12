@@ -24,7 +24,7 @@ impl Parsable for DataSection {
         let expected = data.position() + size as u64;
         let data_ = Vec::parse(data, stack)?;
         if data.position() != expected {
-            return Err(ParseError::SectionSizeMismatch);
+            return Err(ParseError::SectionSizeMismatch(expected, data.position()));
         }
         Ok(Self { size, data: data_ })
     }

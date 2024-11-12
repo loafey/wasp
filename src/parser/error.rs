@@ -25,7 +25,7 @@ pub enum ParseError {
     EndOfInstructions,
     ElseHit,
     AlignmentError,
-    SectionSizeMismatch,
+    SectionSizeMismatch(u64, u64),
     TooManyLocals(u32),
     InconsistentFunctionAndCodeSectionLength,
     InvalidDataCount,

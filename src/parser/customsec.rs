@@ -46,7 +46,7 @@ impl Parsable for CustomSection {
         }
 
         if data.position() != expected {
-            return Err(ParseError::SectionSizeMismatch);
+            return Err(ParseError::SectionSizeMismatch(expected, data.position()));
         }
         Ok(Self {
             size,

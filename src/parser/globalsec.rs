@@ -23,7 +23,7 @@ impl Parsable for GlobalSection {
         let expected = data.position() + size as u64;
         let globals = Vec::parse(data, stack)?;
         if data.position() != expected {
-            return Err(ParseError::SectionSizeMismatch);
+            return Err(ParseError::SectionSizeMismatch(expected, data.position()));
         }
         Ok(Self { size, globals })
     }

@@ -5,19 +5,7 @@
 💩: 136
 ## Failed: test-suite/test/core/block.wast
 ```bash
-thread 'main' panicked at src/testsuite.rs:302:54:
-failed to load module: ParseError(File: "test-suite/test/core/block.0.wasm"
-ElseHit, bin pos: 1353, stack: [
-    "wasp::parser::instr::Instr",
-    "wasp::parser::instr::Instr",
-    "wasp::parser::expr::Expr",
-    "wasp::parser::func::Func",
-    "wasp::parser::code::Code",
-    "alloc::vec::Vec<wasp::parser::code::Code>",
-    "wasp::parser::codesec::CodeSection",
-    "wasp::parser::module::Module",
-])
-note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+ ERROR wasp::testsuite > test 2/223 failed (module: 0, invoke: "singular", got [], but expected [i32(7)])
 ```
 
 ## Failed: test-suite/test/core/br.wast
@@ -63,7 +51,7 @@ note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 
 ## Failed: test-suite/test/core/bulk.wast
 ```bash
-thread 'main' panicked at src/runtime/mod.rs:749:25:
+thread 'main' panicked at src/runtime/mod.rs:750:25:
 not implemented: instruction not supported : xfc_11_memory_fill(0)
 note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 ```
@@ -107,7 +95,7 @@ note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 ```bash
 thread 'main' panicked at src/testsuite.rs:302:54:
 failed to load module: ParseError(File: "test-suite/test/core/custom.0.wasm"
-SectionSizeMismatch, bin pos: 267, stack: [
+SectionSizeMismatch(46, 267), bin pos: 267, stack: [
     "u8",
     "wasp::parser::customsec::CustomSection",
     "wasp::parser::module::Module",
@@ -257,7 +245,7 @@ note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 
 ## Failed: test-suite/test/core/float_exprs.wast
 ```bash
-thread 'main' panicked at src/runtime/mod.rs:749:25:
+thread 'main' panicked at src/runtime/mod.rs:750:25:
 not implemented: instruction not supported : xa2_f64_mul
 note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 ```
@@ -303,13 +291,7 @@ note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 ```bash
 thread 'main' panicked at src/testsuite.rs:302:54:
 failed to load module: ParseError(File: "test-suite/test/core/forward.0.wasm"
-ElseHit, bin pos: 52, stack: [
-    "wasp::parser::instr::Instr",
-    "wasp::parser::instr::Instr",
-    "wasp::parser::expr::Expr",
-    "wasp::parser::func::Func",
-    "wasp::parser::code::Code",
-    "alloc::vec::Vec<wasp::parser::code::Code>",
+SectionSizeMismatch(82, 81), bin pos: 81, stack: [
     "wasp::parser::codesec::CodeSection",
     "wasp::parser::module::Module",
 ])
@@ -380,8 +362,7 @@ note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 ```bash
 thread 'main' panicked at src/testsuite.rs:302:54:
 failed to load module: ParseError(File: "test-suite/test/core/if.0.wasm"
-ElseHit, bin pos: 1081, stack: [
-    "wasp::parser::instr::Instr",
+Unknown0x40(<10>), bin pos: 1247, stack: [
     "wasp::parser::instr::Instr",
     "wasp::parser::expr::Expr",
     "wasp::parser::func::Func",
@@ -402,14 +383,14 @@ note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 
 ## Failed: test-suite/test/core/int_exprs.wast
 ```bash
-thread 'main' panicked at src/runtime/mod.rs:686:49:
+thread 'main' panicked at src/runtime/mod.rs:687:49:
 attempt to add with overflow
 note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 ```
 
 ## Failed: test-suite/test/core/int_literals.wast
 ```bash
-thread 'main' panicked at src/runtime/mod.rs:749:25:
+thread 'main' panicked at src/runtime/mod.rs:750:25:
 not implemented: instruction not supported : x7c_i64_add
 note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 ```
@@ -418,14 +399,7 @@ note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 ```bash
 thread 'main' panicked at src/testsuite.rs:302:54:
 failed to load module: ParseError(File: "test-suite/test/core/labels.0.wasm"
-ElseHit, bin pos: 440, stack: [
-    "wasp::parser::instr::Instr",
-    "wasp::parser::instr::Instr",
-    "wasp::parser::instr::Instr",
-    "wasp::parser::expr::Expr",
-    "wasp::parser::func::Func",
-    "wasp::parser::code::Code",
-    "alloc::vec::Vec<wasp::parser::code::Code>",
+SectionSizeMismatch(972, 712), bin pos: 712, stack: [
     "wasp::parser::codesec::CodeSection",
     "wasp::parser::module::Module",
 ])
@@ -457,19 +431,7 @@ note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 
 ## Failed: test-suite/test/core/load.wast
 ```bash
-thread 'main' panicked at src/testsuite.rs:302:54:
-failed to load module: ParseError(File: "test-suite/test/core/load.0.wasm"
-ElseHit, bin pos: 941, stack: [
-    "wasp::parser::instr::Instr",
-    "wasp::parser::instr::Instr",
-    "wasp::parser::expr::Expr",
-    "wasp::parser::func::Func",
-    "wasp::parser::code::Code",
-    "alloc::vec::Vec<wasp::parser::code::Code>",
-    "wasp::parser::codesec::CodeSection",
-    "wasp::parser::module::Module",
-])
-note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+ ERROR wasp::testsuite > test 1/97 failed (module: 0, invoke: "as-br-value", got [], but expected [i32(0)])
 ```
 
 ## Failed: test-suite/test/core/local_get.wast
@@ -524,7 +486,8 @@ note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 ```bash
 thread 'main' panicked at src/testsuite.rs:302:54:
 failed to load module: ParseError(File: "test-suite/test/core/loop.0.wasm"
-ElseHit, bin pos: 1322, stack: [
+UnknownInstruction(<5b>), bin pos: 2296, stack: [
+    "wasp::parser::instr::Instr",
     "wasp::parser::instr::Instr",
     "wasp::parser::instr::Instr",
     "wasp::parser::expr::Expr",
@@ -544,14 +507,14 @@ note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 
 ## Failed: test-suite/test/core/memory_copy.wast
 ```bash
-thread 'main' panicked at src/runtime/mod.rs:749:25:
-not implemented: instruction not supported : x01_nop
+thread 'main' panicked at src/runtime/mod.rs:750:25:
+not implemented: instruction not supported : xfc_10_memory_copy(0, 0)
 note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 ```
 
 ## Failed: test-suite/test/core/memory_fill.wast
 ```bash
-thread 'main' panicked at src/runtime/mod.rs:749:25:
+thread 'main' panicked at src/runtime/mod.rs:750:25:
 not implemented: instruction not supported : xfc_11_memory_fill(0)
 note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 ```
@@ -565,8 +528,11 @@ note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 
 ## Failed: test-suite/test/core/memory_init.wast
 ```bash
-thread 'main' panicked at src/runtime/mod.rs:749:25:
-not implemented: instruction not supported : x01_nop
+thread 'main' panicked at src/testsuite.rs:302:54:
+failed to load module: ParseError(File: "test-suite/test/core/memory_init.1.wasm"
+InvalidDataCount, bin pos: 63, stack: [
+    "wasp::parser::module::Module",
+])
 note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 ```
 
@@ -609,19 +575,7 @@ note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 
 ## Failed: test-suite/test/core/nop.wast
 ```bash
-thread 'main' panicked at src/testsuite.rs:302:54:
-failed to load module: ParseError(File: "test-suite/test/core/nop.0.wasm"
-ElseHit, bin pos: 1926, stack: [
-    "wasp::parser::instr::Instr",
-    "wasp::parser::instr::Instr",
-    "wasp::parser::expr::Expr",
-    "wasp::parser::func::Func",
-    "wasp::parser::code::Code",
-    "alloc::vec::Vec<wasp::parser::code::Code>",
-    "wasp::parser::codesec::CodeSection",
-    "wasp::parser::module::Module",
-])
-note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+ ERROR wasp::testsuite > test 13/88 failed (module: 0, invoke: "as-block-first", got [], but expected [i32(2)])
 ```
 
 ## Failed: test-suite/test/core/ref_func.wast
@@ -905,20 +859,8 @@ note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 
 ## Failed: test-suite/test/core/stack.wast
 ```bash
-thread 'main' panicked at src/testsuite.rs:302:54:
-failed to load module: ParseError(File: "test-suite/test/core/stack.0.wasm"
-ElseHit, bin pos: 161, stack: [
-    "wasp::parser::instr::Instr",
-    "wasp::parser::instr::Instr",
-    "wasp::parser::instr::Instr",
-    "wasp::parser::instr::Instr",
-    "wasp::parser::expr::Expr",
-    "wasp::parser::func::Func",
-    "wasp::parser::code::Code",
-    "alloc::vec::Vec<wasp::parser::code::Code>",
-    "wasp::parser::codesec::CodeSection",
-    "wasp::parser::module::Module",
-])
+thread 'main' panicked at src/runtime/mod.rs:750:25:
+not implemented: instruction not supported : x51_i64_eq
 note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 ```
 
@@ -931,13 +873,7 @@ note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 ```bash
 thread 'main' panicked at src/testsuite.rs:302:54:
 failed to load module: ParseError(File: "test-suite/test/core/store.0.wasm"
-ElseHit, bin pos: 315, stack: [
-    "wasp::parser::instr::Instr",
-    "wasp::parser::instr::Instr",
-    "wasp::parser::expr::Expr",
-    "wasp::parser::func::Func",
-    "wasp::parser::code::Code",
-    "alloc::vec::Vec<wasp::parser::code::Code>",
+SectionSizeMismatch(324, 323), bin pos: 323, stack: [
     "wasp::parser::codesec::CodeSection",
     "wasp::parser::module::Module",
 ])
@@ -946,14 +882,12 @@ note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 
 ## Failed: test-suite/test/core/switch.wast
 ```bash
-thread 'main' panicked at src/runtime/clean_model.rs:75:48:
-not yet implemented
-note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+ ERROR wasp::testsuite > test 1/28 failed (module: 0, invoke: "stmt", got [--- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, i32(0)], but expected [i32(0)])
 ```
 
 ## Failed: test-suite/test/core/table-sub.wast
 ```bash
-thread 'main' panicked at src/parser/instr.rs:505:24:
+thread 'main' panicked at src/parser/instr.rs:509:24:
 not yet implemented: 0xfc 14
 note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 ```
@@ -1009,14 +943,14 @@ note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 
 ## Failed: test-suite/test/core/table_size.wast
 ```bash
-thread 'main' panicked at src/parser/instr.rs:505:24:
+thread 'main' panicked at src/parser/instr.rs:509:24:
 not yet implemented: 0xfc 16
 note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 ```
 
 ## Failed: test-suite/test/core/traps.wast
 ```bash
-thread 'main' panicked at src/runtime/mod.rs:749:25:
+thread 'main' panicked at src/runtime/mod.rs:750:25:
 not implemented: instruction not supported : x6d_i32_div_s
 note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 ```
@@ -1025,8 +959,7 @@ note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 ```bash
 thread 'main' panicked at src/testsuite.rs:302:54:
 failed to load module: ParseError(File: "test-suite/test/core/unreachable.0.wasm"
-ElseHit, bin pos: 1458, stack: [
-    "wasp::parser::instr::Instr",
+UnknownInstruction(<8c>), bin pos: 1689, stack: [
     "wasp::parser::instr::Instr",
     "wasp::parser::expr::Expr",
     "wasp::parser::func::Func",
@@ -1061,8 +994,8 @@ note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 
 ## Failed: test-suite/test/core/unwind.wast
 ```bash
-thread 'main' panicked at src/runtime/clean_model.rs:75:48:
-not yet implemented
+thread 'main' panicked at src/runtime/mod.rs:750:25:
+not implemented: instruction not supported : x00_unreachable
 note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 ```
 

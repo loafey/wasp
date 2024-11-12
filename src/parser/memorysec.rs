@@ -23,7 +23,7 @@ impl Parsable for MemorySection {
         let expected = data.position() + size as u64;
         let mems = Vec::parse(data, stack)?;
         if data.position() != expected {
-            return Err(ParseError::SectionSizeMismatch);
+            return Err(ParseError::SectionSizeMismatch(expected, data.position()));
         }
         Ok(Self { size, mems })
     }

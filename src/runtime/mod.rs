@@ -29,6 +29,17 @@ pub enum Value {
     F64(f64),
     BlockLock,
 }
+impl Value {
+    pub fn to_static(&self) -> &'static str {
+        match self {
+            Value::I32(_) => "i32",
+            Value::I64(_) => "i64",
+            Value::F32(_) => "f32",
+            Value::F64(_) => "f64",
+            Value::BlockLock => "BlockLock",
+        }
+    }
+}
 
 impl std::fmt::Debug for Value {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
@@ -194,38 +205,44 @@ impl Runtime {
 
         macro_rules! pop {
             (i32) => {{
-                let Value::I32(val) = unwrap!(f.stack.pop(), EmptyStack) else {
-                    throw!(WrongType)
+                let val = match unwrap!(f.stack.pop(), EmptyStack) {
+                    Value::I32(val) => val,
+                    x => throw!(|a, b, c| WrongType(a, "i32", x.to_static(), b, c)),
                 };
                 val
             }};
             (i64) => {{
-                let Value::I64(val) = unwrap!(f.stack.pop(), EmptyStack) else {
-                    throw!(WrongType)
+                let val = match unwrap!(f.stack.pop(), EmptyStack) {
+                    Value::I64(val) => val,
+                    x => throw!(|a, b, c| WrongType(a, "i64", x.to_static(), b, c)),
                 };
                 val
             }};
             (u32) => {{
-                let Value::I32(val) = unwrap!(f.stack.pop(), EmptyStack) else {
-                    throw!(WrongType)
+                let val = match unwrap!(f.stack.pop(), EmptyStack) {
+                    Value::I32(val) => val,
+                    x => throw!(|a, b, c| WrongType(a, "u32", x.to_static(), b, c)),
                 };
                 unsafe { std::mem::transmute::<i32, u32>(val) }
             }};
             (u64) => {{
-                let Value::I64(val) = unwrap!(f.stack.pop(), EmptyStack) else {
-                    throw!(WrongType)
+                let val = match unwrap!(f.stack.pop(), EmptyStack) {
+                    Value::I64(val) => val,
+                    x => throw!(|a, b, c| WrongType(a, "u64", x.to_static(), b, c)),
                 };
                 unsafe { std::mem::transmute::<i64, u64>(val) }
             }};
             (f32) => {{
-                let Value::F32(val) = unwrap!(f.stack.pop(), EmptyStack) else {
-                    throw!(WrongType)
+                let val = match unwrap!(f.stack.pop(), EmptyStack) {
+                    Value::F32(val) => val,
+                    x => throw!(|a, b, c| WrongType(a, "f32", x.to_static(), b, c)),
                 };
                 val
             }};
             (f64) => {{
-                let Value::F64(val) = unwrap!(f.stack.pop(), EmptyStack) else {
-                    throw!(WrongType)
+                let val = match unwrap!(f.stack.pop(), EmptyStack) {
+                    Value::F64(val) => val,
+                    x => throw!(|a, b, c| WrongType(a, "f64", x.to_static(), b, c)),
                 };
                 val
             }};
@@ -251,7 +268,7 @@ impl Runtime {
                         let (x, y) = if let (Value::I32(x), Value::I32(y)) = (x, y) {
                             (x as usize, y as usize)
                         } else {
-                            throw!(WrongType)
+                            throw!(|a, b, c| WrongType(a, "", "", b, c))
                         };
                         let mut b = Vec::new();
                         for i in x..y {
@@ -275,17 +292,18 @@ impl Runtime {
                         f.stack.push(Value::I32(0));
                     }
                     ("wasi_snapshot_preview1", "proc_exit") => {
-                        let Value::I32(x) = *local!(&0) else {
-                            throw!(WrongType)
+                        let x = match *local!(&0) {
+                            Value::I32(x) => x,
+                            _ => throw!(|a, b, c| WrongType(a, "", "", b, c)),
                         };
                         return Err(Exit(x));
                     }
                     ("wasi_snapshot_preview1", "args_get") => {
                         let Value::I32(_) = *local!(&0) else {
-                            throw!(WrongType)
+                            throw!(|a, b, c| WrongType(a, "", "", b, c))
                         };
                         let Value::I32(_) = *local!(&0) else {
-                            throw!(WrongType)
+                            throw!(|a, b, c| WrongType(a, "", "", b, c))
                         };
                         f.stack.push(Value::I32(0));
                     }
@@ -339,7 +357,15 @@ impl Runtime {
                                         BlockType::T(_) => {
                                             f.stack.push(unwrap!(collect.pop(), EmptyStack))
                                         }
-                                        BlockType::TypIdx(_) => todo!(),
+                                        BlockType::TypIdx(i) => {
+                                            let ft = unwrap!(
+                                                self.module.function_types.get(&(i as u32)),
+                                                MissingFunction
+                                            );
+                                            for _ in &ft.output.types {
+                                                f.stack.push(unwrap!(collect.pop(), EmptyStack))
+                                            }
+                                        }
                                     }
                                     break;
                                 } else {
@@ -718,6 +744,15 @@ impl Runtime {
                         let y = pop!(i64);
                         let x = pop!(i64);
                         f.stack.push(Value::I64((x != y) as i64))
+                    }
+                    x5e_f32_gt => {
+                        let y = pop!(f32);
+                        let x = pop!(f32);
+                        f.stack.push(Value::I32((x < y) as i32))
+                    }
+                    x68_i32_ctz => {
+                        let x = pop!(i32);
+                        f.stack.push(Value::I32(x.trailing_zeros() as i32))
                     }
                     x6a_i32_add => {
                         let y = pop!(i32);

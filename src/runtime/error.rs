@@ -6,7 +6,7 @@ pub enum RuntimeError {
     ActiveDataWithoutOffset,
     UnknownFunction(String, String),
     NoFrame(&'static str, u32, u32),
-    WrongType(&'static str, u32, u32),
+    WrongType(&'static str, &'static str, &'static str, u32, u32),
     EmptyStack(&'static str, u32, u32),
     Impossible(&'static str, u32, u32),
     MissingLocal(&'static str, u32, u32),
@@ -28,8 +28,8 @@ impl std::fmt::Debug for RuntimeError {
             Self::NoFrame(arg0, arg1, arg2) => {
                 write!(f, "ran out of stack frames: {arg0}:{arg1}:{arg2}")
             }
-            Self::WrongType(arg0, arg1, arg2) => {
-                write!(f, "wrong type popped from stack: {arg0}:{arg1}:{arg2}")
+            Self::WrongType(arg0, exp, got, arg1, arg2) => {
+                write!(f, "wrong type popped from stack (got {got}, expected {exp}): {arg0}:{arg1}:{arg2}")
             }
             Self::EmptyStack(arg0, arg1, arg2) => {
                 write!(f, "empty stack: {arg0}:{arg1}:{arg2}")

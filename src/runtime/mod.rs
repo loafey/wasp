@@ -463,12 +463,10 @@ impl Runtime {
                         pop!();
                     }
                     x1b_select => {
-                        println!("{:?}", f.stack);
                         let cond = pop!(i32);
                         let y = pop!();
                         let x = pop!();
-                        println!("{cond:?} {y:?} {x:?}");
-                        match cond == 1 {
+                        match cond == 0 {
                             true => f.stack.push(y),
                             false => f.stack.push(x),
                         }
@@ -740,7 +738,6 @@ impl Runtime {
                         }
                     }
                     block_end(_, _, bt) => {
-                        println!("\nblock_end: {bt:?}");
                         let mut last = Vec::new();
                         loop {
                             if let Some(Value::BlockLock) = f.stack.last() {
@@ -749,8 +746,6 @@ impl Runtime {
                             }
                             last.push(pop!());
                         }
-                        println!("stack bef: {:?}", f.stack);
-                        println!("last: {last:?}");
                         match bt {
                             BlockType::Eps => {}
                             BlockType::T(_) => match last.last() {
@@ -767,7 +762,6 @@ impl Runtime {
                                 }
                             }
                         }
-                        println!("stack aft: {:?}", f.stack);
                         f.depth_stack.pop();
                     }
                     f => {

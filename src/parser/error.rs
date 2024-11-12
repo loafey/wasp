@@ -23,6 +23,7 @@ pub enum ParseError {
     InvalidRefType(Hex<1>),
     InvalidElem(u32),
     EndOfInstructions,
+    ElseHit,
     AlignmentError,
     SectionSizeMismatch,
     TooManyLocals(u32),

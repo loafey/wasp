@@ -7,8 +7,11 @@
 ```bash
 thread 'main' panicked at src/testsuite.rs:302:54:
 failed to load module: ParseError(File: "test-suite/test/core/block.0.wasm"
-Leb128(UnexpectedEndOfData(Error { kind: UnexpectedEof, message: "failed to fill whole buffer" })), bin pos: 2118, stack: [
-    "u32",
+ElseHit, bin pos: 1353, stack: [
+    "wasp::parser::instr::Instr",
+    "wasp::parser::instr::Instr",
+    "wasp::parser::expr::Expr",
+    "wasp::parser::func::Func",
     "wasp::parser::code::Code",
     "alloc::vec::Vec<wasp::parser::code::Code>",
     "wasp::parser::codesec::CodeSection",
@@ -300,10 +303,10 @@ note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 ```bash
 thread 'main' panicked at src/testsuite.rs:302:54:
 failed to load module: ParseError(File: "test-suite/test/core/forward.0.wasm"
-Leb128(UnexpectedEndOfData(Error { kind: UnexpectedEof, message: "failed to fill whole buffer" })), bin pos: 82, stack: [
-    "u32",
-    "wasp::parser::locals::Locals",
-    "alloc::vec::Vec<wasp::parser::locals::Locals>",
+ElseHit, bin pos: 52, stack: [
+    "wasp::parser::instr::Instr",
+    "wasp::parser::instr::Instr",
+    "wasp::parser::expr::Expr",
     "wasp::parser::func::Func",
     "wasp::parser::code::Code",
     "alloc::vec::Vec<wasp::parser::code::Code>",
@@ -377,8 +380,11 @@ note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 ```bash
 thread 'main' panicked at src/testsuite.rs:302:54:
 failed to load module: ParseError(File: "test-suite/test/core/if.0.wasm"
-Leb128(UnexpectedEndOfData(Error { kind: UnexpectedEof, message: "failed to fill whole buffer" })), bin pos: 2518, stack: [
-    "u32",
+ElseHit, bin pos: 1081, stack: [
+    "wasp::parser::instr::Instr",
+    "wasp::parser::instr::Instr",
+    "wasp::parser::expr::Expr",
+    "wasp::parser::func::Func",
     "wasp::parser::code::Code",
     "alloc::vec::Vec<wasp::parser::code::Code>",
     "wasp::parser::codesec::CodeSection",
@@ -412,7 +418,14 @@ note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 ```bash
 thread 'main' panicked at src/testsuite.rs:302:54:
 failed to load module: ParseError(File: "test-suite/test/core/labels.0.wasm"
-SectionSizeMismatch, bin pos: 712, stack: [
+ElseHit, bin pos: 440, stack: [
+    "wasp::parser::instr::Instr",
+    "wasp::parser::instr::Instr",
+    "wasp::parser::instr::Instr",
+    "wasp::parser::expr::Expr",
+    "wasp::parser::func::Func",
+    "wasp::parser::code::Code",
+    "alloc::vec::Vec<wasp::parser::code::Code>",
     "wasp::parser::codesec::CodeSection",
     "wasp::parser::module::Module",
 ])
@@ -446,8 +459,11 @@ note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 ```bash
 thread 'main' panicked at src/testsuite.rs:302:54:
 failed to load module: ParseError(File: "test-suite/test/core/load.0.wasm"
-Leb128(UnexpectedEndOfData(Error { kind: UnexpectedEof, message: "failed to fill whole buffer" })), bin pos: 1320, stack: [
-    "u32",
+ElseHit, bin pos: 941, stack: [
+    "wasp::parser::instr::Instr",
+    "wasp::parser::instr::Instr",
+    "wasp::parser::expr::Expr",
+    "wasp::parser::func::Func",
     "wasp::parser::code::Code",
     "alloc::vec::Vec<wasp::parser::code::Code>",
     "wasp::parser::codesec::CodeSection",
@@ -508,8 +524,7 @@ note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 ```bash
 thread 'main' panicked at src/testsuite.rs:302:54:
 failed to load module: ParseError(File: "test-suite/test/core/loop.0.wasm"
-UnknownInstruction(<5b>), bin pos: 2296, stack: [
-    "wasp::parser::instr::Instr",
+ElseHit, bin pos: 1322, stack: [
     "wasp::parser::instr::Instr",
     "wasp::parser::instr::Instr",
     "wasp::parser::expr::Expr",
@@ -596,7 +611,8 @@ note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 ```bash
 thread 'main' panicked at src/testsuite.rs:302:54:
 failed to load module: ParseError(File: "test-suite/test/core/nop.0.wasm"
-UnknownInstruction(<0a>), bin pos: 1954, stack: [
+ElseHit, bin pos: 1926, stack: [
+    "wasp::parser::instr::Instr",
     "wasp::parser::instr::Instr",
     "wasp::parser::expr::Expr",
     "wasp::parser::func::Func",
@@ -889,8 +905,20 @@ note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 
 ## Failed: test-suite/test/core/stack.wast
 ```bash
-thread 'main' panicked at src/runtime/mod.rs:749:25:
-not implemented: instruction not supported : x51_i64_eq
+thread 'main' panicked at src/testsuite.rs:302:54:
+failed to load module: ParseError(File: "test-suite/test/core/stack.0.wasm"
+ElseHit, bin pos: 161, stack: [
+    "wasp::parser::instr::Instr",
+    "wasp::parser::instr::Instr",
+    "wasp::parser::instr::Instr",
+    "wasp::parser::instr::Instr",
+    "wasp::parser::expr::Expr",
+    "wasp::parser::func::Func",
+    "wasp::parser::code::Code",
+    "alloc::vec::Vec<wasp::parser::code::Code>",
+    "wasp::parser::codesec::CodeSection",
+    "wasp::parser::module::Module",
+])
 note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 ```
 
@@ -903,7 +931,13 @@ note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 ```bash
 thread 'main' panicked at src/testsuite.rs:302:54:
 failed to load module: ParseError(File: "test-suite/test/core/store.0.wasm"
-SectionSizeMismatch, bin pos: 323, stack: [
+ElseHit, bin pos: 315, stack: [
+    "wasp::parser::instr::Instr",
+    "wasp::parser::instr::Instr",
+    "wasp::parser::expr::Expr",
+    "wasp::parser::func::Func",
+    "wasp::parser::code::Code",
+    "alloc::vec::Vec<wasp::parser::code::Code>",
     "wasp::parser::codesec::CodeSection",
     "wasp::parser::module::Module",
 ])
@@ -991,7 +1025,8 @@ note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 ```bash
 thread 'main' panicked at src/testsuite.rs:302:54:
 failed to load module: ParseError(File: "test-suite/test/core/unreachable.0.wasm"
-UnknownInstruction(<8c>), bin pos: 1689, stack: [
+ElseHit, bin pos: 1458, stack: [
+    "wasp::parser::instr::Instr",
     "wasp::parser::instr::Instr",
     "wasp::parser::expr::Expr",
     "wasp::parser::func::Func",

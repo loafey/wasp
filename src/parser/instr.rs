@@ -236,7 +236,7 @@ impl Parsable for Instr {
                 };
                 x04_if_else(block_type, v, els)
             }
-            0x05 => Err(ParseError::EndOfInstructions)?,
+            0x05 => Err(ParseError::ElseHit)?,
             0x06 => Err(ParseError::UnknownInstruction(Hex(typ)))?,
             0x07 => Err(ParseError::UnknownInstruction(Hex(typ)))?,
             0x08 => Err(ParseError::UnknownInstruction(Hex(typ)))?,

@@ -14,7 +14,15 @@ impl Parsable for Func {
     where
         Self: std::marker::Sized,
     {
-        let t: Vec<Locals> = Vec::parse(data, stack)?;
+        let stack_before = stack.clone();
+        // I think this is correct
+        let t: Vec<Locals> = match Vec::parse(data, stack) {
+            Err(_) => {
+                *stack = stack_before;
+                Vec::new()
+            }
+            Ok(v) => v,
+        };
         let e = Expr::parse(data, stack)?;
         Ok(Self { t, e })
     }

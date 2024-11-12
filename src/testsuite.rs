@@ -281,7 +281,7 @@ pub fn test(mut path: String) {
 
     for (test_i, test) in tests.commands.into_iter().enumerate() {
         // println!("{test_i}/{total_tests}");
-        recreate_runtime();
+        // recreate_runtime();
 
         match test {
             Case::Module(module) => {
@@ -298,10 +298,13 @@ pub fn test(mut path: String) {
                 if skip {
                     continue;
                 }
-                recreate_runtime = Box::new(move || {
-                    *runtime.borrow_mut() =
-                        Some(Runtime::new(p.clone()).expect("failed to load module"));
-                });
+
+                *runtime.borrow_mut() =
+                    Some(Runtime::new(p.clone()).expect("failed to load module"));
+                // recreate_runtime = Box::new(move || {
+                //     *runtime.borrow_mut() =
+                //         Some(Runtime::new(p.clone()).expect("failed to load module"));
+                // });
             }
             Case::AssertReturn(AssertReturn {
                 action, expected, ..

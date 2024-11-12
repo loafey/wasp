@@ -2,7 +2,7 @@ use crate::parser::{
     BlockType, Elem, Expr, FuncIdx, FuncType, ImportDesc, Instr, LabelIdX, LocalIdX, Module, Name,
     TableIdX, TypeIdX, BT,
 };
-use std::{collections::HashMap, ops::Deref};
+use std::{collections::HashMap, ops::Deref, u32};
 
 #[derive(Debug)]
 pub enum Function {
@@ -59,6 +59,8 @@ impl From<Module> for Model {
 
             functions.insert(k as u32, v);
         }
+
+        let mut if_else_count = u32::MAX;
 
         for (k, code) in value.code.code.into_iter().enumerate() {
             let ty = code.code.t;
@@ -118,7 +120,7 @@ impl From<Module> for Model {
                         code.insert(pc, Instr::x0d_br_if(LabelIdX(0))); // then block end
                         code.insert(pc, Instr::x73_i32_xor);
                         code.insert(pc, Instr::x41_i32_const(1));
-                        code.insert(pc, Instr::x20_local_get(LocalIdX(u32::MAX)));
+                        code.insert(pc, Instr::x20_local_get(LocalIdX(if_else_count)));
                         // THIS IS SO DISGUSTING
 
                         if els_exists {
@@ -126,7 +128,8 @@ impl From<Module> for Model {
                             // then block end
                         }
                         code.insert(pc, Instr::block_start(BT::Block, 0, bt)); // then block end
-                        code.insert(pc, Instr::x21_local_set(LocalIdX(u32::MAX)));
+                        code.insert(pc, Instr::x21_local_set(LocalIdX(if_else_count)));
+                        if_else_count -= 1;
                         // THIS IS SO DISGUSTING
                     }
                     _ => {}

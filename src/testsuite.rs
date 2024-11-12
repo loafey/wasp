@@ -330,7 +330,7 @@ pub fn test(mut path: String) {
                                 }
                             }
                             Err(e) => {
-                                error!("{e:?} ({:?})", rt.path);
+                                error!("test {test_i}/{total_tests} failed (module: {module_index}, invoke: {field:?}, error: {e:?})");
                                 std::process::exit(1);
                             }
                             Ok(()) => (),

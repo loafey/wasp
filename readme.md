@@ -5,278 +5,12 @@
 💩: 136
 ## Failed: test-suite/test/core/block.wast
 ```bash
-
-block_end: Eps
-stack bef: []
-last: []
-stack aft: []
-
-block_end: Eps
-stack bef: []
-last: []
-stack aft: []
-
-block_end: Eps
-stack bef: []
-last: []
-stack aft: []
-
-block_end: T(Num(I32))
-stack bef: []
-last: [i32(7)]
-stack aft: [i32(7)]
-
-block_end: Eps
-stack bef: []
-last: []
-stack aft: []
-
-block_end: T(Num(I32))
-stack bef: []
-last: [i32(7)]
-stack aft: [i32(7)]
-
-block_end: TypIdx(5)
-stack bef: []
-last: [i32(9), i64(7), i32(8)]
-stack aft: [i32(8), i64(7), i32(9)]
-
-block_end: Eps
-stack bef: [--- BLOCK ---, --- BLOCK ---]
-last: []
-stack aft: [--- BLOCK ---, --- BLOCK ---]
-
-block_end: Eps
-stack bef: [--- BLOCK ---]
-last: []
-stack aft: [--- BLOCK ---]
-
-block_end: T(Num(I32))
-stack bef: [--- BLOCK ---]
-last: [i32(9)]
-stack aft: [--- BLOCK ---, i32(9)]
-
-block_end: T(Num(I32))
-stack bef: []
-last: [i32(9)]
-stack aft: [i32(9)]
-
-block_end: T(Num(I32))
-stack bef: [--- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---]
-last: [i32(150)]
-stack aft: [--- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, i32(150)]
-
-block_end: T(Num(I32))
-stack bef: [--- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---]
-last: [i32(150)]
-stack aft: [--- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, i32(150)]
-
-block_end: T(Num(I32))
-stack bef: [--- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---]
-last: [i32(150)]
-stack aft: [--- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, i32(150)]
-
-block_end: T(Num(I32))
-stack bef: [--- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---]
-last: [i32(150)]
-stack aft: [--- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, i32(150)]
-
-block_end: T(Num(I32))
-stack bef: [--- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---]
-last: [i32(150)]
-stack aft: [--- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, i32(150)]
-
-block_end: T(Num(I32))
-stack bef: [--- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---]
-last: [i32(150)]
-stack aft: [--- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, i32(150)]
-
-block_end: T(Num(I32))
-stack bef: [--- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---]
-last: [i32(150)]
-stack aft: [--- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, i32(150)]
-
-block_end: T(Num(I32))
-stack bef: [--- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---]
-last: [i32(150)]
-stack aft: [--- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, i32(150)]
-
-block_end: T(Num(I32))
-stack bef: [--- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---]
-last: [i32(150)]
-stack aft: [--- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, i32(150)]
-
-block_end: T(Num(I32))
-stack bef: [--- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---]
-last: [i32(150)]
-stack aft: [--- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, i32(150)]
-
-block_end: T(Num(I32))
-stack bef: [--- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---]
-last: [i32(150)]
-stack aft: [--- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, i32(150)]
-
-block_end: T(Num(I32))
-stack bef: [--- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---]
-last: [i32(150)]
-stack aft: [--- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, i32(150)]
-
-block_end: T(Num(I32))
-stack bef: [--- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---]
-last: [i32(150)]
-stack aft: [--- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, i32(150)]
-
-block_end: T(Num(I32))
-stack bef: [--- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---]
-last: [i32(150)]
-stack aft: [--- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, i32(150)]
-
-block_end: T(Num(I32))
-stack bef: [--- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---]
-last: [i32(150)]
-stack aft: [--- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, i32(150)]
-
-block_end: T(Num(I32))
-stack bef: [--- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---]
-last: [i32(150)]
-stack aft: [--- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, i32(150)]
-
-block_end: T(Num(I32))
-stack bef: [--- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---]
-last: [i32(150)]
-stack aft: [--- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, i32(150)]
-
-block_end: T(Num(I32))
-stack bef: [--- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---]
-last: [i32(150)]
-stack aft: [--- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, i32(150)]
-
-block_end: T(Num(I32))
-stack bef: [--- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---]
-last: [i32(150)]
-stack aft: [--- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, i32(150)]
-
-block_end: T(Num(I32))
-stack bef: [--- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---]
-last: [i32(150)]
-stack aft: [--- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, i32(150)]
-
-block_end: T(Num(I32))
-stack bef: [--- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---]
-last: [i32(150)]
-stack aft: [--- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, i32(150)]
-
-block_end: T(Num(I32))
-stack bef: [--- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---]
-last: [i32(150)]
-stack aft: [--- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, i32(150)]
-
-block_end: T(Num(I32))
-stack bef: [--- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---]
-last: [i32(150)]
-stack aft: [--- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, i32(150)]
-
-block_end: T(Num(I32))
-stack bef: [--- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---]
-last: [i32(150)]
-stack aft: [--- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, i32(150)]
-
-block_end: T(Num(I32))
-stack bef: [--- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---]
-last: [i32(150)]
-stack aft: [--- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, i32(150)]
-
-block_end: T(Num(I32))
-stack bef: [--- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---]
-last: [i32(150)]
-stack aft: [--- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, i32(150)]
-
-block_end: T(Num(I32))
-stack bef: [--- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---]
-last: [i32(150)]
-stack aft: [--- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, i32(150)]
-
-block_end: T(Num(I32))
-stack bef: [--- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---]
-last: [i32(150)]
-stack aft: [--- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, i32(150)]
-
-block_end: T(Num(I32))
-stack bef: [--- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---]
-last: [i32(150)]
-stack aft: [--- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, i32(150)]
-
-block_end: T(Num(I32))
-stack bef: [--- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---]
-last: [i32(150)]
-stack aft: [--- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, i32(150)]
-
-block_end: T(Num(I32))
-stack bef: [--- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---]
-last: [i32(150)]
-stack aft: [--- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, i32(150)]
-
-block_end: T(Num(I32))
-stack bef: [--- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---]
-last: [i32(150)]
-stack aft: [--- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, i32(150)]
-
-block_end: T(Num(I32))
-stack bef: [--- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---]
-last: [i32(150)]
-stack aft: [--- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, i32(150)]
-
-block_end: T(Num(I32))
-stack bef: [--- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---]
-last: [i32(150)]
-stack aft: [--- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, i32(150)]
-
-block_end: T(Num(I32))
-stack bef: [--- BLOCK ---, --- BLOCK ---, --- BLOCK ---]
-last: [i32(150)]
-stack aft: [--- BLOCK ---, --- BLOCK ---, --- BLOCK ---, i32(150)]
-
-block_end: T(Num(I32))
-stack bef: [--- BLOCK ---, --- BLOCK ---]
-last: [i32(150)]
-stack aft: [--- BLOCK ---, --- BLOCK ---, i32(150)]
-
-block_end: T(Num(I32))
-stack bef: [--- BLOCK ---]
-last: [i32(150)]
-stack aft: [--- BLOCK ---, i32(150)]
-
-block_end: T(Num(I32))
-stack bef: []
-last: [i32(150)]
-stack aft: [i32(150)]
-
-block_end: T(Num(I32))
-stack bef: []
-last: [i32(1)]
-stack aft: [i32(1)]
-[i32(1), i32(2), i32(3)]
-3 i32(2) i32(1)
-
-block_end: T(Num(I32))
-stack bef: [i32(2)]
-last: [i32(1)]
-stack aft: [i32(2), i32(1)]
-[i32(2), i32(1), i32(3)]
-3 i32(1) i32(2)
-
-block_end: T(Num(I32))
-stack bef: [i32(2), i32(3)]
-last: [i32(1)]
-stack aft: [i32(2), i32(3), i32(1)]
-[i32(2), i32(3), i32(1)]
-1 i32(3) i32(2)
- ERROR wasp::testsuite > test 8/223 failed (module: 0, invoke: "as-select-last", got [i32(3)], but expected [i32(2)])
+ ERROR wasp::testsuite > test 12/223 failed (module: 0, invoke: "as-if-condition", error: missing jump label: src/runtime/mod.rs:322:34)
 ```
 
 ## Failed: test-suite/test/core/br.wast
 ```bash
-thread 'main' panicked at src/testsuite.rs:302:54:
+thread 'main' panicked at src/testsuite.rs:303:54:
 failed to load module: ParseError(File: "test-suite/test/core/br.0.wasm"
 UnknownInstruction(<7a>), bin pos: 1484, stack: [
     "wasp::parser::instr::Instr",
@@ -293,7 +27,7 @@ note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 
 ## Failed: test-suite/test/core/br_if.wast
 ```bash
-thread 'main' panicked at src/testsuite.rs:302:54:
+thread 'main' panicked at src/testsuite.rs:303:54:
 failed to load module: ParseError(File: "test-suite/test/core/br_if.0.wasm"
 UnknownInstruction(<7a>), bin pos: 1286, stack: [
     "wasp::parser::instr::Instr",
@@ -317,7 +51,7 @@ note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 
 ## Failed: test-suite/test/core/bulk.wast
 ```bash
-thread 'main' panicked at src/runtime/mod.rs:774:25:
+thread 'main' panicked at src/runtime/mod.rs:768:25:
 not implemented: instruction not supported : xfc_11_memory_fill(0)
 note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 ```
@@ -343,7 +77,7 @@ note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 
 ## Failed: test-suite/test/core/conversions.wast
 ```bash
-thread 'main' panicked at src/testsuite.rs:302:54:
+thread 'main' panicked at src/testsuite.rs:303:54:
 failed to load module: ParseError(File: "test-suite/test/core/conversions.0.wasm"
 UnknownInstruction(<a8>), bin pos: 794, stack: [
     "wasp::parser::instr::Instr",
@@ -359,7 +93,7 @@ note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 
 ## Failed: test-suite/test/core/custom.wast
 ```bash
-thread 'main' panicked at src/testsuite.rs:302:54:
+thread 'main' panicked at src/testsuite.rs:303:54:
 failed to load module: ParseError(File: "test-suite/test/core/custom.0.wasm"
 SectionSizeMismatch(46, 267), bin pos: 267, stack: [
     "u8",
@@ -371,7 +105,7 @@ note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 
 ## Failed: test-suite/test/core/data.wast
 ```bash
-thread 'main' panicked at src/testsuite.rs:302:54:
+thread 'main' panicked at src/testsuite.rs:303:54:
 failed to load module: ActiveDataWithoutOffset
 note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 ```
@@ -385,7 +119,7 @@ note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 
 ## Failed: test-suite/test/core/endianness.wast
 ```bash
-thread 'main' panicked at src/testsuite.rs:302:54:
+thread 'main' panicked at src/testsuite.rs:303:54:
 failed to load module: ParseError(File: "test-suite/test/core/endianness.0.wasm"
 UnknownInstruction(<bc>), bin pos: 557, stack: [
     "wasp::parser::instr::Instr",
@@ -408,7 +142,7 @@ note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 
 ## Failed: test-suite/test/core/f32.wast
 ```bash
-thread 'main' panicked at src/testsuite.rs:302:54:
+thread 'main' panicked at src/testsuite.rs:303:54:
 failed to load module: ParseError(File: "test-suite/test/core/f32.0.wasm"
 UnknownInstruction(<92>), bin pos: 125, stack: [
     "wasp::parser::instr::Instr",
@@ -424,7 +158,7 @@ note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 
 ## Failed: test-suite/test/core/f32_bitwise.wast
 ```bash
-thread 'main' panicked at src/testsuite.rs:302:54:
+thread 'main' panicked at src/testsuite.rs:303:54:
 failed to load module: ParseError(File: "test-suite/test/core/f32_bitwise.0.wasm"
 UnknownInstruction(<8b>), bin pos: 62, stack: [
     "wasp::parser::instr::Instr",
@@ -440,7 +174,7 @@ note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 
 ## Failed: test-suite/test/core/f32_cmp.wast
 ```bash
-thread 'main' panicked at src/testsuite.rs:302:54:
+thread 'main' panicked at src/testsuite.rs:303:54:
 failed to load module: ParseError(File: "test-suite/test/core/f32_cmp.0.wasm"
 UnknownInstruction(<5b>), bin pos: 69, stack: [
     "wasp::parser::instr::Instr",
@@ -456,7 +190,7 @@ note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 
 ## Failed: test-suite/test/core/f64.wast
 ```bash
-thread 'main' panicked at src/testsuite.rs:302:54:
+thread 'main' panicked at src/testsuite.rs:303:54:
 failed to load module: ParseError(File: "test-suite/test/core/f64.0.wasm"
 UnknownInstruction(<a3>), bin pos: 149, stack: [
     "wasp::parser::instr::Instr",
@@ -472,7 +206,7 @@ note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 
 ## Failed: test-suite/test/core/f64_bitwise.wast
 ```bash
-thread 'main' panicked at src/testsuite.rs:302:54:
+thread 'main' panicked at src/testsuite.rs:303:54:
 failed to load module: ParseError(File: "test-suite/test/core/f64_bitwise.0.wasm"
 UnknownInstruction(<a6>), bin pos: 76, stack: [
     "wasp::parser::instr::Instr",
@@ -488,7 +222,7 @@ note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 
 ## Failed: test-suite/test/core/f64_cmp.wast
 ```bash
-thread 'main' panicked at src/testsuite.rs:302:54:
+thread 'main' panicked at src/testsuite.rs:303:54:
 failed to load module: ParseError(File: "test-suite/test/core/f64_cmp.0.wasm"
 UnknownInstruction(<65>), bin pos: 93, stack: [
     "wasp::parser::instr::Instr",
@@ -511,14 +245,14 @@ note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 
 ## Failed: test-suite/test/core/float_exprs.wast
 ```bash
-thread 'main' panicked at src/runtime/mod.rs:774:25:
+thread 'main' panicked at src/runtime/mod.rs:768:25:
 not implemented: instruction not supported : xa2_f64_mul
 note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 ```
 
 ## Failed: test-suite/test/core/float_literals.wast
 ```bash
-thread 'main' panicked at src/testsuite.rs:302:54:
+thread 'main' panicked at src/testsuite.rs:303:54:
 failed to load module: ParseError(File: "test-suite/test/core/float_literals.0.wasm"
 UnknownInstruction(<bc>), bin pos: 1960, stack: [
     "wasp::parser::instr::Instr",
@@ -539,7 +273,7 @@ note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 
 ## Failed: test-suite/test/core/float_misc.wast
 ```bash
-thread 'main' panicked at src/testsuite.rs:302:54:
+thread 'main' panicked at src/testsuite.rs:303:54:
 failed to load module: ParseError(File: "test-suite/test/core/float_misc.0.wasm"
 UnknownInstruction(<92>), bin pos: 389, stack: [
     "wasp::parser::instr::Instr",
@@ -555,7 +289,7 @@ note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 
 ## Failed: test-suite/test/core/forward.wast
 ```bash
-thread 'main' panicked at src/testsuite.rs:302:54:
+thread 'main' panicked at src/testsuite.rs:303:54:
 failed to load module: ParseError(File: "test-suite/test/core/forward.0.wasm"
 SectionSizeMismatch(82, 81), bin pos: 81, stack: [
     "wasp::parser::codesec::CodeSection",
@@ -566,7 +300,7 @@ note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 
 ## Failed: test-suite/test/core/func.wast
 ```bash
-thread 'main' panicked at src/testsuite.rs:302:54:
+thread 'main' panicked at src/testsuite.rs:303:54:
 failed to load module: ParseError(File: "test-suite/test/core/func.0.wasm"
 UnknownInstruction(<8c>), bin pos: 1723, stack: [
     "wasp::parser::instr::Instr",
@@ -594,7 +328,7 @@ note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 
 ## Failed: test-suite/test/core/i32.wast
 ```bash
-thread 'main' panicked at src/testsuite.rs:302:54:
+thread 'main' panicked at src/testsuite.rs:303:54:
 failed to load module: ParseError(File: "test-suite/test/core/i32.0.wasm"
 UnknownInstruction(<6f>), bin pos: 332, stack: [
     "wasp::parser::instr::Instr",
@@ -610,7 +344,7 @@ note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 
 ## Failed: test-suite/test/core/i64.wast
 ```bash
-thread 'main' panicked at src/testsuite.rs:302:54:
+thread 'main' panicked at src/testsuite.rs:303:54:
 failed to load module: ParseError(File: "test-suite/test/core/i64.0.wasm"
 UnknownInstruction(<81>), bin pos: 357, stack: [
     "wasp::parser::instr::Instr",
@@ -626,7 +360,7 @@ note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 
 ## Failed: test-suite/test/core/if.wast
 ```bash
-thread 'main' panicked at src/testsuite.rs:302:54:
+thread 'main' panicked at src/testsuite.rs:303:54:
 failed to load module: ParseError(File: "test-suite/test/core/if.0.wasm"
 Unknown0x40(<10>), bin pos: 1247, stack: [
     "wasp::parser::instr::Instr",
@@ -649,21 +383,21 @@ note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 
 ## Failed: test-suite/test/core/int_exprs.wast
 ```bash
-thread 'main' panicked at src/runtime/mod.rs:689:49:
+thread 'main' panicked at src/runtime/mod.rs:687:49:
 attempt to add with overflow
 note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 ```
 
 ## Failed: test-suite/test/core/int_literals.wast
 ```bash
-thread 'main' panicked at src/runtime/mod.rs:774:25:
+thread 'main' panicked at src/runtime/mod.rs:768:25:
 not implemented: instruction not supported : x7c_i64_add
 note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 ```
 
 ## Failed: test-suite/test/core/labels.wast
 ```bash
-thread 'main' panicked at src/testsuite.rs:302:54:
+thread 'main' panicked at src/testsuite.rs:303:54:
 failed to load module: ParseError(File: "test-suite/test/core/labels.0.wasm"
 SectionSizeMismatch(972, 712), bin pos: 712, stack: [
     "wasp::parser::codesec::CodeSection",
@@ -674,7 +408,7 @@ note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 
 ## Failed: test-suite/test/core/left-to-right.wast
 ```bash
-thread 'main' panicked at src/testsuite.rs:302:54:
+thread 'main' panicked at src/testsuite.rs:303:54:
 failed to load module: ParseError(File: "test-suite/test/core/left-to-right.0.wasm"
 UnknownInstruction(<6f>), bin pos: 1805, stack: [
     "wasp::parser::instr::Instr",
@@ -702,7 +436,7 @@ note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 
 ## Failed: test-suite/test/core/local_get.wast
 ```bash
-thread 'main' panicked at src/testsuite.rs:302:54:
+thread 'main' panicked at src/testsuite.rs:303:54:
 failed to load module: ParseError(File: "test-suite/test/core/local_get.0.wasm"
 UnknownInstruction(<8c>), bin pos: 463, stack: [
     "wasp::parser::instr::Instr",
@@ -718,7 +452,7 @@ note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 
 ## Failed: test-suite/test/core/local_set.wast
 ```bash
-thread 'main' panicked at src/testsuite.rs:302:54:
+thread 'main' panicked at src/testsuite.rs:303:54:
 failed to load module: ParseError(File: "test-suite/test/core/local_set.0.wasm"
 UnknownInstruction(<ba>), bin pos: 581, stack: [
     "wasp::parser::instr::Instr",
@@ -734,7 +468,7 @@ note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 
 ## Failed: test-suite/test/core/local_tee.wast
 ```bash
-thread 'main' panicked at src/testsuite.rs:302:54:
+thread 'main' panicked at src/testsuite.rs:303:54:
 failed to load module: ParseError(File: "test-suite/test/core/local_tee.0.wasm"
 UnknownInstruction(<8c>), bin pos: 1275, stack: [
     "wasp::parser::instr::Instr",
@@ -750,7 +484,7 @@ note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 
 ## Failed: test-suite/test/core/loop.wast
 ```bash
-thread 'main' panicked at src/testsuite.rs:302:54:
+thread 'main' panicked at src/testsuite.rs:303:54:
 failed to load module: ParseError(File: "test-suite/test/core/loop.0.wasm"
 UnknownInstruction(<5b>), bin pos: 2296, stack: [
     "wasp::parser::instr::Instr",
@@ -773,14 +507,14 @@ note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 
 ## Failed: test-suite/test/core/memory_copy.wast
 ```bash
-thread 'main' panicked at src/runtime/mod.rs:774:25:
+thread 'main' panicked at src/runtime/mod.rs:768:25:
 not implemented: instruction not supported : xfc_10_memory_copy(0, 0)
 note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 ```
 
 ## Failed: test-suite/test/core/memory_fill.wast
 ```bash
-thread 'main' panicked at src/runtime/mod.rs:774:25:
+thread 'main' panicked at src/runtime/mod.rs:768:25:
 not implemented: instruction not supported : xfc_11_memory_fill(0)
 note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 ```
@@ -794,7 +528,7 @@ note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 
 ## Failed: test-suite/test/core/memory_init.wast
 ```bash
-thread 'main' panicked at src/testsuite.rs:302:54:
+thread 'main' panicked at src/testsuite.rs:303:54:
 failed to load module: ParseError(File: "test-suite/test/core/memory_init.1.wasm"
 InvalidDataCount, bin pos: 63, stack: [
     "wasp::parser::module::Module",
@@ -804,7 +538,7 @@ note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 
 ## Failed: test-suite/test/core/memory_size.wast
 ```bash
-thread 'main' panicked at src/testsuite.rs:302:54:
+thread 'main' panicked at src/testsuite.rs:303:54:
 failed to load module: ParseError(File: "test-suite/test/core/memory_size.0.wasm"
 UnknownInstruction(<3f>), bin pos: 52, stack: [
     "wasp::parser::instr::Instr",
@@ -820,7 +554,7 @@ note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 
 ## Failed: test-suite/test/core/memory_trap.wast
 ```bash
-thread 'main' panicked at src/testsuite.rs:302:54:
+thread 'main' panicked at src/testsuite.rs:303:54:
 failed to load module: ParseError(File: "test-suite/test/core/memory_trap.0.wasm"
 UnknownInstruction(<3f>), bin pos: 75, stack: [
     "wasp::parser::instr::Instr",
@@ -836,62 +570,12 @@ note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 
 ## Failed: test-suite/test/core/names.wast
 ```bash
- ERROR wasp::testsuite > unknown function: spectest::print_i32 ("test-suite/test/core/names.3.wasm")
+ ERROR wasp::testsuite > test 485/486 failed (module: 3, invoke: "print32", error: unknown function: spectest::print_i32)
 ```
 
 ## Failed: test-suite/test/core/nop.wast
 ```bash
-[i32(3), i32(3), i32(3)]
-3 i32(3) i32(3)
-[i32(3), i32(3), i32(3)]
-3 i32(3) i32(3)
-[i32(3), i32(3), i32(3)]
-3 i32(3) i32(3)
-[i32(3), i32(3), i32(3)]
-3 i32(3) i32(3)
-[i32(3), i32(3), i32(3)]
-3 i32(3) i32(3)
-
-block_end: T(Num(I32))
-stack bef: []
-last: [i32(2)]
-stack aft: [i32(2)]
-
-block_end: T(Num(I32))
-stack bef: []
-last: [i32(2)]
-stack aft: [i32(2)]
-
-block_end: T(Num(I32))
-stack bef: []
-last: [i32(3)]
-stack aft: [i32(3)]
-
-block_end: T(Num(I32))
-stack bef: []
-last: [i32(4)]
-stack aft: [i32(4)]
-
-block_end: T(Num(I32))
-stack bef: []
-last: [i32(2)]
-stack aft: [i32(2)]
-
-block_end: T(Num(I32))
-stack bef: []
-last: [i32(2)]
-stack aft: [i32(2)]
-
-block_end: T(Num(I32))
-stack bef: []
-last: [i32(3)]
-stack aft: [i32(3)]
-
-block_end: T(Num(I32))
-stack bef: []
-last: [i32(4)]
-stack aft: [i32(4)]
-thread 'main' panicked at src/runtime/mod.rs:774:25:
+thread 'main' panicked at src/runtime/mod.rs:768:25:
 not implemented: instruction not supported : x00_unreachable
 note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 ```
@@ -919,7 +603,7 @@ note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 
 ## Failed: test-suite/test/core/return.wast
 ```bash
-thread 'main' panicked at src/testsuite.rs:302:54:
+thread 'main' panicked at src/testsuite.rs:303:54:
 failed to load module: ParseError(File: "test-suite/test/core/return.0.wasm"
 UnknownInstruction(<7a>), bin pos: 1172, stack: [
     "wasp::parser::instr::Instr",
@@ -1177,7 +861,7 @@ note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 
 ## Failed: test-suite/test/core/stack.wast
 ```bash
-thread 'main' panicked at src/runtime/mod.rs:774:25:
+thread 'main' panicked at src/runtime/mod.rs:768:25:
 not implemented: instruction not supported : x51_i64_eq
 note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 ```
@@ -1189,7 +873,7 @@ note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 
 ## Failed: test-suite/test/core/store.wast
 ```bash
-thread 'main' panicked at src/testsuite.rs:302:54:
+thread 'main' panicked at src/testsuite.rs:303:54:
 failed to load module: ParseError(File: "test-suite/test/core/store.0.wasm"
 SectionSizeMismatch(324, 323), bin pos: 323, stack: [
     "wasp::parser::codesec::CodeSection",
@@ -1268,14 +952,14 @@ note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 
 ## Failed: test-suite/test/core/traps.wast
 ```bash
-thread 'main' panicked at src/runtime/mod.rs:774:25:
+thread 'main' panicked at src/runtime/mod.rs:768:25:
 not implemented: instruction not supported : x6d_i32_div_s
 note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 ```
 
 ## Failed: test-suite/test/core/unreachable.wast
 ```bash
-thread 'main' panicked at src/testsuite.rs:302:54:
+thread 'main' panicked at src/testsuite.rs:303:54:
 failed to load module: ParseError(File: "test-suite/test/core/unreachable.0.wasm"
 UnknownInstruction(<8c>), bin pos: 1689, stack: [
     "wasp::parser::instr::Instr",
@@ -1296,7 +980,7 @@ note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 
 ## Failed: test-suite/test/core/unreached-valid.wast
 ```bash
-thread 'main' panicked at src/testsuite.rs:302:54:
+thread 'main' panicked at src/testsuite.rs:303:54:
 failed to load module: ParseError(File: "test-suite/test/core/unreached-valid.0.wasm"
 UnknownInstruction(<d1>), bin pos: 273, stack: [
     "wasp::parser::instr::Instr",
@@ -1312,7 +996,7 @@ note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 
 ## Failed: test-suite/test/core/unwind.wast
 ```bash
-thread 'main' panicked at src/runtime/mod.rs:774:25:
+thread 'main' panicked at src/runtime/mod.rs:768:25:
 not implemented: instruction not supported : x00_unreachable
 note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 ```

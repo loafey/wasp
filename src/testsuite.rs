@@ -3,7 +3,7 @@ use serde::Deserialize;
 use std::{cell::RefCell, collections::HashMap, fs, path::PathBuf, rc::Rc};
 
 use crate::{
-    parser::{ExportDesc, TypeIdX},
+    parser::{ExportDesc, Instr, TypeIdX},
     runtime::{Frame, Runtime, RuntimeError, Value},
 };
 
@@ -317,6 +317,7 @@ pub fn test(mut path: String) {
                 handle_action(rt, action, move |rt, field| {
                     let mut last;
                     loop {
+                        let id = rt.stack.first().expect("no first").func_id;
                         last = rt.stack.first().expect("no first").stack.clone();
                         match rt.step() {
                             Err(RuntimeError::NoFrame(_, _, _)) => {
@@ -325,6 +326,24 @@ pub fn test(mut path: String) {
                                 if last == expected {
                                     break;
                                 } else {
+                                    // if let Some(crate::runtime::clean_model::Function::Local {
+                                    //     ty,
+                                    //     locals,
+                                    //     code,
+                                    //     labels,
+                                    // }) = rt.module.functions.get(&id)
+                                    // {
+                                    //     let mut ind = 0;
+                                    //     for c in code {
+                                    //         if let Instr::block_end(_, _, _) = c {
+                                    //             ind -= 1
+                                    //         }
+                                    //         println!("{}{c:?}", ". . ".repeat(ind));
+                                    //         if let Instr::block_start(_, _, _) = c {
+                                    //             ind += 1
+                                    //         }
+                                    //     }
+                                    // }
                                     error!("test {test_i}/{total_tests} failed (module: {module_index}, invoke: {field:?}, got {last:?}, but expected {expected:?})");
                                     std::process::exit(1);
                                 }

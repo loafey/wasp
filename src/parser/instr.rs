@@ -219,9 +219,7 @@ impl Parsable for Instr {
                         Err(e) => Err(e)?,
                     }
                 }
-                let before = data.position();
-                let p: u8 = p!();
-                let els = if p == 0x05 {
+                let els = {
                     let mut v = Vec::new();
                     loop {
                         match Instr::parse(data, stack) {
@@ -233,12 +231,9 @@ impl Parsable for Instr {
                             Err(e) => Err(e)?,
                         }
                     }
-                    Some(v)
-                } else {
-                    data.set_position(before);
-                    None
+                    v
                 };
-                x04_if_else(block_type, v, els)
+                x04_if_else(block_type, v, Some(els))
             }
             0x05 => Err(ParseError::ElseHit)?,
             0x06 => Err(ParseError::UnknownInstruction(Hex(typ)))?,

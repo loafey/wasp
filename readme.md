@@ -5,7 +5,9 @@
 💩: 136
 ## Failed: test-suite/test/core/block.wast
 ```bash
- ERROR wasp::testsuite > test 12/223 failed (module: 0, invoke: "as-if-condition", error: missing jump label: src/runtime/mod.rs:322:34)
+thread 'main' panicked at src/runtime/mod.rs:393:35:
+index out of bounds: the len is 1 but the index is 1
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 ```
 
 ## Failed: test-suite/test/core/br.wast
@@ -51,7 +53,7 @@ note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 
 ## Failed: test-suite/test/core/bulk.wast
 ```bash
-thread 'main' panicked at src/runtime/mod.rs:768:25:
+thread 'main' panicked at src/runtime/mod.rs:807:25:
 not implemented: instruction not supported : xfc_11_memory_fill(0)
 note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 ```
@@ -245,7 +247,7 @@ note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 
 ## Failed: test-suite/test/core/float_exprs.wast
 ```bash
-thread 'main' panicked at src/runtime/mod.rs:768:25:
+thread 'main' panicked at src/runtime/mod.rs:807:25:
 not implemented: instruction not supported : xa2_f64_mul
 note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 ```
@@ -289,13 +291,7 @@ note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 
 ## Failed: test-suite/test/core/forward.wast
 ```bash
-thread 'main' panicked at src/testsuite.rs:303:54:
-failed to load module: ParseError(File: "test-suite/test/core/forward.0.wasm"
-SectionSizeMismatch(82, 81), bin pos: 81, stack: [
-    "wasp::parser::codesec::CodeSection",
-    "wasp::parser::module::Module",
-])
-note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+ ERROR wasp::testsuite > test 1/5 failed (module: 0, invoke: "even", error: empty stack: src/runtime/mod.rs:376:62)
 ```
 
 ## Failed: test-suite/test/core/func.wast
@@ -360,18 +356,7 @@ note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 
 ## Failed: test-suite/test/core/if.wast
 ```bash
-thread 'main' panicked at src/testsuite.rs:303:54:
-failed to load module: ParseError(File: "test-suite/test/core/if.0.wasm"
-Unknown0x40(<10>), bin pos: 1247, stack: [
-    "wasp::parser::instr::Instr",
-    "wasp::parser::expr::Expr",
-    "wasp::parser::func::Func",
-    "wasp::parser::code::Code",
-    "alloc::vec::Vec<wasp::parser::code::Code>",
-    "wasp::parser::codesec::CodeSection",
-    "wasp::parser::module::Module",
-])
-note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+ ERROR wasp::testsuite > test 5/241 failed (module: 0, invoke: "singular", error: empty stack: src/runtime/mod.rs:376:62)
 ```
 
 ## Failed: test-suite/test/core/imports.wast
@@ -383,27 +368,21 @@ note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 
 ## Failed: test-suite/test/core/int_exprs.wast
 ```bash
-thread 'main' panicked at src/runtime/mod.rs:687:49:
+thread 'main' panicked at src/runtime/mod.rs:721:49:
 attempt to add with overflow
 note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 ```
 
 ## Failed: test-suite/test/core/int_literals.wast
 ```bash
-thread 'main' panicked at src/runtime/mod.rs:768:25:
+thread 'main' panicked at src/runtime/mod.rs:807:25:
 not implemented: instruction not supported : x7c_i64_add
 note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 ```
 
 ## Failed: test-suite/test/core/labels.wast
 ```bash
-thread 'main' panicked at src/testsuite.rs:303:54:
-failed to load module: ParseError(File: "test-suite/test/core/labels.0.wasm"
-SectionSizeMismatch(972, 712), bin pos: 712, stack: [
-    "wasp::parser::codesec::CodeSection",
-    "wasp::parser::module::Module",
-])
-note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+ ERROR wasp::testsuite > test 2/29 failed (module: 0, invoke: "loop1", error: empty stack: src/runtime/mod.rs:340:58)
 ```
 
 ## Failed: test-suite/test/core/left-to-right.wast
@@ -431,7 +410,7 @@ note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 
 ## Failed: test-suite/test/core/load.wast
 ```bash
- ERROR wasp::testsuite > test 1/97 failed (module: 0, invoke: "as-br-value", got [], but expected [i32(0)])
+ ERROR wasp::testsuite > test 9/97 failed (module: 0, invoke: "as-if-cond", error: empty stack: src/runtime/mod.rs:376:62)
 ```
 
 ## Failed: test-suite/test/core/local_get.wast
@@ -507,14 +486,14 @@ note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 
 ## Failed: test-suite/test/core/memory_copy.wast
 ```bash
-thread 'main' panicked at src/runtime/mod.rs:768:25:
+thread 'main' panicked at src/runtime/mod.rs:807:25:
 not implemented: instruction not supported : xfc_10_memory_copy(0, 0)
 note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 ```
 
 ## Failed: test-suite/test/core/memory_fill.wast
 ```bash
-thread 'main' panicked at src/runtime/mod.rs:768:25:
+thread 'main' panicked at src/runtime/mod.rs:807:25:
 not implemented: instruction not supported : xfc_11_memory_fill(0)
 note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 ```
@@ -575,9 +554,7 @@ note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 
 ## Failed: test-suite/test/core/nop.wast
 ```bash
-thread 'main' panicked at src/runtime/mod.rs:768:25:
-not implemented: instruction not supported : x00_unreachable
-note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+ ERROR wasp::testsuite > test 41/88 failed (module: 0, invoke: "as-call-first", got [i32(0)], but expected [i32(2)])
 ```
 
 ## Failed: test-suite/test/core/ref_func.wast
@@ -861,7 +838,7 @@ note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 
 ## Failed: test-suite/test/core/stack.wast
 ```bash
-thread 'main' panicked at src/runtime/mod.rs:768:25:
+thread 'main' panicked at src/runtime/mod.rs:807:25:
 not implemented: instruction not supported : x51_i64_eq
 note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 ```
@@ -873,13 +850,7 @@ note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 
 ## Failed: test-suite/test/core/store.wast
 ```bash
-thread 'main' panicked at src/testsuite.rs:303:54:
-failed to load module: ParseError(File: "test-suite/test/core/store.0.wasm"
-SectionSizeMismatch(324, 323), bin pos: 323, stack: [
-    "wasp::parser::codesec::CodeSection",
-    "wasp::parser::module::Module",
-])
-note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+ ERROR wasp::testsuite > test 17/68 did not fail invalidating/parsing, expected error: "type mismatch" (module: "test-suite/test/core/store.8.wasm")
 ```
 
 ## Failed: test-suite/test/core/switch.wast
@@ -889,7 +860,7 @@ note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 
 ## Failed: test-suite/test/core/table-sub.wast
 ```bash
-thread 'main' panicked at src/parser/instr.rs:509:24:
+thread 'main' panicked at src/parser/instr.rs:504:24:
 not yet implemented: 0xfc 14
 note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 ```
@@ -945,14 +916,14 @@ note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 
 ## Failed: test-suite/test/core/table_size.wast
 ```bash
-thread 'main' panicked at src/parser/instr.rs:509:24:
+thread 'main' panicked at src/parser/instr.rs:504:24:
 not yet implemented: 0xfc 16
 note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 ```
 
 ## Failed: test-suite/test/core/traps.wast
 ```bash
-thread 'main' panicked at src/runtime/mod.rs:768:25:
+thread 'main' panicked at src/runtime/mod.rs:807:25:
 not implemented: instruction not supported : x6d_i32_div_s
 note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 ```
@@ -996,7 +967,7 @@ note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 
 ## Failed: test-suite/test/core/unwind.wast
 ```bash
-thread 'main' panicked at src/runtime/mod.rs:768:25:
+thread 'main' panicked at src/runtime/mod.rs:807:25:
 not implemented: instruction not supported : x00_unreachable
 note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 ```

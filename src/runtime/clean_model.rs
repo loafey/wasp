@@ -102,10 +102,10 @@ impl From<Module> for Model {
                         code.remove(pc);
 
                         if let Some(els) = els {
+                            code.insert(pc, Instr::block_end(BT::Block, 0, bt));
                             for i in els.into_iter().rev() {
                                 code.insert(pc, i);
                             }
-                            code.insert(pc, Instr::block_end(BT::Block, 0, bt));
                             // els block end
                         }
                         code.insert(pc, Instr::block_end(BT::Block, 0, bt)); // then block end

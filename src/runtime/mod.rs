@@ -17,7 +17,7 @@ use RuntimeError::*;
 use crate::parser::{
     self, BlockType, ExportDesc, FuncIdx, Global, GlobalIdX,
     Instr::{self, *},
-    LabelIdX, LocalIdX, MemArg, MemIdX, Module, Parsable, TableIdX, TypeIdX, BT,
+    LabelIdX, LocalIdX, MemArg, MemIdX, Module, Parsable, TableIdX, TypeIdX, ValType, BT,
 };
 
 #[derive(Clone, Copy, PartialEq)]
@@ -45,6 +45,7 @@ impl std::fmt::Debug for Value {
 pub struct DepthValue {
     bt: BT,
     pos: usize,
+    vt: BlockType,
 }
 
 impl Debug for DepthValue {
@@ -329,9 +330,20 @@ impl Runtime {
                             }
                         }
                         for _ in 0..=*label {
+                            let mut collect = Vec::new();
                             loop {
-                                if matches!(pop!(), Value::BlockLock) {
+                                let p = pop!();
+                                if matches!(p, Value::BlockLock) {
+                                    match bt.vt {
+                                        BlockType::Eps => {}
+                                        BlockType::T(_) => {
+                                            f.stack.push(unwrap!(collect.pop(), EmptyStack))
+                                        }
+                                        BlockType::TypIdx(_) => todo!(),
+                                    }
                                     break;
+                                } else {
+                                    collect.push(p);
                                 }
                             }
                         }
@@ -354,9 +366,20 @@ impl Runtime {
                                 }
                             }
                             for _ in 0..=*label {
+                                let mut collect = Vec::new();
                                 loop {
-                                    if matches!(pop!(), Value::BlockLock) {
+                                    let p = pop!();
+                                    if matches!(p, Value::BlockLock) {
+                                        match bt.vt {
+                                            BlockType::Eps => {}
+                                            BlockType::T(_) => {
+                                                f.stack.push(unwrap!(collect.pop(), EmptyStack))
+                                            }
+                                            BlockType::TypIdx(_) => todo!(),
+                                        }
                                         break;
+                                    } else {
+                                        collect.push(p);
                                     }
                                 }
                             }
@@ -384,9 +407,20 @@ impl Runtime {
                             }
                         }
                         for _ in 0..=*label {
+                            let mut collect = Vec::new();
                             loop {
-                                if matches!(pop!(), Value::BlockLock) {
+                                let p = pop!();
+                                if matches!(p, Value::BlockLock) {
+                                    match bt.vt {
+                                        BlockType::Eps => {}
+                                        BlockType::T(_) => {
+                                            f.stack.push(unwrap!(collect.pop(), EmptyStack))
+                                        }
+                                        BlockType::TypIdx(_) => todo!(),
+                                    }
                                     break;
+                                } else {
+                                    collect.push(p);
                                 }
                             }
                         }
@@ -726,14 +760,19 @@ impl Runtime {
                         f.stack
                             .push(Value::I64(unsafe { std::mem::transmute::<u64, i64>(x) }))
                     }
-                    block_start(bt, be, _bt) => {
+                    block_start(bt, be, vt) => {
                         // println!("block_start: {_bt:?}");
                         f.stack.push(Value::BlockLock);
                         match bt {
-                            BT::Block => f.depth_stack.push(DepthValue { bt: *bt, pos: *be }),
+                            BT::Block => f.depth_stack.push(DepthValue {
+                                bt: *bt,
+                                pos: *be,
+                                vt: *vt,
+                            }),
                             BT::Loop => f.depth_stack.push(DepthValue {
                                 bt: *bt,
                                 pos: f.pc - 1,
+                                vt: *vt,
                             }),
                         }
                     }

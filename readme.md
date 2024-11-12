@@ -1,13 +1,8 @@
 # W.A.S.P
 
 ## Latest spec test 
-💅: 11\
-💩: 136
-## Failed: test-suite/test/core/align.wast
-```bash
- ERROR wasp::testsuite > test 155/162 failed (module: 24, invoke: "load", got [i32(-1)], but expected [i32(0)])
-```
-
+💅: 12\
+💩: 135
 ## Failed: test-suite/test/core/block.wast
 ```bash
 thread 'main' panicked at src/runtime/mod.rs:811:25:

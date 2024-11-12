@@ -60,6 +60,18 @@ impl<const PAGE_SIZE: usize> Memory<PAGE_SIZE> {
     pub fn set<T>(&mut self, address: usize, mem_arg: MemArg, val: T) -> Result<(), RuntimeError> {
         // println!("setting {}", address + mem_arg.offset as usize);
         // let align = 2usize.pow(align);
+
+        {
+            let start_address = address + mem_arg.offset as usize;
+            let start_block = start_address / PAGE_SIZE;
+            let end_address = address + mem_arg.offset as usize + mem::size_of::<T>();
+            let end_block = end_address / PAGE_SIZE;
+
+            if start_block >= self.current_pages || end_block >= self.current_pages {
+                return Err(RuntimeError::OutOfBoundsMemoryAccess);
+            }
+        }
+
         let t = &val as *const T as *const u8;
         for i in 0..mem::size_of::<T>() {
             self.set_u8(address + i, mem_arg, unsafe { *t.add(i) })?
@@ -67,22 +79,15 @@ impl<const PAGE_SIZE: usize> Memory<PAGE_SIZE> {
         Ok(())
     }
 
-    fn get_u8(
-        &self,
-        address: usize,
-        MemArg { align: _, offset }: MemArg,
-    ) -> Result<u8, RuntimeError> {
+    fn get_u8(&self, address: usize, MemArg { align: _, offset }: MemArg) -> u8 {
         // let align = 2usize.pow(align);
         let address = address + offset as usize;
         let block = address / PAGE_SIZE;
-        if block >= self.current_pages {
-            return Err(RuntimeError::OutOfBoundsMemoryAccess);
-        }
         let index = address % PAGE_SIZE;
         if let Some(v) = self.map.get(&block) {
-            Ok(v.data[index])
+            v.data[index]
         } else {
-            Ok(0)
+            0
         }
     }
 
@@ -93,8 +98,19 @@ impl<const PAGE_SIZE: usize> Memory<PAGE_SIZE> {
         let mut val = unsafe { mem::zeroed::<T>() };
         let r = &mut val as *mut T as *mut u8;
 
+        {
+            let start_address = address + mem_arg.offset as usize;
+            let start_block = start_address / PAGE_SIZE;
+            let end_address = address + mem_arg.offset as usize + mem::size_of::<T>();
+            let end_block = end_address / PAGE_SIZE;
+
+            if start_block >= self.current_pages || end_block >= self.current_pages {
+                return Err(RuntimeError::OutOfBoundsMemoryAccess);
+            }
+        }
+
         for i in 0..mem::size_of::<T>() {
-            let b = self.get_u8(address + i, mem_arg)?;
+            let b = self.get_u8(address + i, mem_arg);
             unsafe { *r.add(i) = b };
         }
 

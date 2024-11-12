@@ -69,7 +69,7 @@ pub struct Runtime {
     pub module: Model,
     pub stack: Vec<Frame>,
     pub globals: HashMap<u32, Value>,
-    pub memory: Memory<65536>,
+    pub memory: Memory<{ 65536 + 1 }>,
     pub exports: HashMap<String, ExportDesc>,
     #[allow(unused)]
     pub datas: HashMap<u32, Vec<u8>>,

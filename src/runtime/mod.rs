@@ -872,7 +872,7 @@ impl Runtime {
                         push!(u64, x)
                     }
                     block_start(bt, be, vt) => {
-                        // println!("block_start: {_bt:?}");
+                        println!("block_start: {vt:?}");
                         push!(Value::BlockLock);
                         match bt {
                             BT::Block => push_depth!(DepthValue {
@@ -888,7 +888,7 @@ impl Runtime {
                         }
                     }
                     block_end(_, _, bt) => {
-                        println!("{bt:?}");
+                        println!("block_end: {bt:?}");
                         let mut last = Vec::new();
                         loop {
                             if let Some(Value::BlockLock) = peek!() {

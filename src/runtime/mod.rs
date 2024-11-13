@@ -1,9 +1,10 @@
+// ! WARNING, this module consists of macro abuse! :)
+
 use std::{
     collections::HashMap,
     fmt::Debug,
     fs::File,
     io::{Cursor, Read},
-    mem,
     path::{Path, PathBuf},
 };
 pub mod clean_model;
@@ -17,7 +18,7 @@ use RuntimeError::*;
 use crate::parser::{
     self, BlockType, ExportDesc, FuncIdx, Global, GlobalIdX,
     Instr::{self, *},
-    LabelIdX, LocalIdX, MemArg, MemIdX, Module, Parsable, TableIdX, TypeIdX, ValType, BT,
+    LabelIdX, LocalIdX, MemArg, MemIdX, Module, Parsable, TableIdX, TypeIdX, BT,
 };
 
 #[derive(Clone, Copy, PartialEq)]
@@ -67,47 +68,54 @@ impl Debug for DepthValue {
 
 macro_rules! gen_macros {
     ($f:expr) => {
+        let f = $f;
+        macro_rules! set_local {
+            ($index:expr, $v:expr) => {{
+                f.locals.insert($index, $v);
+            }};
+        }
+
         macro_rules! local {
             ($index:expr) => {
-                unwrap!($f.locals.get($index), MissingLocal)
+                unwrap!(f.locals.get($index), MissingLocal)
             };
             (i32, $index:expr) => {{
-                let val = match unwrap!($f.locals.get($index), MissingLocal) {
+                let val = match unwrap!(f.locals.get($index), MissingLocal) {
                     Value::I32(val) => val,
                     x => throw!(|a, b, c| WrongType(a, "i32", x.as_str(), b, c)),
                 };
                 val
             }};
             (i64, $index:expr) => {{
-                let val = match unwrap!($f.locals.get($index), MissingLocal) {
+                let val = match unwrap!(f.locals.get($index), MissingLocal) {
                     Value::I64(val) => val,
                     x => throw!(|a, b, c| WrongType(a, "i64", x.as_str(), b, c)),
                 };
                 val
             }};
             (u32, $index:expr) => {{
-                let val = match unwrap!($f.locals.get($index), MissingLocal) {
+                let val = match unwrap!(f.locals.get($index), MissingLocal) {
                     Value::I32(val) => val,
                     x => throw!(|a, b, c| WrongType(a, "u32", x.as_str(), b, c)),
                 };
                 unsafe { std::mem::transmute::<i32, u32>(val) }
             }};
             (u64, $index:expr) => {{
-                let val = match unwrap!($f.locals.get($index), MissingLocal) {
+                let val = match unwrap!(f.locals.get($index), MissingLocal) {
                     Value::I64(val) => val,
                     x => throw!(|a, b, c| WrongType(a, "u64", x.as_str(), b, c)),
                 };
                 unsafe { std::mem::transmute::<i64, u64>(val) }
             }};
             (f32, $index:expr) => {{
-                let val = match unwrap!($f.locals.get($index), MissingLocal) {
+                let val = match unwrap!(f.locals.get($index), MissingLocal) {
                     Value::F32(val) => val,
                     x => throw!(|a, b, c| WrongType(a, "f32", x.as_str(), b, c)),
                 };
                 val
             }};
             (f64, $index:expr) => {{
-                let val = match unwrap!($f.locals.get($index), MissingLocal) {
+                let val = match unwrap!(f.locals.get($index), MissingLocal) {
                     Value::F64(val) => val,
                     x => throw!(|a, b, c| WrongType(a, "f64", x.as_str(), b, c)),
                 };
@@ -115,57 +123,121 @@ macro_rules! gen_macros {
             }};
         }
 
+        macro_rules! peek {
+            () => {
+                f.stack.last()
+            };
+        }
+
         macro_rules! pop {
             (i32) => {{
-                let val = match unwrap!($f.stack.pop(), EmptyStack) {
+                let val = match unwrap!(f.stack.pop(), EmptyStack) {
                     Value::I32(val) => val,
                     x => throw!(|a, b, c| WrongType(a, "i32", x.as_str(), b, c)),
                 };
                 val
             }};
             (i64) => {{
-                let val = match unwrap!($f.stack.pop(), EmptyStack) {
+                let val = match unwrap!(f.stack.pop(), EmptyStack) {
                     Value::I64(val) => val,
                     x => throw!(|a, b, c| WrongType(a, "i64", x.as_str(), b, c)),
                 };
                 val
             }};
             (u32) => {{
-                let val = match unwrap!($f.stack.pop(), EmptyStack) {
+                let val = match unwrap!(f.stack.pop(), EmptyStack) {
                     Value::I32(val) => val,
                     x => throw!(|a, b, c| WrongType(a, "u32", x.as_str(), b, c)),
                 };
                 unsafe { std::mem::transmute::<i32, u32>(val) }
             }};
             (u64) => {{
-                let val = match unwrap!($f.stack.pop(), EmptyStack) {
+                let val = match unwrap!(f.stack.pop(), EmptyStack) {
                     Value::I64(val) => val,
                     x => throw!(|a, b, c| WrongType(a, "u64", x.as_str(), b, c)),
                 };
                 unsafe { std::mem::transmute::<i64, u64>(val) }
             }};
             (f32) => {{
-                let val = match unwrap!($f.stack.pop(), EmptyStack) {
+                let val = match unwrap!(f.stack.pop(), EmptyStack) {
                     Value::F32(val) => val,
                     x => throw!(|a, b, c| WrongType(a, "f32", x.as_str(), b, c)),
                 };
                 val
             }};
             (f64) => {{
-                let val = match unwrap!($f.stack.pop(), EmptyStack) {
+                let val = match unwrap!(f.stack.pop(), EmptyStack) {
                     Value::F64(val) => val,
                     x => throw!(|a, b, c| WrongType(a, "f64", x.as_str(), b, c)),
                 };
                 val
             }};
             () => {
-                unwrap!($f.stack.pop(), EmptyStack)
+                unwrap!(f.stack.pop(), EmptyStack)
             };
         }
 
         macro_rules! throw {
             ($expr:expr) => {
                 unwrap!(None, $expr)
+            };
+        }
+
+        macro_rules! get {
+            (stack) => {
+                &f.stack
+            };
+
+            (func_id) => {
+                &f.func_id
+            };
+
+            (pc) => {
+                &f.pc
+            };
+        }
+
+        macro_rules! set {
+            (pc) => {
+                f.pc
+            };
+        }
+
+        macro_rules! push {
+            ($v:expr) => {
+                f.stack.push($v)
+            };
+            (i32,$v:expr) => {
+                f.stack.push(Value::I32($v))
+            };
+            (i64,$v:expr) => {
+                f.stack.push(Value::I64($v))
+            };
+            (u32,$v:expr) => {
+                f.stack
+                    .push(Value::I32(unsafe { std::mem::transmute::<u32, i32>($v) }))
+            };
+            (u64,$v:expr) => {
+                f.stack
+                    .push(Value::I64(unsafe { std::mem::transmute::<u64, i64>($v) }))
+            };
+            (f32,$v:expr) => {
+                f.stack.push(Value::F32($v))
+            };
+            (f64,$v:expr) => {
+                f.stack.push(Value::F64($v))
+            };
+        }
+
+        macro_rules! pop_depth {
+            () => {
+                f.depth_stack.pop()
+            };
+        }
+
+        macro_rules! push_depth {
+            ($v:expr) => {
+                f.depth_stack.push($v)
             };
         }
     };
@@ -182,7 +254,7 @@ pub struct Frame {
 }
 
 pub struct Runtime {
-    pub path: PathBuf,
+    pub _path: PathBuf,
     pub module: Model,
     pub stack: Vec<Frame>,
     pub globals: HashMap<u32, Value>,
@@ -292,7 +364,7 @@ impl Runtime {
             globals,
             datas,
             exports,
-            path: path.as_ref().to_path_buf(),
+            _path: path.as_ref().to_path_buf(),
         })
     }
     pub fn step(&mut self) -> Result<(), RuntimeError> {
@@ -301,11 +373,10 @@ impl Runtime {
                 $expr.ok_or($err(file!(), line!(), column!()))?
             };
         }
-        let f = unwrap!(self.stack.last_mut(), NoFrame);
-        gen_macros!(f);
-        println!("{:?}", f.stack);
+        gen_macros!(unwrap!(self.stack.last_mut(), NoFrame));
+        println!("{:?}", get!(stack));
 
-        match &self.module.functions[&f.func_id] {
+        match &self.module.functions[get!(func_id)] {
             Function::Import { module, name, .. } => {
                 // println!("calling {module:?}::{name:?}");
                 match (&*module.0, &*name.0) {
@@ -329,10 +400,10 @@ impl Runtime {
                         println!("{s}")
                     }
                     ("wasi_snapshot_preview1", "args_sizes_get") => {
-                        f.stack.push(Value::I32(std::env::args().count() as i32));
+                        push!(i32, std::env::args().count() as i32);
                         let s = std::env::args_os().map(|s| s.len() + 1).sum::<usize>() as i32;
-                        f.stack.push(Value::I32(s));
-                        f.stack.push(Value::I32(0));
+                        push!(i32, s);
+                        push!(i32, 0);
                     }
                     ("wasi_snapshot_preview1", "proc_exit") => {
                         let x = *local!(i32, &0);
@@ -341,7 +412,7 @@ impl Runtime {
                     ("wasi_snapshot_preview1", "args_get") => {
                         let _ = *local!(i32, &0);
                         let _ = *local!(i32, &0);
-                        f.stack.push(Value::I32(0));
+                        push!(i32, 0);
                     }
                     (module, function) => {
                         return Err(UnknownFunction(module.to_string(), function.to_string()))
@@ -353,7 +424,7 @@ impl Runtime {
                 Ok(())
             }
             Function::Local { code, ty, .. } => {
-                if f.pc >= code.len() {
+                if *get!(pc) >= code.len() {
                     let mut frame = unwrap!(self.stack.pop(), NoFrame);
                     let last = unwrap!(self.stack.last_mut(), NoFrame);
                     for _ in 0..ty.output.types.len() {
@@ -361,9 +432,9 @@ impl Runtime {
                     }
                     return Ok(());
                 }
-                let mut instr = &code[f.pc];
+                let mut instr = &code[*get!(pc)];
                 instr = if let comment(_, r) = instr { r } else { instr };
-                f.pc += 1;
+                set!(pc) += 1;
                 match instr {
                     x01_nop => (),
                     x02_block(_, _) => throw!(Impossible),
@@ -372,15 +443,15 @@ impl Runtime {
                     x0c_br(LabelIdX(label)) => {
                         let mut last = None;
                         for _ in 0..=*label {
-                            last = f.depth_stack.pop();
+                            last = pop_depth!();
                         }
                         let bt = unwrap!(last, MissingJumpLabel);
                         match bt.bt {
                             BT::Loop => {
-                                f.pc = bt.pos;
+                                set!(pc) = bt.pos;
                             }
                             BT::Block => {
-                                f.pc = bt.pos + 1;
+                                set!(pc) = bt.pos + 1;
                             }
                         }
                         for _ in 0..=*label {
@@ -391,7 +462,7 @@ impl Runtime {
                                     match bt.vt {
                                         BlockType::Eps => {}
                                         BlockType::T(_) => {
-                                            f.stack.push(unwrap!(collect.pop(), EmptyStack))
+                                            push!(unwrap!(collect.pop(), EmptyStack))
                                         }
                                         BlockType::TypIdx(i) => {
                                             let ft = unwrap!(
@@ -399,7 +470,7 @@ impl Runtime {
                                                 MissingFunction
                                             );
                                             for _ in &ft.output.types {
-                                                f.stack.push(unwrap!(collect.pop(), EmptyStack))
+                                                push!(unwrap!(collect.pop(), EmptyStack))
                                             }
                                         }
                                     }
@@ -416,15 +487,15 @@ impl Runtime {
                         if val != 0 {
                             let mut last = None;
                             for _ in 0..=*label {
-                                last = f.depth_stack.pop();
+                                last = pop_depth!();
                             }
                             let bt = unwrap!(last, MissingJumpLabel);
                             match bt.bt {
                                 BT::Loop => {
-                                    f.pc = bt.pos;
+                                    set!(pc) = bt.pos;
                                 }
                                 BT::Block => {
-                                    f.pc = bt.pos + 1;
+                                    set!(pc) = bt.pos + 1;
                                 }
                             }
                             for _ in 0..=*label {
@@ -435,7 +506,7 @@ impl Runtime {
                                         match bt.vt {
                                             BlockType::Eps => {}
                                             BlockType::T(_) => {
-                                                f.stack.push(unwrap!(collect.pop(), EmptyStack))
+                                                push!(unwrap!(collect.pop(), EmptyStack))
                                             }
                                             BlockType::TypIdx(_) => todo!(),
                                         }
@@ -457,15 +528,15 @@ impl Runtime {
 
                         let mut last = None;
                         for _ in 0..=*label {
-                            last = f.depth_stack.pop();
+                            last = pop_depth!();
                         }
                         let bt = unwrap!(last, MissingJumpLabel);
                         match bt.bt {
                             BT::Loop => {
-                                f.pc = bt.pos;
+                                set!(pc) = bt.pos;
                             }
                             BT::Block => {
-                                f.pc = bt.pos + 1;
+                                set!(pc) = bt.pos + 1;
                             }
                         }
                         for _ in 0..=*label {
@@ -476,7 +547,7 @@ impl Runtime {
                                     match bt.vt {
                                         BlockType::Eps => {}
                                         BlockType::T(_) => {
-                                            f.stack.push(unwrap!(collect.pop(), EmptyStack))
+                                            push!(unwrap!(collect.pop(), EmptyStack))
                                         }
                                         BlockType::TypIdx(_) => todo!(),
                                     }
@@ -563,116 +634,82 @@ impl Runtime {
                         let y = pop!();
                         let x = pop!();
                         match cond == 0 {
-                            true => f.stack.push(y),
-                            false => f.stack.push(x),
+                            true => push!(y),
+                            false => push!(x),
                         }
                     }
-                    x20_local_get(LocalIdX(id)) => f.stack.push(*local!(id)),
+                    x20_local_get(LocalIdX(id)) => push!(*local!(id)),
                     x21_local_set(LocalIdX(id)) => {
                         let val = pop!();
-                        f.locals.insert(*id, val);
+                        set_local!(*id, val);
                     }
                     x22_local_tee(LocalIdX(id)) => {
                         let last = pop!();
-                        f.locals.insert(*id, last);
-                        f.stack.push(last);
+                        set_local!(*id, last);
+                        push!(last);
                     }
-                    x23_global_get(GlobalIdX(id)) => f
-                        .stack
-                        .push(self.globals.get(id).copied().unwrap_or(Value::I32(0))),
+                    x23_global_get(GlobalIdX(id)) => {
+                        push!(self.globals.get(id).copied().unwrap_or(Value::I32(0)))
+                    }
                     x24_global_set(GlobalIdX(id)) => {
                         let pop = pop!();
                         self.globals.insert(*id, pop);
                     }
                     x28_i32_load(mem) => {
                         let addr = pop!(u32);
-                        f.stack
-                            .push(Value::I32(self.memory.get(addr as usize, *mem)?));
+                        push!(i32, self.memory.get(addr as usize, *mem)?);
                     }
                     x29_i64_load(mem) => {
                         let addr = pop!(u32);
-                        f.stack
-                            .push(Value::I64(self.memory.get(addr as usize, *mem)?));
+                        push!(i64, self.memory.get(addr as usize, *mem)?);
                     }
                     x2a_f32_load(mem) => {
                         let addr = pop!(u32);
-                        f.stack
-                            .push(Value::F32(self.memory.get(addr as usize, *mem)?));
+                        push!(f32, self.memory.get(addr as usize, *mem)?);
                     }
                     x2b_f64_load(mem) => {
                         let addr = pop!(u32);
-                        f.stack
-                            .push(Value::F64(self.memory.get(addr as usize, *mem)?));
+                        push!(f64, self.memory.get(addr as usize, *mem)?);
                     }
                     x2c_i32_load8_s(mem) => {
                         let addr = pop!(u32);
-                        f.stack.push(Value::I32(
-                            self.memory.get::<i8>(addr as usize, *mem)? as i32
-                        ));
+                        push!(i32, self.memory.get::<i8>(addr as usize, *mem)? as i32);
                     }
                     x2d_i32_load8_u(mem) => {
                         let addr = pop!(u32);
-                        f.stack.push(Value::I32(unsafe {
-                            mem::transmute::<u32, i32>(
-                                self.memory.get::<u8>(addr as usize, *mem)? as u32
-                            )
-                        }));
+                        push!(u32, self.memory.get::<u8>(addr as usize, *mem)? as u32);
                     }
                     x2e_i32_load16_s(mem) => {
                         let addr = pop!(u32);
-                        f.stack.push(Value::I32(
-                            self.memory.get::<u16>(addr as usize, *mem)? as i32
-                        ));
+                        push!(i32, self.memory.get::<u16>(addr as usize, *mem)? as i32);
                     }
                     x2f_i32_load16_u(mem) => {
                         let addr = pop!(u32);
-                        f.stack.push(Value::I32(unsafe {
-                            mem::transmute::<u32, i32>(
-                                self.memory.get::<u16>(addr as usize, *mem)? as u32,
-                            )
-                        }));
+                        push!(u32, self.memory.get::<u16>(addr as usize, *mem)? as u32);
                     }
                     x30_i64_load8_s(mem) => {
                         let addr = pop!(u32);
-                        f.stack.push(Value::I64(
-                            self.memory.get::<i8>(addr as usize, *mem)? as i64
-                        ));
+                        push!(i64, self.memory.get::<i8>(addr as usize, *mem)? as i64);
                     }
                     x31_i64_load8_u(mem) => {
                         let addr = pop!(u32);
-                        f.stack.push(Value::I64(unsafe {
-                            mem::transmute::<u64, i64>(
-                                self.memory.get::<u8>(addr as usize, *mem)? as u64
-                            )
-                        }));
+                        push!(u64, self.memory.get::<u8>(addr as usize, *mem)? as u64);
                     }
                     x32_i64_load16_s(mem) => {
                         let addr = pop!(u32);
-                        f.stack.push(Value::I64(
-                            self.memory.get::<i16>(addr as usize, *mem)? as i64
-                        ));
+                        push!(i64, self.memory.get::<i16>(addr as usize, *mem)? as i64);
                     }
                     x33_i64_load16_u(mem) => {
                         let addr = pop!(u32);
-                        f.stack.push(Value::I64(unsafe {
-                            mem::transmute::<u64, i64>(
-                                self.memory.get::<u16>(addr as usize, *mem)? as u64,
-                            )
-                        }));
+                        push!(u64, self.memory.get::<u16>(addr as usize, *mem)? as u64);
                     }
                     x34_i64_load32_s(mem) => {
                         let addr = pop!(u32);
-                        f.stack.push(Value::I64(
-                            self.memory.get::<i32>(addr as usize, *mem)? as i64
-                        ));
+                        push!(i64, self.memory.get::<i32>(addr as usize, *mem)? as i64);
                     }
                     x35_i64_load32_u(mem) => {
                         let addr = pop!(u32);
-                        f.stack.push(Value::I64(unsafe {
-                            mem::transmute::<u64, i64>(
-                                self.memory.get::<u32>(addr as usize, *mem)? as u64,
-                            )
-                        }));
+                        push!(u64, self.memory.get::<u32>(addr as usize, *mem)? as u64);
                     }
                     x36_i32_store(mem) => {
                         let v = pop!(i32);
@@ -721,132 +758,131 @@ impl Runtime {
                     }
                     x40_grow => {
                         let amount = pop!(i32);
-                        f.stack.push(Value::I32(self.memory.grow(amount as usize)))
+                        push!(i32, self.memory.grow(amount as usize))
                     }
-                    x41_i32_const(i) => f.stack.push(Value::I32(*i)),
-                    x42_i64_const(val) => f.stack.push(Value::I64(*val)),
-                    x43_f32_const(val) => f.stack.push(Value::F32(*val)),
-                    x44_f64_const(val) => f.stack.push(Value::F64(*val)),
+                    x41_i32_const(val) => push!(i32, *val),
+                    x42_i64_const(val) => push!(i64, *val),
+                    x43_f32_const(val) => push!(f32, *val),
+                    x44_f64_const(val) => push!(f64, *val),
                     x45_i32_eqz => {
                         let val = pop!(i32);
-                        f.stack.push(Value::I32((val == 0) as i32));
+                        push!(i32, (val == 0) as i32);
                     }
                     x46_i32_eq => {
                         let y = pop!(i32);
                         let x = pop!(i32);
-                        f.stack.push(Value::I32((x == y) as i32))
+                        push!(i32, (x == y) as i32)
                     }
                     x47_i32_ne => {
                         let y = pop!(i32);
                         let x = pop!(i32);
-                        f.stack.push(Value::I32((x != y) as i32))
+                        push!(i32, (x != y) as i32)
                     }
                     x48_i32_lt_s => {
                         let y = pop!(i32);
                         let x = pop!(i32);
-                        f.stack.push(Value::I32((x < y) as i32))
+                        push!(i32, (x < y) as i32)
                     }
                     x49_i32_lt_u => {
                         let y = pop!(u32);
                         let x = pop!(u32);
-                        f.stack.push(Value::I32((x < y) as i32))
+                        push!(i32, (x < y) as i32)
                     }
                     x4a_i32_gt_s => {
                         let y = pop!(i32);
                         let x = pop!(i32);
-                        f.stack.push(Value::I32((x > y) as i32))
+                        push!(i32, (x > y) as i32)
                     }
                     x4b_i32_gt_u => {
                         let y = pop!(u32);
                         let x = pop!(u32);
-                        f.stack.push(Value::I32((y > x) as i32))
+                        push!(i32, (y > x) as i32)
                     }
                     x4d_i32_le_u => {
                         let y = pop!(u32);
                         let x = pop!(u32);
-                        f.stack.push(Value::I32((x <= y) as i32))
+                        push!(i32, (x <= y) as i32)
                     }
                     x4e_i32_ge_s => {
                         let y = pop!(i32);
                         let x = pop!(i32);
-                        f.stack.push(Value::I32((x >= y) as i32))
+                        push!(i32, (x >= y) as i32)
                     }
                     x4f_i32_ge_u => {
                         let y = pop!(u32);
                         let x = pop!(u32);
-                        f.stack.push(Value::I32((x >= y) as i32))
+                        push!(i32, (x >= y) as i32)
                     }
                     x52_i64_ne => {
                         let y = pop!(i64);
                         let x = pop!(i64);
-                        f.stack.push(Value::I64((x != y) as i64))
+                        push!(i64, (x != y) as i64)
                     }
                     x5e_f32_gt => {
                         let y = pop!(f32);
                         let x = pop!(f32);
-                        f.stack.push(Value::I32((x < y) as i32))
+                        push!(i32, (x < y) as i32)
                     }
                     x68_i32_ctz => {
                         let x = pop!(i32);
-                        f.stack.push(Value::I32(x.trailing_zeros() as i32))
+                        push!(i32, x.trailing_zeros() as i32)
                     }
                     x6a_i32_add => {
                         let y = pop!(i32);
                         let x = pop!(i32);
-                        f.stack.push(Value::I32(x + y))
+                        push!(i32, x + y)
                     }
                     x6b_i32_sub => {
                         let y = pop!(i32);
                         let x = pop!(i32);
-                        f.stack.push(Value::I32(x - y))
+                        push!(i32, x - y)
                     }
                     x6c_i32_mul => {
                         let y = pop!(i32);
                         let x = pop!(i32);
-                        f.stack.push(Value::I32(x * y))
+                        push!(i32, x * y)
                     }
                     x71_i32_and => {
                         let y = pop!(i32);
                         let x = pop!(i32);
-                        f.stack.push(Value::I32(x & y))
+                        push!(i32, x & y)
                     }
                     x72_i32_or => {
                         let y = pop!(i32);
                         let x = pop!(i32);
-                        f.stack.push(Value::I32(x | y))
+                        push!(i32, x | y)
                     }
                     x73_i32_xor => {
                         let y = pop!(i32);
                         let x = pop!(i32);
-                        f.stack.push(Value::I32(x ^ y))
+                        push!(i32, x ^ y)
                     }
                     x74_i32_shl => {
                         let y = pop!(i32);
                         let x = pop!(i32);
-                        f.stack.push(Value::I32(x << y))
+                        push!(i32, x << y)
                     }
                     x7e_i64_mul => {
                         let y = pop!(i64);
                         let x = pop!(i64);
-                        f.stack.push(Value::I64(x * y))
+                        push!(i64, x * y)
                     }
                     xad_i64_extend_i32_u => {
                         let x = pop!(u32) as u64;
-                        f.stack
-                            .push(Value::I64(unsafe { std::mem::transmute::<u64, i64>(x) }))
+                        push!(u64, x)
                     }
                     block_start(bt, be, vt) => {
                         // println!("block_start: {_bt:?}");
-                        f.stack.push(Value::BlockLock);
+                        push!(Value::BlockLock);
                         match bt {
-                            BT::Block => f.depth_stack.push(DepthValue {
+                            BT::Block => push_depth!(DepthValue {
                                 bt: *bt,
                                 pos: *be,
                                 vt: *vt,
                             }),
-                            BT::Loop => f.depth_stack.push(DepthValue {
+                            BT::Loop => push_depth!(DepthValue {
                                 bt: *bt,
-                                pos: f.pc - 1,
+                                pos: get!(pc) - 1,
                                 vt: *vt,
                             }),
                         }
@@ -855,7 +891,7 @@ impl Runtime {
                         println!("{bt:?}");
                         let mut last = Vec::new();
                         loop {
-                            if let Some(Value::BlockLock) = f.stack.last() {
+                            if let Some(Value::BlockLock) = peek!() {
                                 pop!();
                                 break;
                             }
@@ -864,7 +900,7 @@ impl Runtime {
                         match bt {
                             BlockType::Eps => {}
                             BlockType::T(_) => match last.last() {
-                                Some(p) => f.stack.push(*p),
+                                Some(p) => push!(*p),
                                 None => throw!(EmptyStack),
                             },
                             BlockType::TypIdx(t) => {
@@ -873,11 +909,11 @@ impl Runtime {
                                     MissingFunction
                                 );
                                 for _ in 0..func.output.types.len() {
-                                    f.stack.push(unwrap!(last.pop(), EmptyStack));
+                                    push!(unwrap!(last.pop(), EmptyStack));
                                 }
                             }
                         }
-                        f.depth_stack.pop();
+                        pop_depth!();
                     }
                     f => {
                         unimplemented!("instruction not supported : {f:?}")

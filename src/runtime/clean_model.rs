@@ -1,8 +1,8 @@
 use crate::parser::{
-    BlockType, Elem, Expr, FuncIdx, FuncType, ImportDesc, Instr, LabelIdX, LocalIdX, Module, Name,
-    TableIdX, TypeIdX, BT,
+    Elem, Expr, FuncIdx, FuncType, ImportDesc, Instr, LabelIdX, LocalIdX, Module, Name, TableIdX,
+    TypeIdX, BT,
 };
-use std::{collections::HashMap, ops::Deref, u32};
+use std::{collections::HashMap, ops::Deref};
 
 #[derive(Debug)]
 pub enum Function {

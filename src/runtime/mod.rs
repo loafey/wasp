@@ -30,7 +30,7 @@ pub enum Value {
     BlockLock,
 }
 impl Value {
-    pub fn to_static(&self) -> &'static str {
+    pub fn as_str(&self) -> &'static str {
         match self {
             Value::I32(_) => "i32",
             Value::I64(_) => "i64",
@@ -196,6 +196,7 @@ impl Runtime {
             };
         }
         let f = unwrap!(self.stack.last_mut(), NoFrame);
+        println!("{:?}", f.stack);
 
         macro_rules! local {
             ($index:expr) => {
@@ -204,42 +205,42 @@ impl Runtime {
             (i32, $index:expr) => {{
                 let val = match unwrap!(f.locals.get($index), MissingLocal) {
                     Value::I32(val) => val,
-                    x => throw!(|a, b, c| WrongType(a, "i32", x.to_static(), b, c)),
+                    x => throw!(|a, b, c| WrongType(a, "i32", x.as_str(), b, c)),
                 };
                 val
             }};
             (i64, $index:expr) => {{
                 let val = match unwrap!(f.locals.get($index), MissingLocal) {
                     Value::I64(val) => val,
-                    x => throw!(|a, b, c| WrongType(a, "i64", x.to_static(), b, c)),
+                    x => throw!(|a, b, c| WrongType(a, "i64", x.as_str(), b, c)),
                 };
                 val
             }};
             (u32, $index:expr) => {{
                 let val = match unwrap!(f.locals.get($index), MissingLocal) {
                     Value::I32(val) => val,
-                    x => throw!(|a, b, c| WrongType(a, "u32", x.to_static(), b, c)),
+                    x => throw!(|a, b, c| WrongType(a, "u32", x.as_str(), b, c)),
                 };
                 unsafe { std::mem::transmute::<i32, u32>(val) }
             }};
             (u64, $index:expr) => {{
                 let val = match unwrap!(f.locals.get($index), MissingLocal) {
                     Value::I64(val) => val,
-                    x => throw!(|a, b, c| WrongType(a, "u64", x.to_static(), b, c)),
+                    x => throw!(|a, b, c| WrongType(a, "u64", x.as_str(), b, c)),
                 };
                 unsafe { std::mem::transmute::<i64, u64>(val) }
             }};
             (f32, $index:expr) => {{
                 let val = match unwrap!(f.locals.get($index), MissingLocal) {
                     Value::F32(val) => val,
-                    x => throw!(|a, b, c| WrongType(a, "f32", x.to_static(), b, c)),
+                    x => throw!(|a, b, c| WrongType(a, "f32", x.as_str(), b, c)),
                 };
                 val
             }};
             (f64, $index:expr) => {{
                 let val = match unwrap!(f.locals.get($index), MissingLocal) {
                     Value::F64(val) => val,
-                    x => throw!(|a, b, c| WrongType(a, "f64", x.to_static(), b, c)),
+                    x => throw!(|a, b, c| WrongType(a, "f64", x.as_str(), b, c)),
                 };
                 val
             }};
@@ -249,42 +250,42 @@ impl Runtime {
             (i32) => {{
                 let val = match unwrap!(f.stack.pop(), EmptyStack) {
                     Value::I32(val) => val,
-                    x => throw!(|a, b, c| WrongType(a, "i32", x.to_static(), b, c)),
+                    x => throw!(|a, b, c| WrongType(a, "i32", x.as_str(), b, c)),
                 };
                 val
             }};
             (i64) => {{
                 let val = match unwrap!(f.stack.pop(), EmptyStack) {
                     Value::I64(val) => val,
-                    x => throw!(|a, b, c| WrongType(a, "i64", x.to_static(), b, c)),
+                    x => throw!(|a, b, c| WrongType(a, "i64", x.as_str(), b, c)),
                 };
                 val
             }};
             (u32) => {{
                 let val = match unwrap!(f.stack.pop(), EmptyStack) {
                     Value::I32(val) => val,
-                    x => throw!(|a, b, c| WrongType(a, "u32", x.to_static(), b, c)),
+                    x => throw!(|a, b, c| WrongType(a, "u32", x.as_str(), b, c)),
                 };
                 unsafe { std::mem::transmute::<i32, u32>(val) }
             }};
             (u64) => {{
                 let val = match unwrap!(f.stack.pop(), EmptyStack) {
                     Value::I64(val) => val,
-                    x => throw!(|a, b, c| WrongType(a, "u64", x.to_static(), b, c)),
+                    x => throw!(|a, b, c| WrongType(a, "u64", x.as_str(), b, c)),
                 };
                 unsafe { std::mem::transmute::<i64, u64>(val) }
             }};
             (f32) => {{
                 let val = match unwrap!(f.stack.pop(), EmptyStack) {
                     Value::F32(val) => val,
-                    x => throw!(|a, b, c| WrongType(a, "f32", x.to_static(), b, c)),
+                    x => throw!(|a, b, c| WrongType(a, "f32", x.as_str(), b, c)),
                 };
                 val
             }};
             (f64) => {{
                 let val = match unwrap!(f.stack.pop(), EmptyStack) {
                     Value::F64(val) => val,
-                    x => throw!(|a, b, c| WrongType(a, "f64", x.to_static(), b, c)),
+                    x => throw!(|a, b, c| WrongType(a, "f64", x.as_str(), b, c)),
                 };
                 val
             }};
@@ -846,6 +847,7 @@ impl Runtime {
                         }
                     }
                     block_end(_, _, bt) => {
+                        println!("{bt:?}");
                         let mut last = Vec::new();
                         loop {
                             if let Some(Value::BlockLock) = f.stack.last() {

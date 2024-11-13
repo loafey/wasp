@@ -3,7 +3,7 @@ use serde::Deserialize;
 use std::{cell::RefCell, collections::HashMap, fs, path::PathBuf, rc::Rc};
 
 use crate::{
-    parser::{ExportDesc, Instr, TypeIdX},
+    parser::{ExportDesc, TypeIdX},
     runtime::{Frame, Runtime, RuntimeError, Value},
 };
 
@@ -274,14 +274,12 @@ pub fn test(mut path: String) {
 
     let runtime = Rc::new(RefCell::new(None));
 
-    let mut recreate_runtime: Box<dyn Fn()> = Box::new(|| {});
     let mut skip = false;
     let mut module_index = -1;
     let total_tests = tests.commands.len();
 
     for (test_i, test) in tests.commands.into_iter().enumerate() {
-        // println!("{test_i}/{total_tests}");
-        // recreate_runtime();
+        println!("\n{test_i}/{total_tests}");
 
         match test {
             Case::Module(module) => {
@@ -320,7 +318,7 @@ pub fn test(mut path: String) {
                 handle_action(rt, action, move |rt, field| {
                     let mut last;
                     loop {
-                        let id = rt.stack.first().expect("no first").func_id;
+                        // let id = rt.stack.first().expect("no first").func_id;
                         last = rt.stack.first().expect("no first").stack.clone();
                         match rt.step() {
                             Err(RuntimeError::NoFrame(_, _, _)) => {

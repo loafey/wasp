@@ -65,6 +65,112 @@ impl Debug for DepthValue {
     }
 }
 
+macro_rules! gen_macros {
+    ($f:expr) => {
+        macro_rules! local {
+            ($index:expr) => {
+                unwrap!($f.locals.get($index), MissingLocal)
+            };
+            (i32, $index:expr) => {{
+                let val = match unwrap!($f.locals.get($index), MissingLocal) {
+                    Value::I32(val) => val,
+                    x => throw!(|a, b, c| WrongType(a, "i32", x.as_str(), b, c)),
+                };
+                val
+            }};
+            (i64, $index:expr) => {{
+                let val = match unwrap!($f.locals.get($index), MissingLocal) {
+                    Value::I64(val) => val,
+                    x => throw!(|a, b, c| WrongType(a, "i64", x.as_str(), b, c)),
+                };
+                val
+            }};
+            (u32, $index:expr) => {{
+                let val = match unwrap!($f.locals.get($index), MissingLocal) {
+                    Value::I32(val) => val,
+                    x => throw!(|a, b, c| WrongType(a, "u32", x.as_str(), b, c)),
+                };
+                unsafe { std::mem::transmute::<i32, u32>(val) }
+            }};
+            (u64, $index:expr) => {{
+                let val = match unwrap!($f.locals.get($index), MissingLocal) {
+                    Value::I64(val) => val,
+                    x => throw!(|a, b, c| WrongType(a, "u64", x.as_str(), b, c)),
+                };
+                unsafe { std::mem::transmute::<i64, u64>(val) }
+            }};
+            (f32, $index:expr) => {{
+                let val = match unwrap!($f.locals.get($index), MissingLocal) {
+                    Value::F32(val) => val,
+                    x => throw!(|a, b, c| WrongType(a, "f32", x.as_str(), b, c)),
+                };
+                val
+            }};
+            (f64, $index:expr) => {{
+                let val = match unwrap!($f.locals.get($index), MissingLocal) {
+                    Value::F64(val) => val,
+                    x => throw!(|a, b, c| WrongType(a, "f64", x.as_str(), b, c)),
+                };
+                val
+            }};
+        }
+
+        macro_rules! pop {
+            (i32) => {{
+                let val = match unwrap!($f.stack.pop(), EmptyStack) {
+                    Value::I32(val) => val,
+                    x => throw!(|a, b, c| WrongType(a, "i32", x.as_str(), b, c)),
+                };
+                val
+            }};
+            (i64) => {{
+                let val = match unwrap!($f.stack.pop(), EmptyStack) {
+                    Value::I64(val) => val,
+                    x => throw!(|a, b, c| WrongType(a, "i64", x.as_str(), b, c)),
+                };
+                val
+            }};
+            (u32) => {{
+                let val = match unwrap!($f.stack.pop(), EmptyStack) {
+                    Value::I32(val) => val,
+                    x => throw!(|a, b, c| WrongType(a, "u32", x.as_str(), b, c)),
+                };
+                unsafe { std::mem::transmute::<i32, u32>(val) }
+            }};
+            (u64) => {{
+                let val = match unwrap!($f.stack.pop(), EmptyStack) {
+                    Value::I64(val) => val,
+                    x => throw!(|a, b, c| WrongType(a, "u64", x.as_str(), b, c)),
+                };
+                unsafe { std::mem::transmute::<i64, u64>(val) }
+            }};
+            (f32) => {{
+                let val = match unwrap!($f.stack.pop(), EmptyStack) {
+                    Value::F32(val) => val,
+                    x => throw!(|a, b, c| WrongType(a, "f32", x.as_str(), b, c)),
+                };
+                val
+            }};
+            (f64) => {{
+                let val = match unwrap!($f.stack.pop(), EmptyStack) {
+                    Value::F64(val) => val,
+                    x => throw!(|a, b, c| WrongType(a, "f64", x.as_str(), b, c)),
+                };
+                val
+            }};
+            () => {
+                unwrap!($f.stack.pop(), EmptyStack)
+            };
+        }
+
+        macro_rules! throw {
+            ($expr:expr) => {
+                unwrap!(None, $expr)
+            };
+        }
+    };
+}
+
 #[derive(Debug)]
 pub struct Frame {
     pub func_id: u32,
@@ -196,109 +302,8 @@ impl Runtime {
             };
         }
         let f = unwrap!(self.stack.last_mut(), NoFrame);
+        gen_macros!(f);
         println!("{:?}", f.stack);
-
-        macro_rules! local {
-            ($index:expr) => {
-                unwrap!(f.locals.get($index), MissingLocal)
-            };
-            (i32, $index:expr) => {{
-                let val = match unwrap!(f.locals.get($index), MissingLocal) {
-                    Value::I32(val) => val,
-                    x => throw!(|a, b, c| WrongType(a, "i32", x.as_str(), b, c)),
-                };
-                val
-            }};
-            (i64, $index:expr) => {{
-                let val = match unwrap!(f.locals.get($index), MissingLocal) {
-                    Value::I64(val) => val,
-                    x => throw!(|a, b, c| WrongType(a, "i64", x.as_str(), b, c)),
-                };
-                val
-            }};
-            (u32, $index:expr) => {{
-                let val = match unwrap!(f.locals.get($index), MissingLocal) {
-                    Value::I32(val) => val,
-                    x => throw!(|a, b, c| WrongType(a, "u32", x.as_str(), b, c)),
-                };
-                unsafe { std::mem::transmute::<i32, u32>(val) }
-            }};
-            (u64, $index:expr) => {{
-                let val = match unwrap!(f.locals.get($index), MissingLocal) {
-                    Value::I64(val) => val,
-                    x => throw!(|a, b, c| WrongType(a, "u64", x.as_str(), b, c)),
-                };
-                unsafe { std::mem::transmute::<i64, u64>(val) }
-            }};
-            (f32, $index:expr) => {{
-                let val = match unwrap!(f.locals.get($index), MissingLocal) {
-                    Value::F32(val) => val,
-                    x => throw!(|a, b, c| WrongType(a, "f32", x.as_str(), b, c)),
-                };
-                val
-            }};
-            (f64, $index:expr) => {{
-                let val = match unwrap!(f.locals.get($index), MissingLocal) {
-                    Value::F64(val) => val,
-                    x => throw!(|a, b, c| WrongType(a, "f64", x.as_str(), b, c)),
-                };
-                val
-            }};
-        }
-
-        macro_rules! pop {
-            (i32) => {{
-                let val = match unwrap!(f.stack.pop(), EmptyStack) {
-                    Value::I32(val) => val,
-                    x => throw!(|a, b, c| WrongType(a, "i32", x.as_str(), b, c)),
-                };
-                val
-            }};
-            (i64) => {{
-                let val = match unwrap!(f.stack.pop(), EmptyStack) {
-                    Value::I64(val) => val,
-                    x => throw!(|a, b, c| WrongType(a, "i64", x.as_str(), b, c)),
-                };
-                val
-            }};
-            (u32) => {{
-                let val = match unwrap!(f.stack.pop(), EmptyStack) {
-                    Value::I32(val) => val,
-                    x => throw!(|a, b, c| WrongType(a, "u32", x.as_str(), b, c)),
-                };
-                unsafe { std::mem::transmute::<i32, u32>(val) }
-            }};
-            (u64) => {{
-                let val = match unwrap!(f.stack.pop(), EmptyStack) {
-                    Value::I64(val) => val,
-                    x => throw!(|a, b, c| WrongType(a, "u64", x.as_str(), b, c)),
-                };
-                unsafe { std::mem::transmute::<i64, u64>(val) }
-            }};
-            (f32) => {{
-                let val = match unwrap!(f.stack.pop(), EmptyStack) {
-                    Value::F32(val) => val,
-                    x => throw!(|a, b, c| WrongType(a, "f32", x.as_str(), b, c)),
-                };
-                val
-            }};
-            (f64) => {{
-                let val = match unwrap!(f.stack.pop(), EmptyStack) {
-                    Value::F64(val) => val,
-                    x => throw!(|a, b, c| WrongType(a, "f64", x.as_str(), b, c)),
-                };
-                val
-            }};
-            () => {
-                unwrap!(f.stack.pop(), EmptyStack)
-            };
-        }
-
-        macro_rules! throw {
-            ($expr:expr) => {
-                unwrap!(None, $expr)
-            };
-        }
 
         match &self.module.functions[&f.func_id] {
             Function::Import { module, name, .. } => {

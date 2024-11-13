@@ -356,6 +356,14 @@ impl Runtime {
             .map(|exp| (exp.nm.0.clone(), exp.d))
             .collect();
 
+        println!();
+        for code in &module.code.code {
+            println!("ty: {:?}", code);
+            for i in &code.code.e.instrs {
+                println!("{i:?}")
+            }
+        }
+
         let module = Model::from(module);
         Ok(Self {
             module,

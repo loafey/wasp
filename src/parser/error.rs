@@ -32,6 +32,7 @@ pub enum ParseError {
     NoDataCountSection,
     DuplicateSection(u32),
     OutOfOrderSection,
+    TypeMismatch,
 }
 impl From<io::Error> for ParseError {
     fn from(value: io::Error) -> Self {

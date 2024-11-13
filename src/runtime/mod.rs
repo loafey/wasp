@@ -12,14 +12,15 @@ mod memory;
 use clean_model::{Function, Model};
 use memory::Memory;
 mod error;
-pub use error::RuntimeError;
-use RuntimeError::*;
-
 use crate::parser::{
     self, BlockType, ExportDesc, FuncIdx, Global, GlobalIdX,
     Instr::{self, *},
     LabelIdX, LocalIdX, MemArg, MemIdX, Module, Parsable, TableIdX, TypeIdX, BT,
 };
+pub use error::RuntimeError;
+use RuntimeError::*;
+
+mod typecheck;
 
 #[derive(Clone, Copy, PartialEq)]
 #[allow(unused)]
@@ -356,12 +357,15 @@ impl Runtime {
             .map(|exp| (exp.nm.0.clone(), exp.d))
             .collect();
 
-        println!();
-        for code in &module.code.code {
-            println!("ty: {:?}", code);
-            for i in &code.code.e.instrs {
-                println!("{i:?}")
-            }
+        for (code, TypeIdX(i)) in module.code.code.iter().zip(&module.funcs.functions) {
+            let Some(typ) = module.types.function_types.get(*i as usize) else {
+                return Err(RuntimeError::TypeError(
+                    typecheck::TypeCheckError::MissingFunction,
+                ));
+            };
+
+            let locals = typ.input.types.clone();
+            typecheck::check(&locals, &code.code.e.instrs, &module.types.function_types)?;
         }
 
         let module = Model::from(module);

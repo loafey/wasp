@@ -1,6 +1,6 @@
 use super::{
-    error::ParseError, BlockType, DataIdx as DataIdX, FuncIdx, GlobalIdX, LabelIdX, LocalIdX,
-    MemArg, Parsable, RefTyp, TableIdX, TypeIdX, ValType,
+    error::ParseError, BlockType, DataIdx as DataIdX, FuncIdx, FuncType, GlobalIdX, LabelIdX,
+    LocalIdX, Locals, MemArg, NumType, Parsable, RefTyp, TableIdX, TypeIdX, ValType,
 };
 use crate::hex::Hex;
 use std::io::Read;
@@ -285,18 +285,50 @@ pub enum Instr {
     block_end(BT, usize, BlockType),
     comment(String, Box<Instr>),
 }
+#[derive(Debug, Default)]
 pub struct TypingRules {
-    input: Vec<ValType>,
-    output: Vec<ValType>,
+    pub input: Vec<ValType>,
+    pub output: Vec<ValType>,
+}
+impl TypingRules {
+    pub fn single_input(valtype: ValType) -> TypingRules {
+        Self {
+            input: vec![valtype],
+            output: Vec::new(),
+        }
+    }
+    pub fn single_output(valtype: ValType) -> TypingRules {
+        Self {
+            output: vec![valtype],
+            input: Vec::new(),
+        }
+    }
 }
 impl Instr {
-    pub fn get_types(&self) -> TypingRules {
-        match self {
+    pub fn get_types(
+        &self,
+        locals: &[ValType],
+        function_types: &[FuncType],
+    ) -> Option<TypingRules> {
+        Some(match self {
             x00_unreachable => todo!(),
             x01_nop => todo!(),
-            x02_block(_, _) => todo!(),
-            x03_loop(_, _) => todo!(),
-            x04_if_else(_, _, _) => todo!(),
+            x02_block(bt, _) => match bt {
+                BlockType::Eps => TypingRules::default(),
+                BlockType::T(val_type) => TypingRules {
+                    input: Vec::new(),
+                    output: vec![*val_type],
+                },
+                BlockType::TypIdx(i) => {
+                    let ft = function_types.get(*i as usize)?;
+                    TypingRules {
+                        input: ft.input.types.clone(),
+                        output: ft.output.types.clone(),
+                    }
+                }
+            },
+            x03_loop(_, _) => TypingRules::default(),
+            x04_if_else(_, _, _) => TypingRules::default(),
             x05 => todo!(),
             x06 => todo!(),
             x07 => todo!(),
@@ -308,7 +340,13 @@ impl Instr {
             x0d_br_if(_) => todo!(),
             x0e_br_table(_, _) => todo!(),
             x0f_return => todo!(),
-            x10_call(_) => todo!(),
+            x10_call(FuncIdx(i)) => {
+                let ft = function_types.get(*i as usize)?;
+                TypingRules {
+                    input: ft.input.types.clone(),
+                    output: ft.output.types.clone(),
+                }
+            }
             x11_call_indirect(_, _) => todo!(),
             x12 => todo!(),
             x13 => todo!(),
@@ -318,13 +356,18 @@ impl Instr {
             x17 => todo!(),
             x18 => todo!(),
             x19 => todo!(),
-            x1a_drop => todo!(),
+            x1a_drop => TypingRules {
+                input: vec![ValType::Nil],
+                output: Vec::new(),
+            },
             x1b_select => todo!(),
             x1c => todo!(),
             x1d => todo!(),
             x1e => todo!(),
             x1f => todo!(),
-            x20_local_get(_) => todo!(),
+            x20_local_get(LocalIdX(i)) => locals
+                .get(*i as usize)
+                .map(|l| TypingRules::single_output(*l))?,
             x21_local_set(_) => todo!(),
             x22_local_tee(_) => todo!(),
             x23_global_get(_) => todo!(),
@@ -346,7 +389,7 @@ impl Instr {
             x33_i64_load16_u(_) => todo!(),
             x34_i64_load32_s(_) => todo!(),
             x35_i64_load32_u(_) => todo!(),
-            x36_i32_store(_) => todo!(),
+            x36_i32_store(_) => TypingRules::single_input(ValType::Num(NumType::I32)),
             x37_i64_store(_) => todo!(),
             x38_f32_store(_) => todo!(),
             x39_f64_store(_) => todo!(),
@@ -356,8 +399,11 @@ impl Instr {
             x3d_i64_store16(_) => todo!(),
             x3e_i64_store32(_) => todo!(),
             x3f => todo!(),
-            x40_grow => todo!(),
-            x41_i32_const(_) => todo!(),
+            x40_grow => TypingRules {
+                input: vec![ValType::Num(NumType::I32)],
+                output: vec![ValType::Num(NumType::I32)],
+            },
+            x41_i32_const(_) => TypingRules::single_output(ValType::Num(NumType::I32)),
             x42_i64_const(_) => todo!(),
             x43_f32_const(_) => todo!(),
             x44_f64_const(_) => todo!(),
@@ -560,7 +606,7 @@ impl Instr {
             block_start(_, _, _) => todo!(),
             block_end(_, _, _) => todo!(),
             comment(_, _) => todo!(),
-        }
+        })
     }
 }
 impl Parsable for Instr {

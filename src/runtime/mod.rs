@@ -374,7 +374,7 @@ impl Runtime {
             };
         }
         gen_macros!(unwrap!(self.stack.last_mut(), NoFrame));
-        println!("{:?}", get!(stack));
+        // println!("{:?}", get!(stack));
 
         match &self.module.functions[get!(func_id)] {
             Function::Import { module, name, .. } => {
@@ -872,7 +872,26 @@ impl Runtime {
                         push!(u64, x)
                     }
                     block_start(bt, be, vt) => {
-                        println!("block_start: {vt:?}");
+                        // println!("block_start: {vt:?}");
+                        let mut to_push = Vec::new();
+                        if matches!(bt, BT::Block) {
+                            match vt {
+                                BlockType::Eps => {}
+                                BlockType::T(_) => {}
+                                BlockType::TypIdx(t) => {
+                                    for _ in unwrap!(
+                                        self.module.function_types.get(&(*t as u32)),
+                                        MissingFunction
+                                    )
+                                    .input
+                                    .types
+                                    .iter()
+                                    {
+                                        to_push.push(pop!());
+                                    }
+                                }
+                            };
+                        }
                         push!(Value::BlockLock);
                         match bt {
                             BT::Block => push_depth!(DepthValue {
@@ -886,9 +905,12 @@ impl Runtime {
                                 vt: *vt,
                             }),
                         }
+                        for p in to_push {
+                            push!(p);
+                        }
                     }
                     block_end(_, _, bt) => {
-                        println!("block_end: {bt:?}");
+                        // println!("block_end: {bt:?}");
                         let mut last = Vec::new();
                         loop {
                             if let Some(Value::BlockLock) = peek!() {

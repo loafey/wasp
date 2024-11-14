@@ -400,6 +400,7 @@ impl Runtime {
             }
             println!(" ({typ:?})");
             typecheck::check(
+                Vec::new(),
                 &locals,
                 &code.code.e.instrs,
                 &sigs,

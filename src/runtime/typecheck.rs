@@ -34,6 +34,7 @@ pub enum TypeCheckError {
 }
 
 pub fn check(
+    mut context: Vec<ValType>,
     locals: &[ValType],
     instrs: &[Instr],
     function_types: &[FuncType],
@@ -41,7 +42,6 @@ pub fn check(
     globals: &[ValType],
     return_types: Option<Vec<ValType>>,
 ) -> Result<Vec<ValType>, TypeCheckError> {
-    let mut context = Vec::new();
     // println!("{instrs:#?}");
     for inst in instrs {
         // println!("    {inst:?}:\n    locals: {locals:?}\n    context: {context:?}");
@@ -51,28 +51,59 @@ pub fn check(
                 x00_unreachable => TypingRules::default(),
                 x01_nop => TypingRules::default(),
                 x02_block(bt, b) | x03_loop(bt, b) => {
-                    check(locals, b, function_types, raw_types, globals, None)?;
-                    match bt {
-                        BlockType::Eps => TypingRules::default(),
-                        BlockType::T(val_type) => TypingRules {
-                            input: Vec::new(),
-                            output: vec![*val_type],
-                        },
+                    let (rt, inputs) = match bt {
+                        BlockType::Eps => (TypingRules::default(), Vec::new()),
+                        BlockType::T(val_type) => (
+                            TypingRules {
+                                input: Vec::new(),
+                                output: vec![*val_type],
+                            },
+                            Vec::new(),
+                        ),
                         BlockType::TypIdx(i) => {
                             let ft = raw_types
                                 .get(*i as usize)
                                 .ok_or(TypeCheckError::MissingFunction)?;
-                            TypingRules {
-                                input: ft.input.types.clone(),
-                                output: ft.output.types.clone(),
-                            }
+                            (
+                                TypingRules {
+                                    input: Vec::new(),
+                                    output: ft.output.types.clone(),
+                                },
+                                ft.input.types.clone(),
+                            )
                         }
+                    };
+                    let mut pass = Vec::new();
+                    for input in inputs {
+                        let p = context.pop().ok_or(TypeCheckError::EmptyStack)?;
+                        if p != input {
+                            return Err(TypeCheckError::WrongTypeOnStack);
+                        }
+                        pass.push(p);
                     }
+                    check(pass, locals, b, function_types, raw_types, globals, None)?;
+                    rt
                 }
                 x04_if_else(_, a, b) => {
-                    let a = check(locals, a, function_types, raw_types, globals, None)?;
+                    let a = check(
+                        Vec::new(),
+                        locals,
+                        a,
+                        function_types,
+                        raw_types,
+                        globals,
+                        None,
+                    )?;
                     if let Some(b) = b {
-                        let b = check(locals, b, function_types, raw_types, globals, None)?;
+                        let b = check(
+                            Vec::new(),
+                            locals,
+                            b,
+                            function_types,
+                            raw_types,
+                            globals,
+                            None,
+                        )?;
                         if a != b {
                             return Err(TypeCheckError::IfElseTypeMismatch(a, b));
                         }
@@ -285,7 +316,10 @@ pub fn check(
                     input: vec![ValType::Num(NumType::I32), ValType::Num(NumType::I32)],
                     output: vec![ValType::Num(NumType::I32)],
                 },
-                x6b_i32_sub => todo!(),
+                x6b_i32_sub => TypingRules {
+                    input: vec![ValType::Num(NumType::I32), ValType::Num(NumType::I32)],
+                    output: vec![ValType::Num(NumType::I32)],
+                },
                 x6c_i32_mul => TypingRules {
                     input: vec![ValType::Num(NumType::I32), ValType::Num(NumType::I32)],
                     output: vec![ValType::Num(NumType::I32)],

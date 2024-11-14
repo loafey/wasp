@@ -144,21 +144,66 @@ pub fn check(
                 x25 => todo!(),
                 x26_table_set(_) => todo!(),
                 x27 => todo!(),
-                x28_i32_load(_) => TypingRules::single_output(ValType::Num(NumType::I32)),
-                x29_i64_load(_) => TypingRules::single_output(ValType::Num(NumType::I64)),
-                x2a_f32_load(_) => TypingRules::single_output(ValType::Num(NumType::F32)),
-                x2b_f64_load(_) => TypingRules::single_output(ValType::Num(NumType::F64)),
-                x2c_i32_load8_s(_) => TypingRules::single_output(ValType::Num(NumType::I32)),
-                x2d_i32_load8_u(_) => TypingRules::single_output(ValType::Num(NumType::I32)),
-                x2e_i32_load16_s(_) => TypingRules::single_output(ValType::Num(NumType::I32)),
-                x2f_i32_load16_u(_) => TypingRules::single_output(ValType::Num(NumType::I32)),
-                x30_i64_load8_s(_) => TypingRules::single_output(ValType::Num(NumType::I64)),
-                x31_i64_load8_u(_) => TypingRules::single_output(ValType::Num(NumType::I64)),
-                x32_i64_load16_s(_) => TypingRules::single_output(ValType::Num(NumType::I64)),
-                x33_i64_load16_u(_) => TypingRules::single_output(ValType::Num(NumType::I64)),
-                x34_i64_load32_s(_) => TypingRules::single_output(ValType::Num(NumType::I64)),
-                x35_i64_load32_u(_) => TypingRules::single_output(ValType::Num(NumType::I64)),
-                x36_i32_store(_) => TypingRules::single_input(ValType::Num(NumType::I32)),
+                x28_i32_load(_) => TypingRules {
+                    input: vec![ValType::Num(NumType::I32)],
+                    output: vec![ValType::Num(NumType::I32)],
+                },
+                x29_i64_load(_) => TypingRules {
+                    input: vec![ValType::Num(NumType::I32)],
+                    output: vec![ValType::Num(NumType::I64)],
+                },
+                x2a_f32_load(_) => TypingRules {
+                    input: vec![ValType::Num(NumType::I32)],
+                    output: vec![ValType::Num(NumType::F32)],
+                },
+                x2b_f64_load(_) => TypingRules {
+                    input: vec![ValType::Num(NumType::I32)],
+                    output: vec![ValType::Num(NumType::F64)],
+                },
+                x2c_i32_load8_s(_) => TypingRules {
+                    input: vec![ValType::Num(NumType::I32)],
+                    output: vec![ValType::Num(NumType::I32)],
+                },
+                x2d_i32_load8_u(_) => TypingRules {
+                    input: vec![ValType::Num(NumType::I32)],
+                    output: vec![ValType::Num(NumType::I32)],
+                },
+                x2e_i32_load16_s(_) => TypingRules {
+                    input: vec![ValType::Num(NumType::I32)],
+                    output: vec![ValType::Num(NumType::I32)],
+                },
+                x2f_i32_load16_u(_) => TypingRules {
+                    input: vec![ValType::Num(NumType::I32)],
+                    output: vec![ValType::Num(NumType::I32)],
+                },
+                x30_i64_load8_s(_) => TypingRules {
+                    input: vec![ValType::Num(NumType::I32)],
+                    output: vec![ValType::Num(NumType::I64)],
+                },
+                x31_i64_load8_u(_) => TypingRules {
+                    input: vec![ValType::Num(NumType::I32)],
+                    output: vec![ValType::Num(NumType::I64)],
+                },
+                x32_i64_load16_s(_) => TypingRules {
+                    input: vec![ValType::Num(NumType::I32)],
+                    output: vec![ValType::Num(NumType::I64)],
+                },
+                x33_i64_load16_u(_) => TypingRules {
+                    input: vec![ValType::Num(NumType::I32)],
+                    output: vec![ValType::Num(NumType::I64)],
+                },
+                x34_i64_load32_s(_) => TypingRules {
+                    input: vec![ValType::Num(NumType::I32)],
+                    output: vec![ValType::Num(NumType::I64)],
+                },
+                x35_i64_load32_u(_) => TypingRules {
+                    input: vec![ValType::Num(NumType::I32)],
+                    output: vec![ValType::Num(NumType::I64)],
+                },
+                x36_i32_store(_) => TypingRules {
+                    input: vec![ValType::Num(NumType::I32), ValType::Num(NumType::I32)],
+                    output: Vec::new(),
+                },
                 x37_i64_store(_) => todo!(),
                 x38_f32_store(_) => todo!(),
                 x39_f64_store(_) => todo!(),

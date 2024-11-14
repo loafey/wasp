@@ -17,6 +17,7 @@ pub fn check(
     locals: &[ValType],
     instrs: &[Instr],
     function_types: &[FuncType],
+    raw_types: &[FuncType],
 ) -> Result<(), TypeCheckError> {
     let mut context = Vec::new();
     for inst in instrs {
@@ -35,7 +36,8 @@ pub fn check(
                 context.push(input[0]);
             }
             inst => {
-                let TypingRules { input, output } = inst.get_types(locals, function_types)?;
+                let TypingRules { input, output } =
+                    inst.get_types(locals, function_types, raw_types)?;
                 // println!(
                 //     "\n{inst:?} ({input:?}, {output:?})\nlocals: {locals:?}\ncontext: {context:?}"
                 // );

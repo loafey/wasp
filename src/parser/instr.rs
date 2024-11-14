@@ -316,6 +316,7 @@ impl Instr {
         &self,
         locals: &[ValType],
         function_types: &[FuncType],
+        raw_types: &[FuncType],
     ) -> Result<TypingRules, TypingRuleError> {
         Ok(match self {
             x00_unreachable => todo!(),
@@ -328,7 +329,7 @@ impl Instr {
                         output: vec![*val_type],
                     },
                     BlockType::TypIdx(i) => {
-                        let ft = function_types
+                        let ft = raw_types
                             .get(*i as usize)
                             .ok_or(TypingRuleError::MissingFunction("block type"))?;
                         TypingRules {

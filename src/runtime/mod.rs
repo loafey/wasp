@@ -396,7 +396,12 @@ impl Runtime {
             if !found {
                 println!("!")
             }
-            typecheck::check(&locals, &code.code.e.instrs, &sigs)?;
+            typecheck::check(
+                &locals,
+                &code.code.e.instrs,
+                &sigs,
+                &module.types.function_types,
+            )?;
         }
 
         let module = Model::from(module);

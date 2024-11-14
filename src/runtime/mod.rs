@@ -367,7 +367,13 @@ impl Runtime {
             sigs.push(typ.clone())
         }
 
-        for (code, TypeIdX(i)) in module.code.code.iter().zip(&module.funcs.functions) {
+        for ((code_i, code), TypeIdX(i)) in module
+            .code
+            .code
+            .iter()
+            .enumerate()
+            .zip(&module.funcs.functions)
+        {
             let Some(typ) = module.types.function_types.get(*i as usize) else {
                 return Err(RuntimeError::TypeError(
                     typecheck::TypeCheckError::MissingFunction,
@@ -375,6 +381,21 @@ impl Runtime {
             };
 
             let locals = typ.input.types.clone();
+            print!("Checking");
+            let mut found = false;
+            for k in &module.exports.exports {
+                match k.d {
+                    ExportDesc::Func(TypeIdX(i)) if i as usize == code_i => {
+                        println!(" {:?}!", k.nm.0);
+                        found = true;
+                        break;
+                    }
+                    _ => {}
+                };
+            }
+            if !found {
+                println!("!")
+            }
             typecheck::check(&locals, &code.code.e.instrs, &sigs)?;
         }
 

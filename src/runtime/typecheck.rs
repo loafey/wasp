@@ -20,6 +20,7 @@ pub fn check(
 ) -> Result<(), TypeCheckError> {
     let mut context = Vec::new();
     for inst in instrs {
+        println!("    {inst:?}:\n    locals: {locals:?}\n    context: {context:?}");
         match inst {
             Instr::x1b_select => {
                 let top = context.pop().ok_or(TypeCheckError::EmptyStack)?;
@@ -34,8 +35,10 @@ pub fn check(
                 context.push(input[0]);
             }
             inst => {
-                println!("{inst:?} {locals:?}");
                 let TypingRules { input, output } = inst.get_types(locals, function_types)?;
+                // println!(
+                //     "\n{inst:?} ({input:?}, {output:?})\nlocals: {locals:?}\ncontext: {context:?}"
+                // );
                 for inp in input {
                     let Some(p) = context.pop() else {
                         return Err(TypeCheckError::EmptyStack);
@@ -45,10 +48,12 @@ pub fn check(
                     }
                 }
                 for out in output {
+                    println!("        push: {out:?}");
                     context.push(out);
                 }
             }
         }
+        println!()
     }
 
     Ok(())

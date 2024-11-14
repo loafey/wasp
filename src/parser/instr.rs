@@ -320,22 +320,26 @@ impl Instr {
         Ok(match self {
             x00_unreachable => todo!(),
             x01_nop => todo!(),
-            x02_block(bt, _) => match bt {
-                BlockType::Eps => TypingRules::default(),
-                BlockType::T(val_type) => TypingRules {
-                    input: Vec::new(),
-                    output: vec![*val_type],
-                },
-                BlockType::TypIdx(i) => {
-                    let ft = function_types
-                        .get(*i as usize)
-                        .ok_or(TypingRuleError::MissingFunction("block type"))?;
-                    TypingRules {
-                        input: ft.input.types.clone(),
-                        output: ft.output.types.clone(),
+            x02_block(bt, _) => {
+                let bl = match bt {
+                    BlockType::Eps => TypingRules::default(),
+                    BlockType::T(val_type) => TypingRules {
+                        input: Vec::new(),
+                        output: vec![*val_type],
+                    },
+                    BlockType::TypIdx(i) => {
+                        let ft = function_types
+                            .get(*i as usize)
+                            .ok_or(TypingRuleError::MissingFunction("block type"))?;
+                        TypingRules {
+                            input: ft.input.types.clone(),
+                            output: ft.output.types.clone(),
+                        }
                     }
-                }
-            },
+                };
+                println!("@@@@@@@@@@@@{bl:?}");
+                bl
+            }
             x03_loop(_, _) => TypingRules::default(),
             x04_if_else(_, _, _) => TypingRules::default(),
             x05 => todo!(),

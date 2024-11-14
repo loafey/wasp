@@ -6,3 +6,6 @@ get-tests:
 	rm -rf test-suite/ || true
 	git clone https://github.com/WebAssembly/spec.git test-suite
 	rm -rf test-suite/.git
+
+watch:
+	, watchexec -e rs "cargo run -- $(FILE)"

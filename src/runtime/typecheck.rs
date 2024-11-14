@@ -73,10 +73,12 @@ pub fn check(
                         if a != b {
                             return Err(TypeCheckError::IfElseTypeMismatch(a, b));
                         }
-                    }
-                    TypingRules {
-                        input: vec![],
-                        output: a,
+                        TypingRules {
+                            input: vec![ValType::Num(NumType::I32)],
+                            output: a,
+                        }
+                    } else {
+                        TypingRules::single_input(ValType::Num(NumType::I32))
                     }
                 }
                 x05 => todo!(),

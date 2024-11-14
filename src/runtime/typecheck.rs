@@ -6,6 +6,7 @@ pub enum TypeCheckError {
     EmptyStack,
     MissingFunction,
     GetTypeError(TypingRuleError),
+    ReturnTypeMismatch(Vec<ValType>, Vec<ValType>),
 }
 impl From<TypingRuleError> for TypeCheckError {
     fn from(value: TypingRuleError) -> Self {
@@ -62,7 +63,10 @@ pub fn check(
     }
 
     if let Some(return_types) = return_types {
-        println!("{return_types:?} {context:?}")
+        println!("{return_types:?} {context:?}");
+        if return_types != context {
+            return Err(TypeCheckError::ReturnTypeMismatch(return_types, context));
+        }
     }
 
     Ok(())

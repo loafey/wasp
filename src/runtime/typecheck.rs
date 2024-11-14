@@ -43,11 +43,11 @@ pub fn check(
     return_types: Option<Vec<ValType>>,
 ) -> Result<Vec<ValType>, TypeCheckError> {
     // println!("{instrs:#?}");
+    println!("ts: {instrs:#?}");
     for inst in instrs {
         // println!("    {inst:?}:\n    locals: {locals:?}\n    context: {context:?}");
         let TypingRules { input, output } = {
-            let this = &inst;
-            match this {
+            match &inst {
                 x00_unreachable => TypingRules::default(),
                 x01_nop => TypingRules::default(),
                 x02_block(bt, b) | x03_loop(bt, b) => {
@@ -81,7 +81,15 @@ pub fn check(
                         }
                         pass.push(p);
                     }
-                    check(pass, locals, b, function_types, raw_types, globals, None)?;
+                    check(
+                        pass,
+                        locals,
+                        b,
+                        function_types,
+                        raw_types,
+                        globals,
+                        Some(rt.output.clone()),
+                    )?;
                     rt
                 }
                 x04_if_else(_, a, b) => {
@@ -503,6 +511,7 @@ pub fn check(
     }
     // println!()
 
+    println!("rs: {context:?}");
     if let Some(return_types) = return_types {
         // println!("{return_types:?} {context:?}");
         if return_types != context {

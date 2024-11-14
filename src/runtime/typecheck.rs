@@ -1,7 +1,7 @@
 use crate::parser::{
     BlockType, FuncIdx, FuncType, GlobalIdX,
     Instr::{self, *},
-    LocalIdX, NumType, ValType,
+    LocalIdX, NumType, TypeIdX, ValType,
 };
 #[derive(Debug, Default)]
 pub struct TypingRules {
@@ -48,7 +48,7 @@ pub fn check(
         let TypingRules { input, output } = {
             let this = &inst;
             match this {
-                x00_unreachable => todo!(),
+                x00_unreachable => TypingRules::default(),
                 x01_nop => TypingRules::default(),
                 x02_block(bt, b) | x03_loop(bt, b) => {
                     check(locals, b, function_types, raw_types, globals, None)?;
@@ -91,7 +91,7 @@ pub fn check(
                 x09 => todo!(),
                 x0a => todo!(),
                 x0b => todo!(),
-                x0c_br(_) => todo!(),
+                x0c_br(_) => TypingRules::default(),
                 x0d_br_if(_) => TypingRules::single_input(ValType::Num(NumType::I32)),
                 x0e_br_table(_, _) => TypingRules::single_input(ValType::Num(NumType::I32)),
                 x0f_return => TypingRules::default(),
@@ -104,7 +104,15 @@ pub fn check(
                         output: ft.output.types.clone(),
                     }
                 }
-                x11_call_indirect(_, _) => todo!(),
+                x11_call_indirect(TypeIdX(i), _) => {
+                    let ft = raw_types
+                        .get(*i as usize)
+                        .ok_or(TypeCheckError::MissingFunction)?;
+                    TypingRules {
+                        input: ft.input.types.clone(),
+                        output: ft.output.types.clone(),
+                    }
+                }
                 x12 => todo!(),
                 x13 => todo!(),
                 x14 => todo!(),

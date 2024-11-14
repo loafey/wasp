@@ -366,8 +366,14 @@ impl Runtime {
             };
             sigs.push(typ.clone())
         }
+        let globs = module
+            .globals
+            .globals
+            .iter()
+            .map(|g| g.gt.t)
+            .collect::<Vec<_>>();
 
-        for ((code_i, code), TypeIdX(i)) in module
+        for ((_code_i, code), TypeIdX(i)) in module
             .code
             .code
             .iter()
@@ -380,27 +386,26 @@ impl Runtime {
                 ));
             };
 
-            let locals = typ.input.types.clone();
-            print!("Checking");
-            let mut found = false;
-            for k in &module.exports.exports {
-                match k.d {
-                    ExportDesc::Func(TypeIdX(i)) if i as usize == code_i => {
-                        println!(" {:?}!", k.nm.0);
-                        found = true;
-                        break;
-                    }
-                    _ => {}
-                };
-            }
-            if !found {
-                println!("!")
-            }
+            let mut locals = typ.input.types.clone();
+            locals.extend(code.code.t.iter().flat_map(|l| (0..l.n).map(|_| l.t)));
+            // print!("Checking");
+            // for k in &module.exports.exports {
+            // match k.d {
+            // ExportDesc::Func(TypeIdX(i)) if i as usize == code_i => {
+            // print!(" {:?} ", k.nm.0);
+            // break;
+            // }
+            // _ => {}
+            // };
+            // }
+            // println!(" ({typ:?})");
             typecheck::check(
                 &locals,
                 &code.code.e.instrs,
                 &sigs,
                 &module.types.function_types,
+                &globs,
+                Some(typ.output.types.clone()),
             )?;
         }
 

@@ -317,6 +317,7 @@ impl Instr {
         locals: &[ValType],
         function_types: &[FuncType],
         raw_types: &[FuncType],
+        globals: &[ValType],
     ) -> Result<TypingRules, TypingRuleError> {
         Ok(match self {
             x00_unreachable => todo!(),
@@ -338,7 +339,6 @@ impl Instr {
                         }
                     }
                 };
-                println!("@@@@@@@@@@@@{bl:?}");
                 bl
             }
             x03_loop(_, _) => TypingRules::default(),
@@ -353,7 +353,7 @@ impl Instr {
             x0c_br(_) => todo!(),
             x0d_br_if(_) => todo!(),
             x0e_br_table(_, _) => todo!(),
-            x0f_return => todo!(),
+            x0f_return => TypingRules::default(),
             x10_call(FuncIdx(i)) => {
                 let ft = function_types
                     .get(*i as usize)
@@ -385,27 +385,30 @@ impl Instr {
                 .get(*i as usize)
                 .map(|l| TypingRules::single_output(*l))
                 .ok_or(TypingRuleError::MissingLocal)?,
-            x21_local_set(_) => todo!(),
-            x22_local_tee(_) => todo!(),
-            x23_global_get(_) => todo!(),
-            x24_global_set(_) => todo!(),
+            x21_local_set(LocalIdX(i)) => TypingRules::single_input(locals[*i as usize]),
+            x22_local_tee(LocalIdX(i)) => TypingRules {
+                input: vec![locals[*i as usize]],
+                output: vec![locals[*i as usize]],
+            },
+            x23_global_get(GlobalIdX(i)) => TypingRules::single_output(globals[*i as usize]),
+            x24_global_set(GlobalIdX(i)) => TypingRules::single_input(globals[*i as usize]),
             x25 => todo!(),
             x26_table_set(_) => todo!(),
             x27 => todo!(),
-            x28_i32_load(_) => todo!(),
-            x29_i64_load(_) => todo!(),
-            x2a_f32_load(_) => todo!(),
-            x2b_f64_load(_) => todo!(),
-            x2c_i32_load8_s(_) => todo!(),
-            x2d_i32_load8_u(_) => todo!(),
-            x2e_i32_load16_s(_) => todo!(),
-            x2f_i32_load16_u(_) => todo!(),
-            x30_i64_load8_s(_) => todo!(),
-            x31_i64_load8_u(_) => todo!(),
-            x32_i64_load16_s(_) => todo!(),
-            x33_i64_load16_u(_) => todo!(),
-            x34_i64_load32_s(_) => todo!(),
-            x35_i64_load32_u(_) => todo!(),
+            x28_i32_load(_) => TypingRules::single_output(ValType::Num(NumType::I32)),
+            x29_i64_load(_) => TypingRules::single_output(ValType::Num(NumType::I64)),
+            x2a_f32_load(_) => TypingRules::single_output(ValType::Num(NumType::F32)),
+            x2b_f64_load(_) => TypingRules::single_output(ValType::Num(NumType::F64)),
+            x2c_i32_load8_s(_) => TypingRules::single_output(ValType::Num(NumType::I32)),
+            x2d_i32_load8_u(_) => TypingRules::single_output(ValType::Num(NumType::I32)),
+            x2e_i32_load16_s(_) => TypingRules::single_output(ValType::Num(NumType::I32)),
+            x2f_i32_load16_u(_) => TypingRules::single_output(ValType::Num(NumType::I32)),
+            x30_i64_load8_s(_) => TypingRules::single_output(ValType::Num(NumType::I64)),
+            x31_i64_load8_u(_) => TypingRules::single_output(ValType::Num(NumType::I64)),
+            x32_i64_load16_s(_) => TypingRules::single_output(ValType::Num(NumType::I64)),
+            x33_i64_load16_u(_) => TypingRules::single_output(ValType::Num(NumType::I64)),
+            x34_i64_load32_s(_) => TypingRules::single_output(ValType::Num(NumType::I64)),
+            x35_i64_load32_u(_) => TypingRules::single_output(ValType::Num(NumType::I64)),
             x36_i32_store(_) => TypingRules::single_input(ValType::Num(NumType::I32)),
             x37_i64_store(_) => todo!(),
             x38_f32_store(_) => todo!(),
@@ -421,11 +424,17 @@ impl Instr {
                 output: vec![ValType::Num(NumType::I32)],
             },
             x41_i32_const(_) => TypingRules::single_output(ValType::Num(NumType::I32)),
-            x42_i64_const(_) => todo!(),
-            x43_f32_const(_) => todo!(),
-            x44_f64_const(_) => todo!(),
-            x45_i32_eqz => todo!(),
-            x46_i32_eq => todo!(),
+            x42_i64_const(_) => TypingRules::single_output(ValType::Num(NumType::I64)),
+            x43_f32_const(_) => TypingRules::single_output(ValType::Num(NumType::F32)),
+            x44_f64_const(_) => TypingRules::single_output(ValType::Num(NumType::F64)),
+            x45_i32_eqz => TypingRules {
+                input: vec![ValType::Num(NumType::I32)],
+                output: vec![ValType::Num(NumType::I32)],
+            },
+            x46_i32_eq => TypingRules {
+                input: vec![ValType::Num(NumType::I32), ValType::Num(NumType::I32)],
+                output: vec![ValType::Num(NumType::I32)],
+            },
             x47_i32_ne => todo!(),
             x48_i32_lt_s => todo!(),
             x49_i32_lt_u => todo!(),
@@ -449,7 +458,10 @@ impl Instr {
             x5b => todo!(),
             x5c => todo!(),
             x5d => todo!(),
-            x5e_f32_gt => todo!(),
+            x5e_f32_gt => TypingRules {
+                input: vec![ValType::Num(NumType::F32), ValType::Num(NumType::F32)],
+                output: vec![ValType::Num(NumType::I32)],
+            },
             x5f => todo!(),
             x60 => todo!(),
             x61_f64_eq => todo!(),
@@ -459,11 +471,20 @@ impl Instr {
             x65 => todo!(),
             x66_f64_ge => todo!(),
             x67_i32_clz => todo!(),
-            x68_i32_ctz => todo!(),
+            x68_i32_ctz => TypingRules {
+                input: vec![ValType::Num(NumType::I32)],
+                output: vec![ValType::Num(NumType::I32)],
+            },
             x69 => todo!(),
-            x6a_i32_add => todo!(),
+            x6a_i32_add => TypingRules {
+                input: vec![ValType::Num(NumType::I32), ValType::Num(NumType::I32)],
+                output: vec![ValType::Num(NumType::I32)],
+            },
             x6b_i32_sub => todo!(),
-            x6c_i32_mul => todo!(),
+            x6c_i32_mul => TypingRules {
+                input: vec![ValType::Num(NumType::I32), ValType::Num(NumType::I32)],
+                output: vec![ValType::Num(NumType::I32)],
+            },
             x6d_i32_div_s => todo!(),
             x6e_i32_div_u => todo!(),
             x6f => todo!(),

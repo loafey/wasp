@@ -18,10 +18,13 @@ pub fn check(
     instrs: &[Instr],
     function_types: &[FuncType],
     raw_types: &[FuncType],
+    globals: &[ValType],
+    return_types: Option<Vec<ValType>>,
 ) -> Result<(), TypeCheckError> {
     let mut context = Vec::new();
+    // println!("{instrs:#?}");
     for inst in instrs {
-        println!("    {inst:?}:\n    locals: {locals:?}\n    context: {context:?}");
+        // println!("    {inst:?}:\n    locals: {locals:?}\n    context: {context:?}");
         match inst {
             Instr::x1b_select => {
                 let top = context.pop().ok_or(TypeCheckError::EmptyStack)?;
@@ -37,7 +40,7 @@ pub fn check(
             }
             inst => {
                 let TypingRules { input, output } =
-                    inst.get_types(locals, function_types, raw_types)?;
+                    inst.get_types(locals, function_types, raw_types, globals)?;
                 // println!(
                 //     "\n{inst:?} ({input:?}, {output:?})\nlocals: {locals:?}\ncontext: {context:?}"
                 // );
@@ -50,12 +53,16 @@ pub fn check(
                     }
                 }
                 for out in output {
-                    println!("        push: {out:?}");
+                    // println!("        push: {out:?}");
                     context.push(out);
                 }
             }
         }
-        println!()
+        // println!()
+    }
+
+    if let Some(return_types) = return_types {
+        println!("{return_types:?} {context:?}")
     }
 
     Ok(())

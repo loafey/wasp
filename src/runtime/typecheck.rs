@@ -49,23 +49,26 @@ pub fn check(
             let this = &inst;
             match this {
                 x00_unreachable => todo!(),
-                x01_nop => todo!(),
-                x02_block(bt, _) | x03_loop(bt, _) => match bt {
-                    BlockType::Eps => TypingRules::default(),
-                    BlockType::T(val_type) => TypingRules {
-                        input: Vec::new(),
-                        output: vec![*val_type],
-                    },
-                    BlockType::TypIdx(i) => {
-                        let ft = raw_types
-                            .get(*i as usize)
-                            .ok_or(TypeCheckError::MissingFunction)?;
-                        TypingRules {
-                            input: ft.input.types.clone(),
-                            output: ft.output.types.clone(),
+                x01_nop => TypingRules::default(),
+                x02_block(bt, b) | x03_loop(bt, b) => {
+                    check(locals, b, function_types, raw_types, globals, None)?;
+                    match bt {
+                        BlockType::Eps => TypingRules::default(),
+                        BlockType::T(val_type) => TypingRules {
+                            input: Vec::new(),
+                            output: vec![*val_type],
+                        },
+                        BlockType::TypIdx(i) => {
+                            let ft = raw_types
+                                .get(*i as usize)
+                                .ok_or(TypeCheckError::MissingFunction)?;
+                            TypingRules {
+                                input: ft.input.types.clone(),
+                                output: ft.output.types.clone(),
+                            }
                         }
                     }
-                },
+                }
                 x04_if_else(_, a, b) => {
                     let a = check(locals, a, function_types, raw_types, globals, None)?;
                     if let Some(b) = b {
@@ -89,8 +92,8 @@ pub fn check(
                 x0a => todo!(),
                 x0b => todo!(),
                 x0c_br(_) => todo!(),
-                x0d_br_if(_) => todo!(),
-                x0e_br_table(_, _) => todo!(),
+                x0d_br_if(_) => TypingRules::single_input(ValType::Num(NumType::I32)),
+                x0e_br_table(_, _) => TypingRules::single_input(ValType::Num(NumType::I32)),
                 x0f_return => TypingRules::default(),
                 x10_call(FuncIdx(i)) => {
                     let ft = function_types

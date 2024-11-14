@@ -285,6 +285,13 @@ pub enum Instr {
     block_end(BT, usize, BlockType),
     comment(String, Box<Instr>),
 }
+
+#[derive(Debug)]
+pub enum TypingRuleError {
+    MissingFunction(&'static str),
+    MissingLocal,
+}
+
 #[derive(Debug, Default)]
 pub struct TypingRules {
     pub input: Vec<ValType>,
@@ -309,8 +316,8 @@ impl Instr {
         &self,
         locals: &[ValType],
         function_types: &[FuncType],
-    ) -> Option<TypingRules> {
-        Some(match self {
+    ) -> Result<TypingRules, TypingRuleError> {
+        Ok(match self {
             x00_unreachable => todo!(),
             x01_nop => todo!(),
             x02_block(bt, _) => match bt {
@@ -320,7 +327,9 @@ impl Instr {
                     output: vec![*val_type],
                 },
                 BlockType::TypIdx(i) => {
-                    let ft = function_types.get(*i as usize)?;
+                    let ft = function_types
+                        .get(*i as usize)
+                        .ok_or(TypingRuleError::MissingFunction("block type"))?;
                     TypingRules {
                         input: ft.input.types.clone(),
                         output: ft.output.types.clone(),
@@ -341,7 +350,9 @@ impl Instr {
             x0e_br_table(_, _) => todo!(),
             x0f_return => todo!(),
             x10_call(FuncIdx(i)) => {
-                let ft = function_types.get(*i as usize)?;
+                let ft = function_types
+                    .get(*i as usize)
+                    .ok_or(TypingRuleError::MissingFunction("invalid call"))?;
                 TypingRules {
                     input: ft.input.types.clone(),
                     output: ft.output.types.clone(),
@@ -367,7 +378,8 @@ impl Instr {
             x1f => todo!(),
             x20_local_get(LocalIdX(i)) => locals
                 .get(*i as usize)
-                .map(|l| TypingRules::single_output(*l))?,
+                .map(|l| TypingRules::single_output(*l))
+                .ok_or(TypingRuleError::MissingLocal)?,
             x21_local_set(_) => todo!(),
             x22_local_tee(_) => todo!(),
             x23_global_get(_) => todo!(),

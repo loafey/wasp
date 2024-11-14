@@ -1,10 +1,16 @@
-use crate::parser::{FuncType, Instr, Locals, NumType, TypingRules, ValType};
+use crate::parser::{FuncType, Instr, Locals, NumType, TypingRuleError, TypingRules, ValType};
 
 #[derive(Debug)]
 pub enum TypeCheckError {
     WrongTypeOnStack,
     EmptyStack,
     MissingFunction,
+    GetTypeError(TypingRuleError),
+}
+impl From<TypingRuleError> for TypeCheckError {
+    fn from(value: TypingRuleError) -> Self {
+        TypeCheckError::GetTypeError(value)
+    }
 }
 
 pub fn check(
@@ -29,9 +35,7 @@ pub fn check(
             }
             inst => {
                 println!("{inst:?} {locals:?}");
-                let TypingRules { input, output } = inst
-                    .get_types(locals, function_types)
-                    .ok_or(TypeCheckError::MissingFunction)?;
+                let TypingRules { input, output } = inst.get_types(locals, function_types)?;
                 for inp in input {
                     let Some(p) = context.pop() else {
                         return Err(TypeCheckError::EmptyStack);

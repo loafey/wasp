@@ -357,6 +357,16 @@ impl Runtime {
             .map(|exp| (exp.nm.0.clone(), exp.d))
             .collect();
 
+        let mut sigs = Vec::new();
+        for (_, TypeIdX(i)) in module.code.code.iter().zip(&module.funcs.functions) {
+            let Some(typ) = module.types.function_types.get(*i as usize) else {
+                return Err(RuntimeError::TypeError(
+                    typecheck::TypeCheckError::MissingFunction,
+                ));
+            };
+            sigs.push(typ.clone())
+        }
+
         for (code, TypeIdX(i)) in module.code.code.iter().zip(&module.funcs.functions) {
             let Some(typ) = module.types.function_types.get(*i as usize) else {
                 return Err(RuntimeError::TypeError(
@@ -365,7 +375,7 @@ impl Runtime {
             };
 
             let locals = typ.input.types.clone();
-            typecheck::check(&locals, &code.code.e.instrs, &module.types.function_types)?;
+            typecheck::check(&locals, &code.code.e.instrs, &sigs)?;
         }
 
         let module = Model::from(module);

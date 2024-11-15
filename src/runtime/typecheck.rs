@@ -520,7 +520,10 @@ pub fn check(
                 xf9 => todo!(),
                 xfa => todo!(),
                 xfb => todo!(),
-                xfc_0_i32_trunc_sat_f32_s => todo!(),
+                xfc_0_i32_trunc_sat_f32_s => TypingRules {
+                    input: vec![ValType::Num(NumType::F32)],
+                    output: vec![ValType::Num(NumType::I32)],
+                },
                 xfc_1_i32_trunc_sat_f32_u => todo!(),
                 xfc_2_i32_trunc_sat_f64_u => todo!(),
                 xfc_3_i32_trunc_sat_f64_s => todo!(),

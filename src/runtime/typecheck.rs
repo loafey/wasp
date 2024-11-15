@@ -1,7 +1,7 @@
 use crate::parser::{
     BlockType, FuncIdx, FuncType, GlobalIdX,
     Instr::{self, *},
-    LocalIdX, NumType, TypeIdX, ValType,
+    LabelIdX, LocalIdX, NumType, TypeIdX, ValType,
 };
 #[derive(Debug, Default)]
 pub struct TypingRules {
@@ -41,9 +41,9 @@ pub fn check(
     raw_types: &[FuncType],
     globals: &[ValType],
     return_types: Option<Vec<ValType>>,
-) -> Result<Vec<ValType>, TypeCheckError> {
+) -> Result<(usize, Vec<ValType>), TypeCheckError> {
     // println!("{instrs:#?}");
-    println!("ts: {instrs:#?}");
+    // println!("ts: {instrs:#?}");
     for inst in instrs {
         // println!("    {inst:?}:\n    locals: {locals:?}\n    context: {context:?}");
         let TypingRules { input, output } = {
@@ -81,7 +81,7 @@ pub fn check(
                         }
                         pass.push(p);
                     }
-                    check(
+                    let (d, mut r) = check(
                         pass,
                         locals,
                         b,
@@ -90,10 +90,23 @@ pub fn check(
                         globals,
                         Some(rt.output.clone()),
                     )?;
+                    if d > 0 {
+                        context.append(&mut r);
+                        if let Some(return_types) = return_types {
+                            // println!("{return_types:?} {context:?}");
+                            if return_types != context {
+                                return Err(TypeCheckError::ReturnTypeMismatch(
+                                    return_types,
+                                    context,
+                                ));
+                            }
+                        }
+                        return Ok((d - 1, context));
+                    }
                     rt
                 }
                 x04_if_else(_, a, b) => {
-                    let a = check(
+                    let (_, a) = check(
                         Vec::new(),
                         locals,
                         a,
@@ -103,7 +116,7 @@ pub fn check(
                         None,
                     )?;
                     if let Some(b) = b {
-                        let b = check(
+                        let (_, b) = check(
                             Vec::new(),
                             locals,
                             b,
@@ -130,14 +143,14 @@ pub fn check(
                 x09 => todo!(),
                 x0a => todo!(),
                 x0b => todo!(),
-                x0c_br(_) => {
+                x0c_br(LabelIdX(i)) => {
                     if let Some(return_types) = return_types {
                         // println!("{return_types:?} {context:?}");
                         if return_types != context {
                             return Err(TypeCheckError::ReturnTypeMismatch(return_types, context));
                         }
                     }
-                    return Ok(context);
+                    return Ok((*i as usize, context));
                 }
                 x0d_br_if(_) => TypingRules::single_input(ValType::Num(NumType::I32)),
                 x0e_br_table(_, _) => TypingRules::single_input(ValType::Num(NumType::I32)),
@@ -521,7 +534,7 @@ pub fn check(
     }
     // println!()
 
-    println!("rs: {context:?}");
+    // println!("rs: {context:?}");
     if let Some(return_types) = return_types {
         // println!("{return_types:?} {context:?}");
         if return_types != context {
@@ -529,5 +542,5 @@ pub fn check(
         }
     }
 
-    Ok(context)
+    Ok((0, context))
 }

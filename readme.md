@@ -6,34 +6,14 @@
 ## Failed: test-suite/test/core/br.wast
 ```bash
 thread 'main' panicked at src/testsuite.rs:302:50:
-failed to load module: ParseError(File: "test-suite/test/core/br.0.wasm"
-UnknownInstruction(<8c>), bin pos: 1494, stack: [
-    "wasp::parser::instr::Instr",
-    "wasp::parser::instr::Instr",
-    "wasp::parser::expr::Expr",
-    "wasp::parser::func::Func",
-    "wasp::parser::code::Code",
-    "alloc::vec::Vec<wasp::parser::code::Code>",
-    "wasp::parser::codesec::CodeSection",
-    "wasp::parser::module::Module",
-])
+failed to load module: type error: ReturnTypeMismatch([Num(I32)], [Num(I32), Num(I32)])
 note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 ```
 
 ## Failed: test-suite/test/core/br_if.wast
 ```bash
-thread 'main' panicked at src/testsuite.rs:302:50:
-failed to load module: ParseError(File: "test-suite/test/core/br_if.0.wasm"
-UnknownInstruction(<8c>), bin pos: 1303, stack: [
-    "wasp::parser::instr::Instr",
-    "wasp::parser::instr::Instr",
-    "wasp::parser::expr::Expr",
-    "wasp::parser::func::Func",
-    "wasp::parser::code::Code",
-    "alloc::vec::Vec<wasp::parser::code::Code>",
-    "wasp::parser::codesec::CodeSection",
-    "wasp::parser::module::Module",
-])
+thread 'main' panicked at src/runtime/typecheck.rs:415:32:
+not yet implemented
 note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 ```
 
@@ -141,7 +121,7 @@ note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 ```bash
 thread 'main' panicked at src/testsuite.rs:302:50:
 failed to load module: ParseError(File: "test-suite/test/core/f32.0.wasm"
-UnknownInstruction(<92>), bin pos: 125, stack: [
+UnknownInstruction(<93>), bin pos: 133, stack: [
     "wasp::parser::instr::Instr",
     "wasp::parser::expr::Expr",
     "wasp::parser::func::Func",
@@ -221,7 +201,7 @@ note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 ```bash
 thread 'main' panicked at src/testsuite.rs:302:50:
 failed to load module: ParseError(File: "test-suite/test/core/f64_cmp.0.wasm"
-UnknownInstruction(<65>), bin pos: 93, stack: [
+UnknownInstruction(<64>), bin pos: 101, stack: [
     "wasp::parser::instr::Instr",
     "wasp::parser::expr::Expr",
     "wasp::parser::func::Func",
@@ -267,7 +247,7 @@ note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 ```bash
 thread 'main' panicked at src/testsuite.rs:302:50:
 failed to load module: ParseError(File: "test-suite/test/core/float_misc.0.wasm"
-UnknownInstruction(<92>), bin pos: 389, stack: [
+UnknownInstruction(<93>), bin pos: 397, stack: [
     "wasp::parser::instr::Instr",
     "wasp::parser::expr::Expr",
     "wasp::parser::func::Func",
@@ -286,17 +266,8 @@ note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 
 ## Failed: test-suite/test/core/func.wast
 ```bash
-thread 'main' panicked at src/testsuite.rs:302:50:
-failed to load module: ParseError(File: "test-suite/test/core/func.0.wasm"
-UnknownInstruction(<8c>), bin pos: 1723, stack: [
-    "wasp::parser::instr::Instr",
-    "wasp::parser::expr::Expr",
-    "wasp::parser::func::Func",
-    "wasp::parser::code::Code",
-    "alloc::vec::Vec<wasp::parser::code::Code>",
-    "wasp::parser::codesec::CodeSection",
-    "wasp::parser::module::Module",
-])
+thread 'main' panicked at src/runtime/typecheck.rs:415:32:
+not yet implemented
 note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 ```
 
@@ -415,7 +386,7 @@ note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 ```bash
 thread 'main' panicked at src/testsuite.rs:302:50:
 failed to load module: ParseError(File: "test-suite/test/core/local_get.0.wasm"
-UnknownInstruction(<8c>), bin pos: 463, stack: [
+UnknownInstruction(<ba>), bin pos: 526, stack: [
     "wasp::parser::instr::Instr",
     "wasp::parser::expr::Expr",
     "wasp::parser::func::Func",
@@ -447,7 +418,7 @@ note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 ```bash
 thread 'main' panicked at src/testsuite.rs:302:50:
 failed to load module: ParseError(File: "test-suite/test/core/local_tee.0.wasm"
-UnknownInstruction(<8c>), bin pos: 1275, stack: [
+UnknownInstruction(<ba>), bin pos: 1390, stack: [
     "wasp::parser::instr::Instr",
     "wasp::parser::expr::Expr",
     "wasp::parser::func::Func",
@@ -583,16 +554,7 @@ note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 ## Failed: test-suite/test/core/return.wast
 ```bash
 thread 'main' panicked at src/testsuite.rs:302:50:
-failed to load module: ParseError(File: "test-suite/test/core/return.0.wasm"
-UnknownInstruction(<8c>), bin pos: 1178, stack: [
-    "wasp::parser::instr::Instr",
-    "wasp::parser::expr::Expr",
-    "wasp::parser::func::Func",
-    "wasp::parser::code::Code",
-    "alloc::vec::Vec<wasp::parser::code::Code>",
-    "wasp::parser::codesec::CodeSection",
-    "wasp::parser::module::Module",
-])
+failed to load module: type error: EmptyStack
 note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 ```
 
@@ -930,16 +892,7 @@ note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 ## Failed: test-suite/test/core/unreachable.wast
 ```bash
 thread 'main' panicked at src/testsuite.rs:302:50:
-failed to load module: ParseError(File: "test-suite/test/core/unreachable.0.wasm"
-UnknownInstruction(<8c>), bin pos: 1689, stack: [
-    "wasp::parser::instr::Instr",
-    "wasp::parser::expr::Expr",
-    "wasp::parser::func::Func",
-    "wasp::parser::code::Code",
-    "alloc::vec::Vec<wasp::parser::code::Code>",
-    "wasp::parser::codesec::CodeSection",
-    "wasp::parser::module::Module",
-])
+failed to load module: type error: IfElseTypeMismatch([], [Num(I32)])
 note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 ```
 

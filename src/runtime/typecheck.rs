@@ -48,7 +48,7 @@ pub fn check(
         // println!("    {inst:?}:\n    locals: {locals:?}\n    context: {context:?}");
         let TypingRules { input, output } = {
             match &inst {
-                x00_unreachable => TypingRules::default(),
+                x00_unreachable => return Ok((0, Vec::new())),
                 x01_nop => TypingRules::default(),
                 x02_block(bt, b) | x03_loop(bt, b) => {
                     let (rt, inputs) = match bt {

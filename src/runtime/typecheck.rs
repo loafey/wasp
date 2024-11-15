@@ -130,7 +130,7 @@ pub fn check(
                 x09 => todo!(),
                 x0a => todo!(),
                 x0b => todo!(),
-                x0c_br(_) => TypingRules::default(),
+                x0c_br(_) => return Ok(context),
                 x0d_br_if(_) => TypingRules::single_input(ValType::Num(NumType::I32)),
                 x0e_br_table(_, _) => TypingRules::single_input(ValType::Num(NumType::I32)),
                 x0f_return => TypingRules::default(),

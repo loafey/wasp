@@ -147,8 +147,10 @@ pub fn check(
                     let ft = raw_types
                         .get(*i as usize)
                         .ok_or(TypeCheckError::MissingFunction)?;
+                    let mut input = vec![ValType::Num(NumType::I32)];
+                    input.append(&mut ft.input.types.clone());
                     TypingRules {
-                        input: ft.input.types.clone(),
+                        input,
                         output: ft.output.types.clone(),
                     }
                 }

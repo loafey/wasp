@@ -130,7 +130,15 @@ pub fn check(
                 x09 => todo!(),
                 x0a => todo!(),
                 x0b => todo!(),
-                x0c_br(_) => return Ok(context),
+                x0c_br(_) => {
+                    if let Some(return_types) = return_types {
+                        // println!("{return_types:?} {context:?}");
+                        if return_types != context {
+                            return Err(TypeCheckError::ReturnTypeMismatch(return_types, context));
+                        }
+                    }
+                    return Ok(context);
+                }
                 x0d_br_if(_) => TypingRules::single_input(ValType::Num(NumType::I32)),
                 x0e_br_table(_, _) => TypingRules::single_input(ValType::Num(NumType::I32)),
                 x0f_return => TypingRules::default(),

@@ -1,11 +1,13 @@
 # W.A.S.P
 
 ## Latest spec test 
-💅: 12\
-💩: 135
-## Failed: test-suite/test/core/block.wast
+💅: 13\
+💩: 134
+## Failed: test-suite/test/core/binary-leb128.wast
 ```bash
- ERROR wasp::testsuite > test 64/223 did not fail invalidating/parsing, expected error: "type mismatch" (module: "test-suite/test/core/block.12.wasm")
+thread 'main' panicked at src/runtime/typecheck.rs:523:46:
+not yet implemented
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 ```
 
 ## Failed: test-suite/test/core/br.wast
@@ -51,8 +53,8 @@ note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 
 ## Failed: test-suite/test/core/bulk.wast
 ```bash
-thread 'main' panicked at src/runtime/mod.rs:941:25:
-not implemented: instruction not supported : xfc_11_memory_fill(0)
+thread 'main' panicked at src/runtime/typecheck.rs:534:42:
+not yet implemented
 note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 ```
 
@@ -72,7 +74,9 @@ note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 
 ## Failed: test-suite/test/core/comments.wast
 ```bash
- ERROR wasp::testsuite > test 5/8 failed (module: 4, invoke: "f1", got [i32(1), i32(2)], but expected [i32(2)])
+thread 'main' panicked at src/testsuite.rs:301:50:
+failed to load module: type error: ReturnTypeMismatch([Num(I32)], [Num(I32), Num(I32)])
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 ```
 
 ## Failed: test-suite/test/core/conversions.wast
@@ -245,8 +249,8 @@ note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 
 ## Failed: test-suite/test/core/float_exprs.wast
 ```bash
-thread 'main' panicked at src/runtime/mod.rs:941:25:
-not implemented: instruction not supported : xa2_f64_mul
+thread 'main' panicked at src/runtime/typecheck.rs:434:32:
+not yet implemented
 note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 ```
 
@@ -284,7 +288,7 @@ note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 
 ## Failed: test-suite/test/core/forward.wast
 ```bash
- ERROR wasp::testsuite > test 1/5 failed (module: 0, invoke: "even", error: empty stack: src/runtime/mod.rs:509:55)
+ ERROR wasp::testsuite > test 1/5 failed (module: 0, invoke: "even", error: empty stack: src/runtime/mod.rs:563:55)
 ```
 
 ## Failed: test-suite/test/core/func.wast
@@ -305,7 +309,9 @@ note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 
 ## Failed: test-suite/test/core/func_ptrs.wast
 ```bash
- ERROR wasp::testsuite > unknown function: spectest::print_i32
+thread 'main' panicked at src/testsuite.rs:301:50:
+failed to load module: type error: ReturnTypeMismatch([], [Num(I32)])
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 ```
 
 ## Failed: test-suite/test/core/global.wast
@@ -349,7 +355,9 @@ note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 
 ## Failed: test-suite/test/core/if.wast
 ```bash
- ERROR wasp::testsuite > test 5/241 failed (module: 0, invoke: "singular", error: empty stack: src/runtime/mod.rs:509:55)
+thread 'main' panicked at src/testsuite.rs:301:50:
+failed to load module: type error: ReturnTypeMismatch([Num(I32)], [Num(I32), Num(I32)])
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 ```
 
 ## Failed: test-suite/test/core/imports.wast
@@ -361,21 +369,23 @@ note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 
 ## Failed: test-suite/test/core/int_exprs.wast
 ```bash
-thread 'main' panicked at src/runtime/mod.rs:833:36:
-attempt to add with overflow
+thread 'main' panicked at src/runtime/typecheck.rs:330:33:
+not yet implemented
 note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 ```
 
 ## Failed: test-suite/test/core/int_literals.wast
 ```bash
-thread 'main' panicked at src/runtime/mod.rs:941:25:
-not implemented: instruction not supported : x7c_i64_add
+thread 'main' panicked at src/runtime/typecheck.rs:396:32:
+not yet implemented
 note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 ```
 
 ## Failed: test-suite/test/core/labels.wast
 ```bash
- ERROR wasp::testsuite > test 2/29 failed (module: 0, invoke: "loop1", error: empty stack: src/runtime/mod.rs:465:51)
+thread 'main' panicked at src/testsuite.rs:301:50:
+failed to load module: type error: ReturnTypeMismatch([Num(I32)], [])
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 ```
 
 ## Failed: test-suite/test/core/left-to-right.wast
@@ -403,7 +413,9 @@ note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 
 ## Failed: test-suite/test/core/load.wast
 ```bash
- ERROR wasp::testsuite > test 9/97 failed (module: 0, invoke: "as-if-cond", error: empty stack: src/runtime/mod.rs:509:55)
+thread 'main' panicked at src/testsuite.rs:301:50:
+failed to load module: type error: ReturnTypeMismatch([Num(I32)], [Num(I32), Num(I32)])
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 ```
 
 ## Failed: test-suite/test/core/local_get.wast
@@ -479,15 +491,15 @@ note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 
 ## Failed: test-suite/test/core/memory_copy.wast
 ```bash
-thread 'main' panicked at src/runtime/mod.rs:941:25:
-not implemented: instruction not supported : xfc_10_memory_copy(0, 0)
+thread 'main' panicked at src/runtime/typecheck.rs:533:45:
+not yet implemented
 note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 ```
 
 ## Failed: test-suite/test/core/memory_fill.wast
 ```bash
-thread 'main' panicked at src/runtime/mod.rs:941:25:
-not implemented: instruction not supported : xfc_11_memory_fill(0)
+thread 'main' panicked at src/runtime/typecheck.rs:534:42:
+not yet implemented
 note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 ```
 
@@ -542,13 +554,15 @@ note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 
 ## Failed: test-suite/test/core/names.wast
 ```bash
- ERROR wasp::testsuite > test 485/486 failed (module: 3, invoke: "print32", error: unknown function: spectest::print_i32)
+thread 'main' panicked at src/testsuite.rs:301:50:
+failed to load module: type error: EmptyStack
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 ```
 
 ## Failed: test-suite/test/core/nop.wast
 ```bash
-thread 'main' panicked at src/runtime/mod.rs:941:25:
-not implemented: instruction not supported : x4c_i32_le_s
+thread 'main' panicked at src/runtime/typecheck.rs:329:31:
+not yet implemented
 note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 ```
 
@@ -833,8 +847,8 @@ note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 
 ## Failed: test-suite/test/core/stack.wast
 ```bash
-thread 'main' panicked at src/runtime/mod.rs:941:25:
-not implemented: instruction not supported : x51_i64_eq
+thread 'main' panicked at src/runtime/typecheck.rs:339:31:
+not yet implemented
 note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 ```
 
@@ -843,19 +857,16 @@ note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
  ERROR wasp::testsuite > test 0/20 did not fail invalidating/parsing, expected error: "unknown function" (module: "test-suite/test/core/start.0.wasm")
 ```
 
-## Failed: test-suite/test/core/store.wast
-```bash
- ERROR wasp::testsuite > test 17/68 did not fail invalidating/parsing, expected error: "type mismatch" (module: "test-suite/test/core/store.8.wasm")
-```
-
 ## Failed: test-suite/test/core/switch.wast
 ```bash
- ERROR wasp::testsuite > test 1/28 failed (module: 0, invoke: "stmt", got [--- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, i32(0)], but expected [i32(0)])
+thread 'main' panicked at src/testsuite.rs:301:50:
+failed to load module: type error: ReturnTypeMismatch([], [Num(I32)])
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 ```
 
 ## Failed: test-suite/test/core/table-sub.wast
 ```bash
-thread 'main' panicked at src/parser/instr.rs:504:24:
+thread 'main' panicked at src/parser/instr.rs:645:24:
 not yet implemented: 0xfc 14
 note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 ```
@@ -911,15 +922,15 @@ note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 
 ## Failed: test-suite/test/core/table_size.wast
 ```bash
-thread 'main' panicked at src/parser/instr.rs:504:24:
+thread 'main' panicked at src/parser/instr.rs:645:24:
 not yet implemented: 0xfc 16
 note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 ```
 
 ## Failed: test-suite/test/core/traps.wast
 ```bash
-thread 'main' panicked at src/runtime/mod.rs:941:25:
-not implemented: instruction not supported : x6d_i32_div_s
+thread 'main' panicked at src/runtime/typecheck.rs:382:34:
+not yet implemented
 note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 ```
 
@@ -941,7 +952,9 @@ note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 
 ## Failed: test-suite/test/core/unreached-invalid.wast
 ```bash
- ERROR wasp::testsuite > test 0/118 did not fail invalidating/parsing, expected error: "unknown local" (module: "test-suite/test/core/unreached-invalid.0.wasm")
+thread 'main' panicked at src/runtime/typecheck.rs:215:76:
+index out of bounds: the len is 0 but the index is 0
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 ```
 
 ## Failed: test-suite/test/core/unreached-valid.wast
@@ -962,8 +975,8 @@ note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 
 ## Failed: test-suite/test/core/unwind.wast
 ```bash
-thread 'main' panicked at src/runtime/mod.rs:941:25:
-not implemented: instruction not supported : x00_unreachable
+thread 'main' panicked at src/testsuite.rs:301:50:
+failed to load module: type error: ReturnTypeMismatch([], [Num(I32), Num(I64)])
 note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 ```
 

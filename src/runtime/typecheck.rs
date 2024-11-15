@@ -277,14 +277,38 @@ pub fn check(
                     input: vec![ValType::Num(NumType::I32), ValType::Num(NumType::I32)],
                     output: Vec::new(),
                 },
-                x37_i64_store(_) => todo!(),
-                x38_f32_store(_) => todo!(),
-                x39_f64_store(_) => todo!(),
-                x3a_i32_store8(_) => todo!(),
-                x3b_i32_store16(_) => todo!(),
-                x3c_i64_store8(_) => todo!(),
-                x3d_i64_store16(_) => todo!(),
-                x3e_i64_store32(_) => todo!(),
+                x37_i64_store(_) => TypingRules {
+                    input: vec![ValType::Num(NumType::I64), ValType::Num(NumType::I32)],
+                    output: vec![],
+                },
+                x38_f32_store(_) => TypingRules {
+                    input: vec![ValType::Num(NumType::F32), ValType::Num(NumType::I32)],
+                    output: vec![],
+                },
+                x39_f64_store(_) => TypingRules {
+                    input: vec![ValType::Num(NumType::F64), ValType::Num(NumType::I32)],
+                    output: vec![],
+                },
+                x3a_i32_store8(_) => TypingRules {
+                    input: vec![ValType::Num(NumType::I32), ValType::Num(NumType::I32)],
+                    output: vec![],
+                },
+                x3b_i32_store16(_) => TypingRules {
+                    input: vec![ValType::Num(NumType::I32), ValType::Num(NumType::I32)],
+                    output: vec![],
+                },
+                x3c_i64_store8(_) => TypingRules {
+                    input: vec![ValType::Num(NumType::I64), ValType::Num(NumType::I32)],
+                    output: vec![],
+                },
+                x3d_i64_store16(_) => TypingRules {
+                    input: vec![ValType::Num(NumType::I64), ValType::Num(NumType::I32)],
+                    output: vec![],
+                },
+                x3e_i64_store32(_) => TypingRules {
+                    input: vec![ValType::Num(NumType::I64), ValType::Num(NumType::I32)],
+                    output: vec![],
+                },
                 x3f => todo!(),
                 x40_grow => TypingRules {
                     input: vec![ValType::Num(NumType::I32)],

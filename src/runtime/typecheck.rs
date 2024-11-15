@@ -392,7 +392,10 @@ pub fn check(
                 x77_i32_rotl => todo!(),
                 x78 => todo!(),
                 x79 => todo!(),
-                x7a => todo!(),
+                x7a_i64_ctz => TypingRules {
+                    input: vec![ValType::Num(NumType::I64)],
+                    output: vec![ValType::Num(NumType::I64)],
+                },
                 x7c_i64_add => todo!(),
                 x7d_i64_sub => todo!(),
                 x7e_i64_mul => todo!(),

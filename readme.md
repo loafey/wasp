@@ -7,7 +7,7 @@
 ```bash
 thread 'main' panicked at src/testsuite.rs:302:50:
 failed to load module: ParseError(File: "test-suite/test/core/br.0.wasm"
-UnknownInstruction(<7a>), bin pos: 1484, stack: [
+UnknownInstruction(<8c>), bin pos: 1494, stack: [
     "wasp::parser::instr::Instr",
     "wasp::parser::instr::Instr",
     "wasp::parser::expr::Expr",
@@ -24,7 +24,7 @@ note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 ```bash
 thread 'main' panicked at src/testsuite.rs:302:50:
 failed to load module: ParseError(File: "test-suite/test/core/br_if.0.wasm"
-UnknownInstruction(<7a>), bin pos: 1286, stack: [
+UnknownInstruction(<8c>), bin pos: 1303, stack: [
     "wasp::parser::instr::Instr",
     "wasp::parser::instr::Instr",
     "wasp::parser::expr::Expr",
@@ -46,7 +46,7 @@ note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 
 ## Failed: test-suite/test/core/bulk.wast
 ```bash
-thread 'main' panicked at src/runtime/typecheck.rs:537:42:
+thread 'main' panicked at src/runtime/typecheck.rs:540:42:
 not yet implemented
 note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 ```
@@ -242,7 +242,7 @@ note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 
 ## Failed: test-suite/test/core/float_exprs.wast
 ```bash
-thread 'main' panicked at src/runtime/typecheck.rs:434:32:
+thread 'main' panicked at src/runtime/typecheck.rs:437:32:
 not yet implemented
 note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 ```
@@ -369,7 +369,7 @@ note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 
 ## Failed: test-suite/test/core/int_literals.wast
 ```bash
-thread 'main' panicked at src/runtime/typecheck.rs:396:32:
+thread 'main' panicked at src/runtime/typecheck.rs:399:32:
 not yet implemented
 note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 ```
@@ -484,14 +484,14 @@ note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 
 ## Failed: test-suite/test/core/memory_copy.wast
 ```bash
-thread 'main' panicked at src/runtime/typecheck.rs:536:45:
+thread 'main' panicked at src/runtime/typecheck.rs:539:45:
 not yet implemented
 note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 ```
 
 ## Failed: test-suite/test/core/memory_fill.wast
 ```bash
-thread 'main' panicked at src/runtime/typecheck.rs:537:42:
+thread 'main' panicked at src/runtime/typecheck.rs:540:42:
 not yet implemented
 note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 ```
@@ -584,7 +584,7 @@ note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 ```bash
 thread 'main' panicked at src/testsuite.rs:302:50:
 failed to load module: ParseError(File: "test-suite/test/core/return.0.wasm"
-UnknownInstruction(<7a>), bin pos: 1172, stack: [
+UnknownInstruction(<8c>), bin pos: 1178, stack: [
     "wasp::parser::instr::Instr",
     "wasp::parser::expr::Expr",
     "wasp::parser::func::Func",

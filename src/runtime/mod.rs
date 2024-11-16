@@ -388,17 +388,17 @@ impl Runtime {
 
             let mut locals = typ.input.types.clone();
             locals.extend(code.code.t.iter().flat_map(|l| (0..l.n).map(|_| l.t)));
-            // print!("Checking");
+            print!("Checking");
             for k in &module.exports.exports {
                 match k.d {
                     ExportDesc::Func(TypeIdX(i)) if i as usize == _code_i => {
-                        // print!(" {:?} ", k.nm.0);
+                        print!(" {:?} ", k.nm.0);
                         break;
                     }
                     _ => {}
                 };
             }
-            // println!(" ({typ:?})");
+            println!(" ({typ:?})");
             typecheck::check(
                 Vec::new(),
                 &locals,

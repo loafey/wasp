@@ -1,8 +1,15 @@
 # W.A.S.P
 
 ## Latest spec test 
-💅: 14\
-💩: 133
+💅: 13\
+💩: 134
+## Failed: test-suite/test/core/block.wast
+```bash
+thread 'main' panicked at src/testsuite.rs:302:50:
+failed to load module: type error: EmptyStack
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+```
+
 ## Failed: test-suite/test/core/br.wast
 ```bash
 thread 'main' panicked at src/testsuite.rs:302:50:
@@ -12,7 +19,7 @@ note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 
 ## Failed: test-suite/test/core/br_if.wast
 ```bash
-thread 'main' panicked at src/runtime/typecheck.rs:417:32:
+thread 'main' panicked at src/runtime/typecheck.rs:296:32:
 not yet implemented
 note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 ```
@@ -26,7 +33,7 @@ note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 
 ## Failed: test-suite/test/core/bulk.wast
 ```bash
-thread 'main' panicked at src/runtime/typecheck.rs:542:42:
+thread 'main' panicked at src/runtime/typecheck.rs:418:42:
 not yet implemented
 note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 ```
@@ -222,7 +229,7 @@ note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 
 ## Failed: test-suite/test/core/float_exprs.wast
 ```bash
-thread 'main' panicked at src/runtime/typecheck.rs:439:32:
+thread 'main' panicked at src/runtime/typecheck.rs:318:32:
 not yet implemented
 note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 ```
@@ -266,7 +273,7 @@ note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 
 ## Failed: test-suite/test/core/func.wast
 ```bash
-thread 'main' panicked at src/runtime/typecheck.rs:417:32:
+thread 'main' panicked at src/runtime/typecheck.rs:296:32:
 not yet implemented
 note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 ```
@@ -320,7 +327,7 @@ note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 ## Failed: test-suite/test/core/if.wast
 ```bash
 thread 'main' panicked at src/testsuite.rs:302:50:
-failed to load module: type error: ReturnTypeMismatch([Num(I32)], [Num(I32), Num(I32)])
+failed to load module: type error: EmptyStack
 note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 ```
 
@@ -333,14 +340,14 @@ note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 
 ## Failed: test-suite/test/core/int_exprs.wast
 ```bash
-thread 'main' panicked at src/runtime/typecheck.rs:332:33:
+thread 'main' panicked at src/runtime/typecheck.rs:229:33:
 not yet implemented
 note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 ```
 
 ## Failed: test-suite/test/core/int_literals.wast
 ```bash
-thread 'main' panicked at src/runtime/typecheck.rs:401:32:
+thread 'main' panicked at src/runtime/typecheck.rs:280:32:
 not yet implemented
 note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 ```
@@ -455,14 +462,14 @@ note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 
 ## Failed: test-suite/test/core/memory_copy.wast
 ```bash
-thread 'main' panicked at src/runtime/typecheck.rs:541:45:
+thread 'main' panicked at src/runtime/typecheck.rs:417:45:
 not yet implemented
 note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 ```
 
 ## Failed: test-suite/test/core/memory_fill.wast
 ```bash
-thread 'main' panicked at src/runtime/typecheck.rs:542:42:
+thread 'main' panicked at src/runtime/typecheck.rs:418:42:
 not yet implemented
 note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 ```
@@ -525,8 +532,8 @@ note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 
 ## Failed: test-suite/test/core/nop.wast
 ```bash
-thread 'main' panicked at src/runtime/typecheck.rs:331:31:
-not yet implemented
+thread 'main' panicked at src/testsuite.rs:302:50:
+failed to load module: type error: EmptyStack
 note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 ```
 
@@ -802,7 +809,7 @@ note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 
 ## Failed: test-suite/test/core/stack.wast
 ```bash
-thread 'main' panicked at src/runtime/typecheck.rs:341:31:
+thread 'main' panicked at src/runtime/typecheck.rs:238:31:
 not yet implemented
 note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 ```
@@ -884,7 +891,7 @@ note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 
 ## Failed: test-suite/test/core/traps.wast
 ```bash
-thread 'main' panicked at src/runtime/typecheck.rs:384:34:
+thread 'main' panicked at src/runtime/typecheck.rs:266:34:
 not yet implemented
 note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 ```

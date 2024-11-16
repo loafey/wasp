@@ -19,19 +19,7 @@ macro_rules! t {
             output: Vec::new(),
         }
     };
-    (output: $output:expr) => {
-        TypingRules {
-            input: Vec::new(),
-            output: $output.into(),
-        }
-    };
-    (input: $input:expr) => {
-        TypingRules {
-            input: $input.into(),
-            output: Vec::new(),
-        }
-    };
-    (input: $input:expr, output: $output:expr) => {
+    ($input:expr => $output:expr) => {
         TypingRules {
             input: $input.into(),
             output: $output.into(),
@@ -69,23 +57,12 @@ pub fn check(
                 x02_block(bt, b) | x03_loop(bt, b) => {
                     let (rt, inputs) = match bt {
                         BlockType::Eps => (t! {}, Vec::new()),
-                        BlockType::T(val_type) => (
-                            t!(
-                                output: [*val_type]
-                            ),
-                            Vec::new(),
-                        ),
+                        BlockType::T(val_type) => (t!([] => [*val_type]), Vec::new()),
                         BlockType::TypIdx(i) => {
                             let ft = raw_types
                                 .get(*i as usize)
                                 .ok_or(TypeCheckError::MissingFunction)?;
-                            (
-                                t!(
-                                    input: Vec::new(),
-                                    output: ft.output.types.clone()
-                                ),
-                                ft.input.types.clone(),
-                            )
+                            (t!([] => ft.output.types.clone()), ft.input.types.clone())
                         }
                     };
                     let mut pass = Vec::new();
@@ -143,12 +120,9 @@ pub fn check(
                         if a != b {
                             return Err(TypeCheckError::IfElseTypeMismatch(a, b));
                         }
-                        t!(
-                            input: [Num(I32)],
-                            output: a
-                        )
+                        t!([Num(I32)] => a)
                     } else {
-                        t!(input: [Num(I32)])
+                        t!([Num(I32)] => [])
                     }
                 }
                 x05 => todo!(),
@@ -167,17 +141,14 @@ pub fn check(
                     }
                     return Ok((*i as usize, context));
                 }
-                x0d_br_if(_) => t!(input: [Num(I32)]),
-                x0e_br_table(_, _) => t!(input: [Num(I32)]),
+                x0d_br_if(_) => t!([Num(I32)] => []),
+                x0e_br_table(_, _) => t!([Num(I32)] => []),
                 x0f_return => t!(),
                 x10_call(FuncIdx(i)) => {
                     let ft = function_types
                         .get(*i as usize)
                         .ok_or(TypeCheckError::MissingFunction)?;
-                    t!(
-                        input: ft.input.types.clone(),
-                        output: ft.output.types.clone()
-                    )
+                    t!(ft.input.types.clone() => ft.output.types.clone())
                 }
                 x11_call_indirect(TypeIdX(i), _) => {
                     let ft = raw_types
@@ -185,10 +156,7 @@ pub fn check(
                         .ok_or(TypeCheckError::MissingFunction)?;
                     let mut input = vec![Num(I32)];
                     input.append(&mut ft.input.types.clone());
-                    t!(
-                        input: input,
-                        output: ft.output.types.clone()
-                    )
+                    t!(input => ft.output.types.clone())
                 }
                 x12 => todo!(),
                 x13 => todo!(),
@@ -198,7 +166,7 @@ pub fn check(
                 x17 => todo!(),
                 x18 => todo!(),
                 x19 => todo!(),
-                x1a_drop => t!(input: [Nil]),
+                x1a_drop => t!([Nil] => []),
                 x1b_select => {
                     let top = context.pop().ok_or(TypeCheckError::EmptyStack)?;
                     if top != Num(I32) {
@@ -209,7 +177,7 @@ pub fn check(
                         context.pop().ok_or(TypeCheckError::EmptyStack)?,
                         context.pop().ok_or(TypeCheckError::EmptyStack)?,
                     ];
-                    t!(output: [input[0]])
+                    t!([] => [input[0]])
                 }
                 x1c => todo!(),
                 x1d => todo!(),
@@ -217,100 +185,46 @@ pub fn check(
                 x1f => todo!(),
                 x20_local_get(LocalIdX(i)) => locals
                     .get(*i as usize)
-                    .map(|l| t!(output: [*l]))
+                    .map(|l| t!([] => [*l]))
                     .ok_or(TypeCheckError::MissingLocal)?,
-                x21_local_set(LocalIdX(i)) => t!(input: [locals[*i as usize]]),
-                x22_local_tee(LocalIdX(i)) => t!(
-                    input: [locals[*i as usize]],
-                    output: [locals[*i as usize]]
-                ),
-                x23_global_get(GlobalIdX(i)) => t!(output: [globals[*i as usize]]),
-                x24_global_set(GlobalIdX(i)) => t!(input: [globals[*i as usize]]),
+                x21_local_set(LocalIdX(i)) => t!([locals[*i as usize]] => []),
+                x22_local_tee(LocalIdX(i)) => t!([locals[*i as usize]] => [locals[*i as usize]]),
+                x23_global_get(GlobalIdX(i)) => t!([] => [globals[*i as usize]]),
+                x24_global_set(GlobalIdX(i)) => t!([globals[*i as usize]] => []),
                 x25 => todo!(),
                 x26_table_set(_) => todo!(),
                 x27 => todo!(),
-                x28_i32_load(_) => t!(
-                    input: [Num(I32)],
-                    output: [Num(I32)]
-                ),
-                x29_i64_load(_) => t!(
-                    input: [Num(I32)],
-                    output: [Num(I64)]
-                ),
-                x2a_f32_load(_) => t!(
-                    input: [Num(I32)],
-                    output: [Num(F32)]
-                ),
-                x2b_f64_load(_) => t!(
-                    input: [Num(I32)],
-                    output: [Num(F64)]
-                ),
-                x2c_i32_load8_s(_) => t!(
-                    input: [Num(I32)],
-                    output: [Num(I32)]
-                ),
-                x2d_i32_load8_u(_) => t!(
-                    input: [Num(I32)],
-                    output: [Num(I32)]
-                ),
-                x2e_i32_load16_s(_) => t!(
-                    input: [Num(I32)],
-                    output: [Num(I32)]
-                ),
-                x2f_i32_load16_u(_) => t!(
-                    input: [Num(I32)],
-                    output: [Num(I32)]
-                ),
-                x30_i64_load8_s(_) => t!(
-                    input: [Num(I32)],
-                    output: [Num(I64)]
-                ),
-                x31_i64_load8_u(_) => t!(
-                    input: [Num(I32)],
-                    output: [Num(I64)]
-                ),
-                x32_i64_load16_s(_) => t!(
-                    input: [Num(I32)],
-                    output: [Num(I64)]
-                ),
-                x33_i64_load16_u(_) => t!(
-                    input: [Num(I32)],
-                    output: [Num(I64)]
-                ),
-                x34_i64_load32_s(_) => t!(
-                    input: [Num(I32)],
-                    output: [Num(I64)]
-                ),
-                x35_i64_load32_u(_) => t!(
-                    input: [Num(I32)],
-                    output: [Num(I64)]
-                ),
-                x36_i32_store(_) => t!(input: [Num(I32), Num(I32)]),
-                x37_i64_store(_) => t!(input: [Num(I64), Num(I32)]),
-                x38_f32_store(_) => t!(input: [Num(F32), Num(I32)]),
-                x39_f64_store(_) => t!(input: [Num(F64), Num(I32)]),
-                x3a_i32_store8(_) => t!(input: [Num(I32), Num(I32)]),
-                x3b_i32_store16(_) => t!(input: [Num(I32), Num(I32)]),
-                x3c_i64_store8(_) => t!(input: [Num(I64), Num(I32)]),
-                x3d_i64_store16(_) => t!(input: [Num(I64), Num(I32)]),
-                x3e_i64_store32(_) => t!(input: [Num(I64), Num(I32)]),
+                x28_i32_load(_) => t!([Num(I32)] => [Num(I32)]),
+                x29_i64_load(_) => t!([Num(I32)] => [Num(I64)]),
+                x2a_f32_load(_) => t!([Num(I32)] => [Num(F32)]),
+                x2b_f64_load(_) => t!([Num(I32)] => [Num(F64)]),
+                x2c_i32_load8_s(_) => t!([Num(I32)] => [Num(I32)]),
+                x2d_i32_load8_u(_) => t!([Num(I32)] => [Num(I32)]),
+                x2e_i32_load16_s(_) => t!([Num(I32)] => [Num(I32)]),
+                x2f_i32_load16_u(_) => t!([Num(I32)] => [Num(I32)]),
+                x30_i64_load8_s(_) => t!([Num(I32)] => [Num(I64)]),
+                x31_i64_load8_u(_) => t!([Num(I32)] => [Num(I64)]),
+                x32_i64_load16_s(_) => t!([Num(I32)] => [Num(I64)]),
+                x33_i64_load16_u(_) => t!([Num(I32)] => [Num(I64)]),
+                x34_i64_load32_s(_) => t!([Num(I32)] => [Num(I64)]),
+                x35_i64_load32_u(_) => t!([Num(I32)] => [Num(I64)]),
+                x36_i32_store(_) => t!([Num(I32), Num(I32)] => []),
+                x37_i64_store(_) => t!([Num(I64), Num(I32)] => []),
+                x38_f32_store(_) => t!([Num(F32), Num(I32)] => []),
+                x39_f64_store(_) => t!([Num(F64), Num(I32)] => []),
+                x3a_i32_store8(_) => t!([Num(I32), Num(I32)] => []),
+                x3b_i32_store16(_) => t!([Num(I32), Num(I32)] => []),
+                x3c_i64_store8(_) => t!([Num(I64), Num(I32)] => []),
+                x3d_i64_store16(_) => t!([Num(I64), Num(I32)] => []),
+                x3e_i64_store32(_) => t!([Num(I64), Num(I32)] => []),
                 x3f => todo!(),
-                x40_grow => t!(
-                    input: [Num(I32)],
-                    output: [Num(I32)]
-                ),
-                x41_i32_const(_) => t!(output: [Num(I32)]),
-                x42_i64_const(_) => t!(output: [Num(I64)]),
-                x43_f32_const(_) => t!(output: [Num(F32)]),
-                x44_f64_const(_) => t!(output: [Num(F64)]),
-                x45_i32_eqz => t!(
-                    input: [Num(I32)],
-                    output: [Num(I32)]
-                ),
-                x46_i32_eq => t!(
-                    input: [Num(I32), Num(I32)],
-                    output: [Num(I32)]
-                ),
+                x40_grow => t!([Num(I32)] => [Num(I32)]),
+                x41_i32_const(_) => t!([] => [Num(I32)]),
+                x42_i64_const(_) => t!([] => [Num(I64)]),
+                x43_f32_const(_) => t!([] => [Num(F32)]),
+                x44_f64_const(_) => t!([] => [Num(F64)]),
+                x45_i32_eqz => t!([Num(I32)] => [Num(I32)]),
+                x46_i32_eq => t!([Num(I32), Num(I32)] => [Num(I32)]),
                 x47_i32_ne => todo!(),
                 x48_i32_lt_s => todo!(),
                 x49_i32_lt_u => todo!(),
@@ -334,10 +248,7 @@ pub fn check(
                 x5b => todo!(),
                 x5c_f32_ne => todo!(),
                 x5d => todo!(),
-                x5e_f32_gt => t!(
-                    input: [Num(F32), Num(F32)],
-                    output: [Num(I32)]
-                ),
+                x5e_f32_gt => t!([Num(F32), Num(F32)] => [Num(I32)]),
                 x5f => todo!(),
                 x60 => todo!(),
                 x61_f64_eq => todo!(),
@@ -347,23 +258,11 @@ pub fn check(
                 x65_f64_le => todo!(),
                 x66_f64_ge => todo!(),
                 x67_i32_clz => todo!(),
-                x68_i32_ctz => t!(
-                    input: [Num(I32)],
-                    output: [Num(I32)]
-                ),
+                x68_i32_ctz => t!([Num(I32)] => [Num(I32)]),
                 x69 => todo!(),
-                x6a_i32_add => t!(
-                    input: [Num(I32), Num(I32)],
-                    output: [Num(I32)]
-                ),
-                x6b_i32_sub => t!(
-                    input: [Num(I32), Num(I32)],
-                    output: [Num(I32)]
-                ),
-                x6c_i32_mul => t!(
-                    input: [Num(I32), Num(I32)],
-                    output: [Num(I32)]
-                ),
+                x6a_i32_add => t!([Num(I32), Num(I32)] => [Num(I32)]),
+                x6b_i32_sub => t!([Num(I32), Num(I32)] => [Num(I32)]),
+                x6c_i32_mul => t!([Num(I32), Num(I32)] => [Num(I32)]),
                 x6d_i32_div_s => todo!(),
                 x6e_i32_div_u => todo!(),
                 x6f => todo!(),
@@ -377,10 +276,7 @@ pub fn check(
                 x77_i32_rotl => todo!(),
                 x78 => todo!(),
                 x79 => todo!(),
-                x7a_i64_ctz => t!(
-                    input: [Num(I64)],
-                    output: [Num(I64)]
-                ),
+                x7a_i64_ctz => t!([Num(I64)] => [Num(I64)]),
                 x7c_i64_add => todo!(),
                 x7d_i64_sub => todo!(),
                 x7e_i64_mul => todo!(),
@@ -508,10 +404,7 @@ pub fn check(
                 xf9 => todo!(),
                 xfa => todo!(),
                 xfb => todo!(),
-                xfc_0_i32_trunc_sat_f32_s => t!(
-                    input: [Num(F32)],
-                    output: [Num(I32)]
-                ),
+                xfc_0_i32_trunc_sat_f32_s => t!([Num(F32)] => [Num(I32)]),
                 xfc_1_i32_trunc_sat_f32_u => todo!(),
                 xfc_2_i32_trunc_sat_f64_u => todo!(),
                 xfc_3_i32_trunc_sat_f64_s => todo!(),

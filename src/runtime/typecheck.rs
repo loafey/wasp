@@ -16,7 +16,19 @@ macro_rules! t {
             output: Vec::new(),
         }
     };
-    (($($input:tt),*) -> ($($output:tt),*)) => {
+    (() -> $($output:tt),*) => {
+        TypingRules {
+            input: [].into(),
+            output: [$(ty_to_val!($output), )*].into(),
+        }
+    };
+    ($($input:tt),* -> ()) => {
+        TypingRules {
+            input: [$(ty_to_val!($input), )*].into(),
+            output: [].into(),
+        }
+    };
+    ($($input:tt),* -> $($output:tt),*) => {
         TypingRules {
             input: [$(ty_to_val!($input), )*].into(),
             output: [$(ty_to_val!($output), )*].into(),
@@ -57,6 +69,7 @@ macro_rules! ty_to_val {
 }
 
 #[derive(Debug)]
+#[allow(unused)]
 pub enum TypeCheckError {
     WrongTypeOnStack,
     EmptyStack,
@@ -151,7 +164,7 @@ pub fn check(
                         }
                         t!((i32) => a)
                     } else {
-                        t!((i32) -> ())
+                        t!(i32 -> ())
                     }
                 }
                 x05 => todo!(),
@@ -170,8 +183,8 @@ pub fn check(
                     }
                     return Ok((*i as usize, context));
                 }
-                x0d_br_if(_) => t!((i32) -> ()),
-                x0e_br_table(_, _) => t!((i32) -> ()),
+                x0d_br_if(_) => t!(i32 -> ()),
+                x0e_br_table(_, _) => t!(i32 -> ()),
                 x0f_return => t!(),
                 x10_call(FuncIdx(i)) => {
                     let ft = function_types
@@ -195,7 +208,7 @@ pub fn check(
                 x17 => todo!(),
                 x18 => todo!(),
                 x19 => todo!(),
-                x1a_drop => t!((T) -> ()),
+                x1a_drop => t!(T -> ()),
                 x1b_select => {
                     let top = context.pop().ok_or(TypeCheckError::EmptyStack)?;
                     if top != ValType::Num(NumType::I32) {
@@ -223,37 +236,37 @@ pub fn check(
                 x25 => todo!(),
                 x26_table_set(_) => todo!(),
                 x27 => todo!(),
-                x28_i32_load(_) => t!((i32) -> (i32)),
-                x29_i64_load(_) => t!((i32) -> (i64)),
-                x2a_f32_load(_) => t!((i32) -> (f32)),
-                x2b_f64_load(_) => t!((i32) -> (f64)),
-                x2c_i32_load8_s(_) => t!((i32) -> (i32)),
-                x2d_i32_load8_u(_) => t!((i32) -> (i32)),
-                x2e_i32_load16_s(_) => t!((i32) -> (i32)),
-                x2f_i32_load16_u(_) => t!((i32) -> (i32)),
-                x30_i64_load8_s(_) => t!((i32) -> (i64)),
-                x31_i64_load8_u(_) => t!((i32) -> (i64)),
-                x32_i64_load16_s(_) => t!((i32) -> (i64)),
-                x33_i64_load16_u(_) => t!((i32) -> (i64)),
-                x34_i64_load32_s(_) => t!((i32) -> (i64)),
-                x35_i64_load32_u(_) => t!((i32) -> (i64)),
-                x36_i32_store(_) => t!((i32, i32) -> ()),
-                x37_i64_store(_) => t!((i64, i32) -> ()),
-                x38_f32_store(_) => t!((f32, i32) -> ()),
-                x39_f64_store(_) => t!((f64, i32) -> ()),
-                x3a_i32_store8(_) => t!((i32, i32) -> ()),
-                x3b_i32_store16(_) => t!((i32, i32) -> ()),
-                x3c_i64_store8(_) => t!((i64, i32) -> ()),
-                x3d_i64_store16(_) => t!((i64, i32) -> ()),
-                x3e_i64_store32(_) => t!((i64, i32) -> ()),
+                x28_i32_load(_) => t!(i32 -> i32),
+                x29_i64_load(_) => t!(i32 -> i64),
+                x2a_f32_load(_) => t!(i32 -> f32),
+                x2b_f64_load(_) => t!(i32 -> f64),
+                x2c_i32_load8_s(_) => t!(i32 -> i32),
+                x2d_i32_load8_u(_) => t!(i32 -> i32),
+                x2e_i32_load16_s(_) => t!(i32 -> i32),
+                x2f_i32_load16_u(_) => t!(i32 -> i32),
+                x30_i64_load8_s(_) => t!(i32 -> i64),
+                x31_i64_load8_u(_) => t!(i32 -> i64),
+                x32_i64_load16_s(_) => t!(i32 -> i64),
+                x33_i64_load16_u(_) => t!(i32 -> i64),
+                x34_i64_load32_s(_) => t!(i32 -> i64),
+                x35_i64_load32_u(_) => t!(i32 -> i64),
+                x36_i32_store(_) => t!(i32, i32 -> ()),
+                x37_i64_store(_) => t!(i64, i32 -> ()),
+                x38_f32_store(_) => t!(f32, i32 -> ()),
+                x39_f64_store(_) => t!(f64, i32 -> ()),
+                x3a_i32_store8(_) => t!(i32, i32 -> ()),
+                x3b_i32_store16(_) => t!(i32, i32 -> ()),
+                x3c_i64_store8(_) => t!(i64, i32 -> ()),
+                x3d_i64_store16(_) => t!(i64, i32 -> ()),
+                x3e_i64_store32(_) => t!(i64, i32 -> ()),
                 x3f => todo!(),
-                x40_grow => t!((i32) -> (i32)),
-                x41_i32_const(_) => t!(() -> (i32)),
-                x42_i64_const(_) => t!(() -> (i64)),
-                x43_f32_const(_) => t!(() -> (f32)),
-                x44_f64_const(_) => t!(() -> (f64)),
-                x45_i32_eqz => t!((i32) -> (i32)),
-                x46_i32_eq => t!((i32, i32) -> (i32)),
+                x40_grow => t!(i32 -> i32),
+                x41_i32_const(_) => t!(() -> i32),
+                x42_i64_const(_) => t!(() -> i64),
+                x43_f32_const(_) => t!(() -> f32),
+                x44_f64_const(_) => t!(() -> f64),
+                x45_i32_eqz => t!(i32 -> i32),
+                x46_i32_eq => t!(i32, i32 -> i32),
                 x47_i32_ne => todo!(),
                 x48_i32_lt_s => todo!(),
                 x49_i32_lt_u => todo!(),
@@ -277,7 +290,7 @@ pub fn check(
                 x5b => todo!(),
                 x5c_f32_ne => todo!(),
                 x5d => todo!(),
-                x5e_f32_gt => t!((f32, f32) -> (i32)),
+                x5e_f32_gt => t!(f32, f32 -> i32),
                 x5f => todo!(),
                 x60 => todo!(),
                 x61_f64_eq => todo!(),
@@ -287,11 +300,11 @@ pub fn check(
                 x65_f64_le => todo!(),
                 x66_f64_ge => todo!(),
                 x67_i32_clz => todo!(),
-                x68_i32_ctz => t!((i32) -> (i32)),
+                x68_i32_ctz => t!(i32 -> i32),
                 x69 => todo!(),
-                x6a_i32_add => t!((i32, i32) -> (i32)),
-                x6b_i32_sub => t!((i32, i32) -> (i32)),
-                x6c_i32_mul => t!((i32, i32) -> (i32)),
+                x6a_i32_add => t!(i32, i32 -> i32),
+                x6b_i32_sub => t!(i32, i32 -> i32),
+                x6c_i32_mul => t!(i32, i32 -> i32),
                 x6d_i32_div_s => todo!(),
                 x6e_i32_div_u => todo!(),
                 x6f => todo!(),
@@ -305,7 +318,7 @@ pub fn check(
                 x77_i32_rotl => todo!(),
                 x78 => todo!(),
                 x79 => todo!(),
-                x7a_i64_ctz => t!((i64) -> (i64)),
+                x7a_i64_ctz => t!(i64 -> i64),
                 x7c_i64_add => todo!(),
                 x7d_i64_sub => todo!(),
                 x7e_i64_mul => todo!(),
@@ -433,7 +446,7 @@ pub fn check(
                 xf9 => todo!(),
                 xfa => todo!(),
                 xfb => todo!(),
-                xfc_0_i32_trunc_sat_f32_s => t!((f32) -> (i32)),
+                xfc_0_i32_trunc_sat_f32_s => t!(f32 -> i32),
                 xfc_1_i32_trunc_sat_f32_u => todo!(),
                 xfc_2_i32_trunc_sat_f64_u => todo!(),
                 xfc_3_i32_trunc_sat_f64_s => todo!(),
@@ -460,7 +473,7 @@ pub fn check(
             let Some(p) = context.pop() else {
                 return Err(TypeCheckError::EmptyStack);
             };
-            if p != inp && !matches!(inp, Nil) {
+            if p != inp && !matches!(inp, ValType::Poly) {
                 return Err(TypeCheckError::WrongTypeOnStack);
             }
         }

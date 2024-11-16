@@ -1,5 +1,3 @@
-use std::fmt::Pointer;
-
 use super::typecheck::TypeCheckError;
 
 #[allow(unused)]

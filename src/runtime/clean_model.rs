@@ -1,3 +1,5 @@
+use egui::Label;
+
 use crate::parser::{
     Elem, Expr, FuncIdx, FuncType, ImportDesc, Instr, LabelIdX, LocalIdX, Module, Name, TableIdX,
     TypeIdX, BT,
@@ -28,6 +30,28 @@ impl Deref for Table {
 
     fn deref(&self) -> &Self::Target {
         &self.table
+    }
+}
+
+fn increment_labels(instrs: &mut [Instr], depth: u32) {
+    for i in instrs {
+        match i {
+            Instr::x0c_br(LabelIdX(i)) => *i += depth,
+            Instr::x0d_br_if(LabelIdX(i)) => *i += depth,
+            Instr::x0e_br_table(ls, LabelIdX(i)) => {
+                *i += depth;
+                ls.iter_mut().for_each(|LabelIdX(i)| *i += depth);
+            }
+            Instr::x02_block(_, v) => increment_labels(v, depth),
+            Instr::x03_loop(_, v) => increment_labels(v, depth),
+            Instr::x04_if_else(_, v1, v2) => {
+                increment_labels(v1, depth);
+                if let Some(v2) = v2 {
+                    increment_labels(v2, depth);
+                }
+            }
+            _ => {}
+        }
     }
 }
 
@@ -94,14 +118,17 @@ impl From<Module> for Model {
                         code.insert(pc, Instr::block_start(BT::Loop, 0, bt));
                     }
                     Instr::x04_if_else(bt, then, els) => {
+                        todo!();
                         let bt = *bt;
 
-                        let then = then.clone();
+                        let mut then = then.clone();
+                        increment_labels(&mut then, 1);
                         let els = els.clone();
                         let els_exists = els.is_some();
                         code.remove(pc);
 
-                        if let Some(els) = els {
+                        if let Some(mut els) = els {
+                            increment_labels(&mut els, 2);
                             code.insert(pc, Instr::block_end(BT::Block, 0, bt));
                             for i in els.into_iter().rev() {
                                 code.insert(pc, i);
@@ -118,8 +145,7 @@ impl From<Module> for Model {
 
                         // check
                         code.insert(pc, Instr::x0d_br_if(LabelIdX(0))); // then block end
-                        code.insert(pc, Instr::x73_i32_xor);
-                        code.insert(pc, Instr::x41_i32_const(1));
+                        code.insert(pc, Instr::x45_i32_eqz);
                         code.insert(pc, Instr::x20_local_get(LocalIdX(if_else_count)));
                         // THIS IS SO DISGUSTING
 

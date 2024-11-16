@@ -279,7 +279,7 @@ pub fn test(mut path: String) {
     let total_tests = tests.commands.len();
 
     for (test_i, test) in tests.commands.into_iter().enumerate() {
-        // println!("\n{test_i}/{total_tests}");
+        println!("\n{test_i}/{total_tests}");
 
         match test {
             Case::Module(module) => {

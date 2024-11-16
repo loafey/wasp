@@ -491,6 +491,7 @@ impl Runtime {
                 let mut instr = &code[*get!(pc)];
                 instr = if let comment(_, r) = instr { r } else { instr };
                 set!(pc) += 1;
+                println!("{instr:?}");
                 match instr {
                     x01_nop => (),
                     x02_block(_, _) => throw!(Impossible),
@@ -540,6 +541,8 @@ impl Runtime {
                         }
                     }
                     x0d_br_if(LabelIdX(label)) => {
+                        println!("{:?}", get!(stack));
+
                         let val = pop!(i32);
 
                         if val != 0 {
@@ -556,6 +559,7 @@ impl Runtime {
                                     set!(pc) = bt.pos + 1;
                                 }
                             }
+                            println!("{:?}", bt.vt);
                             for _ in 0..=*label {
                                 let mut collect = Vec::new();
                                 loop {

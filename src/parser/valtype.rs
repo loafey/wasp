@@ -7,7 +7,7 @@ use super::Parsable;
 #[derive(Debug, PartialEq, Eq, PartialOrd, Ord, Clone, Copy)]
 #[allow(unused)]
 pub enum ValType {
-    Nil,
+    Poly,
     Num(NumType),
     Vec128,
     Ref(RefTyp),

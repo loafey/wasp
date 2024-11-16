@@ -1,26 +1,42 @@
 use crate::parser::{
     BlockType, FuncIdx, FuncType, GlobalIdX,
     Instr::{self, *},
-    LabelIdX, LocalIdX, NumType, TypeIdX, ValType,
+    LabelIdX, LocalIdX,
+    NumType::*,
+    TypeIdX, ValType,
+    ValType::*,
 };
-#[derive(Debug, Default)]
+#[derive(Debug)]
 pub struct TypingRules {
     pub input: Vec<ValType>,
     pub output: Vec<ValType>,
 }
-impl TypingRules {
-    pub fn single_input(valtype: ValType) -> TypingRules {
-        Self {
-            input: vec![valtype],
+// This could be a function but hihi
+macro_rules! t {
+    () => {
+        TypingRules {
+            input: Vec::new(),
             output: Vec::new(),
         }
-    }
-    pub fn single_output(valtype: ValType) -> TypingRules {
-        Self {
-            output: vec![valtype],
+    };
+    (output: $output:expr) => {
+        TypingRules {
             input: Vec::new(),
+            output: $output.into(),
         }
-    }
+    };
+    (input: $input:expr) => {
+        TypingRules {
+            input: $input.into(),
+            output: Vec::new(),
+        }
+    };
+    (input: $input:expr, output: $output:expr) => {
+        TypingRules {
+            input: $input.into(),
+            output: $output.into(),
+        }
+    };
 }
 
 #[derive(Debug)]
@@ -49,15 +65,14 @@ pub fn check(
         let TypingRules { input, output } = {
             match &inst {
                 x00_unreachable => return Ok((0, Vec::new())),
-                x01_nop => TypingRules::default(),
+                x01_nop => t! {},
                 x02_block(bt, b) | x03_loop(bt, b) => {
                     let (rt, inputs) = match bt {
-                        BlockType::Eps => (TypingRules::default(), Vec::new()),
+                        BlockType::Eps => (t! {}, Vec::new()),
                         BlockType::T(val_type) => (
-                            TypingRules {
-                                input: Vec::new(),
-                                output: vec![*val_type],
-                            },
+                            t!(
+                                output: [*val_type]
+                            ),
                             Vec::new(),
                         ),
                         BlockType::TypIdx(i) => {
@@ -65,10 +80,10 @@ pub fn check(
                                 .get(*i as usize)
                                 .ok_or(TypeCheckError::MissingFunction)?;
                             (
-                                TypingRules {
+                                t!(
                                     input: Vec::new(),
-                                    output: ft.output.types.clone(),
-                                },
+                                    output: ft.output.types.clone()
+                                ),
                                 ft.input.types.clone(),
                             )
                         }
@@ -128,12 +143,12 @@ pub fn check(
                         if a != b {
                             return Err(TypeCheckError::IfElseTypeMismatch(a, b));
                         }
-                        TypingRules {
-                            input: vec![ValType::Num(NumType::I32)],
-                            output: a,
-                        }
+                        t!(
+                            input: [Num(I32)],
+                            output: a
+                        )
                     } else {
-                        TypingRules::single_input(ValType::Num(NumType::I32))
+                        t!(input: [Num(I32)])
                     }
                 }
                 x05 => todo!(),
@@ -152,28 +167,28 @@ pub fn check(
                     }
                     return Ok((*i as usize, context));
                 }
-                x0d_br_if(_) => TypingRules::single_input(ValType::Num(NumType::I32)),
-                x0e_br_table(_, _) => TypingRules::single_input(ValType::Num(NumType::I32)),
-                x0f_return => TypingRules::default(),
+                x0d_br_if(_) => t!(input: [Num(I32)]),
+                x0e_br_table(_, _) => t!(input: [Num(I32)]),
+                x0f_return => t!(),
                 x10_call(FuncIdx(i)) => {
                     let ft = function_types
                         .get(*i as usize)
                         .ok_or(TypeCheckError::MissingFunction)?;
-                    TypingRules {
+                    t!(
                         input: ft.input.types.clone(),
-                        output: ft.output.types.clone(),
-                    }
+                        output: ft.output.types.clone()
+                    )
                 }
                 x11_call_indirect(TypeIdX(i), _) => {
                     let ft = raw_types
                         .get(*i as usize)
                         .ok_or(TypeCheckError::MissingFunction)?;
-                    let mut input = vec![ValType::Num(NumType::I32)];
+                    let mut input = vec![Num(I32)];
                     input.append(&mut ft.input.types.clone());
-                    TypingRules {
-                        input,
-                        output: ft.output.types.clone(),
-                    }
+                    t!(
+                        input: input,
+                        output: ft.output.types.clone()
+                    )
                 }
                 x12 => todo!(),
                 x13 => todo!(),
@@ -183,13 +198,10 @@ pub fn check(
                 x17 => todo!(),
                 x18 => todo!(),
                 x19 => todo!(),
-                x1a_drop => TypingRules {
-                    input: vec![ValType::Nil],
-                    output: Vec::new(),
-                },
+                x1a_drop => t!(input: [Nil]),
                 x1b_select => {
                     let top = context.pop().ok_or(TypeCheckError::EmptyStack)?;
-                    if top != ValType::Num(NumType::I32) {
+                    if top != Num(I32) {
                         return Err(TypeCheckError::WrongTypeOnStack);
                     }
 
@@ -197,7 +209,7 @@ pub fn check(
                         context.pop().ok_or(TypeCheckError::EmptyStack)?,
                         context.pop().ok_or(TypeCheckError::EmptyStack)?,
                     ];
-                    TypingRules::single_output(input[0])
+                    t!(output: [input[0]])
                 }
                 x1c => todo!(),
                 x1d => todo!(),
@@ -205,127 +217,100 @@ pub fn check(
                 x1f => todo!(),
                 x20_local_get(LocalIdX(i)) => locals
                     .get(*i as usize)
-                    .map(|l| TypingRules::single_output(*l))
+                    .map(|l| t!(output: [*l]))
                     .ok_or(TypeCheckError::MissingLocal)?,
-                x21_local_set(LocalIdX(i)) => TypingRules::single_input(locals[*i as usize]),
-                x22_local_tee(LocalIdX(i)) => TypingRules {
-                    input: vec![locals[*i as usize]],
-                    output: vec![locals[*i as usize]],
-                },
-                x23_global_get(GlobalIdX(i)) => TypingRules::single_output(globals[*i as usize]),
-                x24_global_set(GlobalIdX(i)) => TypingRules::single_input(globals[*i as usize]),
+                x21_local_set(LocalIdX(i)) => t!(input: [locals[*i as usize]]),
+                x22_local_tee(LocalIdX(i)) => t!(
+                    input: [locals[*i as usize]],
+                    output: [locals[*i as usize]]
+                ),
+                x23_global_get(GlobalIdX(i)) => t!(output: [globals[*i as usize]]),
+                x24_global_set(GlobalIdX(i)) => t!(input: [globals[*i as usize]]),
                 x25 => todo!(),
                 x26_table_set(_) => todo!(),
                 x27 => todo!(),
-                x28_i32_load(_) => TypingRules {
-                    input: vec![ValType::Num(NumType::I32)],
-                    output: vec![ValType::Num(NumType::I32)],
-                },
-                x29_i64_load(_) => TypingRules {
-                    input: vec![ValType::Num(NumType::I32)],
-                    output: vec![ValType::Num(NumType::I64)],
-                },
-                x2a_f32_load(_) => TypingRules {
-                    input: vec![ValType::Num(NumType::I32)],
-                    output: vec![ValType::Num(NumType::F32)],
-                },
-                x2b_f64_load(_) => TypingRules {
-                    input: vec![ValType::Num(NumType::I32)],
-                    output: vec![ValType::Num(NumType::F64)],
-                },
-                x2c_i32_load8_s(_) => TypingRules {
-                    input: vec![ValType::Num(NumType::I32)],
-                    output: vec![ValType::Num(NumType::I32)],
-                },
-                x2d_i32_load8_u(_) => TypingRules {
-                    input: vec![ValType::Num(NumType::I32)],
-                    output: vec![ValType::Num(NumType::I32)],
-                },
-                x2e_i32_load16_s(_) => TypingRules {
-                    input: vec![ValType::Num(NumType::I32)],
-                    output: vec![ValType::Num(NumType::I32)],
-                },
-                x2f_i32_load16_u(_) => TypingRules {
-                    input: vec![ValType::Num(NumType::I32)],
-                    output: vec![ValType::Num(NumType::I32)],
-                },
-                x30_i64_load8_s(_) => TypingRules {
-                    input: vec![ValType::Num(NumType::I32)],
-                    output: vec![ValType::Num(NumType::I64)],
-                },
-                x31_i64_load8_u(_) => TypingRules {
-                    input: vec![ValType::Num(NumType::I32)],
-                    output: vec![ValType::Num(NumType::I64)],
-                },
-                x32_i64_load16_s(_) => TypingRules {
-                    input: vec![ValType::Num(NumType::I32)],
-                    output: vec![ValType::Num(NumType::I64)],
-                },
-                x33_i64_load16_u(_) => TypingRules {
-                    input: vec![ValType::Num(NumType::I32)],
-                    output: vec![ValType::Num(NumType::I64)],
-                },
-                x34_i64_load32_s(_) => TypingRules {
-                    input: vec![ValType::Num(NumType::I32)],
-                    output: vec![ValType::Num(NumType::I64)],
-                },
-                x35_i64_load32_u(_) => TypingRules {
-                    input: vec![ValType::Num(NumType::I32)],
-                    output: vec![ValType::Num(NumType::I64)],
-                },
-                x36_i32_store(_) => TypingRules {
-                    input: vec![ValType::Num(NumType::I32), ValType::Num(NumType::I32)],
-                    output: Vec::new(),
-                },
-                x37_i64_store(_) => TypingRules {
-                    input: vec![ValType::Num(NumType::I64), ValType::Num(NumType::I32)],
-                    output: vec![],
-                },
-                x38_f32_store(_) => TypingRules {
-                    input: vec![ValType::Num(NumType::F32), ValType::Num(NumType::I32)],
-                    output: vec![],
-                },
-                x39_f64_store(_) => TypingRules {
-                    input: vec![ValType::Num(NumType::F64), ValType::Num(NumType::I32)],
-                    output: vec![],
-                },
-                x3a_i32_store8(_) => TypingRules {
-                    input: vec![ValType::Num(NumType::I32), ValType::Num(NumType::I32)],
-                    output: vec![],
-                },
-                x3b_i32_store16(_) => TypingRules {
-                    input: vec![ValType::Num(NumType::I32), ValType::Num(NumType::I32)],
-                    output: vec![],
-                },
-                x3c_i64_store8(_) => TypingRules {
-                    input: vec![ValType::Num(NumType::I64), ValType::Num(NumType::I32)],
-                    output: vec![],
-                },
-                x3d_i64_store16(_) => TypingRules {
-                    input: vec![ValType::Num(NumType::I64), ValType::Num(NumType::I32)],
-                    output: vec![],
-                },
-                x3e_i64_store32(_) => TypingRules {
-                    input: vec![ValType::Num(NumType::I64), ValType::Num(NumType::I32)],
-                    output: vec![],
-                },
+                x28_i32_load(_) => t!(
+                    input: [Num(I32)],
+                    output: [Num(I32)]
+                ),
+                x29_i64_load(_) => t!(
+                    input: [Num(I32)],
+                    output: [Num(I64)]
+                ),
+                x2a_f32_load(_) => t!(
+                    input: [Num(I32)],
+                    output: [Num(F32)]
+                ),
+                x2b_f64_load(_) => t!(
+                    input: [Num(I32)],
+                    output: [Num(F64)]
+                ),
+                x2c_i32_load8_s(_) => t!(
+                    input: [Num(I32)],
+                    output: [Num(I32)]
+                ),
+                x2d_i32_load8_u(_) => t!(
+                    input: [Num(I32)],
+                    output: [Num(I32)]
+                ),
+                x2e_i32_load16_s(_) => t!(
+                    input: [Num(I32)],
+                    output: [Num(I32)]
+                ),
+                x2f_i32_load16_u(_) => t!(
+                    input: [Num(I32)],
+                    output: [Num(I32)]
+                ),
+                x30_i64_load8_s(_) => t!(
+                    input: [Num(I32)],
+                    output: [Num(I64)]
+                ),
+                x31_i64_load8_u(_) => t!(
+                    input: [Num(I32)],
+                    output: [Num(I64)]
+                ),
+                x32_i64_load16_s(_) => t!(
+                    input: [Num(I32)],
+                    output: [Num(I64)]
+                ),
+                x33_i64_load16_u(_) => t!(
+                    input: [Num(I32)],
+                    output: [Num(I64)]
+                ),
+                x34_i64_load32_s(_) => t!(
+                    input: [Num(I32)],
+                    output: [Num(I64)]
+                ),
+                x35_i64_load32_u(_) => t!(
+                    input: [Num(I32)],
+                    output: [Num(I64)]
+                ),
+                x36_i32_store(_) => t!(input: [Num(I32), Num(I32)]),
+                x37_i64_store(_) => t!(input: [Num(I64), Num(I32)]),
+                x38_f32_store(_) => t!(input: [Num(F32), Num(I32)]),
+                x39_f64_store(_) => t!(input: [Num(F64), Num(I32)]),
+                x3a_i32_store8(_) => t!(input: [Num(I32), Num(I32)]),
+                x3b_i32_store16(_) => t!(input: [Num(I32), Num(I32)]),
+                x3c_i64_store8(_) => t!(input: [Num(I64), Num(I32)]),
+                x3d_i64_store16(_) => t!(input: [Num(I64), Num(I32)]),
+                x3e_i64_store32(_) => t!(input: [Num(I64), Num(I32)]),
                 x3f => todo!(),
-                x40_grow => TypingRules {
-                    input: vec![ValType::Num(NumType::I32)],
-                    output: vec![ValType::Num(NumType::I32)],
-                },
-                x41_i32_const(_) => TypingRules::single_output(ValType::Num(NumType::I32)),
-                x42_i64_const(_) => TypingRules::single_output(ValType::Num(NumType::I64)),
-                x43_f32_const(_) => TypingRules::single_output(ValType::Num(NumType::F32)),
-                x44_f64_const(_) => TypingRules::single_output(ValType::Num(NumType::F64)),
-                x45_i32_eqz => TypingRules {
-                    input: vec![ValType::Num(NumType::I32)],
-                    output: vec![ValType::Num(NumType::I32)],
-                },
-                x46_i32_eq => TypingRules {
-                    input: vec![ValType::Num(NumType::I32), ValType::Num(NumType::I32)],
-                    output: vec![ValType::Num(NumType::I32)],
-                },
+                x40_grow => t!(
+                    input: [Num(I32)],
+                    output: [Num(I32)]
+                ),
+                x41_i32_const(_) => t!(output: [Num(I32)]),
+                x42_i64_const(_) => t!(output: [Num(I64)]),
+                x43_f32_const(_) => t!(output: [Num(F32)]),
+                x44_f64_const(_) => t!(output: [Num(F64)]),
+                x45_i32_eqz => t!(
+                    input: [Num(I32)],
+                    output: [Num(I32)]
+                ),
+                x46_i32_eq => t!(
+                    input: [Num(I32), Num(I32)],
+                    output: [Num(I32)]
+                ),
                 x47_i32_ne => todo!(),
                 x48_i32_lt_s => todo!(),
                 x49_i32_lt_u => todo!(),
@@ -349,10 +334,10 @@ pub fn check(
                 x5b => todo!(),
                 x5c_f32_ne => todo!(),
                 x5d => todo!(),
-                x5e_f32_gt => TypingRules {
-                    input: vec![ValType::Num(NumType::F32), ValType::Num(NumType::F32)],
-                    output: vec![ValType::Num(NumType::I32)],
-                },
+                x5e_f32_gt => t!(
+                    input: [Num(F32), Num(F32)],
+                    output: [Num(I32)]
+                ),
                 x5f => todo!(),
                 x60 => todo!(),
                 x61_f64_eq => todo!(),
@@ -362,23 +347,23 @@ pub fn check(
                 x65_f64_le => todo!(),
                 x66_f64_ge => todo!(),
                 x67_i32_clz => todo!(),
-                x68_i32_ctz => TypingRules {
-                    input: vec![ValType::Num(NumType::I32)],
-                    output: vec![ValType::Num(NumType::I32)],
-                },
+                x68_i32_ctz => t!(
+                    input: [Num(I32)],
+                    output: [Num(I32)]
+                ),
                 x69 => todo!(),
-                x6a_i32_add => TypingRules {
-                    input: vec![ValType::Num(NumType::I32), ValType::Num(NumType::I32)],
-                    output: vec![ValType::Num(NumType::I32)],
-                },
-                x6b_i32_sub => TypingRules {
-                    input: vec![ValType::Num(NumType::I32), ValType::Num(NumType::I32)],
-                    output: vec![ValType::Num(NumType::I32)],
-                },
-                x6c_i32_mul => TypingRules {
-                    input: vec![ValType::Num(NumType::I32), ValType::Num(NumType::I32)],
-                    output: vec![ValType::Num(NumType::I32)],
-                },
+                x6a_i32_add => t!(
+                    input: [Num(I32), Num(I32)],
+                    output: [Num(I32)]
+                ),
+                x6b_i32_sub => t!(
+                    input: [Num(I32), Num(I32)],
+                    output: [Num(I32)]
+                ),
+                x6c_i32_mul => t!(
+                    input: [Num(I32), Num(I32)],
+                    output: [Num(I32)]
+                ),
                 x6d_i32_div_s => todo!(),
                 x6e_i32_div_u => todo!(),
                 x6f => todo!(),
@@ -392,10 +377,10 @@ pub fn check(
                 x77_i32_rotl => todo!(),
                 x78 => todo!(),
                 x79 => todo!(),
-                x7a_i64_ctz => TypingRules {
-                    input: vec![ValType::Num(NumType::I64)],
-                    output: vec![ValType::Num(NumType::I64)],
-                },
+                x7a_i64_ctz => t!(
+                    input: [Num(I64)],
+                    output: [Num(I64)]
+                ),
                 x7c_i64_add => todo!(),
                 x7d_i64_sub => todo!(),
                 x7e_i64_mul => todo!(),
@@ -523,10 +508,10 @@ pub fn check(
                 xf9 => todo!(),
                 xfa => todo!(),
                 xfb => todo!(),
-                xfc_0_i32_trunc_sat_f32_s => TypingRules {
-                    input: vec![ValType::Num(NumType::F32)],
-                    output: vec![ValType::Num(NumType::I32)],
-                },
+                xfc_0_i32_trunc_sat_f32_s => t!(
+                    input: [Num(F32)],
+                    output: [Num(I32)]
+                ),
                 xfc_1_i32_trunc_sat_f32_u => todo!(),
                 xfc_2_i32_trunc_sat_f64_u => todo!(),
                 xfc_3_i32_trunc_sat_f64_s => todo!(),
@@ -553,7 +538,7 @@ pub fn check(
             let Some(p) = context.pop() else {
                 return Err(TypeCheckError::EmptyStack);
             };
-            if p != inp && !matches!(inp, ValType::Nil) {
+            if p != inp && !matches!(inp, Nil) {
                 return Err(TypeCheckError::WrongTypeOnStack);
             }
         }

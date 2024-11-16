@@ -1,8 +1,8 @@
 use egui::Label;
 
 use crate::parser::{
-    Elem, Expr, FuncIdx, FuncType, ImportDesc, Instr, LabelIdX, LocalIdX, Module, Name, TableIdX,
-    TypeIdX, BT,
+    BlockType, Elem, Expr, FuncIdx, FuncType, ImportDesc, Instr, LabelIdX, LocalIdX, Module, Name,
+    TableIdX, TypeIdX, BT,
 };
 use std::{collections::HashMap, ops::Deref};
 
@@ -117,8 +117,40 @@ impl From<Module> for Model {
                         }
                         code.insert(pc, Instr::block_start(BT::Loop, 0, bt));
                     }
+                    /* Gist of it
+                    if x then
+                        y :: T
+                    else
+                        z :: T
+
+                    v
+
+                    {
+                        {
+                            !x
+                            br_if 0 -- type mismatch
+                            y
+                            br 1
+                        } :: T
+                        z
+                    } :: T
+
+                    do this instead
+
+                    {
+                        {
+                            {
+                                !x
+                                br_if 1
+                                br 0
+                            } :: ()
+                            y
+                            br 1
+                        } :: T
+                        z
+                    } :: T
+                    */
                     Instr::x04_if_else(bt, then, els) => {
-                        todo!();
                         let bt = *bt;
 
                         let mut then = then.clone();
@@ -144,9 +176,12 @@ impl From<Module> for Model {
                         }
 
                         // check
-                        code.insert(pc, Instr::x0d_br_if(LabelIdX(0))); // then block end
+                        code.insert(pc, Instr::block_end(BT::Block, 0, BlockType::Eps));
+                        code.insert(pc, Instr::x0c_br(LabelIdX(0))); // then block end
+                        code.insert(pc, Instr::x0d_br_if(LabelIdX(1))); // then block end
                         code.insert(pc, Instr::x45_i32_eqz);
                         code.insert(pc, Instr::x20_local_get(LocalIdX(if_else_count)));
+                        code.insert(pc, Instr::block_start(BT::Block, 0, BlockType::Eps));
                         // THIS IS SO DISGUSTING
 
                         if els_exists {

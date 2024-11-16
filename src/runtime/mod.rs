@@ -559,17 +559,21 @@ impl Runtime {
                                     set!(pc) = bt.pos + 1;
                                 }
                             }
-                            println!("{:?}", bt.vt);
+                            println!("{:?} {label}", bt.vt);
                             for _ in 0..=*label {
                                 let mut collect = Vec::new();
                                 loop {
                                     let p = pop!();
+                                    println!(" - {p:?}");
                                     if matches!(p, Value::BlockLock) {
                                         match bt.vt {
-                                            BlockType::Eps => {}
+                                            BlockType::Eps => {
+                                                break;
+                                            }
                                             BlockType::T(_) => {
                                                 collect.reverse();
-                                                push!(unwrap!(collect.pop(), EmptyStack))
+                                                push!(unwrap!(collect.pop(), EmptyStack));
+                                                break;
                                             }
                                             BlockType::TypIdx(_) => todo!(),
                                         }

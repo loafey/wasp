@@ -50,6 +50,7 @@
           xorg.libX11
           python3
           wabt
+          watchexec
         ];
       in
       {

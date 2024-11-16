@@ -87,14 +87,19 @@ pub fn check(
     raw_types: &[FuncType],
     globals: &[ValType],
     return_types: Option<Vec<ValType>>,
-) -> Result<(usize, Vec<ValType>), TypeCheckError> {
+) -> Result<Vec<ValType>, TypeCheckError> {
+    let mut polymorphic_stack = None;
     // println!("{instrs:#?}");
     // println!("ts: {instrs:#?}");
     for inst in instrs {
         // println!("    {inst:?}:\n    locals: {locals:?}\n    context: {context:?}");
         let TypingRules { input, output } = {
+            // println!(" @ {inst:?}");
             match &inst {
-                x00_unreachable => return Ok((0, Vec::new())),
+                x00_unreachable => {
+                    polymorphic_stack = Some(context.clone());
+                    t!()
+                }
                 x01_nop => t! {},
                 x02_block(bt, b) | x03_loop(bt, b) => {
                     let (rt, inputs) = match bt {
@@ -115,7 +120,7 @@ pub fn check(
                         }
                         pass.push(p);
                     }
-                    let (d, mut r) = check(
+                    let mut r = check(
                         pass,
                         locals,
                         b,
@@ -124,23 +129,20 @@ pub fn check(
                         globals,
                         Some(rt.output.clone()),
                     )?;
-                    if d > 0 {
-                        context.append(&mut r);
-                        if let Some(return_types) = return_types {
-                            // println!("{return_types:?} {context:?}");
-                            if return_types != context {
-                                return Err(TypeCheckError::ReturnTypeMismatch(
-                                    return_types,
-                                    context,
-                                ));
-                            }
+                    context.append(&mut r);
+                    if let Some(return_types) = &return_types {
+                        // println!(" - Block return: {return_types:?} {context:?}");
+                        if return_types != &context {
+                            return Err(TypeCheckError::ReturnTypeMismatch(
+                                return_types.to_vec(),
+                                context,
+                            ));
                         }
-                        return Ok((d - 1, context));
                     }
                     rt
                 }
                 x04_if_else(_, a, b) => {
-                    let (_, a) = check(
+                    let a = check(
                         Vec::new(),
                         locals,
                         a,
@@ -150,7 +152,7 @@ pub fn check(
                         None,
                     )?;
                     if let Some(b) = b {
-                        let (_, b) = check(
+                        let b = check(
                             Vec::new(),
                             locals,
                             b,
@@ -174,14 +176,16 @@ pub fn check(
                 x09 => todo!(),
                 x0a => todo!(),
                 x0b => todo!(),
-                x0c_br(LabelIdX(i)) => {
-                    if let Some(return_types) = return_types {
-                        // println!("{return_types:?} {context:?}");
-                        if return_types != context {
-                            return Err(TypeCheckError::ReturnTypeMismatch(return_types, context));
-                        }
-                    }
-                    return Ok((*i as usize, context));
+                x0c_br(LabelIdX(_)) => {
+                    polymorphic_stack = Some(context.clone());
+                    t!()
+                    // if let Some(return_types) = return_types {
+                    //     // println!("{return_types:?} {context:?}");
+                    //     if return_types != context {
+                    //         return Err(TypeCheckError::ReturnTypeMismatch(return_types, context));
+                    //     }
+                    // }
+                    // return Ok((*i as usize, context));
                 }
                 x0d_br_if(_) => t!(i32 -> ()),
                 x0e_br_table(_, _) => t!(i32 -> ()),
@@ -210,16 +214,20 @@ pub fn check(
                 x19 => todo!(),
                 x1a_drop => t!(T -> ()),
                 x1b_select => {
-                    let top = context.pop().ok_or(TypeCheckError::EmptyStack)?;
-                    if top != ValType::Num(NumType::I32) {
-                        return Err(TypeCheckError::WrongTypeOnStack);
-                    }
+                    if polymorphic_stack.is_none() {
+                        let top = context.pop().ok_or(TypeCheckError::EmptyStack)?;
+                        if top != ValType::Num(NumType::I32) {
+                            return Err(TypeCheckError::WrongTypeOnStack);
+                        }
 
-                    let input = [
-                        context.pop().ok_or(TypeCheckError::EmptyStack)?,
-                        context.pop().ok_or(TypeCheckError::EmptyStack)?,
-                    ];
-                    t!([] => [input[0]])
+                        let input = [
+                            context.pop().ok_or(TypeCheckError::EmptyStack)?,
+                            context.pop().ok_or(TypeCheckError::EmptyStack)?,
+                        ];
+                        t!([] => [input[0]])
+                    } else {
+                        t!()
+                    }
                 }
                 x1c => todo!(),
                 x1d => todo!(),
@@ -319,7 +327,7 @@ pub fn check(
                 x78 => todo!(),
                 x79 => todo!(),
                 x7a_i64_ctz => t!(i64 -> i64),
-                x7c_i64_add => todo!(),
+                x7c_i64_add => t!(i64, i64 -> i64),
                 x7d_i64_sub => todo!(),
                 x7e_i64_mul => todo!(),
                 x7f_i64_div_s => todo!(),
@@ -335,13 +343,13 @@ pub fn check(
                 x89 => todo!(),
                 x8a => todo!(),
                 x8b => todo!(),
-                x8c_f32_neg => todo!(),
+                x8c_f32_neg => t!(f32 -> f32),
                 x8d => todo!(),
                 x8e => todo!(),
                 x8f => todo!(),
                 x90 => todo!(),
                 x91 => todo!(),
-                x92_f32_add => todo!(),
+                x92_f32_add => t!(f32, f32 -> f32),
                 x93 => todo!(),
                 x94 => todo!(),
                 x95 => todo!(),
@@ -349,13 +357,13 @@ pub fn check(
                 x97 => todo!(),
                 x98 => todo!(),
                 x99_f64_abs => todo!(),
-                x9a_f64_neg => todo!(),
+                x9a_f64_neg => t!(f64 -> f64),
                 x9b => todo!(),
                 x9c => todo!(),
                 x9d => todo!(),
                 x9e => todo!(),
                 x9f => todo!(),
-                xa0_f64_add => todo!(),
+                xa0_f64_add => t!(f64, f64 -> f64),
                 xa1_f64_sub => todo!(),
                 xa2_f64_mul => todo!(),
                 xa3 => todo!(),
@@ -470,8 +478,10 @@ pub fn check(
         //     "\n{inst:?} ({input:?}, {output:?})\nlocals: {locals:?}\ncontext: {context:?}"
         // );
         for inp in input {
-            let Some(p) = context.pop() else {
-                return Err(TypeCheckError::EmptyStack);
+            let p = match context.pop() {
+                Some(p) => p,
+                None if polymorphic_stack.is_some() => inp,
+                None => return Err(TypeCheckError::EmptyStack),
             };
             if p != inp && !matches!(inp, ValType::Poly) {
                 return Err(TypeCheckError::WrongTypeOnStack);
@@ -485,12 +495,19 @@ pub fn check(
     // println!()
 
     // println!("rs: {context:?}");
+    // println!(" - End return {return_types:?} {polymorphic_stack:?}");
     if let Some(return_types) = return_types {
+        if let Some(polymorphic_stack) = polymorphic_stack {
+            if return_types != polymorphic_stack {
+                return Err(TypeCheckError::ReturnTypeMismatch(return_types, context));
+            }
+            return Ok(polymorphic_stack);
+        }
         // println!("{return_types:?} {context:?}");
         if return_types != context {
             return Err(TypeCheckError::ReturnTypeMismatch(return_types, context));
         }
     }
 
-    Ok((0, context))
+    Ok(context)
 }

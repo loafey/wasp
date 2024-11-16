@@ -398,6 +398,7 @@ impl Runtime {
             // _ => {}
             // };
             // }
+            // println!();
             // println!(" ({typ:?})");
             typecheck::check(
                 Vec::new(),

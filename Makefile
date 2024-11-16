@@ -8,4 +8,4 @@ get-tests:
 	rm -rf test-suite/.git
 
 watch:
-	, watchexec -e rs "cargo run -- $(FILE)"
+	watchexec -e rs "cargo run -- $(FILE)"

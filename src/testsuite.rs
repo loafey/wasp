@@ -297,7 +297,7 @@ pub fn test(mut path: String) {
                     continue;
                 }
 
-                // println!("Compiling {p:?}");
+                // println!("@@@ Compiling {p:?}");
                 *runtime.borrow_mut() =
                     Some(Runtime::new(p.clone()).expect("failed to load module"));
                 // recreate_runtime = Box::new(move || {

@@ -1,15 +1,8 @@
 # W.A.S.P
 
 ## Latest spec test 
-💅: 14\
-💩: 133
-## Failed: test-suite/test/core/binary-leb128.wast
-```bash
-thread 'main' panicked at src/runtime/typecheck.rs:458:46:
-not yet implemented
-note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
-```
-
+💅: 15\
+💩: 132
 ## Failed: test-suite/test/core/br.wast
 ```bash
 thread 'main' panicked at src/runtime/typecheck.rs:331:32:

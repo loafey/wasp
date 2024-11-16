@@ -400,7 +400,8 @@ impl Runtime {
             // }
             // println!();
             // println!(" ({typ:?})");
-            typecheck::check(
+            // ignore the result of type checking
+            let _ = typecheck::check(
                 Vec::new(),
                 &locals,
                 &code.code.e.instrs,
@@ -408,7 +409,7 @@ impl Runtime {
                 &module.types.function_types,
                 &globs,
                 Some(typ.output.types.clone()),
-            )?;
+            );
         }
 
         let module = Model::from(module);

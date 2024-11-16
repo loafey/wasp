@@ -513,12 +513,13 @@ impl Runtime {
                         for _ in 0..=*label {
                             let mut collect = Vec::new();
                             loop {
+                                println!("{:?} {:?}", get!(stack), bt.vt);
                                 let p = pop!();
                                 if matches!(p, Value::BlockLock) {
                                     match bt.vt {
                                         BlockType::Eps => {}
                                         BlockType::T(_) => {
-                                            push!(unwrap!(collect.pop(), EmptyStack))
+                                            push!(unwrap!(collect.pop(), EmptyStack));
                                         }
                                         BlockType::TypIdx(i) => {
                                             let ft = unwrap!(

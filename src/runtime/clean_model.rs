@@ -1,5 +1,5 @@
 use crate::parser::{
-    Elem, Expr, FuncIdx, FuncType, ImportDesc, Instr, Module, Name, TableIdX, TypeIdX, BT,
+    Elem, Expr, FuncIdx, FuncType, ImportDesc, Instr, Limits, Module, Name, TableIdX, TypeIdX, BT,
 };
 use std::{
     collections::HashMap,
@@ -24,6 +24,7 @@ pub enum Function {
 #[derive(Debug)]
 pub struct Table {
     table: HashMap<u32, FuncIdx>,
+    pub table_length: (usize, usize),
 }
 impl Deref for Table {
     type Target = HashMap<u32, FuncIdx>;
@@ -226,8 +227,12 @@ impl From<Module> for Model {
             .tables
             .tables
             .into_iter()
-            .map(|_| Table {
+            .map(|t| Table {
                 table: HashMap::new(),
+                table_length: match t.lim {
+                    Limits::Min(m) => (0, m as usize),
+                    Limits::MinMax(n, m) => (n as usize, m as usize),
+                },
             })
             .collect();
 

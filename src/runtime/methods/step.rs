@@ -772,9 +772,10 @@ impl Runtime {
                         let table =
                             unwrap!(self.module.tables.get_mut(*t as usize), MissingTableIndex);
 
-                        if source + amount > elems.instrs.len() as u32
-                            || destination + source > table.len() as u32
-                        {
+                        let check_1 = source + amount > elems.instrs.len() as u32;
+                        let check_2 = destination < table.table_length.0 as u32;
+                        let check_3 = destination + amount > table.table_length.1 as u32;
+                        if check_1 || check_2 || check_3 {
                             throw!(OutOfBoundsTableAccess)
                         }
 

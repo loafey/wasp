@@ -1,5 +1,3 @@
-use egui::Label;
-
 use crate::parser::{
     BlockType, Elem, Expr, FuncIdx, FuncType, ImportDesc, Instr, LabelIdX, LocalIdX, Module, Name,
     TableIdX, TypeIdX, BT,

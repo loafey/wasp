@@ -1,6 +1,5 @@
 use crate::parser::{
-    BlockType, Elem, Expr, FuncIdx, FuncType, ImportDesc, Instr, LabelIdX, LocalIdX, Module, Name,
-    TableIdX, TypeIdX, BT,
+    Elem, Expr, FuncIdx, FuncType, ImportDesc, Instr, Module, Name, TableIdX, TypeIdX, BT,
 };
 use std::{
     collections::HashMap,
@@ -36,28 +35,6 @@ impl Deref for Table {
 impl DerefMut for Table {
     fn deref_mut(&mut self) -> &mut Self::Target {
         &mut self.table
-    }
-}
-
-fn increment_labels(instrs: &mut [Instr], depth: u32) {
-    for i in instrs {
-        match i {
-            Instr::x0c_br(LabelIdX(i)) => *i += depth,
-            Instr::x0d_br_if(LabelIdX(i)) => *i += depth,
-            Instr::x0e_br_table(ls, LabelIdX(i)) => {
-                *i += depth;
-                ls.iter_mut().for_each(|LabelIdX(i)| *i += depth);
-            }
-            Instr::x02_block(_, v) => increment_labels(v, depth),
-            Instr::x03_loop(_, v) => increment_labels(v, depth),
-            Instr::x04_if_else(_, v1, v2) => {
-                increment_labels(v1, depth);
-                if let Some(v2) = v2 {
-                    increment_labels(v2, depth);
-                }
-            }
-            _ => {}
-        }
     }
 }
 

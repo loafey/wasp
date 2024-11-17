@@ -151,7 +151,7 @@ impl From<Module> for Model {
                     Instr::x04_if_else(bt, then, els) => {
                         let bt = *bt;
 
-                        let mut then = then.clone();
+                        let then = then.clone();
                         // increment_labels(&mut then, 1);
                         let els = els.clone();
                         code.remove(pc);
@@ -163,7 +163,7 @@ impl From<Module> for Model {
                         code.insert(pc, Instr::block_start(BT::Block, 0, bt)); // then block end
                         let offset = els.is_some() as usize;
 
-                        if let Some(mut els) = els {
+                        if let Some(els) = els {
                             // increment_labels(&mut els, 1);
                             code.insert(pc, Instr::else_jump(0));
                             code.insert(pc, Instr::block_end(BT::Block, 0, bt));

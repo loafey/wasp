@@ -327,24 +327,15 @@ pub fn test(mut path: String) {
                                 if last == expected {
                                     break;
                                 } else {
-                                    // if let Some(crate::runtime::clean_model::Function::Local {
-                                    //     ty,
-                                    //     locals,
-                                    //     code,
-                                    //     labels,
-                                    // }) = rt.module.functions.get(&id)
-                                    // {
-                                    //     let mut ind = 0;
-                                    //     for c in code {
-                                    //         if let Instr::block_end(_, _, _) = c {
-                                    //             ind -= 1
-                                    //         }
-                                    //         println!("{}{c:?}", ". . ".repeat(ind));
-                                    //         if let Instr::block_start(_, _, _) = c {
-                                    //             ind += 1
-                                    //         }
-                                    //     }
-                                    // }
+                                    error!("test {test_i}/{total_tests} failed (module: {module_index}, invoke: {field:?}, got {last:?}, but expected {expected:?})");
+                                    std::process::exit(1);
+                                }
+                            }
+                            Err(RuntimeError::ReturnedToNoFrame(stack, _, _, _)) => {
+                                let expected = remove_floats(expected);
+                                if stack == expected {
+                                    break;
+                                } else {
                                     error!("test {test_i}/{total_tests} failed (module: {module_index}, invoke: {field:?}, got {last:?}, but expected {expected:?})");
                                     std::process::exit(1);
                                 }

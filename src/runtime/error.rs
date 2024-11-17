@@ -1,4 +1,4 @@
-use super::typecheck::TypeCheckError;
+use super::{typecheck::TypeCheckError, Value};
 
 #[allow(unused)]
 pub enum RuntimeError {
@@ -7,6 +7,7 @@ pub enum RuntimeError {
     GlobalWithoutValue,
     ActiveDataWithoutOffset,
     UnknownFunction(String, String),
+    ReturnedToNoFrame(Vec<Value>, &'static str, u32, u32),
     NoFrame(&'static str, u32, u32),
     WrongType(&'static str, &'static str, &'static str, u32, u32),
     EmptyStack(&'static str, u32, u32),
@@ -36,6 +37,12 @@ impl std::fmt::Debug for RuntimeError {
             Self::GlobalWithoutValue => write!(f, "GlobalWithoutOffset"),
             Self::ActiveDataWithoutOffset => write!(f, "ActiveDataWithoutOffset"),
             Self::UnknownFunction(arg0, arg1) => write!(f, "unknown function: {arg0}::{arg1}"),
+            Self::ReturnedToNoFrame(stack, arg0, arg1, arg2) => {
+                write!(
+                    f,
+                    "returned, but no more frames ({stack:?}): {arg0}:{arg1}:{arg2}"
+                )
+            }
             Self::NoFrame(arg0, arg1, arg2) => {
                 write!(f, "ran out of stack frames: {arg0}:{arg1}:{arg2}")
             }

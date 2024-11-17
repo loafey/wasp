@@ -398,12 +398,19 @@ impl Runtime {
                         };
                         let mut res = Vec::new();
                         for _ in ty.output.types.iter() {
-                            res.push(unwrap!(last_f.stack.pop(), EmptyStack))
+                            let value = unwrap!(last_f.stack.pop(), EmptyStack);
+                            if matches!(value, Value::BlockLock) {
+                                continue;
+                            }
+                            res.push(value)
                         }
                         res.reverse();
-                        unwrap!(self.stack.last_mut(), NoFrame)
-                            .stack
-                            .append(&mut res);
+                        match self.stack.last_mut() {
+                            Some(s) => s.stack.append(&mut res),
+                            None => {
+                                throw!(|a, b, c| ReturnedToNoFrame(res, a, b, c))
+                            }
+                        }
                     }
                     x10_call(FuncIdx(id)) => {
                         let fun = &self.module.functions[id];

@@ -4,10 +4,13 @@ use super::super::{
     memory::Memory,
     typecheck, Frame, Runtime, Value,
 };
-use crate::parser::{
-    self, ExportDesc, Global,
-    Instr::{self, *},
-    MemArg, MemIdX, Module, Parsable, TypeIdX,
+use crate::{
+    parser::{
+        self, ExportDesc, Global,
+        Instr::{self, *},
+        LabelIdX, MemArg, MemIdX, Module, Parsable, TypeIdX,
+    },
+    runtime::clean_model::Function,
 };
 use std::{
     collections::HashMap,
@@ -165,6 +168,36 @@ impl Runtime {
         }
 
         let module = Model::from(module);
+        for f in module.functions.values() {
+            match f {
+                Function::Import { .. } => continue,
+                Function::Local { code, .. } => {
+                    let mut depth = 0;
+                    for c in code {
+                        match c {
+                            x0c_br(LabelIdX(i)) | x0d_br_if(LabelIdX(i)) => {
+                                if *i > depth {
+                                    return Err(RuntimeError::UnknownLabel);
+                                }
+                            }
+                            x0e_br_table(ls, LabelIdX(i)) => {
+                                for LabelIdX(i) in ls {
+                                    if *i > depth {
+                                        return Err(RuntimeError::UnknownLabel);
+                                    }
+                                }
+                                if *i > depth {
+                                    return Err(RuntimeError::UnknownLabel);
+                                }
+                            }
+                            block_start(_, _, _) => depth += 1,
+                            block_end(_, _, _) => depth -= 1,
+                            _ => {}
+                        }
+                    }
+                }
+            }
+        }
         Ok(Self {
             module,
             stack,

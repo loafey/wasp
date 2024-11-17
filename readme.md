@@ -1,13 +1,8 @@
 # W.A.S.P
 
 ## Latest spec test 
-💅: 16\
-💩: 131
-## Failed: test-suite/test/core/br.wast
-```bash
- ERROR wasp::testsuite > test 94/97 did not fail invalidating/parsing, expected error: "unknown label" (module: "test-suite/test/core/br.18.wasm")
-```
-
+💅: 17\
+💩: 130
 ## Failed: test-suite/test/core/br_if.wast
 ```bash
 thread 'main' panicked at src/runtime/typecheck.rs:284:33:
@@ -218,7 +213,7 @@ note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 
 ## Failed: test-suite/test/core/float_exprs.wast
 ```bash
-thread 'main' panicked at src/runtime/mod.rs:1024:25:
+thread 'main' panicked at src/runtime/methods/step.rs:787:25:
 not implemented: instruction not supported : xa2_f64_mul
 note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 ```
@@ -329,7 +324,7 @@ note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 
 ## Failed: test-suite/test/core/int_literals.wast
 ```bash
-thread 'main' panicked at src/runtime/mod.rs:1024:25:
+thread 'main' panicked at src/runtime/methods/step.rs:787:25:
 not implemented: instruction not supported : x7c_i64_add
 note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 ```
@@ -862,14 +857,14 @@ note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 
 ## Failed: test-suite/test/core/traps.wast
 ```bash
-thread 'main' panicked at src/runtime/mod.rs:1024:25:
+thread 'main' panicked at src/runtime/methods/step.rs:787:25:
 not implemented: instruction not supported : x6d_i32_div_s
 note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 ```
 
 ## Failed: test-suite/test/core/unreachable.wast
 ```bash
-thread 'main' panicked at src/runtime/mod.rs:1024:25:
+thread 'main' panicked at src/runtime/methods/step.rs:787:25:
 not implemented: instruction not supported : x00_unreachable
 note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 ```

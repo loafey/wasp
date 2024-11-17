@@ -11,11 +11,13 @@ pub enum RuntimeError {
     NoFrame(&'static str, u32, u32),
     WrongType(&'static str, &'static str, &'static str, u32, u32),
     EmptyStack(&'static str, u32, u32),
+    Unreachable(&'static str, u32, u32),
     Impossible(&'static str, u32, u32),
     MissingLocal(&'static str, u32, u32),
     MissingFunction(&'static str, u32, u32),
     MissingJumpLabel(&'static str, u32, u32),
     MissingTableIndex(&'static str, u32, u32),
+    MissingData(&'static str, u32, u32),
     TypeError(TypeCheckError),
     UnknownLabel,
     OutOfBoundsMemoryAccess,
@@ -30,6 +32,9 @@ impl From<TypeCheckError> for RuntimeError {
 impl std::fmt::Debug for RuntimeError {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
+            Self::MissingData(arg0, arg1, arg2) => {
+                write!(f, "tried to get non-existent data: {arg0}:{arg1}:{arg2}")
+            }
             Self::TypeError(t) => write!(f, "type error: {t:?}"),
             Self::OutOfBoundsMemoryAccess => write!(f, "out of bounds memory access"),
             Self::ParseError(string) => write!(f, "ParseError({string})"),
@@ -51,6 +56,9 @@ impl std::fmt::Debug for RuntimeError {
             }
             Self::EmptyStack(arg0, arg1, arg2) => {
                 write!(f, "empty stack: {arg0}:{arg1}:{arg2}")
+            }
+            Self::Unreachable(arg0, arg1, arg2) => {
+                write!(f, "hit an unreachable code segment: {arg0}:{arg1}:{arg2}")
             }
             Self::Impossible(arg0, arg1, arg2) => {
                 write!(f, "an impossible case happened: {arg0}:{arg1}:{arg2}")

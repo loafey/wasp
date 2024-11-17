@@ -1,5 +1,5 @@
 use crate::parser::{
-    BlockType, FuncIdx, FuncType, GlobalIdX,
+    BlockType, DataIdx, FuncIdx, FuncType, GlobalIdX,
     Instr::{self, *},
     LabelIdX, LocalIdX, NumType, TypeIdX, ValType,
 };
@@ -462,7 +462,7 @@ pub fn check(
                 xfc_5_i64_trunc_sat_f32_u => t!(f32 -> i64),
                 xfc_6_i64_trunc_sat_f64_s => t!(f64 -> i64),
                 xfc_7_i64_trunc_sat_f64_u => t!(f64 -> i64),
-                xfc_8_memory_init(_) => todo!(),
+                xfc_8_memory_init(_, _) => t!(i32, i32, i32 -> ()),
                 xfc_9_data_drop(_) => todo!(),
                 xfc_10_memory_copy(_, _) => t!(i32, i32, i32 -> ()),
                 xfc_11_memory_fill(_) => t!(i32, i32, i32 -> ()),

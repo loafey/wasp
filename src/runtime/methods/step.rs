@@ -4,7 +4,8 @@ use super::super::{
     DepthValue, Frame, Runtime, Value,
 };
 use crate::parser::{
-    BlockType, FuncIdx, GlobalIdX, Instr::*, LabelIdX, LocalIdX, MemArg, TableIdX, TypeIdX, BT,
+    BlockType, DataIdx, FuncIdx, GlobalIdX, Instr::*, LabelIdX, LocalIdX, MemArg, TableIdX,
+    TypeIdX, BT,
 };
 use std::collections::HashMap;
 
@@ -261,6 +262,9 @@ impl Runtime {
                 instr = if let comment(_, r) = instr { r } else { instr };
                 set!(pc) += 1;
                 match instr {
+                    x00_unreachable => {
+                        throw!(Unreachable)
+                    }
                     x01_nop => (),
                     x02_block(_, _) => throw!(Impossible),
                     x03_loop(_, _) => throw!(Impossible),
@@ -730,6 +734,16 @@ impl Runtime {
                     xad_i64_extend_i32_u => {
                         let x = pop!(u32) as u64;
                         push!(u64, x)
+                    }
+                    xfc_8_memory_init(DataIdx(i), _) => {
+                        let amount = pop!(i32) as usize;
+                        let source = pop!(i32) as usize;
+                        let destination = pop!(i32) as usize;
+                        let val = unwrap!(self.datas.get(i), MissingData);
+                        for i in 0..amount {
+                            self.memory
+                                .set(destination + i, MemArg::default(), val[source + i])?;
+                        }
                     }
                     xfc_10_memory_copy(_, _) => {
                         let amount = pop!(i32) as usize;

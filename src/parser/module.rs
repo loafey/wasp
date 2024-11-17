@@ -81,7 +81,7 @@ impl Parsable for Module {
                 return Err(ParseError::DuplicateSection(section_header[0] as u32));
             }
             parsed_sections.insert(section_header[0]);
-            if last_section > section_header[0] {
+            if last_section > section_header[0] && last_section != 12 {
                 return Err(ParseError::OutOfOrderSection);
             }
             last_section = section_header[0];
@@ -104,7 +104,8 @@ impl Parsable for Module {
                 12 => {
                     let _size = u32::parse(data, stack)? as usize;
                     found_data_count = true;
-                    if (u32::parse(data, stack)? as usize) != datasec.data.len() {
+                    let size = u32::parse(data, stack)? as usize;
+                    if size != datasec.data.len() && !datasec.data.is_empty() {
                         return Err(ParseError::InvalidDataCount);
                     }
                 }
@@ -119,7 +120,7 @@ impl Parsable for Module {
                 c.code.e.instrs.iter().any(|i| {
                     matches!(
                         i,
-                        super::Instr::xfc_8_memory_init(_) | super::Instr::xfc_9_data_drop(_)
+                        super::Instr::xfc_8_memory_init(_, _) | super::Instr::xfc_9_data_drop(_)
                     )
                 })
             })

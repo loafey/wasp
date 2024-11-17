@@ -290,7 +290,8 @@ pub fn test(mut path: String) {
     let total_tests = tests.commands.len();
 
     for (test_i, test) in tests.commands.into_iter().enumerate() {
-        // println!("\n{test_i}/{total_tests}");
+        let test_i = test_i + 1;
+        // println!("\n{}/{total_tests}", test_i + 1);
         match test {
             Case::Module(module) => {
                 let runtime = runtime.clone();

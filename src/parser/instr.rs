@@ -283,6 +283,7 @@ pub enum Instr {
     xff = 0xff,
     block_start(BT, usize, BlockType),
     block_end(BT, usize, BlockType),
+    if_then_else(BT, usize),
     comment(String, Box<Instr>),
 }
 

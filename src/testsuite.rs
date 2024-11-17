@@ -14,6 +14,7 @@ enum ConstValue {
     I64 { value: String },
     F32 { value: String },
     F64 { value: String },
+    Externref { value: String },
 }
 
 #[derive(Debug, Deserialize, Clone)]
@@ -154,6 +155,16 @@ fn const_to_val(consts: Vec<ConstValue>) -> Vec<Value> {
     consts
         .into_iter()
         .map(|v| match v {
+            ConstValue::Externref { value } => Value::Externref(
+                value
+                    .parse()
+                    .or_else(|_| {
+                        value
+                            .parse()
+                            .map(|v| unsafe { std::mem::transmute::<u32, i32>(v) })
+                    })
+                    .expect("failed to parse"),
+            ),
             ConstValue::I32 { value } => Value::I32(
                 value
                     .parse()

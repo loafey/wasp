@@ -5,7 +5,7 @@
 💩: 128
 ## Failed: test-suite/test/core/binary.wast
 ```bash
- ERROR wasp::testsuite > test 63/136 did not fail invalidating/parsing, expected error: "data count and data section have inconsistent lengths" (module: "test-suite/test/core/binary.62.wasm")
+ ERROR wasp::testsuite > test 65/136 did not fail invalidating/parsing, expected error: "data count and data section have inconsistent lengths" (module: "test-suite/test/core/binary.64.wasm")
 ```
 
 ## Failed: test-suite/test/core/bulk.wast

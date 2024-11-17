@@ -65,7 +65,9 @@ impl Parsable for Module {
         let customs = CustomSection::default();
 
         let mut section_header = [0];
+
         let mut found_data_count = false;
+
         let mut start = None;
         let mut parsed_sections = HashSet::new();
         let mut last_section = 0;
@@ -100,12 +102,15 @@ impl Parsable for Module {
                 }
                 9 => elements.concat(ElementSection::parse(data, stack)?),
                 10 => code.concat(CodeSection::parse(data, stack)?),
-                11 => datasec.concat(DataSection::parse(data, stack)?),
+                11 => {
+                    let parse = DataSection::parse(data, stack)?;
+                    datasec.concat(parse);
+                }
                 12 => {
                     let _size = u32::parse(data, stack)? as usize;
                     found_data_count = true;
                     let size = u32::parse(data, stack)? as usize;
-                    if size != datasec.data.len() && !datasec.data.is_empty() {
+                    if size != datasec.data.len() {
                         return Err(ParseError::InvalidDataCount);
                     }
                 }

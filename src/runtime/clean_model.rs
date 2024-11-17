@@ -88,6 +88,20 @@ impl From<Module> for Model {
             let ty = value.types.function_types[value.funcs.functions[k].0 as usize].clone();
             let mut code = code.code.e.instrs;
 
+            code.insert(
+                0,
+                Instr::block_start(
+                    BT::Block,
+                    0,
+                    BlockType::TypIdx(value.funcs.functions[k].0 as i64),
+                ),
+            );
+            code.push(Instr::block_end(
+                BT::Block,
+                0,
+                BlockType::TypIdx(value.funcs.functions[k].0 as i64),
+            ));
+
             let mut pc = 0;
             while pc < code.len() {
                 match &code[pc] {
@@ -113,39 +127,6 @@ impl From<Module> for Model {
                         }
                         code.insert(pc, Instr::block_start(BT::Loop, 0, bt));
                     }
-                    /* Gist of it
-                    if x then
-                        y :: T
-                    else
-                        z :: T
-
-                    v
-
-                    {
-                        {
-                            !x
-                            br_if 0 -- type mismatch
-                            y
-                            br 1
-                        } :: T
-                        z
-                    } :: T
-
-                    do this instead
-
-                    {
-                        {
-                            {
-                                !x
-                                br_if 1
-                                br 0
-                            } :: ()
-                            y
-                            br 1
-                        } :: T
-                        z
-                    } :: T
-                    */
                     Instr::x04_if_else(bt, then, els) => {
                         let bt = *bt;
 

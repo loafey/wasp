@@ -731,6 +731,19 @@ impl Runtime {
                         let x = pop!(u32) as u64;
                         push!(u64, x)
                     }
+                    xfc_10_memory_copy(_, _) => {
+                        let amount = pop!(i32) as usize;
+                        let source = pop!(i32) as usize;
+                        let destination = pop!(i32) as usize;
+                        // println!("amount: {amount}, source: {source}, dest: {destination}");
+                        self.memory.copy(source, amount, destination)?;
+                    }
+                    xfc_11_memory_fill(_) => {
+                        let amount = pop!(i32) as usize;
+                        let val = pop!(i32) as u8;
+                        let ptr = pop!(i32) as usize;
+                        self.memory.bulk_write(ptr, amount, val)?;
+                    }
                     block_start(bt, be, vt) => {
                         // println!("block_start: {vt:?}");
                         let mut to_push = Vec::new();

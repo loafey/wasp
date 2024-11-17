@@ -1,6 +1,6 @@
 use super::{error::ParseError, Parsable};
 
-#[derive(Debug, Clone, Copy, PartialEq)]
+#[derive(Debug, Clone, Copy, PartialEq, Default)]
 #[allow(unused)]
 pub struct MemArg {
     pub align: u32,

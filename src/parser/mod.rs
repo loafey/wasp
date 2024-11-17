@@ -91,3 +91,5 @@ mod customsec;
 pub use customsec::*;
 mod dataidx;
 pub use dataidx::*;
+mod elemidx;
+pub use elemidx::*;

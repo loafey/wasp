@@ -257,7 +257,17 @@ impl From<Module> for Model {
                     }
                     _ => panic!(),
                 },
-                Elem::E1(_, _) => todo!(),
+                Elem::E1(_fr, funcs) => {
+                    passive_elems.insert(
+                        i as u32,
+                        Expr {
+                            instrs: funcs
+                                .into_iter()
+                                .map(|FuncIdx(i)| Instr::x41_i32_const(i as i32))
+                                .collect(),
+                        },
+                    );
+                }
                 Elem::E2(TableIdX(t), expr, _rt, vec) => match &expr.instrs[..] {
                     [Instr::x41_i32_const(off)] => {
                         for (i, v) in vec.into_iter().enumerate() {

@@ -1,6 +1,6 @@
 use super::{
-    error::ParseError, BlockType, DataIdx as DataIdX, FuncIdx, GlobalIdX, LabelIdX, LocalIdX,
-    MemArg, Parsable, RefTyp, TableIdX, TypeIdX,
+    error::ParseError, BlockType, DataIdx as DataIdX, ElemIdx, FuncIdx, GlobalIdX, LabelIdX,
+    LocalIdX, MemArg, Parsable, RefTyp, TableIdX, TypeIdX,
 };
 use crate::hex::Hex;
 use std::io::Read;
@@ -278,6 +278,12 @@ pub enum Instr {
     xfc_9_data_drop(DataIdX) = 0xfc09,
     xfc_10_memory_copy(u8, u8) = 0xfc0a,
     xfc_11_memory_fill(u8) = 0xfc0b,
+    xfc_12_table_init(ElemIdx, TableIdX) = 0xfc0c,
+    xfc_13_elem_drop(ElemIdx) = 0xfc0d,
+    xfc_14_table_copy(TableIdX, TableIdX) = 0xfc0e,
+    xfc_15_table_grow(TableIdX) = 0xfc0f,
+    xfc_16_table_size(TableIdX) = 0xfc10,
+    xfc_17_table_fill(TableIdX) = 0xfc11,
     xfd = 0xfd,
     xfe = 0xfe,
     xff = 0xff,
@@ -644,6 +650,12 @@ impl Parsable for Instr {
                 9 => xfc_9_data_drop(p!()),
                 10 => xfc_10_memory_copy(p!(), p!()),
                 11 => xfc_11_memory_fill(p!()),
+                12 => xfc_12_table_init(p!(), p!()),
+                13 => xfc_13_elem_drop(p!()),
+                14 => xfc_14_table_copy(p!(), p!()),
+                15 => xfc_15_table_grow(p!()),
+                16 => xfc_16_table_size(p!()),
+                17 => xfc_17_table_fill(p!()),
                 ind => todo!("0xfc {ind}"),
             },
             0xfd => Err(ParseError::UnknownInstruction(Hex(typ)))?,

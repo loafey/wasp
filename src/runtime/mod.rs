@@ -491,7 +491,6 @@ impl Runtime {
                 let mut instr = &code[*get!(pc)];
                 instr = if let comment(_, r) = instr { r } else { instr };
                 set!(pc) += 1;
-                println!("{instr:?}");
                 match instr {
                     x01_nop => (),
                     x02_block(_, _) => throw!(Impossible),
@@ -572,6 +571,7 @@ impl Runtime {
                                             }
                                             BlockType::T(_) => {
                                                 collect.reverse();
+                                                println!("{code:#?}");
                                                 push!(unwrap!(collect.pop(), EmptyStack));
                                                 break;
                                             }

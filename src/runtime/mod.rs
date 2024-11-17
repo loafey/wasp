@@ -189,6 +189,10 @@ macro_rules! gen_macros {
                 &f.stack
             };
 
+            (depth_stack) => {
+                &f.depth_stack
+            };
+
             (func_id) => {
                 &f.func_id
             };
@@ -431,6 +435,8 @@ impl Runtime {
         }
         gen_macros!(unwrap!(self.stack.last_mut(), NoFrame));
         // println!("{:?}", get!(stack));
+        // println!("{:?}", get!(depth_stack));
+        // println!();
 
         match &self.module.functions[get!(func_id)] {
             Function::Import { module, name, .. } => {
@@ -498,6 +504,7 @@ impl Runtime {
                     x04_if_else(_, _, _) => throw!(Impossible),
                     x0c_br(LabelIdX(label)) => {
                         let mut last = None;
+                        // println!("{label}");
                         for _ in 0..=*label {
                             last = pop_depth!();
                         }
@@ -513,7 +520,6 @@ impl Runtime {
                         for _ in 0..=*label {
                             let mut collect = Vec::new();
                             loop {
-                                println!("{:?} {:?}", bt.vt, get!(stack));
                                 let p = pop!();
                                 if matches!(p, Value::BlockLock) {
                                     match bt.vt {
@@ -540,8 +546,6 @@ impl Runtime {
                         }
                     }
                     x0d_br_if(LabelIdX(label)) => {
-                        println!("{:?}", get!(stack));
-
                         let val = pop!(i32);
 
                         if val != 0 {
@@ -558,12 +562,10 @@ impl Runtime {
                                     set!(pc) = bt.pos + 1;
                                 }
                             }
-                            println!("{:?} {label}", bt.vt);
                             for _ in 0..=*label {
                                 let mut collect = Vec::new();
                                 loop {
                                     let p = pop!();
-                                    println!(" - {p:?}");
                                     if matches!(p, Value::BlockLock) {
                                         match bt.vt {
                                             BlockType::Eps => {
@@ -571,13 +573,11 @@ impl Runtime {
                                             }
                                             BlockType::T(_) => {
                                                 collect.reverse();
-                                                println!("{code:#?}");
                                                 push!(unwrap!(collect.pop(), EmptyStack));
                                                 break;
                                             }
                                             BlockType::TypIdx(_) => todo!(),
                                         }
-                                        break;
                                     } else {
                                         collect.push(p);
                                     }
@@ -1003,6 +1003,22 @@ impl Runtime {
                             }
                         }
                         pop_depth!();
+                    }
+                    if_then_else(jump_index) => {
+                        let val = pop!(i32);
+
+                        if val != 0 {
+                            set!(pc) = *jump_index;
+                        }
+                        // for (i, c) in code.iter().enumerate() {
+                        //     println!("{i}:\t{c:?}");
+                        // }
+                    }
+                    else_jump(jump_index) => {
+                        // for (i, c) in code.iter().enumerate() {
+                        //     println!("{i}:\t{c:?}");
+                        // }
+                        set!(pc) = *jump_index;
                     }
                     f => {
                         unimplemented!("instruction not supported : {f:?}")

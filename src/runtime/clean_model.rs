@@ -84,8 +84,6 @@ impl From<Module> for Model {
             functions.insert(k as u32, v);
         }
 
-        let mut if_else_count = u32::MAX;
-
         for (k, code) in value.code.code.into_iter().enumerate() {
             let ty = code.code.t;
             let locals = ty.iter().enumerate().map(|(s, _)| s).collect();
@@ -154,44 +152,29 @@ impl From<Module> for Model {
                         let bt = *bt;
 
                         let mut then = then.clone();
-                        increment_labels(&mut then, 1);
+                        // increment_labels(&mut then, 1);
                         let els = els.clone();
-                        let els_exists = els.is_some();
                         code.remove(pc);
 
+                        code.insert(pc, Instr::block_end(BT::Block, 0, bt)); // then block end
+                        for i in then.into_iter().rev() {
+                            code.insert(pc, i);
+                        }
+                        code.insert(pc, Instr::block_start(BT::Block, 0, bt)); // then block end
+                        let offset = els.is_some() as usize;
+
                         if let Some(mut els) = els {
-                            increment_labels(&mut els, 2);
+                            // increment_labels(&mut els, 1);
+                            code.insert(pc, Instr::else_jump(0));
                             code.insert(pc, Instr::block_end(BT::Block, 0, bt));
                             for i in els.into_iter().rev() {
                                 code.insert(pc, i);
                             }
+                            code.insert(pc, Instr::block_start(BT::Block, 0, bt));
                             // els block end
                         }
-                        code.insert(pc, Instr::block_end(BT::Block, 0, bt)); // then block end
-                        if els_exists {
-                            code.insert(pc, Instr::x0c_br(LabelIdX(1))); // then block end
-                        }
-                        for i in then.into_iter().rev() {
-                            code.insert(pc, i);
-                        }
-
-                        // check
-                        code.insert(pc, Instr::block_end(BT::Block, 0, BlockType::Eps));
-                        code.insert(pc, Instr::x0c_br(LabelIdX(0))); // then block end
-                        code.insert(pc, Instr::x0d_br_if(LabelIdX(1))); // then block end
-                        code.insert(pc, Instr::x45_i32_eqz);
-                        code.insert(pc, Instr::x20_local_get(LocalIdX(if_else_count)));
-                        code.insert(pc, Instr::block_start(BT::Block, 0, BlockType::Eps));
-                        // THIS IS SO DISGUSTING
-
-                        if els_exists {
-                            code.insert(pc, Instr::block_start(BT::Block, 0, bt));
-                            // then block end
-                        }
-                        code.insert(pc, Instr::block_start(BT::Block, 0, bt)); // then block end
-                        code.insert(pc, Instr::x21_local_set(LocalIdX(if_else_count)));
-                        if_else_count -= 1;
-                        // THIS IS SO DISGUSTING
+                        code.insert(pc, Instr::if_then_else(offset));
+                        // then block end
                     }
                     _ => {}
                 }
@@ -231,6 +214,50 @@ impl From<Module> for Model {
                     panic!()
                 };
                 *ins = sp;
+                pc += 1;
+            }
+
+            let mut pc = 0;
+            while pc < code.len() {
+                if let Instr::if_then_else(_) = &code[pc] {
+                    let mut in_pc = pc + 1;
+
+                    let mut bc = 0;
+                    loop {
+                        match &code[in_pc] {
+                            Instr::block_start(_, _, _) => bc += 1,
+                            Instr::block_end(_, _, _) => bc -= 1,
+                            _ => {}
+                        }
+                        if bc == 0 {
+                            break;
+                        }
+                        in_pc += 1;
+                    }
+                    let Instr::if_then_else(offset) = &mut code[pc] else {
+                        unreachable!()
+                    };
+                    *offset += in_pc + 1;
+                } else if let Instr::else_jump(_) = &code[pc] {
+                    let mut in_pc = pc + 1;
+
+                    let mut bc = 0;
+                    loop {
+                        match &code[in_pc] {
+                            Instr::block_start(_, _, _) => bc += 1,
+                            Instr::block_end(_, _, _) => bc -= 1,
+                            _ => {}
+                        }
+                        if bc == 0 {
+                            break;
+                        }
+                        in_pc += 1;
+                    }
+                    let Instr::else_jump(offset) = &mut code[pc] else {
+                        unreachable!()
+                    };
+                    *offset += in_pc + 1;
+                }
                 pc += 1;
             }
 

@@ -472,7 +472,8 @@ pub fn check(
                 block_start(_, _, _) => todo!(),
                 block_end(_, _, _) => todo!(),
                 comment(_, _) => todo!(),
-                if_then_else(_, _) => todo!(),
+                if_then_else(_) => todo!(),
+                else_jump(_) => todo!(),
             }
         };
         // println!(

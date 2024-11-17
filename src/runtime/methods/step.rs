@@ -313,36 +313,50 @@ impl Runtime {
 
                         if val != 0 {
                             let mut last = None;
-                            for _ in 0..=*label {
-                                last = pop_depth!();
-                            }
-                            let bt = unwrap!(last, MissingJumpLabel);
-                            match bt.bt {
-                                BT::Loop => {
-                                    set!(pc) = bt.pos;
+                            if get!(depth_stack).len() as u32 == *label {
+                                let mut res = Vec::new();
+                                for _ in &ty.output.types {
+                                    res.push(pop!());
                                 }
-                                BT::Block => {
-                                    set!(pc) = bt.pos + 1;
+                                res.reverse();
+                                match self.stack.last_mut() {
+                                    Some(s) => s.stack.append(&mut res),
+                                    None => {
+                                        throw!(|a, b, c| ReturnedToNoFrame(res, a, b, c))
+                                    }
                                 }
-                            }
-                            for _ in 0..=*label {
-                                let mut collect = Vec::new();
-                                loop {
-                                    let p = pop!();
-                                    if matches!(p, Value::BlockLock) {
-                                        match bt.vt {
-                                            BlockType::Eps => {
-                                                break;
+                            } else {
+                                for _ in 0..=*label {
+                                    last = pop_depth!();
+                                }
+                                let bt = unwrap!(last, MissingJumpLabel);
+                                match bt.bt {
+                                    BT::Loop => {
+                                        set!(pc) = bt.pos;
+                                    }
+                                    BT::Block => {
+                                        set!(pc) = bt.pos + 1;
+                                    }
+                                }
+                                for _ in 0..=*label {
+                                    let mut collect = Vec::new();
+                                    loop {
+                                        let p = pop!();
+                                        if matches!(p, Value::BlockLock) {
+                                            match bt.vt {
+                                                BlockType::Eps => {
+                                                    break;
+                                                }
+                                                BlockType::T(_) => {
+                                                    collect.reverse();
+                                                    push!(unwrap!(collect.pop(), EmptyStack));
+                                                    break;
+                                                }
+                                                BlockType::TypIdx(_) => todo!(),
                                             }
-                                            BlockType::T(_) => {
-                                                collect.reverse();
-                                                push!(unwrap!(collect.pop(), EmptyStack));
-                                                break;
-                                            }
-                                            BlockType::TypIdx(_) => todo!(),
+                                        } else {
+                                            collect.push(p);
                                         }
-                                    } else {
-                                        collect.push(p);
                                     }
                                 }
                             }
@@ -399,9 +413,6 @@ impl Runtime {
                         let mut res = Vec::new();
                         for _ in ty.output.types.iter() {
                             let value = unwrap!(last_f.stack.pop(), EmptyStack);
-                            if matches!(value, Value::BlockLock) {
-                                continue;
-                            }
                             res.push(value)
                         }
                         res.reverse();

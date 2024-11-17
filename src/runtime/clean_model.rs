@@ -88,20 +88,6 @@ impl From<Module> for Model {
             let ty = value.types.function_types[value.funcs.functions[k].0 as usize].clone();
             let mut code = code.code.e.instrs;
 
-            code.insert(
-                0,
-                Instr::block_start(
-                    BT::Block,
-                    0,
-                    BlockType::TypIdx(value.funcs.functions[k].0 as i64),
-                ),
-            );
-            code.push(Instr::block_end(
-                BT::Block,
-                0,
-                BlockType::TypIdx(value.funcs.functions[k].0 as i64),
-            ));
-
             let mut pc = 0;
             while pc < code.len() {
                 match &code[pc] {

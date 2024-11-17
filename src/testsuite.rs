@@ -291,7 +291,7 @@ pub fn test(mut path: String) {
 
     for (test_i, test) in tests.commands.into_iter().enumerate() {
         let test_i = test_i + 1;
-        println!("\n{}/{total_tests}", test_i + 1);
+        // println!("\n{}/{total_tests}", test_i + 1);
         match test {
             Case::Module(module) => {
                 let runtime = runtime.clone();
@@ -367,13 +367,17 @@ pub fn test(mut path: String) {
                 }
                 let mut rt = runtime.borrow_mut();
                 let rt = rt.as_mut().expect("no rt set");
+                let ac = action.clone();
                 handle_action(rt, action, move |rt, _| loop {
                     match rt.step() {
                         Err(RuntimeError::NoFrame(_, _, _)) => {
                             break;
                         }
                         Err(e) => {
-                            error!("{e:?}");
+                            error!("test {test_i}/{total_tests} failed: {e:?} (module: {module_index}, invoke: {:?})", match ac {
+                                Action::Invoke { field, .. } => field,
+                                Action::Get { field,.. } => field,
+                            });
                             std::process::exit(1);
                         }
                         Ok(()) => (),
@@ -404,7 +408,7 @@ pub fn test(mut path: String) {
                             break;
                         }
                         Err(e) => {
-                            error!("{e:?}");
+                            error!("Got error \"{e:?}\", expected error: {text:?} (module: {module_index}, function {field:?})");
                             std::process::exit(1);
                         }
                         Ok(()) => (),

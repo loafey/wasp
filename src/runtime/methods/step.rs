@@ -4,8 +4,8 @@ use super::super::{
     DepthValue, Frame, Runtime, Value,
 };
 use crate::parser::{
-    BlockType, DataIdx, FuncIdx, GlobalIdX, Instr::*, LabelIdX, LocalIdX, MemArg, TableIdX,
-    TypeIdX, BT,
+    BlockType, DataIdx, ElemIdx, FuncIdx, GlobalIdX, Instr::*, LabelIdX, LocalIdX, MemArg,
+    TableIdX, TypeIdX, BT,
 };
 use std::collections::HashMap;
 
@@ -480,7 +480,9 @@ impl Runtime {
                         // println!("\ttable: {table:?}");
 
                         let FuncIdx(id) =
-                            unwrap!(table.get(&(function_index as u32)), MissingTableIndex);
+                            unwrap!(table.get(&(function_index as u32)), |a, b, c| {
+                                UninitializedElement(function_index as u32, a, b, c)
+                            });
 
                         self.stack.push(Frame {
                             func_id: *id,
@@ -761,6 +763,28 @@ impl Runtime {
                         let val = pop!(i32) as u8;
                         let ptr = pop!(i32) as usize;
                         self.memory.bulk_write(ptr, amount, val)?;
+                    }
+                    xfc_12_table_init(ElemIdx(e), TableIdX(t)) => {
+                        let amount = pop!(i32) as u32;
+                        let source = pop!(i32) as u32;
+                        let destination = pop!(i32) as u32;
+                        let elems = unwrap!(self.module.passive_elems.get(e), MissingElementIndex);
+                        let table =
+                            unwrap!(self.module.tables.get_mut(*t as usize), MissingTableIndex);
+
+                        if source + amount > elems.instrs.len() as u32
+                            || destination + source > table.len() as u32
+                        {
+                            throw!(OutOfBoundsTableAccess)
+                        }
+
+                        for i in 0..amount {
+                            let e = match elems.instrs[(i + source) as usize] {
+                                x41_i32_const(i) => FuncIdx(i as u32),
+                                _ => todo!(),
+                            };
+                            table.insert(i + destination, e);
+                        }
                     }
                     block_start(bt, be, vt) => {
                         // println!("block_start: {vt:?}");

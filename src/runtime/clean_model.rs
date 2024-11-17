@@ -2,7 +2,10 @@ use crate::parser::{
     BlockType, Elem, Expr, FuncIdx, FuncType, ImportDesc, Instr, LabelIdX, LocalIdX, Module, Name,
     TableIdX, TypeIdX, BT,
 };
-use std::{collections::HashMap, ops::Deref};
+use std::{
+    collections::HashMap,
+    ops::{Deref, DerefMut},
+};
 
 #[derive(Debug)]
 pub enum Function {
@@ -28,6 +31,11 @@ impl Deref for Table {
 
     fn deref(&self) -> &Self::Target {
         &self.table
+    }
+}
+impl DerefMut for Table {
+    fn deref_mut(&mut self) -> &mut Self::Target {
+        &mut self.table
     }
 }
 
@@ -57,7 +65,7 @@ fn increment_labels(instrs: &mut [Instr], depth: u32) {
 pub struct Model {
     pub functions: HashMap<u32, Function>,
     pub tables: Vec<Table>,
-    pub _passive_elems: HashMap<u32, Expr>,
+    pub passive_elems: HashMap<u32, Expr>,
     pub function_types: HashMap<u32, FuncType>,
 }
 impl From<Module> for Model {
@@ -301,7 +309,7 @@ impl From<Module> for Model {
             functions,
             tables,
             function_types,
-            _passive_elems: passive_elems,
+            passive_elems,
         }
     }
 }

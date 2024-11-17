@@ -17,9 +17,12 @@ pub enum RuntimeError {
     MissingFunction(&'static str, u32, u32),
     MissingJumpLabel(&'static str, u32, u32),
     MissingTableIndex(&'static str, u32, u32),
+    OutOfBoundsTableAccess(&'static str, u32, u32),
     MissingData(&'static str, u32, u32),
     DataInitOutOfRange(&'static str, u32, u32),
+    MissingElementIndex(&'static str, u32, u32),
     TypeError(TypeCheckError),
+    UninitializedElement(u32, &'static str, u32, u32),
     UnknownLabel,
     OutOfBoundsMemoryAccess,
 }
@@ -76,11 +79,20 @@ impl std::fmt::Debug for RuntimeError {
             Self::MissingTableIndex(arg0, arg1, arg2) => {
                 write!(f, "missing table index: {arg0}:{arg1}:{arg2}")
             }
+            Self::MissingElementIndex(arg0, arg1, arg2) => {
+                write!(f, "missing element vector index: {arg0}:{arg1}:{arg2}")
+            }
             Self::DataInitOutOfRange(_, _, _) => {
                 write!(f, "out of bounds memory access")
             }
+            Self::OutOfBoundsTableAccess(_, _, _) => {
+                write!(f, "out of bounds table access")
+            }
             Self::UnknownLabel => {
                 write!(f, "unknown label")
+            }
+            Self::UninitializedElement(u, _, _, _) => {
+                write!(f, "uninitialized element {u}")
             }
         }
     }

@@ -158,6 +158,23 @@ impl<const PAGE_SIZE: usize> Memory<PAGE_SIZE> {
         Ok(())
     }
 
+    pub fn slice_write(&mut self, address: usize, slice: &[u8]) -> Result<(), RuntimeError> {
+        let start_address = address;
+        let start_block = start_address / PAGE_SIZE;
+        let end_address = address + slice.len();
+        let end_block = end_address / PAGE_SIZE;
+
+        if start_block >= self.current_pages || end_block >= self.current_pages {
+            return Err(RuntimeError::OutOfBoundsMemoryAccess);
+        }
+
+        for (i, b) in slice.iter().enumerate() {
+            self.set_u8(address + i, MemArg::default(), *b)?;
+        }
+
+        Ok(())
+    }
+
     pub fn bulk_write(&mut self, address: usize, end: usize, val: u8) -> Result<(), RuntimeError> {
         let start_address = address;
         let start_block = start_address / PAGE_SIZE;

@@ -18,6 +18,7 @@ pub enum RuntimeError {
     MissingJumpLabel(&'static str, u32, u32),
     MissingTableIndex(&'static str, u32, u32),
     MissingData(&'static str, u32, u32),
+    DataInitOutOfRange(&'static str, u32, u32),
     TypeError(TypeCheckError),
     UnknownLabel,
     OutOfBoundsMemoryAccess,
@@ -74,6 +75,9 @@ impl std::fmt::Debug for RuntimeError {
             }
             Self::MissingTableIndex(arg0, arg1, arg2) => {
                 write!(f, "missing table index: {arg0}:{arg1}:{arg2}")
+            }
+            Self::DataInitOutOfRange(_, _, _) => {
+                write!(f, "out of bounds memory access")
             }
             Self::UnknownLabel => {
                 write!(f, "unknown label")

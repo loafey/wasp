@@ -740,10 +740,14 @@ impl Runtime {
                         let source = pop!(i32) as usize;
                         let destination = pop!(i32) as usize;
                         let val = unwrap!(self.datas.get(i), MissingData);
-                        for i in 0..amount {
-                            self.memory
-                                .set(destination + i, MemArg::default(), val[source + i])?;
+                        if source + amount > val.len() {
+                            throw!(DataInitOutOfRange)
                         }
+                        self.memory
+                            .slice_write(destination, &val[source..source + amount])?
+                    }
+                    xfc_9_data_drop(DataIdx(i)) => {
+                        self.datas.insert(*i, Vec::new());
                     }
                     xfc_10_memory_copy(_, _) => {
                         let amount = pop!(i32) as usize;

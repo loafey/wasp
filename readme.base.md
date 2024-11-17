@@ -1,3 +1,3 @@
 # W.A.S.P
 
-## Latest spec test 
+## Latest spec test (typechecking currently disabled)

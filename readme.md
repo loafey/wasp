@@ -1,6 +1,6 @@
 # W.A.S.P
 
-## Latest spec test 
+## Latest spec test (typechecking currently disabled)
 💅: 17\
 💩: 130
 ## Failed: test-suite/test/core/br_if.wast

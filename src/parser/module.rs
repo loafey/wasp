@@ -28,7 +28,6 @@ pub struct Module {
     pub globals: GlobalSection, // globalsec
     pub start: Option<u32>,     // startsec
     pub elems: ElementSection,  //elemsec
-    pub data_count: Vec<()>,    //datacountsec
     pub code: CodeSection,
     pub datas: DataSection,
     pub customs: CustomSection,
@@ -147,7 +146,6 @@ impl Parsable for Module {
             globals,
             start,
             elems: elements,
-            data_count: Vec::new(),
             customs,
         })
     }

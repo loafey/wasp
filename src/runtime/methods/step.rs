@@ -256,9 +256,12 @@ impl Runtime {
                 if *get!(pc) >= code.len() {
                     let mut frame = unwrap!(self.stack.pop(), NoFrame);
                     let last = unwrap!(self.stack.last_mut(), NoFrame);
+                    let mut col = Vec::new();
                     for _ in 0..ty.output.types.len() {
-                        last.stack.push(unwrap!(frame.stack.pop(), EmptyStack));
+                        col.push(unwrap!(frame.stack.pop(), EmptyStack));
                     }
+                    col.reverse();
+                    last.stack.append(&mut col);
                     return Ok(());
                 }
                 let mut instr = &code[*get!(pc)];
@@ -684,6 +687,10 @@ impl Runtime {
                         let x = pop!(u32);
                         push!(i32, (x >= y) as i32)
                     }
+                    x50_i64_eqz => {
+                        let val = pop!(i64);
+                        push!(i32, (val == 0) as i32);
+                    }
                     x52_i64_ne => {
                         let y = pop!(i64);
                         let x = pop!(i64);
@@ -732,6 +739,11 @@ impl Runtime {
                         let y = pop!(i32);
                         let x = pop!(i32);
                         push!(i32, x << y)
+                    }
+                    x7d_i64_sub => {
+                        let y = pop!(i64);
+                        let x = pop!(i64);
+                        push!(i64, x - y)
                     }
                     x7e_i64_mul => {
                         let y = pop!(i64);

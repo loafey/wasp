@@ -65,7 +65,8 @@ impl Parsable for Module {
 
         let mut section_header = [0];
 
-        let mut found_data_count = false;
+        let mut found_data_count = None;
+        let mut found_data_size = None;
 
         let mut start = None;
         let mut parsed_sections = HashSet::new();
@@ -103,23 +104,33 @@ impl Parsable for Module {
                 10 => code.concat(CodeSection::parse(data, stack)?),
                 11 => {
                     let parse = DataSection::parse(data, stack)?;
+                    found_data_size = Some(parse.data.len());
                     datasec.concat(parse);
                 }
                 12 => {
                     let _size = u32::parse(data, stack)? as usize;
-                    found_data_count = true;
                     let size = u32::parse(data, stack)? as usize;
-                    if size != datasec.data.len() {
-                        return Err(ParseError::InvalidDataCount);
-                    }
+                    found_data_count = Some(size);
                 }
                 _ => Err(SectionError::UnknownHeader(Hex(section_header)))?,
             }
         }
+        if let Some((found_data_count, found_data_size)) = found_data_count.zip(found_data_size) {
+            if found_data_count != found_data_size {
+                return Err(ParseError::InvalidDataCount);
+            }
+        } else if found_data_size.is_none() {
+            if let Some(found_data_count) = found_data_count {
+                if found_data_count != 0 {
+                    return Err(ParseError::InvalidDataCount);
+                }
+            }
+        }
+
         if functions.functions.len() != code.code.len() {
             return Err(ParseError::InconsistentFunctionAndCodeSectionLength);
         }
-        if !found_data_count
+        if found_data_count.is_none()
             && code.code.iter().any(|c| {
                 c.code.e.instrs.iter().any(|i| {
                     matches!(

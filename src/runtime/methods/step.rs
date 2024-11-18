@@ -192,6 +192,7 @@ macro_rules! gen_macros {
 
 impl Runtime {
     pub fn step(&mut self) -> Result<(), RuntimeError> {
+        // print!("{} ", self.stack.len());
         macro_rules! unwrap {
             ($expr:expr, $err:expr) => {
                 $expr.ok_or($err(file!(), line!(), column!()))?
@@ -204,6 +205,7 @@ impl Runtime {
 
         match &self.module.functions[get!(func_id)] {
             Function::Import { module, name, .. } => {
+                // println!();
                 // println!("calling {module:?}::{name:?}");
                 match (&*module.0, &*name.0) {
                     #[allow(clippy::print_stdout)]
@@ -250,6 +252,7 @@ impl Runtime {
                 Ok(())
             }
             Function::Local { code, ty, .. } => {
+                // println!("{ty:?}");
                 if *get!(pc) >= code.len() {
                     let mut frame = unwrap!(self.stack.pop(), NoFrame);
                     let last = unwrap!(self.stack.last_mut(), NoFrame);
@@ -260,6 +263,7 @@ impl Runtime {
                 }
                 let mut instr = &code[*get!(pc)];
                 instr = if let comment(_, r) = instr { r } else { instr };
+                // println!("{instr:?}");
                 set!(pc) += 1;
                 match instr {
                     x00_unreachable => {

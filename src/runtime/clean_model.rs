@@ -68,6 +68,15 @@ impl From<Module> for Model {
             functions.insert(k as u32, v);
         }
 
+        // println!(
+        // "{} {} {}",
+        // value.code.code.len(),
+        // value.funcs.functions.len(),
+        // value.types.function_types.len()
+        // );
+        // for v in &value.types.function_types {
+        // println!("{v:?}")
+        // }
         for (k, code) in value.code.code.into_iter().enumerate() {
             let ty = code.code.t;
             let locals = ty.iter().enumerate().map(|(s, _)| s).collect();

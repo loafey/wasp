@@ -283,7 +283,7 @@ pub fn test(mut path: String) {
     )
     .expect("failed to parse test data");
 
-    let runtime = Rc::new(RefCell::new(None));
+    let runtime: Rc<RefCell<Option<Runtime>>> = Rc::new(RefCell::new(None));
 
     let mut skip = false;
     let mut module_index = -1;
@@ -292,6 +292,9 @@ pub fn test(mut path: String) {
     for (test_i, test) in tests.commands.into_iter().enumerate() {
         let test_i = test_i + 1;
         // println!("\n{}/{total_tests}", test_i + 1);
+        if let Some(rt) = &mut *runtime.borrow_mut() {
+            rt.stack = Vec::new();
+        }
         match test {
             Case::Module(module) => {
                 let runtime = runtime.clone();

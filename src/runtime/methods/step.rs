@@ -263,8 +263,10 @@ impl Runtime {
                 }
                 let mut instr = &code[*get!(pc)];
                 instr = if let comment(_, r) = instr { r } else { instr };
+                let instr = instr;
                 // println!("{instr:?}");
                 set!(pc) += 1;
+                println!("{instr:?}");
                 match instr {
                     x00_unreachable => {
                         throw!(Unreachable)
@@ -773,6 +775,13 @@ impl Runtime {
                         let table =
                             unwrap!(self.module.tables.get_mut(*t as usize), MissingTableIndex);
 
+                        println!(
+                            "{} {} {} {:?}",
+                            source + amount,
+                            elems.instrs.len(),
+                            destination + amount,
+                            table.table_length
+                        );
                         let check_1 = source + amount > elems.instrs.len() as u32;
                         let check_2 = destination < table.table_length.0 as u32;
                         let check_3 = destination + amount > table.table_length.1 as u32;
@@ -781,12 +790,16 @@ impl Runtime {
                         }
 
                         for i in 0..amount {
+                            // should crash here
                             let e = match elems.instrs[(i + source) as usize] {
                                 x41_i32_const(i) => FuncIdx(i as u32),
                                 _ => todo!(),
                             };
                             table.insert(i + destination, e);
                         }
+                    }
+                    xfc_13_elem_drop(ElemIdx(i)) => {
+                        self.datas.insert(*i, Vec::new());
                     }
                     block_start(bt, be, vt) => {
                         // println!("block_start: {vt:?}");

@@ -291,7 +291,7 @@ pub fn test(mut path: String) {
 
     for (test_i, test) in tests.commands.into_iter().enumerate() {
         let test_i = test_i + 1;
-        println!("\n{}/{total_tests}", test_i);
+        // println!("\n{}/{total_tests}", test_i);
         if let Some(rt) = &mut *runtime.borrow_mut() {
             rt.stack = Vec::new();
         }
@@ -387,13 +387,28 @@ pub fn test(mut path: String) {
                     }
                 })
             }
-            Case::AssertExhaustion(_) => {
+            Case::AssertExhaustion(AssertExhaustion { _type, action, .. }) => {
                 if skip {
                     continue;
                 }
                 let mut rt = runtime.borrow_mut();
-                let _rt = rt.as_mut().expect("no rt set");
-                todo!("AssertExhaustion")
+                let rt = rt.as_mut().expect("no rt set");
+                let ac = action.clone();
+                handle_action(rt, action, move |rt, _| loop {
+                    match rt.step() {
+                        Err(RuntimeError::StackExhaustion(_, _)) => {
+                            break;
+                        }
+                        Err(e) => {
+                            error!("test {test_i}/{total_tests} failed: {e:?} (module: {module_index}, invoke: {:?})", match ac {
+                                Action::Invoke { field, .. } => field,
+                                Action::Get { field,.. } => field,
+                            });
+                            std::process::exit(1);
+                        }
+                        Ok(()) => {}
+                    }
+                })
             }
             Case::AssertTrap(AssertTrap { action, text, .. }) => {
                 if skip {

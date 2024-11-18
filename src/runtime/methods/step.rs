@@ -192,6 +192,10 @@ macro_rules! gen_macros {
 
 impl Runtime {
     pub fn step(&mut self) -> Result<(), RuntimeError> {
+        if self.stack.len() > u16::MAX as usize {
+            return Err(StackExhaustion(self.stack.len(), u16::MAX as usize));
+        }
+
         // print!("{} ", self.stack.len());
         macro_rules! unwrap {
             ($expr:expr, $err:expr) => {
@@ -696,6 +700,11 @@ impl Runtime {
                         let x = pop!(i64);
                         push!(i64, (x != y) as i64)
                     }
+                    x58_i64_le_u => {
+                        let y = pop!(i64);
+                        let x = pop!(i64);
+                        push!(i32, (x <= y) as i32)
+                    }
                     x5e_f32_gt => {
                         let y = pop!(f32);
                         let x = pop!(f32);
@@ -708,17 +717,17 @@ impl Runtime {
                     x6a_i32_add => {
                         let y = pop!(i32);
                         let x = pop!(i32);
-                        push!(i32, x + y)
+                        push!(i32, x.wrapping_add(y))
                     }
                     x6b_i32_sub => {
                         let y = pop!(i32);
                         let x = pop!(i32);
-                        push!(i32, x - y)
+                        push!(i32, x.wrapping_sub(y))
                     }
                     x6c_i32_mul => {
                         let y = pop!(i32);
                         let x = pop!(i32);
-                        push!(i32, x * y)
+                        push!(i32, x.wrapping_mul(y))
                     }
                     x71_i32_and => {
                         let y = pop!(i32);
@@ -740,15 +749,20 @@ impl Runtime {
                         let x = pop!(i32);
                         push!(i32, x << y)
                     }
+                    x7c_i64_add => {
+                        let y = pop!(i64);
+                        let x = pop!(i64);
+                        push!(i64, x.wrapping_add(y))
+                    }
                     x7d_i64_sub => {
                         let y = pop!(i64);
                         let x = pop!(i64);
-                        push!(i64, x - y)
+                        push!(i64, x.wrapping_sub(y))
                     }
                     x7e_i64_mul => {
                         let y = pop!(i64);
                         let x = pop!(i64);
-                        push!(i64, x * y)
+                        push!(i64, x.wrapping_mul(y))
                     }
                     xad_i64_extend_i32_u => {
                         let x = pop!(u32) as u64;

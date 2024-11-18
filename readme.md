@@ -1,19 +1,26 @@
 # W.A.S.P
 
 ## Latest spec test (typechecking currently disabled)
-💅: 21\
-💩: 126
+💅: 23\
+💩: 124
 ## Failed: test-suite/test/core/call.wast
 ```bash
-thread 'main' panicked at src/testsuite.rs:284:6:
-failed to parse test data: Error("data did not match any variant of untagged enum Case", line: 46, column: 2)
-note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+ ERROR wasp::testsuite > Got error "uninitialized element", expected error: "undefined element" (module: 0, function "as-call_indirect-last")
 ```
 
 ## Failed: test-suite/test/core/call_indirect.wast
 ```bash
-thread 'main' panicked at src/testsuite.rs:284:6:
-failed to parse test data: Error("data did not match any variant of untagged enum Case", line: 100, column: 2)
+thread 'main' panicked at src/testsuite.rs:316:50:
+failed to load module: ParseError(File: "test-suite/test/core/call_indirect.0.wasm"
+UnknownInstruction(<5b>), bin pos: 1864, stack: [
+    "wasp::parser::instr::Instr",
+    "wasp::parser::expr::Expr",
+    "wasp::parser::func::Func",
+    "wasp::parser::code::Code",
+    "alloc::vec::Vec<wasp::parser::code::Code>",
+    "wasp::parser::codesec::CodeSection",
+    "wasp::parser::module::Module",
+])
 note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 ```
 
@@ -180,14 +187,14 @@ note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 
 ## Failed: test-suite/test/core/fac.wast
 ```bash
-thread 'main' panicked at src/testsuite.rs:284:6:
-failed to parse test data: Error("data did not match any variant of untagged enum Case", line: 10, column: 208)
+thread 'main' panicked at src/runtime/methods/step.rs:935:25:
+not implemented: instruction not supported : x51_i64_eq
 note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 ```
 
 ## Failed: test-suite/test/core/float_exprs.wast
 ```bash
-thread 'main' panicked at src/runtime/methods/step.rs:909:25:
+thread 'main' panicked at src/runtime/methods/step.rs:935:25:
 not implemented: instruction not supported : xa2_f64_mul
 note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 ```
@@ -226,7 +233,7 @@ note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 
 ## Failed: test-suite/test/core/func.wast
 ```bash
- ERROR wasp::testsuite > test 9/172 failed (module: 0, invoke: "local-first-i32", error: a local is missing: src/runtime/methods/step.rs:512:59)
+ ERROR wasp::testsuite > test 9/172 failed (module: 0, invoke: "local-first-i32", error: a local is missing: src/runtime/methods/step.rs:519:59)
 ```
 
 ## Failed: test-suite/test/core/func_ptrs.wast
@@ -289,15 +296,8 @@ note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 
 ## Failed: test-suite/test/core/int_exprs.wast
 ```bash
-thread 'main' panicked at src/runtime/methods/step.rs:704:36:
-attempt to add with overflow
-note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
-```
-
-## Failed: test-suite/test/core/int_literals.wast
-```bash
-thread 'main' panicked at src/runtime/methods/step.rs:909:25:
-not implemented: instruction not supported : x7c_i64_add
+thread 'main' panicked at src/runtime/methods/step.rs:935:25:
+not implemented: instruction not supported : x53_i64_lt_s
 note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 ```
 
@@ -333,7 +333,7 @@ note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 
 ## Failed: test-suite/test/core/load.wast
 ```bash
-thread 'main' panicked at src/runtime/methods/step.rs:909:25:
+thread 'main' panicked at src/runtime/methods/step.rs:935:25:
 not implemented: instruction not supported : x67_i32_clz
 note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 ```
@@ -474,7 +474,7 @@ note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 
 ## Failed: test-suite/test/core/nop.wast
 ```bash
-thread 'main' panicked at src/runtime/methods/step.rs:909:25:
+thread 'main' panicked at src/runtime/methods/step.rs:935:25:
 not implemented: instruction not supported : x4c_i32_le_s
 note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 ```
@@ -740,16 +740,9 @@ note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 ```bash
 ```
 
-## Failed: test-suite/test/core/skip-stack-guard-page.wast
-```bash
-thread 'main' panicked at src/testsuite.rs:284:6:
-failed to parse test data: Error("data did not match any variant of untagged enum Case", line: 5, column: 2)
-note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
-```
-
 ## Failed: test-suite/test/core/stack.wast
 ```bash
-thread 'main' panicked at src/runtime/methods/step.rs:909:25:
+thread 'main' panicked at src/runtime/methods/step.rs:935:25:
 not implemented: instruction not supported : x51_i64_eq
 note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 ```
@@ -831,14 +824,14 @@ note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 
 ## Failed: test-suite/test/core/traps.wast
 ```bash
-thread 'main' panicked at src/runtime/methods/step.rs:909:25:
+thread 'main' panicked at src/runtime/methods/step.rs:935:25:
 not implemented: instruction not supported : x6d_i32_div_s
 note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 ```
 
 ## Failed: test-suite/test/core/unreachable.wast
 ```bash
- ERROR wasp::testsuite > Got error "hit an unreachable code segment: src/runtime/methods/step.rs:271:25", expected error: "unreachable" (module: 0, function "type-i32")
+ ERROR wasp::testsuite > Got error "hit an unreachable code segment: src/runtime/methods/step.rs:278:25", expected error: "unreachable" (module: 0, function "type-i32")
 ```
 
 ## Failed: test-suite/test/core/unreached-invalid.wast
@@ -864,7 +857,7 @@ note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 
 ## Failed: test-suite/test/core/unwind.wast
 ```bash
- ERROR wasp::testsuite > Got error "hit an unreachable code segment: src/runtime/methods/step.rs:271:25", expected error: "unreachable" (module: 0, function "func-unwind-by-unreachable")
+ ERROR wasp::testsuite > Got error "hit an unreachable code segment: src/runtime/methods/step.rs:278:25", expected error: "unreachable" (module: 0, function "func-unwind-by-unreachable")
 ```
 
 ## Failed: test-suite/test/core/utf8-custom-section-id.wast

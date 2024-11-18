@@ -4,6 +4,7 @@ use crate::parser::{
 use std::{
     collections::HashMap,
     ops::{Deref, DerefMut},
+    u32,
 };
 
 #[derive(Debug)]
@@ -236,12 +237,18 @@ impl From<Module> for Model {
             .tables
             .tables
             .into_iter()
-            .map(|t| Table {
-                table: HashMap::new(),
-                table_length: match t.lim {
+            .map(|t| {
+                let table_length = match t.lim {
                     Limits::Min(m) => (0, m as usize),
                     Limits::MinMax(n, m) => (n as usize, m as usize),
-                },
+                };
+                let table = (table_length.0..table_length.1)
+                    .map(|a| (a as u32, FuncIdx(u32::MAX)))
+                    .collect();
+                Table {
+                    table,
+                    table_length,
+                }
             })
             .collect();
 

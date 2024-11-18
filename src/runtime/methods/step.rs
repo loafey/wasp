@@ -485,6 +485,9 @@ impl Runtime {
 
                         let FuncIdx(id) =
                             unwrap!(table.get(&(function_index as u32)), UninitializedElement);
+                        if *id == u32::MAX {
+                            throw!(UninitializedElement)
+                        }
 
                         self.stack.push(Frame {
                             func_id: *id,
@@ -792,6 +795,33 @@ impl Runtime {
                     }
                     xfc_13_elem_drop(ElemIdx(i)) => {
                         self.module.elems.insert(*i, Expr { instrs: Vec::new() });
+                    }
+                    xfc_14_table_copy(TableIdX(a), TableIdX(b)) => {
+                        let amount = pop!(i32) as u32;
+                        let source = pop!(i32) as u32;
+                        let destination = pop!(i32) as u32;
+
+                        let a = unwrap!(self.module.tables.get(*a as usize), MissingTableIndex);
+                        let check_1 = source + amount > a.len() as u32;
+                        let mut clones = Vec::new();
+                        for i in 0..amount {
+                            let index = i + source;
+                            let f = unwrap!(a.get(&index), OutOfBoundsTableAccess);
+                            clones.push(*f);
+                        }
+
+                        let b = unwrap!(self.module.tables.get_mut(*b as usize), MissingTableIndex);
+                        let check_2 = destination < b.table_length.0 as u32;
+                        let check_3 = destination + amount > b.table_length.1 as u32;
+
+                        if check_1 || check_2 || check_3 {
+                            throw!(OutOfBoundsTableAccess)
+                        }
+
+                        for (i, v) in clones.into_iter().enumerate() {
+                            let index = i as u32 + destination;
+                            b.insert(index, v);
+                        }
                     }
                     block_start(bt, be, vt) => {
                         // println!("block_start: {vt:?}");

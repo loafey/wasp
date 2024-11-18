@@ -1,15 +1,8 @@
 # W.A.S.P
 
 ## Latest spec test (typechecking currently disabled)
-💅: 20\
-💩: 127
-## Failed: test-suite/test/core/bulk.wast
-```bash
-thread 'main' panicked at src/runtime/typecheck.rs:471:44:
-not yet implemented
-note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
-```
-
+💅: 21\
+💩: 126
 ## Failed: test-suite/test/core/call.wast
 ```bash
 thread 'main' panicked at src/testsuite.rs:284:6:
@@ -194,7 +187,7 @@ note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 
 ## Failed: test-suite/test/core/float_exprs.wast
 ```bash
-thread 'main' panicked at src/runtime/methods/step.rs:879:25:
+thread 'main' panicked at src/runtime/methods/step.rs:909:25:
 not implemented: instruction not supported : xa2_f64_mul
 note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 ```
@@ -233,7 +226,7 @@ note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 
 ## Failed: test-suite/test/core/func.wast
 ```bash
- ERROR wasp::testsuite > test 9/172 failed (module: 0, invoke: "local-first-i32", error: a local is missing: src/runtime/methods/step.rs:509:59)
+ ERROR wasp::testsuite > test 9/172 failed (module: 0, invoke: "local-first-i32", error: a local is missing: src/runtime/methods/step.rs:512:59)
 ```
 
 ## Failed: test-suite/test/core/func_ptrs.wast
@@ -296,14 +289,14 @@ note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 
 ## Failed: test-suite/test/core/int_exprs.wast
 ```bash
-thread 'main' panicked at src/runtime/methods/step.rs:701:36:
+thread 'main' panicked at src/runtime/methods/step.rs:704:36:
 attempt to add with overflow
 note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 ```
 
 ## Failed: test-suite/test/core/int_literals.wast
 ```bash
-thread 'main' panicked at src/runtime/methods/step.rs:879:25:
+thread 'main' panicked at src/runtime/methods/step.rs:909:25:
 not implemented: instruction not supported : x7c_i64_add
 note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 ```
@@ -340,7 +333,7 @@ note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 
 ## Failed: test-suite/test/core/load.wast
 ```bash
-thread 'main' panicked at src/runtime/methods/step.rs:879:25:
+thread 'main' panicked at src/runtime/methods/step.rs:909:25:
 not implemented: instruction not supported : x67_i32_clz
 note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 ```
@@ -481,7 +474,7 @@ note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 
 ## Failed: test-suite/test/core/nop.wast
 ```bash
-thread 'main' panicked at src/runtime/methods/step.rs:879:25:
+thread 'main' panicked at src/runtime/methods/step.rs:909:25:
 not implemented: instruction not supported : x4c_i32_le_s
 note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 ```
@@ -756,7 +749,7 @@ note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 
 ## Failed: test-suite/test/core/stack.wast
 ```bash
-thread 'main' panicked at src/runtime/methods/step.rs:879:25:
+thread 'main' panicked at src/runtime/methods/step.rs:909:25:
 not implemented: instruction not supported : x51_i64_eq
 note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 ```
@@ -775,9 +768,7 @@ note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 
 ## Failed: test-suite/test/core/table.wast
 ```bash
-thread 'main' panicked at src/parser/tabletype.rs:13:9:
-not yet implemented
-note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+memory allocation of 77309411344 bytes failed
 ```
 
 ## Failed: test-suite/test/core/table_copy.wast
@@ -840,7 +831,7 @@ note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 
 ## Failed: test-suite/test/core/traps.wast
 ```bash
-thread 'main' panicked at src/runtime/methods/step.rs:879:25:
+thread 'main' panicked at src/runtime/methods/step.rs:909:25:
 not implemented: instruction not supported : x6d_i32_div_s
 note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 ```

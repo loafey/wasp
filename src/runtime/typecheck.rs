@@ -468,7 +468,7 @@ pub fn check(
                 xfc_11_memory_fill(_) => t!(i32, i32, i32 -> ()),
                 xfc_12_table_init(_, _) => t!(i32, i32, i32 -> ()),
                 xfc_13_elem_drop(_) => t!(),
-                xfc_14_table_copy(_, _) => todo!(),
+                xfc_14_table_copy(_, _) => t!(i32, i32, i32 -> ()),
                 xfc_15_table_grow(_) => todo!(),
                 xfc_16_table_size(_) => todo!(),
                 xfc_17_table_fill(_) => todo!(),

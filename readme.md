@@ -1,16 +1,16 @@
 # W.A.S.P
 
 ## Latest spec test (typechecking currently disabled)
-💅: 19\
-💩: 128
-## Failed: test-suite/test/core/binary.wast
-```bash
- ERROR wasp::testsuite > test 65/136 did not fail invalidating/parsing, expected error: "data count and data section have inconsistent lengths" (module: "test-suite/test/core/binary.64.wasm")
-```
-
+💅: 20\
+💩: 127
 ## Failed: test-suite/test/core/bulk.wast
 ```bash
- ERROR wasp::testsuite > test 77/117 failed: empty stack: src/runtime/methods/step.rs:257:41 (module: 8, invoke: "init")
+thread 'main' panicked at src/testsuite.rs:313:50:
+failed to load module: ParseError(File: "test-suite/test/core/bulk.4.wasm"
+InvalidDataCount, bin pos: 55, stack: [
+    "wasp::parser::module::Module",
+])
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 ```
 
 ## Failed: test-suite/test/core/call.wast
@@ -442,7 +442,12 @@ note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 
 ## Failed: test-suite/test/core/memory_init.wast
 ```bash
- ERROR wasp::testsuite > test 130/240 did not fail invalidating/parsing, expected error: "unknown data segment" (module: "test-suite/test/core/memory_init.5.wasm")
+thread 'main' panicked at src/testsuite.rs:313:50:
+failed to load module: ParseError(File: "test-suite/test/core/memory_init.1.wasm"
+InvalidDataCount, bin pos: 63, stack: [
+    "wasp::parser::module::Module",
+])
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 ```
 
 ## Failed: test-suite/test/core/memory_size.wast

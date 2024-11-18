@@ -43,7 +43,7 @@ impl DerefMut for Table {
 pub struct Model {
     pub functions: HashMap<u32, Function>,
     pub tables: Vec<Table>,
-    pub passive_elems: HashMap<u32, Expr>,
+    pub elems: HashMap<u32, Expr>,
     pub function_types: HashMap<u32, FuncType>,
 }
 impl From<Module> for Model {
@@ -245,7 +245,7 @@ impl From<Module> for Model {
             })
             .collect();
 
-        let mut passive_elems = HashMap::new();
+        let mut elems = HashMap::new();
         for (i, elem) in value.elems.elems.into_iter().enumerate() {
             match elem {
                 Elem::E0(expr, vec) => match &expr.instrs[..] {
@@ -253,11 +253,12 @@ impl From<Module> for Model {
                         for (i, v) in vec.into_iter().enumerate() {
                             tables[0].table.insert(*off as u32 + i as u32, v);
                         }
+                        elems.insert(i as u32, expr.clone());
                     }
                     _ => panic!(),
                 },
                 Elem::E1(_fr, funcs) => {
-                    passive_elems.insert(
+                    elems.insert(
                         i as u32,
                         Expr {
                             instrs: funcs
@@ -269,8 +270,17 @@ impl From<Module> for Model {
                 }
                 Elem::E2(TableIdX(t), expr, _rt, vec) => match &expr.instrs[..] {
                     [Instr::x41_i32_const(off)] => {
-                        for (i, v) in vec.into_iter().enumerate() {
-                            tables[t as usize].table.insert(*off as u32 + i as u32, v);
+                        elems.insert(
+                            i as u32,
+                            Expr {
+                                instrs: vec
+                                    .iter()
+                                    .map(|FuncIdx(i)| Instr::x41_i32_const(*i as i32))
+                                    .collect(),
+                            },
+                        );
+                        for (i, v) in vec.iter().enumerate() {
+                            tables[t as usize].table.insert(*off as u32 + i as u32, *v);
                         }
                     }
                     _ => panic!(),
@@ -280,7 +290,7 @@ impl From<Module> for Model {
                 Elem::E5(_rt, vec) => {
                     // might be wrong
                     for expr in vec {
-                        passive_elems.insert(i as u32, expr);
+                        elems.insert(i as u32, expr);
                     }
                 }
                 Elem::E6(_, _, _, _) => todo!(),
@@ -300,7 +310,7 @@ impl From<Module> for Model {
             functions,
             tables,
             function_types,
-            passive_elems,
+            elems,
         }
     }
 }

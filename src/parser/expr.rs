@@ -1,6 +1,6 @@
 use super::{error::ParseError, Instr, Parsable};
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 #[allow(unused)]
 pub struct Expr {
     pub instrs: Vec<Instr>,

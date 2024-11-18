@@ -4,7 +4,7 @@ use super::super::{
     DepthValue, Frame, Runtime, Value,
 };
 use crate::parser::{
-    BlockType, DataIdx, ElemIdx, FuncIdx, GlobalIdX, Instr::*, LabelIdX, LocalIdX, MemArg,
+    BlockType, DataIdx, ElemIdx, Expr, FuncIdx, GlobalIdX, Instr::*, LabelIdX, LocalIdX, MemArg,
     TableIdX, TypeIdX, BT,
 };
 use std::collections::HashMap;
@@ -266,7 +266,6 @@ impl Runtime {
                 let instr = instr;
                 // println!("{instr:?}");
                 set!(pc) += 1;
-                println!("{instr:?}");
                 match instr {
                     x00_unreachable => {
                         throw!(Unreachable)
@@ -771,17 +770,10 @@ impl Runtime {
                         let amount = pop!(i32) as u32;
                         let source = pop!(i32) as u32;
                         let destination = pop!(i32) as u32;
-                        let elems = unwrap!(self.module.passive_elems.get(e), MissingElementIndex);
+                        let elems = unwrap!(self.module.elems.get(e), MissingElementIndex);
                         let table =
                             unwrap!(self.module.tables.get_mut(*t as usize), MissingTableIndex);
 
-                        println!(
-                            "{} {} {} {:?}",
-                            source + amount,
-                            elems.instrs.len(),
-                            destination + amount,
-                            table.table_length
-                        );
                         let check_1 = source + amount > elems.instrs.len() as u32;
                         let check_2 = destination < table.table_length.0 as u32;
                         let check_3 = destination + amount > table.table_length.1 as u32;
@@ -799,7 +791,7 @@ impl Runtime {
                         }
                     }
                     xfc_13_elem_drop(ElemIdx(i)) => {
-                        self.datas.insert(*i, Vec::new());
+                        self.module.elems.insert(*i, Expr { instrs: Vec::new() });
                     }
                     block_start(bt, be, vt) => {
                         // println!("block_start: {vt:?}");

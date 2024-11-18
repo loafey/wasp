@@ -481,12 +481,9 @@ impl Runtime {
                         //     "Call info ({}): \n\tinputs: {locals:?}\n\tfunction_index: {function_index}",
                         //     f.func_id
                         // );
-                        // println!("\ttable: {table:?}");
 
                         let FuncIdx(id) =
-                            unwrap!(table.get(&(function_index as u32)), |a, b, c| {
-                                UninitializedElement(function_index as u32, a, b, c)
-                            });
+                            unwrap!(table.get(&(function_index as u32)), UninitializedElement);
 
                         self.stack.push(Frame {
                             func_id: *id,

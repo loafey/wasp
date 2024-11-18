@@ -22,7 +22,7 @@ pub enum RuntimeError {
     DataInitOutOfRange(&'static str, u32, u32),
     MissingElementIndex(&'static str, u32, u32),
     TypeError(TypeCheckError),
-    UninitializedElement(u32, &'static str, u32, u32),
+    UninitializedElement(&'static str, u32, u32),
     UnknownLabel,
     OutOfBoundsMemoryAccess,
 }
@@ -91,8 +91,8 @@ impl std::fmt::Debug for RuntimeError {
             Self::UnknownLabel => {
                 write!(f, "unknown label")
             }
-            Self::UninitializedElement(u, _, _, _) => {
-                write!(f, "uninitialized element {u}")
+            Self::UninitializedElement(_arg0, _arg1, _arg2) => {
+                write!(f, "uninitialized element")
             }
         }
     }

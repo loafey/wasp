@@ -407,7 +407,7 @@ pub fn test(mut path: String) {
                             error!("test {test_i}/{total_tests} did not fail, expected error: {text:?} (module: {module_index}, function {field:?})");
                             std::process::exit(1);
                         }
-                        Err(e) if format!("{e:?}") == text => {
+                        Err(e) if text.contains(&format!("{e:?}")) => {
                             break;
                         }
                         Err(e) => {

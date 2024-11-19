@@ -716,10 +716,30 @@ impl Runtime {
                         let x = pop!(i64);
                         push!(i32, (x <= y) as i32)
                     }
+                    x5b_f32_eq => {
+                        let y = pop!(f32);
+                        let x = pop!(f32);
+                        push!(i32, (x == y) as i32)
+                    }
                     x5e_f32_gt => {
                         let y = pop!(f32);
                         let x = pop!(f32);
-                        push!(i32, (x < y) as i32)
+                        push!(i32, (x > y) as i32)
+                    }
+                    x5f_f32_le => {
+                        let y = pop!(f32);
+                        let x = pop!(f32);
+                        push!(i32, (x <= y) as i32)
+                    }
+                    x61_f64_eq => {
+                        let y = pop!(f64);
+                        let x = pop!(f64);
+                        push!(i32, (x == y) as i32)
+                    }
+                    x65_f64_le => {
+                        let y = pop!(f64);
+                        let x = pop!(f64);
+                        push!(i32, (x <= y) as i32)
                     }
                     x68_i32_ctz => {
                         let x = pop!(i32);
@@ -778,6 +798,36 @@ impl Runtime {
                     x91_f32_sqrt => {
                         let x = pop!(f32);
                         push!(f32, x.sqrt())
+                    }
+                    x92_f32_add => {
+                        let y = pop!(f32);
+                        let x = pop!(f32);
+                        push!(f32, x + y)
+                    }
+                    x93_f32_sub => {
+                        let y = pop!(f32);
+                        let x = pop!(f32);
+                        push!(f32, x - y)
+                    }
+                    x94_f32_mul => {
+                        let y = pop!(f32);
+                        let x = pop!(f32);
+                        push!(f32, x * y)
+                    }
+                    xa0_f64_add => {
+                        let y = pop!(f64);
+                        let x = pop!(f64);
+                        push!(f64, x + y)
+                    }
+                    xa1_f64_sub => {
+                        let y = pop!(f64);
+                        let x = pop!(f64);
+                        push!(f64, x - y)
+                    }
+                    xa2_f64_mul => {
+                        let y = pop!(f64);
+                        let x = pop!(f64);
+                        push!(f64, x * y)
                     }
                     xac_i64_extend_i32_s => {
                         let x = pop!(i32) as i64;

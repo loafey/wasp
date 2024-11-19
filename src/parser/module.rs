@@ -79,12 +79,14 @@ impl Parsable for Module {
                     _ => Err(e)?,
                 }
             }
-            if section_header[0] != 12 && parsed_sections.contains(&section_header[0]) {
-                return Err(ParseError::DuplicateSection(section_header[0] as u32));
-            }
-            parsed_sections.insert(section_header[0]);
-            if last_section > section_header[0] && last_section != 12 {
-                return Err(ParseError::OutOfOrderSection);
+            if section_header[0] != 0 {
+                if section_header[0] != 12 && parsed_sections.contains(&section_header[0]) {
+                    return Err(ParseError::DuplicateSection(section_header[0] as u32));
+                }
+                parsed_sections.insert(section_header[0]);
+                if last_section > section_header[0] && last_section != 12 {
+                    return Err(ParseError::OutOfOrderSection);
+                }
             }
             last_section = section_header[0];
             match section_header[0] {

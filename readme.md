@@ -1,20 +1,8 @@
 # W.A.S.P
 
 ## Latest spec test (typechecking currently disabled)
-💅: 27\
-💩: 120
-## Failed: test-suite/test/core/custom.wast
-```bash
-thread 'main' panicked at src/testsuite.rs:325:50:
-failed to load module: ParseError(File: "test-suite/test/core/custom.0.wasm"
-SectionSizeMismatch(46, 267), bin pos: 267, stack: [
-    "u8",
-    "wasp::parser::customsec::CustomSection",
-    "wasp::parser::module::Module",
-])
-note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
-```
-
+💅: 28\
+💩: 119
 ## Failed: test-suite/test/core/data.wast
 ```bash
 thread 'main' panicked at src/testsuite.rs:325:50:

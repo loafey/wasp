@@ -36,13 +36,8 @@ impl Parsable for CustomSection {
 
         let name = Name::parse(data, stack)?;
         let mut section = Vec::new();
-        loop {
-            let value = u8::parse(data, stack);
-            match value {
-                Ok(v) => section.push(v),
-                Err(ParseError::IOError(e)) if e.kind() == ErrorKind::UnexpectedEof => break,
-                Err(e) => Err(e)?,
-            }
+        for _ in data.position()..expected {
+            section.push(u8::parse(data, stack)?)
         }
 
         if data.position() != expected {

@@ -6,7 +6,7 @@ use super::super::{
 };
 use crate::{
     parser::{
-        self, Elem, ExportDesc, FuncIdx, Global,
+        self, Elem, ExportDesc, FuncIdx, Global, GlobalIdX,
         Instr::{self, *},
         LabelIdX, MemArg, MemIdX, Module, Parsable, TableIdX, TypeIdX,
     },
@@ -40,6 +40,18 @@ impl Runtime {
             }
         };
 
+        let mut globals = HashMap::new();
+        for (i, Global { e, .. }) in module.globals.globals.iter().enumerate() {
+            let val = match e.instrs[0] {
+                x41_i32_const(x) => Value::I32(x),
+                x42_i64_const(x) => Value::I64(x),
+                x43_f32_const(x) => Value::F32(x),
+                x44_f64_const(x) => Value::F64(x),
+                _ => return Err(GlobalWithoutValue),
+            };
+            globals.insert(i as u32, val);
+        }
+
         let (mem_cur, mem_max) = module
             .mems
             .mems
@@ -54,8 +66,15 @@ impl Runtime {
         for (i, d) in module.datas.data.iter().enumerate() {
             match d {
                 parser::Data::ActiveX(MemIdX(0), e, vec) | parser::Data::Active(e, vec) => {
-                    let [Instr::x41_i32_const(p)] = &e.instrs[..] else {
-                        return Err(ActiveDataWithoutOffset);
+                    let p = match &e.instrs[..] {
+                        [Instr::x41_i32_const(p)] => p,
+                        [Instr::x23_global_get(GlobalIdX(i))] => {
+                            todo!("{:?}", globals.get(i));
+                        }
+                        _ => {
+                            error!("{:?}", e.instrs);
+                            return Err(ActiveDataWithoutOffset);
+                        }
                     };
                     for (i, v) in vec.iter().enumerate() {
                         memory.set(
@@ -93,17 +112,6 @@ impl Runtime {
         } else {
             Vec::new()
         };
-        let mut globals = HashMap::new();
-        for (i, Global { e, .. }) in module.globals.globals.iter().enumerate() {
-            let val = match e.instrs[0] {
-                x41_i32_const(x) => Value::I32(x),
-                x42_i64_const(x) => Value::I64(x),
-                x43_f32_const(x) => Value::F32(x),
-                x44_f64_const(x) => Value::F64(x),
-                _ => return Err(GlobalWithoutValue),
-            };
-            globals.insert(i as u32, val);
-        }
 
         let exports = module
             .exports

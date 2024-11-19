@@ -23,6 +23,7 @@ pub enum RuntimeError {
     MissingElementIndex(&'static str, u32, u32),
     TypeError(TypeCheckError),
     UninitializedElement(&'static str, u32, u32),
+    UndefinedElement(&'static str, u32, u32),
     UnknownLabel,
     OutOfBoundsMemoryAccess,
     StackExhaustion(usize, usize),
@@ -94,6 +95,9 @@ impl std::fmt::Debug for RuntimeError {
             }
             Self::UnknownLabel => {
                 write!(f, "unknown label")
+            }
+            Self::UndefinedElement(_arg0, _arg1, _arg2) => {
+                write!(f, "undefined element")
             }
             Self::UninitializedElement(_arg0, _arg1, _arg2) => {
                 write!(f, "uninitialized element")

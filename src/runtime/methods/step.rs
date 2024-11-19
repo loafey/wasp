@@ -491,7 +491,7 @@ impl Runtime {
                         // );
 
                         let FuncIdx(id) =
-                            unwrap!(table.get(&(function_index as u32)), UninitializedElement);
+                            unwrap!(table.get(&(function_index as u32)), UndefinedElement);
                         if *id == u32::MAX {
                             throw!(UninitializedElement)
                         }

@@ -1,3 +1,5 @@
+use egui::emath::Numeric;
+
 use super::super::{
     clean_model::Function,
     error::{RuntimeError, RuntimeError::*},
@@ -7,6 +9,7 @@ use crate::parser::{
     BlockType, DataIdx, ElemIdx, Expr, FuncIdx, GlobalIdX, Instr::*, LabelIdX, LocalIdX, MemArg,
     RefTyp, TableIdX, TypeIdX, BT,
 };
+use core::f64;
 use std::{collections::HashMap, ops::Rem};
 
 macro_rules! gen_macros {
@@ -852,7 +855,6 @@ impl Runtime {
                             throw!(IntegerOverflow);
                         }
                         let y = x.trunc() as i32;
-                        // println!("--------------\n{}\n{x}\n{y}", i32::MAX);
                         push!(i32, y)
                     }
                     xa9_i32_trunc_f32_u => {
@@ -866,6 +868,28 @@ impl Runtime {
                         let y = x as u32;
                         push!(u32, y)
                     }
+                    xaa_i32_trunc_f64_s => {
+                        let x = pop!(f64).trunc();
+                        if x.is_nan() {
+                            throw!(InvalidConversionToInteger)
+                        }
+                        if x > i32::MAX as f64 || x < i32::MIN as f64 {
+                            throw!(IntegerOverflow);
+                        }
+                        let y = x as i32;
+                        push!(i32, y)
+                    }
+                    xab_i32_trunc_f64_u => {
+                        let x = pop!(f64).trunc();
+                        if x.is_nan() {
+                            throw!(InvalidConversionToInteger)
+                        }
+                        if x > u32::MAX as f64 || x < 0.0 {
+                            throw!(IntegerOverflow);
+                        }
+                        let y = x as u32;
+                        push!(u32, y)
+                    }
                     xac_i64_extend_i32_s => {
                         let x = pop!(i32) as i64;
                         push!(i64, x)
@@ -874,10 +898,245 @@ impl Runtime {
                         let x = pop!(u32) as u64;
                         push!(u64, x)
                     }
+                    xae_i64_trunc_f32_s => {
+                        let x = pop!(f32);
+                        if x.is_nan() {
+                            throw!(InvalidConversionToInteger)
+                        }
+                        if x >= i64::MAX as f32 || x < i64::MIN as f32 {
+                            throw!(IntegerOverflow);
+                        }
+                        let y = x.trunc() as i64;
+                        push!(i64, y)
+                    }
+                    xaf_i64_trunc_f32_u => {
+                        let x = pop!(f32).trunc();
+                        if x.is_nan() {
+                            throw!(InvalidConversionToInteger)
+                        }
+                        if x >= u64::MAX as f32 || x < 0.0 {
+                            throw!(IntegerOverflow);
+                        }
+                        let y = x as u64;
+                        push!(u64, y)
+                    }
+                    xb0_i64_trunc_f64_s => {
+                        let x = pop!(f64);
+                        if x.is_nan() {
+                            throw!(InvalidConversionToInteger)
+                        }
+                        if x >= i64::MAX as f64 || x < i64::MIN as f64 {
+                            throw!(IntegerOverflow);
+                        }
+                        let y = x.trunc() as i64;
+                        push!(i64, y)
+                    }
+                    xb1_i64_trunc_f64_u => {
+                        let x = pop!(f64).trunc();
+                        if x.is_nan() {
+                            throw!(InvalidConversionToInteger)
+                        }
+                        if x >= u64::MAX as f64 || x < 0.0 {
+                            throw!(IntegerOverflow);
+                        }
+                        let y = x as u64;
+                        push!(u64, y)
+                    }
+                    xb2_f32_convert_i32_s => {
+                        let x = pop!(i32) as f32;
+                        push!(f32, x)
+                    }
+                    xb3_f32_convert_i32_u => {
+                        let x = pop!(u32) as f32;
+                        push!(f32, x)
+                    }
+                    xb4_f32_convert_i64_s => {
+                        let x = pop!(i64) as f32;
+                        push!(f32, x)
+                    }
+                    xb5_f32_convert_i64_u => {
+                        let x = pop!(u64) as f32;
+                        push!(f32, x)
+                    }
+                    xb6_f32_demote_f64 => {
+                        let x = pop!(f64);
+                        if x.is_nan() {
+                            // very ugly
+                            if x.to_bits()
+                                & 0b0111111111110100000000000000000000000000000000000000000000000000
+                                == 0b0111111111110100000000000000000000000000000000000000000000000000 {
+                                push!(f32, f32::from_bits(0b11010100000000000000000000000000))
+                            } else if x.to_bits()
+                                & 0b0011111111100000000000000000000000000000000000000000000000000000
+                                == 0b0011111111100000000000000000000000000000000000000000000000000000
+                                && x.to_bits() & 0b1 == 0
+                            {
+                                push!(f32, f32::from_bits(0b10000000000000000000000000000000))
+                            } else {
+                                push!(f32, f32::from_bits(0b11010100000000000000000000000000))
+                            }
+                        } else {
+                            let y = x as f32;
+                            push!(f32, y)
+                        }
+                    }
+
+                    xb7_f64_convert_i32_s => {
+                        let x = pop!(i32) as f64;
+                        push!(f64, x)
+                    }
+                    xb8_f64_convert_i32_u => {
+                        let x = pop!(u32) as f64;
+                        push!(f64, x)
+                    }
+                    xb9_f64_convert_i64_s => {
+                        let x = pop!(i64) as f64;
+                        push!(f64, x)
+                    }
+                    xba_f64_convert_i64_u => {
+                        let x = pop!(u64) as f64;
+                        push!(f64, x)
+                    }
+                    xbb_f64_promote_f32 => {
+                        let x = pop!(f32);
+                        if x.is_nan() {
+                            // very ugly
+                            if x.to_bits() & 0b01111111110000000000000000000000
+                                == 0b01111111110000000000000000000000
+                            {
+                                push!(f64, f64::from_bits(0b0100000000000000000000000000000000000000000000000000000000000000))
+                            } else {
+                                push!(f64, f64::from_bits(0b0110101000000000000000000000000000000000000000000000000000000000))
+                            }
+                        } else {
+                            let y = x as f64;
+                            push!(f64, y)
+                        }
+                    }
+                    xbc_i32_reinterpret_f32 => {
+                        let x = pop!(f32);
+                        push!(u32, x.to_bits());
+                    }
+                    xbd_i64_reinterpret_f64 => {
+                        let x = pop!(f64);
+                        push!(u64, x.to_bits());
+                    }
+                    xbe_f32_reinterpret_i32 => {
+                        let x = pop!(u32);
+                        push!(f32, f32::from_bits(x));
+                    }
+                    xbf_f64_reinterpret_i64 => {
+                        let x = pop!(u64);
+                        push!(f64, f64::from_bits(x));
+                    }
                     xd0_ref_null(x) => match x {
                         RefTyp::FuncRef => todo!(),
                         RefTyp::ExternRef => todo!(),
                     },
+                    xfc_0_i32_trunc_sat_f32_s => {
+                        let x = pop!(f32);
+                        if x.is_nan() {
+                            push!(i32, 0);
+                        } else if x >= i32::MAX as f32 {
+                            push!(i32, i32::MAX)
+                        } else if x < i32::MIN as f32 {
+                            push!(i32, i32::MIN)
+                        } else {
+                            let y = x.trunc() as i32;
+                            push!(i32, y)
+                        }
+                    }
+                    xfc_1_i32_trunc_sat_f32_u => {
+                        let x = pop!(f32);
+                        if x.is_nan() {
+                            push!(u32, 0);
+                        } else if x >= u32::MAX as f32 {
+                            push!(u32, u32::MAX)
+                        } else if x < u32::MIN as f32 {
+                            push!(u32, u32::MIN)
+                        } else {
+                            let y = x.trunc() as u32;
+                            push!(u32, y)
+                        }
+                    }
+                    xfc_2_i32_trunc_sat_f64_s => {
+                        let x = pop!(f64);
+                        if x.is_nan() {
+                            push!(i32, 0);
+                        } else if x >= i32::MAX as f64 {
+                            push!(i32, i32::MAX)
+                        } else if x < i32::MIN as f64 {
+                            push!(i32, i32::MIN)
+                        } else {
+                            let y = x.trunc() as i32;
+                            push!(i32, y)
+                        }
+                    }
+                    xfc_3_i32_trunc_sat_f64_u => {
+                        let x = pop!(f64);
+                        if x.is_nan() {
+                            push!(u32, 0);
+                        } else if x >= u32::MAX as f64 {
+                            push!(u32, u32::MAX)
+                        } else if x < u32::MIN as f64 {
+                            push!(u32, u32::MIN)
+                        } else {
+                            let y = x.trunc() as u32;
+                            push!(u32, y)
+                        }
+                    }
+                    xfc_4_i64_trunc_sat_f32_s => {
+                        let x = pop!(f32);
+                        if x.is_nan() {
+                            push!(i64, 0);
+                        } else if x >= i64::MAX as f32 {
+                            push!(i64, i64::MAX)
+                        } else if x < i64::MIN as f32 {
+                            push!(i64, i64::MIN)
+                        } else {
+                            let y = x.trunc() as i64;
+                            push!(i64, y)
+                        }
+                    }
+                    xfc_5_i64_trunc_sat_f32_u => {
+                        let x = pop!(f32);
+                        if x.is_nan() {
+                            push!(u64, 0);
+                        } else if x >= u64::MAX as f32 {
+                            push!(u64, u64::MAX)
+                        } else if x < u64::MIN as f32 {
+                            push!(u64, u64::MIN)
+                        } else {
+                            let y = x.trunc() as u64;
+                            push!(u64, y)
+                        }
+                    }
+                    xfc_6_i64_trunc_sat_f64_s => {
+                        let x = pop!(f64);
+                        if x.is_nan() {
+                            push!(i64, 0);
+                        } else if x >= i64::MAX as f64 {
+                            push!(i64, i64::MAX)
+                        } else if x < i64::MIN as f64 {
+                            push!(i64, i64::MIN)
+                        } else {
+                            let y = x.trunc() as i64;
+                            push!(i64, y)
+                        }
+                    }
+                    xfc_7_i64_trunc_sat_f64_u => {
+                        let x = pop!(f64);
+                        if x.is_nan() {
+                            push!(u64, 0);
+                        } else if x >= u64::MAX as f64 {
+                            push!(u64, u64::MAX)
+                        } else if x < u64::MIN as f64 {
+                            push!(u64, u64::MIN)
+                        } else {
+                            let y = x.trunc() as u64;
+                            push!(u64, y)
+                        }
+                    }
                     xfc_8_memory_init(DataIdx(i), _) => {
                         let amount = pop!(i32) as usize;
                         let source = pop!(i32) as usize;

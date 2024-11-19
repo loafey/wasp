@@ -181,21 +181,34 @@ fn const_to_val(consts: Vec<ConstValue>) -> Vec<Value> {
                     })
                     .expect("failed to parse"),
             ),
-            ConstValue::F32 { value } => Value::F32(unsafe {
-                f32::from_bits(
-                    value
-                        .parse::<i32>()
-                        .or_else(|_| value.parse().map(|v| std::mem::transmute::<u32, i32>(v)))
-                        .expect("failed to parse") as u32,
-                )
+            ConstValue::F32 { value } => Value::F32(match &value[..] {
+                "nan:canonical" => f32::from_bits(0b010000000000000000000000000000000),
+                "nan:arithmetic" => f32::from_bits(0b011010100000000000000000000000000),
+                _ => unsafe {
+                    f32::from_bits(
+                        value
+                            .parse::<i32>()
+                            .or_else(|_| value.parse().map(|v| std::mem::transmute::<u32, i32>(v)))
+                            .expect("failed to parse") as u32,
+                    )
+                },
             }),
-            ConstValue::F64 { value } => Value::F64(unsafe {
-                f64::from_bits(
-                    value
-                        .parse::<i64>()
-                        .or_else(|_| value.parse().map(|v| std::mem::transmute::<u64, i64>(v)))
-                        .expect("failed to parse") as u64,
-                )
+            ConstValue::F64 { value } => Value::F64(match &value[..] {
+                "nan:canonical" => f64::from_bits(
+                    0b0100000000000000000000000000000000000000000000000000000000000000,
+                ),
+                "nan:arithmetic" => f64::from_bits(
+                    0b0110101000000000000000000000000000000000000000000000000000000000,
+                ),
+                _ => unsafe {
+                    // println!("{value}");
+                    f64::from_bits(
+                        value
+                            .parse::<i64>()
+                            .or_else(|_| value.parse().map(|v| std::mem::transmute::<u64, i64>(v)))
+                            .expect("failed to parse") as u64,
+                    )
+                },
             }),
         })
         .collect()

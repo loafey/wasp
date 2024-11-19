@@ -317,7 +317,7 @@ pub fn check(
                 x6d_i32_div_s => t!(i32, i32 -> i32),
                 x6e_i32_div_u => t!(i32, i32 -> i32),
                 x6f => todo!(),
-                x70_i32_rem_u => todo!(),
+                x70_i32_rem_u => t!(i32, i32 -> i32),
                 x71_i32_and => todo!(),
                 x72_i32_or => todo!(),
                 x73_i32_xor => todo!(),

@@ -7,7 +7,7 @@ use crate::parser::{
     BlockType, DataIdx, ElemIdx, Expr, FuncIdx, GlobalIdX, Instr::*, LabelIdX, LocalIdX, MemArg,
     TableIdX, TypeIdX, BT,
 };
-use std::collections::HashMap;
+use std::{collections::HashMap, ops::Rem};
 
 macro_rules! gen_macros {
     ($f:expr) => {
@@ -759,6 +759,16 @@ impl Runtime {
                         let y = pop!(i32);
                         let x = pop!(i32);
                         push!(i32, x.wrapping_mul(y))
+                    }
+                    x6e_i32_div_u => {
+                        let y = pop!(u32);
+                        let x = pop!(u32);
+                        push!(u32, x.wrapping_div(y))
+                    }
+                    x70_i32_rem_u => {
+                        let y = pop!(u32);
+                        let x = pop!(u32);
+                        push!(u32, x.rem_euclid(y))
                     }
                     x71_i32_and => {
                         let y = pop!(i32);

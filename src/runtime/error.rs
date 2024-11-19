@@ -25,6 +25,8 @@ pub enum RuntimeError {
     UninitializedElement(&'static str, u32, u32),
     UndefinedElement(&'static str, u32, u32),
     IndirectCallTypeMismatch(&'static str, u32, u32),
+    IntegerOverflow(&'static str, u32, u32),
+    InvalidConversionToInteger(&'static str, u32, u32),
     UnknownLabel,
     OutOfBoundsMemoryAccess,
     StackExhaustion(usize, usize),
@@ -101,6 +103,12 @@ impl std::fmt::Debug for RuntimeError {
             }
             Self::UninitializedElement(_arg0, _arg1, _arg2) => {
                 write!(f, "uninitialized element")
+            }
+            Self::IntegerOverflow(_arg0, _arg1, _arg2) => {
+                write!(f, "integer overflow")
+            }
+            Self::InvalidConversionToInteger(_arg0, _arg1, _arg2) => {
+                write!(f, "invalid conversion to integer")
             }
         }
     }

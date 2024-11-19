@@ -839,6 +839,33 @@ impl Runtime {
                         let x = pop!(f64);
                         push!(f64, x * y)
                     }
+                    xa7_i32_wrap_i64 => {
+                        let x = pop!(i64);
+                        push!(i32, x.rem_euclid(2i64.pow(32)) as i32);
+                    }
+                    xa8_i32_trunc_f32_s => {
+                        let x = pop!(f32);
+                        if x.is_nan() {
+                            throw!(InvalidConversionToInteger)
+                        }
+                        if x >= i32::MAX as f32 || x < i32::MIN as f32 {
+                            throw!(IntegerOverflow);
+                        }
+                        let y = x.trunc() as i32;
+                        // println!("--------------\n{}\n{x}\n{y}", i32::MAX);
+                        push!(i32, y)
+                    }
+                    xa9_i32_trunc_f32_u => {
+                        let x = pop!(f32).trunc();
+                        if x.is_nan() {
+                            throw!(InvalidConversionToInteger)
+                        }
+                        if x >= u32::MAX as f32 || x < 0.0 {
+                            throw!(IntegerOverflow);
+                        }
+                        let y = x as u32;
+                        push!(u32, y)
+                    }
                     xac_i64_extend_i32_s => {
                         let x = pop!(i32) as i64;
                         push!(i64, x)

@@ -6,9 +6,9 @@ use super::super::{
 };
 use crate::{
     parser::{
-        self, ExportDesc, FuncIdx, Global,
+        self, Elem, ExportDesc, FuncIdx, Global,
         Instr::{self, *},
-        LabelIdX, MemArg, MemIdX, Module, Parsable, TypeIdX,
+        LabelIdX, MemArg, MemIdX, Module, Parsable, TableIdX, TypeIdX,
     },
     runtime::{clean_model::Function, typecheck::TypeCheckError},
 };
@@ -129,6 +129,52 @@ impl Runtime {
             .collect::<Vec<_>>();
 
         let code_len = module.code.code.len() as u32;
+        let table_len = module.tables.tables.len() as u32;
+        let type_len = module.types.function_types.len() as u32;
+
+        for e in &module.elems.elems {
+            let (offset, vec) = match e {
+                Elem::E0(expr, vec) | Elem::E2(_, expr, _, vec) => (
+                    match &expr.instrs[..] {
+                        [Instr::x41_i32_const(offset)] => *offset as u32,
+                        _ => todo!(),
+                    },
+                    vec.clone(),
+                ),
+                Elem::E4(expr, vec) | Elem::E6(_, expr, _, vec) => (
+                    match &expr.instrs[..] {
+                        [Instr::x41_i32_const(offset)] => *offset as u32,
+                        _ => todo!(),
+                    },
+                    vec.iter()
+                        .flat_map(|e| {
+                            e.instrs.iter().map(|e| match e {
+                                Instr::x41_i32_const(offset) => FuncIdx(*offset as u32),
+                                _ => todo!(),
+                            })
+                        })
+                        .collect(),
+                ),
+                Elem::E1(_, vec) | Elem::E3(_, vec) => (0, vec.clone()),
+                Elem::E5(_, vec) | Elem::E7(_, vec) => (
+                    0,
+                    vec.iter()
+                        .flat_map(|e| {
+                            e.instrs.iter().map(|e| match e {
+                                Instr::x41_i32_const(offset) => FuncIdx(*offset as u32),
+                                _ => todo!(),
+                            })
+                        })
+                        .collect(),
+                ),
+            };
+            for FuncIdx(f) in vec {
+                let f = f + offset;
+                if f >= code_len {
+                    return Err(RuntimeError::TypeError(TypeCheckError::UnknownFunction));
+                }
+            }
+        }
 
         for ((_code_i, code), TypeIdX(i)) in module
             .code
@@ -147,25 +193,57 @@ impl Runtime {
             locals.extend(code.code.t.iter().flat_map(|l| (0..l.n).map(|_| l.t)));
 
             // this should be part of the typechecker
-            fn valid_calls(instrs: &[Instr], len: u32) -> Option<()> {
+            enum Unknown {
+                Table,
+                Function,
+                Type,
+            }
+            fn valid_calls(
+                instrs: &[Instr],
+                code_len: u32,
+                table_len: u32,
+                type_len: u32,
+            ) -> Result<(), Unknown> {
+                macro_rules! valid_calls {
+                    ($p:expr) => {
+                        valid_calls($p, code_len, table_len, type_len)
+                    };
+                }
                 for i in instrs {
                     match i {
-                        Instr::x02_block(_, instrs) => valid_calls(instrs, len)?,
-                        Instr::x03_loop(_, instrs) => valid_calls(instrs, len)?,
-                        Instr::x04_if_else(_, instrs, maybe_instrs) => {
-                            valid_calls(instrs, len)?;
+                        x02_block(_, instrs) => valid_calls!(instrs)?,
+                        x03_loop(_, instrs) => valid_calls!(instrs)?,
+                        x04_if_else(_, instrs, maybe_instrs) => {
+                            valid_calls!(instrs)?;
                             if let Some(instrs) = maybe_instrs {
-                                valid_calls(instrs, len)?;
+                                valid_calls!(instrs)?;
                             }
                         }
-                        Instr::x10_call(FuncIdx(i)) => (*i < len).then_some(())?,
+                        x10_call(FuncIdx(i)) if *i < code_len => {
+                            return Err(Unknown::Function);
+                        }
+                        x11_call_indirect(TypeIdX(_), TableIdX(i)) if *i >= table_len => {
+                            return Err(Unknown::Table);
+                        }
+                        x11_call_indirect(TypeIdX(t), TableIdX(_)) if *t >= type_len => {
+                            return Err(Unknown::Type);
+                        }
                         _ => {}
                     }
                 }
-                Some(())
+                Ok(())
             }
-            if valid_calls(&code.code.e.instrs, code_len).is_none() {
-                return Err(RuntimeError::TypeError(TypeCheckError::UnknownFunction));
+            match valid_calls(&code.code.e.instrs, code_len, table_len, type_len) {
+                Ok(_) => {}
+                Err(Unknown::Function) => {
+                    return Err(RuntimeError::TypeError(TypeCheckError::UnknownFunction))
+                }
+                Err(Unknown::Table) => {
+                    return Err(RuntimeError::TypeError(TypeCheckError::UnknownTable))
+                }
+                Err(Unknown::Type) => {
+                    return Err(RuntimeError::TypeError(TypeCheckError::UnknownType))
+                }
             }
             // print!("Checking");
             // for k in &module.exports.exports {

@@ -78,6 +78,8 @@ pub enum TypeCheckError {
     ReturnTypeMismatch(Vec<ValType>, Vec<ValType>),
     MissingLocal,
     UnknownFunction,
+    UnknownTable,
+    UnknownType,
 }
 
 pub fn check(

@@ -144,13 +144,13 @@ impl Runtime {
                 Elem::E4(expr, vec) | Elem::E6(_, expr, _, vec) => (
                     match &expr.instrs[..] {
                         [Instr::x41_i32_const(offset)] => *offset as u32,
-                        _ => todo!(),
+                        e => todo!("{e:?}"),
                     },
                     vec.iter()
                         .flat_map(|e| {
                             e.instrs.iter().map(|e| match e {
                                 Instr::x41_i32_const(offset) => FuncIdx(*offset as u32),
-                                _ => todo!(),
+                                e => todo!("{e:?}"),
                             })
                         })
                         .collect(),
@@ -162,7 +162,9 @@ impl Runtime {
                         .flat_map(|e| {
                             e.instrs.iter().map(|e| match e {
                                 Instr::x41_i32_const(offset) => FuncIdx(*offset as u32),
-                                _ => todo!(),
+                                Instr::xd2_ref_func(f) => *f,
+                                Instr::xd0_ref_null(_) => FuncIdx(0),
+                                e => todo!("{e:?}"),
                             })
                         })
                         .collect(),
@@ -219,7 +221,7 @@ impl Runtime {
                                 valid_calls!(instrs)?;
                             }
                         }
-                        x10_call(FuncIdx(i)) if *i < code_len => {
+                        x10_call(FuncIdx(i)) if *i >= code_len => {
                             return Err(Unknown::Function);
                         }
                         x11_call_indirect(TypeIdX(_), TableIdX(i)) if *i >= table_len => {

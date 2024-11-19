@@ -19,7 +19,8 @@ pub enum Value {
     I64(i64),
     F32(f32),
     F64(f64),
-    Externref(i32),
+    Externref(u32),
+    FuncRef(u32),
     BlockLock,
 }
 impl Value {
@@ -30,6 +31,7 @@ impl Value {
             Value::F32(_) => "f32",
             Value::F64(_) => "f64",
             Value::Externref(_) => "externref",
+            Value::FuncRef(_) => "funcref",
             Value::BlockLock => "BlockLock",
         }
     }
@@ -43,6 +45,7 @@ impl std::fmt::Debug for Value {
             Self::F32(arg0) => write!(f, "f32({arg0})"),
             Self::F64(arg0) => write!(f, "f64({arg0})"),
             Self::Externref(arg0) => write!(f, "externref({arg0})"),
+            Self::FuncRef(arg0) => write!(f, "funcref({arg0})"),
             Self::BlockLock => write!(f, "--- BLOCK ---"),
         }
     }

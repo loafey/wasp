@@ -158,11 +158,7 @@ fn const_to_val(consts: Vec<ConstValue>) -> Vec<Value> {
             ConstValue::Externref { value } => Value::Externref(
                 value
                     .parse()
-                    .or_else(|_| {
-                        value
-                            .parse()
-                            .map(|v| unsafe { std::mem::transmute::<u32, i32>(v) })
-                    })
+                    .or_else(|_| value.parse())
                     .expect("failed to parse"),
             ),
             ConstValue::I32 { value } => Value::I32(
@@ -291,7 +287,7 @@ pub fn test(mut path: String) {
 
     for (test_i, test) in tests.commands.into_iter().enumerate() {
         let test_i = test_i + 1;
-        // println!("\n{}/{total_tests}", test_i);
+        println!("\n{}/{total_tests}", test_i);
         if let Some(rt) = &mut *runtime.borrow_mut() {
             rt.stack = Vec::new();
         }

@@ -5,7 +5,7 @@ use super::super::{
 };
 use crate::parser::{
     BlockType, DataIdx, ElemIdx, Expr, FuncIdx, GlobalIdX, Instr::*, LabelIdX, LocalIdX, MemArg,
-    TableIdX, TypeIdX, BT,
+    RefTyp, TableIdX, TypeIdX, BT,
 };
 use std::{collections::HashMap, ops::Rem};
 
@@ -847,6 +847,10 @@ impl Runtime {
                         let x = pop!(u32) as u64;
                         push!(u64, x)
                     }
+                    xd0_ref_null(x) => match x {
+                        RefTyp::FuncRef => todo!(),
+                        RefTyp::ExternRef => todo!(),
+                    },
                     xfc_8_memory_init(DataIdx(i), _) => {
                         let amount = pop!(i32) as usize;
                         let source = pop!(i32) as usize;

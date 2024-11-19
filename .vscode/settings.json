@@ -12,6 +12,7 @@
         "exportdesc",
         "Externref",
         "funcidx",
+        "funcref",
         "funcs",
         "funcsec",
         "functype",

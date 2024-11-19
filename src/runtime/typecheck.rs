@@ -77,6 +77,7 @@ pub enum TypeCheckError {
     IfElseTypeMismatch(Vec<ValType>, Vec<ValType>),
     ReturnTypeMismatch(Vec<ValType>, Vec<ValType>),
     MissingLocal,
+    UnknownFunction,
 }
 
 pub fn check(

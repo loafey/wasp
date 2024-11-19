@@ -6,11 +6,11 @@ use super::super::{
 };
 use crate::{
     parser::{
-        self, ExportDesc, Global,
+        self, ExportDesc, FuncIdx, Global,
         Instr::{self, *},
         LabelIdX, MemArg, MemIdX, Module, Parsable, TypeIdX,
     },
-    runtime::clean_model::Function,
+    runtime::{clean_model::Function, typecheck::TypeCheckError},
 };
 use std::{
     collections::HashMap,
@@ -128,6 +128,8 @@ impl Runtime {
             .map(|g| g.gt.t)
             .collect::<Vec<_>>();
 
+        let code_len = module.code.code.len() as u32;
+
         for ((_code_i, code), TypeIdX(i)) in module
             .code
             .code
@@ -143,6 +145,28 @@ impl Runtime {
 
             let mut locals = typ.input.types.clone();
             locals.extend(code.code.t.iter().flat_map(|l| (0..l.n).map(|_| l.t)));
+
+            // this should be part of the typechecker
+            fn valid_calls(instrs: &[Instr], len: u32) -> Option<()> {
+                for i in instrs {
+                    match i {
+                        Instr::x02_block(_, instrs) => valid_calls(instrs, len)?,
+                        Instr::x03_loop(_, instrs) => valid_calls(instrs, len)?,
+                        Instr::x04_if_else(_, instrs, maybe_instrs) => {
+                            valid_calls(instrs, len)?;
+                            if let Some(instrs) = maybe_instrs {
+                                valid_calls(instrs, len)?;
+                            }
+                        }
+                        Instr::x10_call(FuncIdx(i)) => (*i < len).then_some(())?,
+                        _ => {}
+                    }
+                }
+                Some(())
+            }
+            if valid_calls(&code.code.e.instrs, code_len).is_none() {
+                return Err(RuntimeError::TypeError(TypeCheckError::UnknownFunction));
+            }
             // print!("Checking");
             // for k in &module.exports.exports {
             // match k.d {
@@ -156,6 +180,7 @@ impl Runtime {
             // println!();
             // println!(" ({typ:?})");
             // ignore the result of type checking
+
             let _ = typecheck::check(
                 Vec::new(),
                 &locals,

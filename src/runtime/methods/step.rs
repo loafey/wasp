@@ -764,6 +764,14 @@ impl Runtime {
                         let x = pop!(i64);
                         push!(i64, x.wrapping_mul(y))
                     }
+                    x91_f32_sqrt => {
+                        let x = pop!(f32);
+                        push!(f32, x.sqrt())
+                    }
+                    xac_i64_extend_i32_s => {
+                        let x = pop!(i32) as i64;
+                        push!(i64, x)
+                    }
                     xad_i64_extend_i32_u => {
                         let x = pop!(u32) as u64;
                         push!(u64, x)

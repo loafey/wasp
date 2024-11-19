@@ -1,13 +1,8 @@
 # W.A.S.P
 
 ## Latest spec test (typechecking currently disabled)
-💅: 23\
-💩: 124
-## Failed: test-suite/test/core/call.wast
-```bash
- ERROR wasp::testsuite > Got error "uninitialized element", expected error: "undefined element" (module: 0, function "as-call_indirect-last")
-```
-
+💅: 24\
+💩: 123
 ## Failed: test-suite/test/core/call_indirect.wast
 ```bash
 thread 'main' panicked at src/testsuite.rs:316:50:
@@ -187,14 +182,14 @@ note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 
 ## Failed: test-suite/test/core/fac.wast
 ```bash
-thread 'main' panicked at src/runtime/methods/step.rs:935:25:
+thread 'main' panicked at src/runtime/methods/step.rs:943:25:
 not implemented: instruction not supported : x51_i64_eq
 note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 ```
 
 ## Failed: test-suite/test/core/float_exprs.wast
 ```bash
-thread 'main' panicked at src/runtime/methods/step.rs:935:25:
+thread 'main' panicked at src/runtime/methods/step.rs:943:25:
 not implemented: instruction not supported : xa2_f64_mul
 note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 ```
@@ -282,7 +277,7 @@ note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 
 ## Failed: test-suite/test/core/if.wast
 ```bash
-thread 'main' panicked at src/runtime/typecheck.rs:379:41:
+thread 'main' panicked at src/runtime/typecheck.rs:380:41:
 not yet implemented
 note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 ```
@@ -296,14 +291,14 @@ note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 
 ## Failed: test-suite/test/core/int_exprs.wast
 ```bash
-thread 'main' panicked at src/runtime/methods/step.rs:935:25:
+thread 'main' panicked at src/runtime/methods/step.rs:943:25:
 not implemented: instruction not supported : x53_i64_lt_s
 note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 ```
 
 ## Failed: test-suite/test/core/labels.wast
 ```bash
-thread 'main' panicked at src/runtime/typecheck.rs:321:31:
+thread 'main' panicked at src/runtime/typecheck.rs:322:31:
 not yet implemented
 note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 ```
@@ -333,7 +328,7 @@ note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 
 ## Failed: test-suite/test/core/load.wast
 ```bash
-thread 'main' panicked at src/runtime/methods/step.rs:935:25:
+thread 'main' panicked at src/runtime/methods/step.rs:943:25:
 not implemented: instruction not supported : x67_i32_clz
 note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 ```
@@ -469,12 +464,14 @@ note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 
 ## Failed: test-suite/test/core/names.wast
 ```bash
- ERROR wasp::testsuite > test 486/486 failed (module: 3, invoke: "print32", error: unknown function: spectest::print_i32)
+thread 'main' panicked at src/testsuite.rs:316:50:
+failed to load module: type error: UnknownFunction
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 ```
 
 ## Failed: test-suite/test/core/nop.wast
 ```bash
-thread 'main' panicked at src/runtime/methods/step.rs:935:25:
+thread 'main' panicked at src/runtime/methods/step.rs:943:25:
 not implemented: instruction not supported : x4c_i32_le_s
 note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 ```
@@ -742,7 +739,7 @@ note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 
 ## Failed: test-suite/test/core/stack.wast
 ```bash
-thread 'main' panicked at src/runtime/methods/step.rs:935:25:
+thread 'main' panicked at src/runtime/methods/step.rs:943:25:
 not implemented: instruction not supported : x51_i64_eq
 note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 ```
@@ -754,7 +751,7 @@ note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 
 ## Failed: test-suite/test/core/switch.wast
 ```bash
-thread 'main' panicked at src/runtime/typecheck.rs:320:32:
+thread 'main' panicked at src/runtime/typecheck.rs:321:32:
 not yet implemented
 note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 ```
@@ -817,14 +814,14 @@ note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 
 ## Failed: test-suite/test/core/table_size.wast
 ```bash
-thread 'main' panicked at src/runtime/typecheck.rs:473:41:
+thread 'main' panicked at src/runtime/typecheck.rs:474:41:
 not yet implemented
 note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 ```
 
 ## Failed: test-suite/test/core/traps.wast
 ```bash
-thread 'main' panicked at src/runtime/methods/step.rs:935:25:
+thread 'main' panicked at src/runtime/methods/step.rs:943:25:
 not implemented: instruction not supported : x6d_i32_div_s
 note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 ```

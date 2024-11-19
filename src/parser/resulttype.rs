@@ -1,6 +1,6 @@
 use super::{Parsable, ValType};
 
-#[derive(Clone)]
+#[derive(Clone, PartialEq, Eq)]
 #[allow(unused)]
 pub struct ResultType {
     pub types: Vec<ValType>,

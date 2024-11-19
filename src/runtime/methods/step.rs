@@ -496,6 +496,17 @@ impl Runtime {
                             throw!(UninitializedElement)
                         }
 
+                        if let Some(func) = self.module.functions.get(id) {
+                            match func {
+                                Function::Import { ty: ty2, .. }
+                                | Function::Local { ty: ty2, .. } => {
+                                    if ty != ty2 {
+                                        throw!(IndirectCallTypeMismatch)
+                                    }
+                                }
+                            }
+                        }
+
                         self.stack.push(Frame {
                             func_id: *id,
                             pc: 0,

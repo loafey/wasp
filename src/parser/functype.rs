@@ -2,7 +2,7 @@ use super::{Parsable, ResultType};
 use crate::{hex::Hex, parser::error::ParseError};
 use std::io::Read;
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub struct FuncType {
     #[allow(unused)]
     pub input: ResultType,

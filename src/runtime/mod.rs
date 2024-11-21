@@ -75,5 +75,6 @@ pub struct Frame {
 pub struct Runtime {
     pub _path: PathBuf,
     pub module: Model,
+    pub modules: HashMap<String, Model>,
     pub stack: Vec<Frame>,
 }

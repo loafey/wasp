@@ -264,6 +264,7 @@ impl Runtime {
         }
         Ok(Self {
             module,
+            modules: HashMap::new(),
             stack,
             _path: path.as_ref().to_path_buf(),
         })

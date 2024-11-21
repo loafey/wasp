@@ -293,7 +293,6 @@ pub fn test(mut path: String) {
     .expect("failed to parse test data");
 
     let runtime: Rc<RefCell<Option<Runtime>>> = Rc::new(RefCell::new(None));
-    let mut imports: HashMap<String, Runtime> = HashMap::new();
 
     let mut skip = false;
     let mut module_index = -1;
@@ -488,7 +487,7 @@ pub fn test(mut path: String) {
                     continue;
                 }
                 let mut rt = runtime.borrow_mut();
-                let _rt = rt.as_mut().expect("no rt set");
+                let rt = rt.as_mut().expect("no rt set");
                 todo!("AssertUnlinkable")
             }
             Case::Register(Register { _as, name, .. }) => {
@@ -496,11 +495,11 @@ pub fn test(mut path: String) {
                     continue;
                 }
                 let mut rt = runtime.borrow_mut();
-                let _rt = rt.as_mut().expect("no rt set");
+                let rt = rt.as_mut().expect("no rt set");
                 if let Some(name) = name {
                     todo!("Register: {_as:?} {name}")
                 } else {
-                    todo!("Register: {_as:?}")
+                    rt.modules.insert("bob".to_string(), rt.module);
                 }
             }
         }

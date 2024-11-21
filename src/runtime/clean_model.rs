@@ -1,7 +1,10 @@
 use super::{memory::Memory, RuntimeError, RuntimeError::*, Value};
-use crate::parser::{
-    Data, Elem, ExportDesc, Expr, FuncIdx, FuncType, Global, GlobalIdX, ImportDesc, Instr, Limits,
-    MemArg, MemIdX, Module, Name, TableIdX, TypeIdX, BT,
+use crate::{
+    parser::{
+        Data, Elem, ExportDesc, Expr, FuncIdx, FuncType, Global, GlobalIdX, ImportDesc, Instr,
+        Limits, MemArg, MemIdX, Module, Name, TableIdX, TypeIdX, BT,
+    },
+    ptr::{Ptr, PtrRW},
 };
 use std::{
     collections::HashMap,
@@ -43,14 +46,14 @@ impl DerefMut for Table {
 
 #[derive(Debug)]
 pub struct Model {
-    pub functions: HashMap<u32, Function>,
-    pub tables: Vec<Table>,
-    pub elems: HashMap<u32, Expr>,
-    pub function_types: HashMap<u32, FuncType>,
-    pub globals: HashMap<u32, Value>,
-    pub exports: HashMap<String, ExportDesc>,
-    pub datas: HashMap<u32, Vec<u8>>,
-    pub memory: Memory<{ 65536 + 1 }>,
+    pub functions: Ptr<HashMap<u32, Function>>,
+    pub tables: PtrRW<Vec<Table>>,
+    pub elems: PtrRW<HashMap<u32, Expr>>,
+    pub function_types: Ptr<HashMap<u32, FuncType>>,
+    pub globals: PtrRW<HashMap<u32, Value>>,
+    pub exports: Ptr<HashMap<String, ExportDesc>>,
+    pub datas: PtrRW<HashMap<u32, Vec<u8>>>,
+    pub memory: PtrRW<Memory<{ 65536 + 1 }>>,
 }
 impl TryFrom<Module> for Model {
     type Error = RuntimeError;
@@ -237,6 +240,7 @@ impl TryFrom<Module> for Model {
                 },
             );
         }
+        let functions = functions.into();
 
         let mut tables: Vec<_> = value
             .tables
@@ -309,6 +313,8 @@ impl TryFrom<Module> for Model {
                 Elem::E7(_, _) => todo!(),
             }
         }
+        let elems = elems.into();
+        let tables = tables.into();
 
         let function_types = value
             .types
@@ -316,14 +322,16 @@ impl TryFrom<Module> for Model {
             .into_iter()
             .enumerate()
             .map(|(i, f)| (i as u32, f))
-            .collect();
+            .collect::<HashMap<_, _>>()
+            .into();
 
         let exports = value
             .exports
             .exports
             .iter()
             .map(|exp| (exp.nm.0.clone(), exp.d))
-            .collect();
+            .collect::<HashMap<_, _>>()
+            .into();
 
         let mut globals = HashMap::new();
         for (i, Global { e, .. }) in value.globals.globals.iter().enumerate() {
@@ -386,6 +394,9 @@ impl TryFrom<Module> for Model {
                 Data::ActiveX(_, _, _) => todo!(""),
             }
         }
+        let globals = globals.into();
+        let datas = datas.into();
+        let memory = memory.into();
 
         Ok(Self {
             functions,

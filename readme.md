@@ -129,7 +129,7 @@ note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 
 ## Failed: test-suite/test/core/fac.wast
 ```bash
-thread 'main' panicked at src/runtime/methods/step.rs:1338:25:
+thread 'main' panicked at src/runtime/methods/step.rs:1363:25:
 not implemented: instruction not supported : x51_i64_eq
 note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 ```
@@ -218,7 +218,7 @@ note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 
 ## Failed: test-suite/test/core/int_exprs.wast
 ```bash
-thread 'main' panicked at src/runtime/methods/step.rs:1338:25:
+thread 'main' panicked at src/runtime/methods/step.rs:1363:25:
 not implemented: instruction not supported : x53_i64_lt_s
 note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 ```
@@ -255,7 +255,7 @@ note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 
 ## Failed: test-suite/test/core/load.wast
 ```bash
-thread 'main' panicked at src/runtime/methods/step.rs:1338:25:
+thread 'main' panicked at src/runtime/methods/step.rs:1363:25:
 not implemented: instruction not supported : x67_i32_clz
 note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 ```
@@ -272,7 +272,7 @@ note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 
 ## Failed: test-suite/test/core/local_tee.wast
 ```bash
-thread 'main' panicked at src/runtime/methods/step.rs:1338:25:
+thread 'main' panicked at src/runtime/methods/step.rs:1363:25:
 not implemented: instruction not supported : x8c_f32_neg
 note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 ```
@@ -378,7 +378,7 @@ note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 
 ## Failed: test-suite/test/core/nop.wast
 ```bash
-thread 'main' panicked at src/runtime/methods/step.rs:1338:25:
+thread 'main' panicked at src/runtime/methods/step.rs:1363:25:
 not implemented: instruction not supported : x4c_i32_le_s
 note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 ```
@@ -646,7 +646,7 @@ note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 
 ## Failed: test-suite/test/core/stack.wast
 ```bash
-thread 'main' panicked at src/runtime/methods/step.rs:1338:25:
+thread 'main' panicked at src/runtime/methods/step.rs:1363:25:
 not implemented: instruction not supported : x51_i64_eq
 note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 ```
@@ -728,7 +728,7 @@ note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 
 ## Failed: test-suite/test/core/traps.wast
 ```bash
-thread 'main' panicked at src/runtime/methods/step.rs:1338:25:
+thread 'main' panicked at src/runtime/methods/step.rs:1363:25:
 not implemented: instruction not supported : x6d_i32_div_s
 note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 ```

@@ -7,6 +7,7 @@ use runtime::{Runtime, RuntimeError};
 use std::{env::args, mem::MaybeUninit};
 mod hex;
 mod parser;
+mod ptr;
 mod runtime;
 mod testsuite;
 

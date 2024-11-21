@@ -219,7 +219,7 @@ impl Runtime {
                         let x = *local!(i32, &1) as usize;
                         let mut b = Vec::new();
                         for i in x..y {
-                            let s = self.module.memory.get(
+                            let s = self.module.memory.read().get(
                                 i,
                                 MemArg {
                                     align: 0,
@@ -485,7 +485,7 @@ impl Runtime {
                             locals.insert(i as u32, pop!());
                         }
 
-                        let table = &self.module.tables[*table_index as usize];
+                        let table = &self.module.tables.read()[*table_index as usize];
                         // println!(
                         //     "Call info ({}): \n\tinputs: {locals:?}\n\tfunction_index: {function_index}",
                         //     f.func_id
@@ -542,148 +542,164 @@ impl Runtime {
                         push!(self
                             .module
                             .globals
+                            .read()
                             .get(id)
                             .copied()
                             .unwrap_or(Value::I32(0)))
                     }
                     x24_global_set(GlobalIdX(id)) => {
                         let pop = pop!();
-                        self.module.globals.insert(*id, pop);
+                        self.module.globals.write().insert(*id, pop);
                     }
                     x28_i32_load(mem) => {
                         let addr = pop!(u32);
-                        push!(i32, self.module.memory.get(addr as usize, *mem)?);
+                        push!(i32, self.module.memory.read().get(addr as usize, *mem)?);
                     }
                     x29_i64_load(mem) => {
                         let addr = pop!(u32);
-                        push!(i64, self.module.memory.get(addr as usize, *mem)?);
+                        push!(i64, self.module.memory.read().get(addr as usize, *mem)?);
                     }
                     x2a_f32_load(mem) => {
                         let addr = pop!(u32);
-                        push!(f32, self.module.memory.get(addr as usize, *mem)?);
+                        push!(f32, self.module.memory.read().get(addr as usize, *mem)?);
                     }
                     x2b_f64_load(mem) => {
                         let addr = pop!(u32);
-                        push!(f64, self.module.memory.get(addr as usize, *mem)?);
+                        push!(f64, self.module.memory.read().get(addr as usize, *mem)?);
                     }
                     x2c_i32_load8_s(mem) => {
                         let addr = pop!(u32);
                         push!(
                             i32,
-                            self.module.memory.get::<i8>(addr as usize, *mem)? as i32
+                            self.module.memory.read().get::<i8>(addr as usize, *mem)? as i32
                         );
                     }
                     x2d_i32_load8_u(mem) => {
                         let addr = pop!(u32);
                         push!(
                             u32,
-                            self.module.memory.get::<u8>(addr as usize, *mem)? as u32
+                            self.module.memory.read().get::<u8>(addr as usize, *mem)? as u32
                         );
                     }
                     x2e_i32_load16_s(mem) => {
                         let addr = pop!(u32);
                         push!(
                             i32,
-                            self.module.memory.get::<u16>(addr as usize, *mem)? as i32
+                            self.module.memory.read().get::<u16>(addr as usize, *mem)? as i32
                         );
                     }
                     x2f_i32_load16_u(mem) => {
                         let addr = pop!(u32);
                         push!(
                             u32,
-                            self.module.memory.get::<u16>(addr as usize, *mem)? as u32
+                            self.module.memory.read().get::<u16>(addr as usize, *mem)? as u32
                         );
                     }
                     x30_i64_load8_s(mem) => {
                         let addr = pop!(u32);
                         push!(
                             i64,
-                            self.module.memory.get::<i8>(addr as usize, *mem)? as i64
+                            self.module.memory.read().get::<i8>(addr as usize, *mem)? as i64
                         );
                     }
                     x31_i64_load8_u(mem) => {
                         let addr = pop!(u32);
                         push!(
                             u64,
-                            self.module.memory.get::<u8>(addr as usize, *mem)? as u64
+                            self.module.memory.read().get::<u8>(addr as usize, *mem)? as u64
                         );
                     }
                     x32_i64_load16_s(mem) => {
                         let addr = pop!(u32);
                         push!(
                             i64,
-                            self.module.memory.get::<i16>(addr as usize, *mem)? as i64
+                            self.module.memory.read().get::<i16>(addr as usize, *mem)? as i64
                         );
                     }
                     x33_i64_load16_u(mem) => {
                         let addr = pop!(u32);
                         push!(
                             u64,
-                            self.module.memory.get::<u16>(addr as usize, *mem)? as u64
+                            self.module.memory.read().get::<u16>(addr as usize, *mem)? as u64
                         );
                     }
                     x34_i64_load32_s(mem) => {
                         let addr = pop!(u32);
                         push!(
                             i64,
-                            self.module.memory.get::<i32>(addr as usize, *mem)? as i64
+                            self.module.memory.read().get::<i32>(addr as usize, *mem)? as i64
                         );
                     }
                     x35_i64_load32_u(mem) => {
                         let addr = pop!(u32);
                         push!(
                             u64,
-                            self.module.memory.get::<u32>(addr as usize, *mem)? as u64
+                            self.module.memory.read().get::<u32>(addr as usize, *mem)? as u64
                         );
                     }
                     x36_i32_store(mem) => {
                         let v = pop!(i32);
                         let addr = pop!(u32);
-                        self.module.memory.set(addr as usize, *mem, v)?;
+                        self.module.memory.write().set(addr as usize, *mem, v)?;
                     }
                     x37_i64_store(mem) => {
                         let v = pop!(i64);
                         let addr = pop!(u32);
-                        self.module.memory.set(addr as usize, *mem, v)?;
+                        self.module.memory.write().set(addr as usize, *mem, v)?;
                     }
                     x38_f32_store(mem) => {
                         let v = pop!(f32);
                         let addr = pop!(u32);
-                        self.module.memory.set(addr as usize, *mem, v)?;
+                        self.module.memory.write().set(addr as usize, *mem, v)?;
                     }
                     x39_f64_store(mem) => {
                         let v = pop!(f64);
                         let addr = pop!(u32);
-                        self.module.memory.set(addr as usize, *mem, v)?;
+                        self.module.memory.write().set(addr as usize, *mem, v)?;
                     }
                     x3a_i32_store8(mem) => {
                         let v = pop!(i32);
                         let addr = pop!(u32);
-                        self.module.memory.set(addr as usize, *mem, v as i8)?;
+                        self.module
+                            .memory
+                            .write()
+                            .set(addr as usize, *mem, v as i8)?;
                     }
                     x3b_i32_store16(mem) => {
                         let v = pop!(i32);
                         let addr = pop!(u32);
-                        self.module.memory.set(addr as usize, *mem, v as i16)?;
+                        self.module
+                            .memory
+                            .write()
+                            .set(addr as usize, *mem, v as i16)?;
                     }
                     x3c_i64_store8(mem) => {
                         let v = pop!(i64);
                         let addr = pop!(u32);
-                        self.module.memory.set(addr as usize, *mem, v as i8)?;
+                        self.module
+                            .memory
+                            .write()
+                            .set(addr as usize, *mem, v as i8)?;
                     }
                     x3d_i64_store16(mem) => {
                         let v = pop!(i64);
                         let addr = pop!(u32);
-                        self.module.memory.set(addr as usize, *mem, v as i16)?;
+                        self.module
+                            .memory
+                            .write()
+                            .set(addr as usize, *mem, v as i16)?;
                     }
                     x3e_i64_store32(mem) => {
                         let v = pop!(i64);
                         let addr = pop!(u32);
-                        self.module.memory.set(addr as usize, *mem, v as i32)?;
+                        self.module
+                            .memory
+                            .write()
+                            .set(addr as usize, *mem, v as i32)?;
                     }
                     x40_grow => {
                         let amount = pop!(i32);
-                        push!(i32, self.module.memory.grow(amount as usize))
+                        push!(i32, self.module.memory.write().grow(amount as usize))
                     }
                     x41_i32_const(val) => push!(i32, *val),
                     x42_i64_const(val) => push!(i64, *val),
@@ -1174,37 +1190,43 @@ impl Runtime {
                         let amount = pop!(i32) as usize;
                         let source = pop!(i32) as usize;
                         let destination = pop!(i32) as usize;
-                        let val = unwrap!(self.module.datas.get(i), MissingData);
+                        let datas = self.module.datas.read();
+                        let val = unwrap!(datas.get(i), MissingData);
                         if source + amount > val.len() {
                             throw!(DataInitOutOfRange)
                         }
                         self.module
                             .memory
+                            .write()
                             .slice_write(destination, &val[source..source + amount])?
                     }
                     xfc_9_data_drop(DataIdx(i)) => {
-                        self.module.datas.insert(*i, Vec::new());
+                        self.module.datas.write().insert(*i, Vec::new());
                     }
                     xfc_10_memory_copy(_, _) => {
                         let amount = pop!(i32) as usize;
                         let source = pop!(i32) as usize;
                         let destination = pop!(i32) as usize;
                         // println!("amount: {amount}, source: {source}, dest: {destination}");
-                        self.module.memory.copy(source, amount, destination)?;
+                        self.module
+                            .memory
+                            .write()
+                            .copy(source, amount, destination)?;
                     }
                     xfc_11_memory_fill(_) => {
                         let amount = pop!(i32) as usize;
                         let val = pop!(i32) as u8;
                         let ptr = pop!(i32) as usize;
-                        self.module.memory.bulk_write(ptr, amount, val)?;
+                        self.module.memory.write().bulk_write(ptr, amount, val)?;
                     }
                     xfc_12_table_init(ElemIdx(e), TableIdX(t)) => {
                         let amount = pop!(i32) as u32;
                         let source = pop!(i32) as u32;
                         let destination = pop!(i32) as u32;
-                        let elems = unwrap!(self.module.elems.get(e), MissingElementIndex);
-                        let table =
-                            unwrap!(self.module.tables.get_mut(*t as usize), MissingTableIndex);
+                        let elems = self.module.elems.read();
+                        let elems = unwrap!(elems.get(e), MissingElementIndex);
+                        let mut tables = self.module.tables.write();
+                        let table = unwrap!(tables.get_mut(*t as usize), MissingTableIndex);
 
                         let check_1 = source + amount > elems.instrs.len() as u32;
                         let check_2 = destination < table.table_length.0 as u32;
@@ -1223,14 +1245,17 @@ impl Runtime {
                         }
                     }
                     xfc_13_elem_drop(ElemIdx(i)) => {
-                        self.module.elems.insert(*i, Expr { instrs: Vec::new() });
+                        self.module
+                            .elems
+                            .write()
+                            .insert(*i, Expr { instrs: Vec::new() });
                     }
                     xfc_14_table_copy(TableIdX(a), TableIdX(b)) => {
                         let amount = pop!(i32) as u32;
                         let source = pop!(i32) as u32;
                         let destination = pop!(i32) as u32;
-
-                        let a = unwrap!(self.module.tables.get(*a as usize), MissingTableIndex);
+                        let mut tables = self.module.tables.write();
+                        let a = unwrap!(tables.get(*a as usize), MissingTableIndex);
                         let check_1 = source + amount > a.len() as u32;
                         let mut clones = Vec::new();
                         for i in 0..amount {
@@ -1239,7 +1264,7 @@ impl Runtime {
                             clones.push(*f);
                         }
 
-                        let b = unwrap!(self.module.tables.get_mut(*b as usize), MissingTableIndex);
+                        let b = unwrap!(tables.get_mut(*b as usize), MissingTableIndex);
                         let check_2 = destination < b.table_length.0 as u32;
                         let check_3 = destination + amount > b.table_length.1 as u32;
 

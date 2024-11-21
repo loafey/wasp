@@ -117,6 +117,7 @@ struct AssertUnlinkable {
 struct Register {
     #[serde(rename = "type")]
     _type: MustBe!("register"),
+    name: Option<String>,
     #[serde(rename = "as")]
     _as: String,
 }
@@ -292,6 +293,7 @@ pub fn test(mut path: String) {
     .expect("failed to parse test data");
 
     let runtime: Rc<RefCell<Option<Runtime>>> = Rc::new(RefCell::new(None));
+    let mut imports: HashMap<String, Runtime> = HashMap::new();
 
     let mut skip = false;
     let mut module_index = -1;
@@ -489,13 +491,17 @@ pub fn test(mut path: String) {
                 let _rt = rt.as_mut().expect("no rt set");
                 todo!("AssertUnlinkable")
             }
-            Case::Register(_) => {
+            Case::Register(Register { _as, name, .. }) => {
                 if skip {
                     continue;
                 }
                 let mut rt = runtime.borrow_mut();
                 let _rt = rt.as_mut().expect("no rt set");
-                todo!("Register")
+                if let Some(name) = name {
+                    todo!("Register: {_as:?} {name}")
+                } else {
+                    todo!("Register: {_as:?}")
+                }
             }
         }
     }

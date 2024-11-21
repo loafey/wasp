@@ -27,9 +27,15 @@ impl<T: Debug> Debug for RwLock<T> {
     }
 }
 
-#[derive(Clone)]
 pub struct Ptr<T> {
     inner: Arc<T>,
+}
+impl<T> Clone for Ptr<T> {
+    fn clone(&self) -> Self {
+        Self {
+            inner: self.inner.clone(),
+        }
+    }
 }
 impl<T> From<T> for Ptr<T> {
     fn from(value: T) -> Self {
@@ -57,9 +63,15 @@ impl<T: Display> Display for Ptr<T> {
     }
 }
 
-#[derive(Clone)]
 pub struct PtrRW<T> {
     inner: Arc<RwLock<T>>,
+}
+impl<T> Clone for PtrRW<T> {
+    fn clone(&self) -> Self {
+        Self {
+            inner: self.inner.clone(),
+        }
+    }
 }
 impl<T> Deref for PtrRW<T> {
     type Target = Arc<RwLock<T>>;

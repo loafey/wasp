@@ -486,12 +486,12 @@ pub fn test(mut path: String) {
                 if skip {
                     continue;
                 }
-                let _rt = runtime.as_ref().expect("no rt set");
+                let rt = runtime.as_mut().expect("no rt set");
+
                 if let Some(name) = name {
                     todo!("Register: {_as:?} {name}")
                 } else {
-                    todo!("Register: {_as:?} ")
-                    // rt.modules.insert("bob".to_string(), rt.module);
+                    rt.modules.insert(_as, rt.module.clone());
                 }
             }
         }

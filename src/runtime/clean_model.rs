@@ -44,7 +44,7 @@ impl DerefMut for Table {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct Model {
     pub functions: Ptr<HashMap<u32, Function>>,
     pub tables: PtrRW<Vec<Table>>,

@@ -2,11 +2,9 @@
 #![forbid(clippy::unwrap_used)]
 #![deny(clippy::print_stdout)]
 #![deny(clippy::print_stderr)]
-use gui::gui;
 use hex::Hex;
 use runtime::{Runtime, RuntimeError};
 use std::{env::args, mem::MaybeUninit};
-mod gui;
 mod hex;
 mod parser;
 mod runtime;
@@ -24,7 +22,8 @@ fn alloc<const N: usize>() -> Hex<N> {
     }
 }
 
-fn main() {
+#[tokio::main]
+async fn main() {
     pretty_env_logger::init();
     let path = args()
         .skip(1)
@@ -32,13 +31,11 @@ fn main() {
         .unwrap_or("examples/c_addition.wasm".to_string());
 
     if path.ends_with(".wast") {
-        testsuite::test(path);
-    } else if args().any(|s| s == "--gui") {
-        gui(path)
+        testsuite::test(path).await;
     } else {
-        let mut runtime = Runtime::new(path).expect("Failed to load runtime");
+        let mut runtime = Runtime::new(path).await.expect("Failed to load runtime");
         loop {
-            if let Err(e) = runtime.step() {
+            if let Err(e) = runtime.step().await {
                 match e {
                     RuntimeError::Exit(x) => std::process::exit(x),
                     _ => {

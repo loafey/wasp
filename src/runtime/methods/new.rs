@@ -11,19 +11,17 @@ use crate::{
     },
     runtime::{clean_model::Function, typecheck::TypeCheckError},
 };
-use std::{
-    collections::HashMap,
-    fs::File,
-    io::{Cursor, Read},
-    path::Path,
-};
+use std::{collections::HashMap, io::Cursor, path::Path};
+use tokio::{fs::File, io::AsyncReadExt};
 
 impl Runtime {
-    pub fn new<P: AsRef<Path>>(path: P) -> Result<Self, RuntimeError> {
+    pub async fn new<P: AsRef<Path>>(path: P) -> Result<Self, RuntimeError> {
         let mut buf = Vec::new();
 
-        let mut f = File::open(path.as_ref()).expect("Failed to open file");
-        f.read_to_end(&mut buf).expect("Failed to read file");
+        let mut f = File::open(path.as_ref())
+            .await
+            .expect("Failed to open file");
+        f.read_to_end(&mut buf).await.expect("Failed to read file");
 
         let mut cursor = Cursor::new(&buf[..]);
         let mut stack = Vec::new();

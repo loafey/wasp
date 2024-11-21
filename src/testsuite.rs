@@ -1,6 +1,7 @@
 use monostate::MustBe;
 use serde::Deserialize;
-use std::{cell::RefCell, collections::HashMap, fs, path::PathBuf, rc::Rc};
+use std::{collections::HashMap, future::Future, path::PathBuf, pin::Pin, sync::Arc};
+use tokio::{fs, sync::RwLock};
 
 use crate::{
     parser::{ExportDesc, TypeIdX},
@@ -224,10 +225,10 @@ fn remove_floats(vals: Vec<Value>) -> Vec<Value> {
         .collect()
 }
 
-fn handle_action<T>(
-    rt: &mut Runtime,
+async fn handle_action<T>(
+    rt: Arc<RwLock<Runtime>>,
     action: Action,
-    loop_func: impl FnOnce(&mut Runtime, &String) -> T,
+    loop_func: impl FnOnce(Arc<RwLock<Runtime>>, String) -> Pin<Box<dyn Future<Output = T>>>,
 ) -> T {
     match action {
         Action::Invoke {
@@ -239,7 +240,9 @@ fn handle_action<T>(
                 todo!()
             }
 
-            let fid = rt.module.exports.get(&field).expect("no function");
+            let mut rt_prep = rt.write().await;
+
+            let fid = *rt_prep.module.exports.get(&field).expect("no function");
 
             let ExportDesc::Func(TypeIdX(fid)) = fid else {
                 panic!("no function with this id")
@@ -251,21 +254,22 @@ fn handle_action<T>(
                 .map(|(a, b)| (a as u32, b))
                 .collect::<HashMap<_, _>>();
 
-            rt.stack.push(Frame {
-                func_id: *fid,
+            rt_prep.stack.push(Frame {
+                func_id: fid,
                 pc: 0,
                 stack: Vec::new(),
                 locals: args,
                 depth_stack: Vec::new(),
             });
+            drop(rt_prep);
 
-            loop_func(rt, &field)
+            loop_func(rt.clone(), field.clone()).await
         }
         Action::Get { .. } => todo!(),
     }
 }
 
-pub fn test(mut path: String) {
+pub async fn test(mut path: String) {
     let input = path.to_string();
     if !PathBuf::from(&path).exists() {
         // ugly fix to work around spec test weirdness
@@ -288,11 +292,13 @@ pub fn test(mut path: String) {
 
     let p = PathBuf::from(path);
     let tests = serde_json::from_str::<TestCases>(
-        &fs::read_to_string(&p).expect("failed to open test data"),
+        &fs::read_to_string(&p)
+            .await
+            .expect("failed to open test data"),
     )
     .expect("failed to parse test data");
 
-    let runtime: Rc<RefCell<Option<Runtime>>> = Rc::new(RefCell::new(None));
+    let mut runtime: Option<Arc<RwLock<Runtime>>> = None;
 
     let mut skip = false;
     let mut module_index = -1;
@@ -301,12 +307,12 @@ pub fn test(mut path: String) {
     for (test_i, test) in tests.commands.into_iter().enumerate() {
         let test_i = test_i + 1;
         // println!("\n{}/{total_tests}", test_i);
-        if let Some(rt) = &mut *runtime.borrow_mut() {
+        if let Some(rt) = &mut runtime {
+            let mut rt = rt.write().await;
             rt.stack = Vec::new();
         }
         match test {
             Case::Module(module) => {
-                let runtime = runtime.clone();
                 let mut p = p.clone();
                 p.pop();
                 p.push(&module.filename);
@@ -321,8 +327,11 @@ pub fn test(mut path: String) {
                 }
 
                 // println!("@@@ Compiling {p:?}");
-                *runtime.borrow_mut() =
-                    Some(Runtime::new(p.clone()).expect("failed to load module"));
+                runtime = Some(Arc::new(RwLock::new(
+                    Runtime::new(p.clone())
+                        .await
+                        .expect("failed to load module"),
+                )));
                 // recreate_runtime = Box::new(move || {
                 //     *runtime.borrow_mut() =
                 //         Some(Runtime::new(p.clone()).expect("failed to load module"));
@@ -334,17 +343,17 @@ pub fn test(mut path: String) {
                 if skip {
                     continue;
                 }
-                let mut rt = runtime.borrow_mut();
-                let rt = rt.as_mut().expect("no rt set");
+                let rt = runtime.as_ref().expect("no rt set");
 
                 let expected = const_to_val(expected);
 
-                handle_action(rt, action, move |rt, field| {
+                handle_action(rt.clone(), action, move |rt, field| Box::pin(async move {
                     let mut last;
+                    let mut rt = rt.write().await;
                     loop {
                         // let id = rt.stack.first().expect("no first").func_id;
                         last = rt.stack.first().expect("no first").stack.clone();
-                        match rt.step() {
+                        match rt.step().await {
                             Err(RuntimeError::NoFrame(_, _, _)) => {
                                 let expected = remove_floats(expected);
                                 last = remove_floats(last);
@@ -371,40 +380,45 @@ pub fn test(mut path: String) {
                             Ok(()) => (),
                         }
                     }
-                })
+                })).await
             }
             Case::Action(ActionWrap { action, .. }) => {
                 if skip {
                     continue;
                 }
-                let mut rt = runtime.borrow_mut();
-                let rt = rt.as_mut().expect("no rt set");
+                let rt = runtime.as_ref().expect("no rt set");
                 let ac = action.clone();
-                handle_action(rt, action, move |rt, _| loop {
-                    match rt.step() {
-                        Err(RuntimeError::NoFrame(_, _, _)) => {
-                            break;
-                        }
-                        Err(e) => {
-                            error!("test {test_i}/{total_tests} failed: {e:?} (module: {module_index}, invoke: {:?})", match ac {
+                handle_action(rt.clone(), action, move |rt, _| {
+                    Box::pin(async move {
+                        let mut rt = rt.write().await;
+                        loop {
+                            match rt.step().await {
+                                Err(RuntimeError::NoFrame(_, _, _)) => {
+                                    break;
+                                }
+                                Err(e) => {
+                                    error!("test {test_i}/{total_tests} failed: {e:?} (module: {module_index}, invoke: {:?})", match ac {
                                 Action::Invoke { field, .. } => field,
                                 Action::Get { field,.. } => field,
                             });
-                            std::process::exit(1);
+                                    std::process::exit(1);
+                                }
+                                Ok(()) => (),
+                            }
                         }
-                        Ok(()) => (),
-                    }
-                })
+                    })
+                }).await
             }
             Case::AssertExhaustion(AssertExhaustion { _type, action, .. }) => {
                 if skip {
                     continue;
                 }
-                let mut rt = runtime.borrow_mut();
-                let rt = rt.as_mut().expect("no rt set");
+                let rt = runtime.as_ref().expect("no rt set");
                 let ac = action.clone();
-                handle_action(rt, action, move |rt, _| loop {
-                    match rt.step() {
+                handle_action(rt.clone(), action, move |rt, _| Box::pin(async move { {
+                let mut rt = rt.write().await;
+                loop {
+                    match rt.step().await {
                         Err(RuntimeError::StackExhaustion(_, _)) => {
                             break;
                         }
@@ -417,30 +431,34 @@ pub fn test(mut path: String) {
                         }
                         Ok(()) => {}
                     }
-                })
+                }}})).await
             }
             Case::AssertTrap(AssertTrap { action, text, .. }) => {
                 if skip {
                     continue;
                 }
-                let mut rt = runtime.borrow_mut();
-                let rt = rt.as_mut().expect("no rt set");
-                handle_action(rt, action, move |rt, field| loop {
-                    match rt.step() {
-                        Err(RuntimeError::NoFrame(_, _, _)) => {
-                            error!("test {test_i}/{total_tests} did not fail, expected error: {text:?} (module: {module_index}, function {field:?})");
-                            std::process::exit(1);
+                let rt = runtime.as_ref().expect("no rt set");
+                handle_action(rt.clone(), action, move |rt, field| {
+                    Box::pin(async move {
+                let mut rt = rt.write().await;
+                loop {
+                            match rt.step().await {
+                                Err(RuntimeError::NoFrame(_, _, _)) => {
+                                    error!("test {test_i}/{total_tests} did not fail, expected error: {text:?} (module: {module_index}, function {field:?})");
+                                    std::process::exit(1);
+                                }
+                                Err(e) if text.contains(&format!("{e:?}")) => {
+                                    break;
+                                }
+                                Err(e) => {
+                                    error!("Got error \"{e:?}\", expected error: {text:?} (module: {module_index}, function {field:?})");
+                                    std::process::exit(1);
+                                }
+                                Ok(()) => (),
+                            }
                         }
-                        Err(e) if text.contains(&format!("{e:?}")) => {
-                            break;
-                        }
-                        Err(e) => {
-                            error!("Got error \"{e:?}\", expected error: {text:?} (module: {module_index}, function {field:?})");
-                            std::process::exit(1);
-                        }
-                        Ok(()) => (),
-                    }
-                })
+                    })
+                }).await
             }
             Case::AssertInvalid(AssertInvalid {
                 filename,
@@ -466,7 +484,7 @@ pub fn test(mut path: String) {
                 p.pop();
                 p.push(&filename);
 
-                match Runtime::new(&p) {
+                match Runtime::new(&p).await {
                     Ok(_) => {
                         error!("test {test_i}/{total_tests} did not fail invalidating/parsing, expected error: {text:?} (module: {p:?})");
                         std::process::exit(1);
@@ -478,24 +496,21 @@ pub fn test(mut path: String) {
                 if skip {
                     continue;
                 }
-                let mut rt = runtime.borrow_mut();
-                let _rt = rt.as_mut().expect("no rt set");
+                let _rt = runtime.as_ref().expect("no rt set");
                 todo!("AssertUninstantiable")
             }
             Case::AssertUnlinkable(_) => {
                 if skip {
                     continue;
                 }
-                let mut rt = runtime.borrow_mut();
-                let rt = rt.as_mut().expect("no rt set");
+                let _rt = runtime.as_ref().expect("no rt set");
                 todo!("AssertUnlinkable")
             }
             Case::Register(Register { _as, name, .. }) => {
                 if skip {
                     continue;
                 }
-                let mut rt = runtime.borrow_mut();
-                let rt = rt.as_mut().expect("no rt set");
+                let _rt = runtime.as_ref().expect("no rt set");
                 if let Some(name) = name {
                     todo!("Register: {_as:?} {name}")
                 } else {

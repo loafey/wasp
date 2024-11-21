@@ -192,7 +192,7 @@ macro_rules! gen_macros {
 }
 
 impl Runtime {
-    pub async fn step(&mut self) -> Result<(), RuntimeError> {
+    pub fn step(&mut self) -> Result<(), RuntimeError> {
         if self.stack.len() > u16::MAX as usize {
             return Err(StackExhaustion(self.stack.len(), u16::MAX as usize));
         }

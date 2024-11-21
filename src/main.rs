@@ -22,8 +22,7 @@ fn alloc<const N: usize>() -> Hex<N> {
     }
 }
 
-#[tokio::main]
-async fn main() {
+fn main() {
     pretty_env_logger::init();
     let path = args()
         .skip(1)
@@ -31,11 +30,11 @@ async fn main() {
         .unwrap_or("examples/c_addition.wasm".to_string());
 
     if path.ends_with(".wast") {
-        testsuite::test(path).await;
+        testsuite::test(path);
     } else {
-        let mut runtime = Runtime::new(path).await.expect("Failed to load runtime");
+        let mut runtime = Runtime::new(path).expect("Failed to load runtime");
         loop {
-            if let Err(e) = runtime.step().await {
+            if let Err(e) = runtime.step() {
                 match e {
                     RuntimeError::Exit(x) => std::process::exit(x),
                     _ => {

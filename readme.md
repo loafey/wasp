@@ -5,7 +5,7 @@
 💩: 119
 ## Failed: test-suite/test/core/data.wast
 ```bash
-thread 'main' panicked at src/testsuite.rs:331:26:
+thread 'main' panicked at src/testsuite.rs:323:56:
 failed to load module: unknown global
 note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 ```
@@ -26,14 +26,14 @@ note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 
 ## Failed: test-suite/test/core/exports.wast
 ```bash
-thread 'main' panicked at src/testsuite.rs:240:17:
+thread 'main' panicked at src/testsuite.rs:239:17:
 not yet implemented
 note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 ```
 
 ## Failed: test-suite/test/core/f32.wast
 ```bash
-thread 'main' panicked at src/testsuite.rs:331:26:
+thread 'main' panicked at src/testsuite.rs:323:56:
 failed to load module: ParseError(File: "test-suite/test/core/f32.0.wasm"
 UnknownInstruction(<95>), bin pos: 149, stack: [
     "wasp::parser::instr::Instr",
@@ -49,7 +49,7 @@ note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 
 ## Failed: test-suite/test/core/f32_bitwise.wast
 ```bash
-thread 'main' panicked at src/testsuite.rs:331:26:
+thread 'main' panicked at src/testsuite.rs:323:56:
 failed to load module: ParseError(File: "test-suite/test/core/f32_bitwise.0.wasm"
 UnknownInstruction(<8b>), bin pos: 62, stack: [
     "wasp::parser::instr::Instr",
@@ -65,7 +65,7 @@ note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 
 ## Failed: test-suite/test/core/f32_cmp.wast
 ```bash
-thread 'main' panicked at src/testsuite.rs:331:26:
+thread 'main' panicked at src/testsuite.rs:323:56:
 failed to load module: ParseError(File: "test-suite/test/core/f32_cmp.0.wasm"
 UnknownInstruction(<5d>), bin pos: 85, stack: [
     "wasp::parser::instr::Instr",
@@ -81,7 +81,7 @@ note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 
 ## Failed: test-suite/test/core/f64.wast
 ```bash
-thread 'main' panicked at src/testsuite.rs:331:26:
+thread 'main' panicked at src/testsuite.rs:323:56:
 failed to load module: ParseError(File: "test-suite/test/core/f64.0.wasm"
 UnknownInstruction(<a3>), bin pos: 149, stack: [
     "wasp::parser::instr::Instr",
@@ -97,7 +97,7 @@ note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 
 ## Failed: test-suite/test/core/f64_bitwise.wast
 ```bash
-thread 'main' panicked at src/testsuite.rs:331:26:
+thread 'main' panicked at src/testsuite.rs:323:56:
 failed to load module: ParseError(File: "test-suite/test/core/f64_bitwise.0.wasm"
 UnknownInstruction(<a6>), bin pos: 76, stack: [
     "wasp::parser::instr::Instr",
@@ -113,7 +113,7 @@ note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 
 ## Failed: test-suite/test/core/f64_cmp.wast
 ```bash
-thread 'main' panicked at src/testsuite.rs:331:26:
+thread 'main' panicked at src/testsuite.rs:323:56:
 failed to load module: ParseError(File: "test-suite/test/core/f64_cmp.0.wasm"
 UnknownInstruction(<64>), bin pos: 101, stack: [
     "wasp::parser::instr::Instr",
@@ -141,7 +141,7 @@ note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 
 ## Failed: test-suite/test/core/float_misc.wast
 ```bash
-thread 'main' panicked at src/testsuite.rs:331:26:
+thread 'main' panicked at src/testsuite.rs:323:56:
 failed to load module: ParseError(File: "test-suite/test/core/float_misc.0.wasm"
 UnknownInstruction(<95>), bin pos: 413, stack: [
     "wasp::parser::instr::Instr",
@@ -167,14 +167,14 @@ note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 
 ## Failed: test-suite/test/core/global.wast
 ```bash
-thread 'main' panicked at src/testsuite.rs:331:26:
+thread 'main' panicked at src/testsuite.rs:323:56:
 failed to load module: GlobalWithoutOffset
 note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 ```
 
 ## Failed: test-suite/test/core/i32.wast
 ```bash
-thread 'main' panicked at src/testsuite.rs:331:26:
+thread 'main' panicked at src/testsuite.rs:323:56:
 failed to load module: ParseError(File: "test-suite/test/core/i32.0.wasm"
 UnknownInstruction(<6f>), bin pos: 332, stack: [
     "wasp::parser::instr::Instr",
@@ -190,7 +190,7 @@ note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 
 ## Failed: test-suite/test/core/i64.wast
 ```bash
-thread 'main' panicked at src/testsuite.rs:331:26:
+thread 'main' panicked at src/testsuite.rs:323:56:
 failed to load module: ParseError(File: "test-suite/test/core/i64.0.wasm"
 UnknownInstruction(<81>), bin pos: 357, stack: [
     "wasp::parser::instr::Instr",
@@ -211,7 +211,7 @@ note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 
 ## Failed: test-suite/test/core/imports.wast
 ```bash
-thread 'main' panicked at src/testsuite.rs:515:21:
+thread 'main' panicked at src/testsuite.rs:493:21:
 not yet implemented: Register: "test" 
 note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 ```
@@ -232,7 +232,7 @@ note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 
 ## Failed: test-suite/test/core/left-to-right.wast
 ```bash
-thread 'main' panicked at src/testsuite.rs:331:26:
+thread 'main' panicked at src/testsuite.rs:323:56:
 failed to load module: ParseError(File: "test-suite/test/core/left-to-right.0.wasm"
 UnknownInstruction(<6f>), bin pos: 1805, stack: [
     "wasp::parser::instr::Instr",
@@ -248,7 +248,7 @@ note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 
 ## Failed: test-suite/test/core/linking.wast
 ```bash
-thread 'main' panicked at src/testsuite.rs:513:21:
+thread 'main' panicked at src/testsuite.rs:491:21:
 not yet implemented: Register: "Mf" $Mf
 note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 ```
@@ -279,7 +279,7 @@ note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 
 ## Failed: test-suite/test/core/loop.wast
 ```bash
-thread 'main' panicked at src/testsuite.rs:331:26:
+thread 'main' panicked at src/testsuite.rs:323:56:
 failed to load module: ParseError(File: "test-suite/test/core/loop.0.wasm"
 UnknownInstruction(<5d>), bin pos: 2324, stack: [
     "wasp::parser::instr::Instr",
@@ -318,7 +318,7 @@ note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 
 ## Failed: test-suite/test/core/memory_grow.wast
 ```bash
-thread 'main' panicked at src/testsuite.rs:331:26:
+thread 'main' panicked at src/testsuite.rs:323:56:
 failed to load module: ParseError(File: "test-suite/test/core/memory_grow.0.wasm"
 UnknownInstruction(<3f>), bin pos: 179, stack: [
     "wasp::parser::instr::Instr",
@@ -339,7 +339,7 @@ note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 
 ## Failed: test-suite/test/core/memory_size.wast
 ```bash
-thread 'main' panicked at src/testsuite.rs:331:26:
+thread 'main' panicked at src/testsuite.rs:323:56:
 failed to load module: ParseError(File: "test-suite/test/core/memory_size.0.wasm"
 UnknownInstruction(<3f>), bin pos: 52, stack: [
     "wasp::parser::instr::Instr",
@@ -355,7 +355,7 @@ note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 
 ## Failed: test-suite/test/core/memory_trap.wast
 ```bash
-thread 'main' panicked at src/testsuite.rs:331:26:
+thread 'main' panicked at src/testsuite.rs:323:56:
 failed to load module: ParseError(File: "test-suite/test/core/memory_trap.0.wasm"
 UnknownInstruction(<3f>), bin pos: 75, stack: [
     "wasp::parser::instr::Instr",
@@ -371,7 +371,7 @@ note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 
 ## Failed: test-suite/test/core/names.wast
 ```bash
-thread 'main' panicked at src/testsuite.rs:331:26:
+thread 'main' panicked at src/testsuite.rs:323:56:
 failed to load module: type error: UnknownFunction
 note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 ```
@@ -385,21 +385,21 @@ note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 
 ## Failed: test-suite/test/core/ref_func.wast
 ```bash
-thread 'main' panicked at src/testsuite.rs:515:21:
+thread 'main' panicked at src/testsuite.rs:493:21:
 not yet implemented: Register: "M" 
 note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 ```
 
 ## Failed: test-suite/test/core/ref_is_null.wast
 ```bash
-thread 'main' panicked at src/testsuite.rs:297:6:
+thread 'main' panicked at src/testsuite.rs:293:6:
 failed to parse test data: Error("data did not match any variant of untagged enum Case", line: 5, column: 2)
 note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 ```
 
 ## Failed: test-suite/test/core/ref_null.wast
 ```bash
-thread 'main' panicked at src/testsuite.rs:297:6:
+thread 'main' panicked at src/testsuite.rs:293:6:
 failed to parse test data: Error("data did not match any variant of untagged enum Case", line: 5, column: 154)
 note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 ```
@@ -411,7 +411,7 @@ note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 
 ## Failed: test-suite/test/core/select.wast
 ```bash
-thread 'main' panicked at src/testsuite.rs:297:6:
+thread 'main' panicked at src/testsuite.rs:293:6:
 failed to parse test data: Error("data did not match any variant of untagged enum Case", line: 33, column: 2)
 note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 ```
@@ -670,14 +670,14 @@ memory allocation of 77309411344 bytes failed
 
 ## Failed: test-suite/test/core/table_copy.wast
 ```bash
-thread 'main' panicked at src/testsuite.rs:515:21:
+thread 'main' panicked at src/testsuite.rs:493:21:
 not yet implemented: Register: "a" 
 note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 ```
 
 ## Failed: test-suite/test/core/table_fill.wast
 ```bash
-thread 'main' panicked at src/testsuite.rs:331:26:
+thread 'main' panicked at src/testsuite.rs:323:56:
 failed to load module: ParseError(File: "test-suite/test/core/table_fill.0.wasm"
 UnknownInstruction(<25>), bin pos: 96, stack: [
     "wasp::parser::instr::Instr",
@@ -693,28 +693,28 @@ note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 
 ## Failed: test-suite/test/core/table_get.wast
 ```bash
-thread 'main' panicked at src/testsuite.rs:297:6:
+thread 'main' panicked at src/testsuite.rs:293:6:
 failed to parse test data: Error("data did not match any variant of untagged enum Case", line: 8, column: 2)
 note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 ```
 
 ## Failed: test-suite/test/core/table_grow.wast
 ```bash
-thread 'main' panicked at src/testsuite.rs:297:6:
+thread 'main' panicked at src/testsuite.rs:293:6:
 failed to parse test data: Error("data did not match any variant of untagged enum Case", line: 44, column: 2)
 note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 ```
 
 ## Failed: test-suite/test/core/table_init.wast
 ```bash
-thread 'main' panicked at src/testsuite.rs:515:21:
+thread 'main' panicked at src/testsuite.rs:493:21:
 not yet implemented: Register: "a" 
 note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 ```
 
 ## Failed: test-suite/test/core/table_set.wast
 ```bash
-thread 'main' panicked at src/testsuite.rs:297:6:
+thread 'main' panicked at src/testsuite.rs:293:6:
 failed to parse test data: Error("data did not match any variant of untagged enum Case", line: 10, column: 2)
 note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 ```
@@ -745,7 +745,7 @@ note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 
 ## Failed: test-suite/test/core/unreached-valid.wast
 ```bash
-thread 'main' panicked at src/testsuite.rs:331:26:
+thread 'main' panicked at src/testsuite.rs:323:56:
 failed to load module: ParseError(File: "test-suite/test/core/unreached-valid.0.wasm"
 UnknownInstruction(<d1>), bin pos: 273, stack: [
     "wasp::parser::instr::Instr",

@@ -300,7 +300,7 @@ pub fn test(mut path: String) {
 
     for (test_i, test) in tests.commands.into_iter().enumerate() {
         let test_i = test_i + 1;
-        println!("\n{}/{total_tests}", test_i);
+        // println!("\n{}/{total_tests}", test_i);
         if let Some(rt) = &mut *runtime.borrow_mut() {
             rt.stack = Vec::new();
         }

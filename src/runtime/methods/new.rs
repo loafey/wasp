@@ -142,6 +142,7 @@ impl Runtime {
             .iter()
             .map(|g| g.gt.t)
             .collect::<Vec<_>>();
+        // println!("{:?}", module.imports);
 
         let code_len = module.code.code.len() as u32;
         let table_len = module.tables.tables.len() as u32;

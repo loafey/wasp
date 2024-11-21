@@ -1,5 +1,3 @@
-use egui::emath::Numeric;
-
 use super::super::{
     clean_model::Function,
     error::{RuntimeError, RuntimeError::*},
@@ -10,7 +8,7 @@ use crate::parser::{
     RefTyp, TableIdX, TypeIdX, BT,
 };
 use core::f64;
-use std::{collections::HashMap, ops::Rem};
+use std::collections::HashMap;
 
 macro_rules! gen_macros {
     ($f:expr) => {
@@ -221,7 +219,7 @@ impl Runtime {
                         let x = *local!(i32, &1) as usize;
                         let mut b = Vec::new();
                         for i in x..y {
-                            let s = self.memory.get(
+                            let s = self.module.memory.get(
                                 i,
                                 MemArg {
                                     align: 0,
@@ -541,116 +539,151 @@ impl Runtime {
                         push!(last);
                     }
                     x23_global_get(GlobalIdX(id)) => {
-                        push!(self.globals.get(id).copied().unwrap_or(Value::I32(0)))
+                        push!(self
+                            .module
+                            .globals
+                            .get(id)
+                            .copied()
+                            .unwrap_or(Value::I32(0)))
                     }
                     x24_global_set(GlobalIdX(id)) => {
                         let pop = pop!();
-                        self.globals.insert(*id, pop);
+                        self.module.globals.insert(*id, pop);
                     }
                     x28_i32_load(mem) => {
                         let addr = pop!(u32);
-                        push!(i32, self.memory.get(addr as usize, *mem)?);
+                        push!(i32, self.module.memory.get(addr as usize, *mem)?);
                     }
                     x29_i64_load(mem) => {
                         let addr = pop!(u32);
-                        push!(i64, self.memory.get(addr as usize, *mem)?);
+                        push!(i64, self.module.memory.get(addr as usize, *mem)?);
                     }
                     x2a_f32_load(mem) => {
                         let addr = pop!(u32);
-                        push!(f32, self.memory.get(addr as usize, *mem)?);
+                        push!(f32, self.module.memory.get(addr as usize, *mem)?);
                     }
                     x2b_f64_load(mem) => {
                         let addr = pop!(u32);
-                        push!(f64, self.memory.get(addr as usize, *mem)?);
+                        push!(f64, self.module.memory.get(addr as usize, *mem)?);
                     }
                     x2c_i32_load8_s(mem) => {
                         let addr = pop!(u32);
-                        push!(i32, self.memory.get::<i8>(addr as usize, *mem)? as i32);
+                        push!(
+                            i32,
+                            self.module.memory.get::<i8>(addr as usize, *mem)? as i32
+                        );
                     }
                     x2d_i32_load8_u(mem) => {
                         let addr = pop!(u32);
-                        push!(u32, self.memory.get::<u8>(addr as usize, *mem)? as u32);
+                        push!(
+                            u32,
+                            self.module.memory.get::<u8>(addr as usize, *mem)? as u32
+                        );
                     }
                     x2e_i32_load16_s(mem) => {
                         let addr = pop!(u32);
-                        push!(i32, self.memory.get::<u16>(addr as usize, *mem)? as i32);
+                        push!(
+                            i32,
+                            self.module.memory.get::<u16>(addr as usize, *mem)? as i32
+                        );
                     }
                     x2f_i32_load16_u(mem) => {
                         let addr = pop!(u32);
-                        push!(u32, self.memory.get::<u16>(addr as usize, *mem)? as u32);
+                        push!(
+                            u32,
+                            self.module.memory.get::<u16>(addr as usize, *mem)? as u32
+                        );
                     }
                     x30_i64_load8_s(mem) => {
                         let addr = pop!(u32);
-                        push!(i64, self.memory.get::<i8>(addr as usize, *mem)? as i64);
+                        push!(
+                            i64,
+                            self.module.memory.get::<i8>(addr as usize, *mem)? as i64
+                        );
                     }
                     x31_i64_load8_u(mem) => {
                         let addr = pop!(u32);
-                        push!(u64, self.memory.get::<u8>(addr as usize, *mem)? as u64);
+                        push!(
+                            u64,
+                            self.module.memory.get::<u8>(addr as usize, *mem)? as u64
+                        );
                     }
                     x32_i64_load16_s(mem) => {
                         let addr = pop!(u32);
-                        push!(i64, self.memory.get::<i16>(addr as usize, *mem)? as i64);
+                        push!(
+                            i64,
+                            self.module.memory.get::<i16>(addr as usize, *mem)? as i64
+                        );
                     }
                     x33_i64_load16_u(mem) => {
                         let addr = pop!(u32);
-                        push!(u64, self.memory.get::<u16>(addr as usize, *mem)? as u64);
+                        push!(
+                            u64,
+                            self.module.memory.get::<u16>(addr as usize, *mem)? as u64
+                        );
                     }
                     x34_i64_load32_s(mem) => {
                         let addr = pop!(u32);
-                        push!(i64, self.memory.get::<i32>(addr as usize, *mem)? as i64);
+                        push!(
+                            i64,
+                            self.module.memory.get::<i32>(addr as usize, *mem)? as i64
+                        );
                     }
                     x35_i64_load32_u(mem) => {
                         let addr = pop!(u32);
-                        push!(u64, self.memory.get::<u32>(addr as usize, *mem)? as u64);
+                        push!(
+                            u64,
+                            self.module.memory.get::<u32>(addr as usize, *mem)? as u64
+                        );
                     }
                     x36_i32_store(mem) => {
                         let v = pop!(i32);
                         let addr = pop!(u32);
-                        self.memory.set(addr as usize, *mem, v)?;
+                        self.module.memory.set(addr as usize, *mem, v)?;
                     }
                     x37_i64_store(mem) => {
                         let v = pop!(i64);
                         let addr = pop!(u32);
-                        self.memory.set(addr as usize, *mem, v)?;
+                        self.module.memory.set(addr as usize, *mem, v)?;
                     }
                     x38_f32_store(mem) => {
                         let v = pop!(f32);
                         let addr = pop!(u32);
-                        self.memory.set(addr as usize, *mem, v)?;
+                        self.module.memory.set(addr as usize, *mem, v)?;
                     }
                     x39_f64_store(mem) => {
                         let v = pop!(f64);
                         let addr = pop!(u32);
-                        self.memory.set(addr as usize, *mem, v)?;
+                        self.module.memory.set(addr as usize, *mem, v)?;
                     }
                     x3a_i32_store8(mem) => {
                         let v = pop!(i32);
                         let addr = pop!(u32);
-                        self.memory.set(addr as usize, *mem, v as i8)?;
+                        self.module.memory.set(addr as usize, *mem, v as i8)?;
                     }
                     x3b_i32_store16(mem) => {
                         let v = pop!(i32);
                         let addr = pop!(u32);
-                        self.memory.set(addr as usize, *mem, v as i16)?;
+                        self.module.memory.set(addr as usize, *mem, v as i16)?;
                     }
                     x3c_i64_store8(mem) => {
                         let v = pop!(i64);
                         let addr = pop!(u32);
-                        self.memory.set(addr as usize, *mem, v as i8)?;
+                        self.module.memory.set(addr as usize, *mem, v as i8)?;
                     }
                     x3d_i64_store16(mem) => {
                         let v = pop!(i64);
                         let addr = pop!(u32);
-                        self.memory.set(addr as usize, *mem, v as i16)?;
+                        self.module.memory.set(addr as usize, *mem, v as i16)?;
                     }
                     x3e_i64_store32(mem) => {
                         let v = pop!(i64);
                         let addr = pop!(u32);
-                        self.memory.set(addr as usize, *mem, v as i32)?;
+                        self.module.memory.set(addr as usize, *mem, v as i32)?;
                     }
                     x40_grow => {
                         let amount = pop!(i32);
-                        push!(i32, self.memory.grow(amount as usize))
+                        push!(i32, self.module.memory.grow(amount as usize))
                     }
                     x41_i32_const(val) => push!(i32, *val),
                     x42_i64_const(val) => push!(i64, *val),
@@ -1141,28 +1174,29 @@ impl Runtime {
                         let amount = pop!(i32) as usize;
                         let source = pop!(i32) as usize;
                         let destination = pop!(i32) as usize;
-                        let val = unwrap!(self.datas.get(i), MissingData);
+                        let val = unwrap!(self.module.datas.get(i), MissingData);
                         if source + amount > val.len() {
                             throw!(DataInitOutOfRange)
                         }
-                        self.memory
+                        self.module
+                            .memory
                             .slice_write(destination, &val[source..source + amount])?
                     }
                     xfc_9_data_drop(DataIdx(i)) => {
-                        self.datas.insert(*i, Vec::new());
+                        self.module.datas.insert(*i, Vec::new());
                     }
                     xfc_10_memory_copy(_, _) => {
                         let amount = pop!(i32) as usize;
                         let source = pop!(i32) as usize;
                         let destination = pop!(i32) as usize;
                         // println!("amount: {amount}, source: {source}, dest: {destination}");
-                        self.memory.copy(source, amount, destination)?;
+                        self.module.memory.copy(source, amount, destination)?;
                     }
                     xfc_11_memory_fill(_) => {
                         let amount = pop!(i32) as usize;
                         let val = pop!(i32) as u8;
                         let ptr = pop!(i32) as usize;
-                        self.memory.bulk_write(ptr, amount, val)?;
+                        self.module.memory.bulk_write(ptr, amount, val)?;
                     }
                     xfc_12_table_init(ElemIdx(e), TableIdX(t)) => {
                         let amount = pop!(i32) as u32;

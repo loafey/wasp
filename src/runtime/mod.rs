@@ -4,9 +4,8 @@ use std::{collections::HashMap, fmt::Debug, path::PathBuf};
 pub mod clean_model;
 mod memory;
 use clean_model::Model;
-use memory::Memory;
 mod error;
-use crate::parser::{BlockType, ExportDesc, BT};
+use crate::parser::{BlockType, BT};
 pub use error::RuntimeError;
 
 mod methods;
@@ -77,9 +76,4 @@ pub struct Runtime {
     pub _path: PathBuf,
     pub module: Model,
     pub stack: Vec<Frame>,
-    pub globals: HashMap<u32, Value>,
-    pub memory: Memory<{ 65536 + 1 }>,
-    pub exports: HashMap<String, ExportDesc>,
-    #[allow(unused)]
-    pub datas: HashMap<u32, Vec<u8>>,
 }

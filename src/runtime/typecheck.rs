@@ -1,5 +1,5 @@
 use crate::parser::{
-    BlockType, DataIdx, FuncIdx, FuncType, GlobalIdX,
+    BlockType, FuncIdx, FuncType, GlobalIdX,
     Instr::{self, *},
     LabelIdX, LocalIdX, NumType, TypeIdX, ValType,
 };

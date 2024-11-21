@@ -1,14 +1,13 @@
 use super::super::{
     clean_model::Model,
     error::{RuntimeError, RuntimeError::*},
-    memory::Memory,
     typecheck, Frame, Runtime, Value,
 };
 use crate::{
     parser::{
-        self, Elem, ExportDesc, FuncIdx, Global, GlobalIdX,
+        Elem, ExportDesc, FuncIdx, Global,
         Instr::{self, *},
-        LabelIdX, MemArg, MemIdX, Module, Parsable, TableIdX, TypeIdX,
+        LabelIdX, Module, Parsable, TableIdX, TypeIdX,
     },
     runtime::{clean_model::Function, typecheck::TypeCheckError},
 };
@@ -52,55 +51,6 @@ impl Runtime {
             globals.insert(i as u32, val);
         }
 
-        let (mem_cur, mem_max) = module
-            .mems
-            .mems
-            .first()
-            .map(|m| match m.limits {
-                parser::Limits::Min(i) => (i as usize, usize::MAX),
-                parser::Limits::MinMax(i, m) => (i as usize, m as usize),
-            })
-            .unwrap_or((1, usize::MAX));
-        let mut memory = Memory::new(mem_cur, mem_max);
-        let mut datas = HashMap::new();
-        for (i, d) in module.datas.data.iter().enumerate() {
-            match d {
-                parser::Data::ActiveX(MemIdX(0), e, vec) | parser::Data::Active(e, vec) => {
-                    let p = match &e.instrs[..] {
-                        [Instr::x41_i32_const(p)] => p,
-                        [Instr::x23_global_get(GlobalIdX(i))] => {
-                            if let Some(k) = globals.get(i) {
-                                match k {
-                                    Value::I32(p) => p,
-                                    _ => todo!(),
-                                }
-                            } else {
-                                return Err(UnknownGlobal);
-                            }
-                        }
-                        _ => {
-                            error!("{:?}", e.instrs);
-                            return Err(ActiveDataWithoutOffset);
-                        }
-                    };
-                    for (i, v) in vec.iter().enumerate() {
-                        memory.set(
-                            *p as usize + i,
-                            MemArg {
-                                align: 0,
-                                offset: 0,
-                            },
-                            *v,
-                        )?;
-                    }
-                }
-                parser::Data::Passive(v) => {
-                    datas.insert(i as u32, v.clone());
-                }
-                parser::Data::ActiveX(_, _, _) => todo!(""),
-            }
-        }
-
         let stack = if let Some(ExportDesc::Func(TypeIdX(main_id))) = module
             .exports
             .exports
@@ -119,13 +69,6 @@ impl Runtime {
         } else {
             Vec::new()
         };
-
-        let exports = module
-            .exports
-            .exports
-            .iter()
-            .map(|exp| (exp.nm.0.clone(), exp.d))
-            .collect();
 
         let mut sigs = Vec::new();
         for (_, TypeIdX(i)) in module.code.code.iter().zip(&module.funcs.functions) {
@@ -288,7 +231,7 @@ impl Runtime {
             );
         }
 
-        let module = Model::from(module);
+        let module = Model::try_from(module)?;
         for f in module.functions.values() {
             match f {
                 Function::Import { .. } => continue,
@@ -322,10 +265,6 @@ impl Runtime {
         Ok(Self {
             module,
             stack,
-            memory,
-            globals,
-            datas,
-            exports,
             _path: path.as_ref().to_path_buf(),
         })
     }

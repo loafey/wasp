@@ -1,10 +1,11 @@
+use super::{memory::Memory, RuntimeError, RuntimeError::*, Value};
 use crate::parser::{
-    Elem, Expr, FuncIdx, FuncType, ImportDesc, Instr, Limits, Module, Name, TableIdX, TypeIdX, BT,
+    Data, Elem, ExportDesc, Expr, FuncIdx, FuncType, Global, GlobalIdX, ImportDesc, Instr, Limits,
+    MemArg, MemIdX, Module, Name, TableIdX, TypeIdX, BT,
 };
 use std::{
     collections::HashMap,
     ops::{Deref, DerefMut},
-    u32,
 };
 
 #[derive(Debug)]
@@ -46,11 +47,15 @@ pub struct Model {
     pub tables: Vec<Table>,
     pub elems: HashMap<u32, Expr>,
     pub function_types: HashMap<u32, FuncType>,
+    pub globals: HashMap<u32, Value>,
+    pub exports: HashMap<String, ExportDesc>,
+    pub datas: HashMap<u32, Vec<u8>>,
+    pub memory: Memory<{ 65536 + 1 }>,
 }
-impl From<Module> for Model {
-    fn from(value: Module) -> Self {
+impl TryFrom<Module> for Model {
+    type Error = RuntimeError;
+    fn try_from(value: Module) -> Result<Self, Self::Error> {
         let mut functions = HashMap::new();
-
         let mut import_count = 0;
         for (k, import) in value.imports.imports.into_iter().enumerate() {
             let ImportDesc::Func(TypeIdX(ty_id)) = import.desc else {
@@ -313,11 +318,84 @@ impl From<Module> for Model {
             .map(|(i, f)| (i as u32, f))
             .collect();
 
-        Self {
+        let exports = value
+            .exports
+            .exports
+            .iter()
+            .map(|exp| (exp.nm.0.clone(), exp.d))
+            .collect();
+
+        let mut globals = HashMap::new();
+        for (i, Global { e, .. }) in value.globals.globals.iter().enumerate() {
+            let val = match e.instrs[0] {
+                Instr::x41_i32_const(x) => Value::I32(x),
+                Instr::x42_i64_const(x) => Value::I64(x),
+                Instr::x43_f32_const(x) => Value::F32(x),
+                Instr::x44_f64_const(x) => Value::F64(x),
+                _ => return Err(GlobalWithoutValue),
+            };
+            globals.insert(i as u32, val);
+        }
+
+        let (mem_cur, mem_max) = value
+            .mems
+            .mems
+            .first()
+            .map(|m| match m.limits {
+                Limits::Min(i) => (i as usize, usize::MAX),
+                Limits::MinMax(i, m) => (i as usize, m as usize),
+            })
+            .unwrap_or((1, usize::MAX));
+        let mut memory = Memory::new(mem_cur, mem_max);
+
+        let mut datas = HashMap::new();
+        for (i, d) in value.datas.data.iter().enumerate() {
+            match d {
+                Data::ActiveX(MemIdX(0), e, vec) | Data::Active(e, vec) => {
+                    let p = match &e.instrs[..] {
+                        [Instr::x41_i32_const(p)] => p,
+                        [Instr::x23_global_get(GlobalIdX(i))] => {
+                            if let Some(k) = globals.get(i) {
+                                match k {
+                                    Value::I32(p) => p,
+                                    _ => todo!(),
+                                }
+                            } else {
+                                return Err(UnknownGlobal);
+                            }
+                        }
+                        _ => {
+                            error!("{:?}", e.instrs);
+                            return Err(ActiveDataWithoutOffset);
+                        }
+                    };
+                    for (i, v) in vec.iter().enumerate() {
+                        memory.set(
+                            *p as usize + i,
+                            MemArg {
+                                align: 0,
+                                offset: 0,
+                            },
+                            *v,
+                        )?;
+                    }
+                }
+                Data::Passive(v) => {
+                    datas.insert(i as u32, v.clone());
+                }
+                Data::ActiveX(_, _, _) => todo!(""),
+            }
+        }
+
+        Ok(Self {
             functions,
             tables,
             function_types,
             elems,
-        }
+            globals,
+            exports,
+            datas,
+            memory,
+        })
     }
 }

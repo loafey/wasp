@@ -1,5 +1,3 @@
-use std::io::ErrorKind;
-
 use super::{error::ParseError, Name, Parsable};
 
 #[derive(Debug, Default)]

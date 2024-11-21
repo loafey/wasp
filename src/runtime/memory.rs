@@ -1,5 +1,5 @@
 use crate::parser::MemArg;
-use std::{collections::HashMap, mem, num::Wrapping};
+use std::{collections::HashMap, fmt::Debug, mem, num::Wrapping};
 
 use super::RuntimeError;
 
@@ -12,6 +12,11 @@ pub struct Memory<const PAGE_SIZE: usize> {
     current_pages: usize,
     max_pages: usize,
     map: HashMap<usize, Page<PAGE_SIZE>>,
+}
+impl<const PAGE_SIZE: usize> Debug for Memory<PAGE_SIZE> {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "Memory<{PAGE_SIZE}>")
+    }
 }
 impl<const PAGE_SIZE: usize> Memory<PAGE_SIZE> {
     pub fn grow(&mut self, m: usize) -> i32 {

@@ -239,7 +239,7 @@ fn handle_action<T>(
                 todo!()
             }
 
-            let fid = rt.exports.get(&field).expect("no function");
+            let fid = rt.module.exports.get(&field).expect("no function");
 
             let ExportDesc::Func(TypeIdX(fid)) = fid else {
                 panic!("no function with this id")

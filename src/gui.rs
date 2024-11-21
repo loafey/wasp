@@ -73,7 +73,7 @@ impl eframe::App for App {
 
         egui::SidePanel::new(egui::panel::Side::Left, Id::new("side_panel")).show(ctx, |ui| {
             ui.heading("Ram usage:");
-            let mem = self.runtime.memory.size();
+            let mem = self.runtime.module.memory.size();
             if mem > 1_000_000_000 {
                 ui.label(format!("{}GB", mem as f64 / 1_000_000_000.0))
             } else if mem > 1_000_000 {
@@ -95,7 +95,7 @@ impl eframe::App for App {
             }
 
             ui.heading("Globals:");
-            for (k, v) in &self.runtime.globals {
+            for (k, v) in &self.runtime.module.globals {
                 ui.label(format!("{k}: {v:?}"));
             }
         });

@@ -116,8 +116,7 @@ struct AssertUnlinkable {
 #[allow(unused)]
 struct Register {
     #[serde(rename = "type")]
-    _type: MustBe!("assert_register"),
-    name: String,
+    _type: MustBe!("register"),
     #[serde(rename = "as")]
     _as: String,
 }

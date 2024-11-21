@@ -69,7 +69,14 @@ impl Runtime {
                     let p = match &e.instrs[..] {
                         [Instr::x41_i32_const(p)] => p,
                         [Instr::x23_global_get(GlobalIdX(i))] => {
-                            todo!("{:?}", globals.get(i));
+                            if let Some(k) = globals.get(i) {
+                                match k {
+                                    Value::I32(p) => p,
+                                    _ => todo!(),
+                                }
+                            } else {
+                                return Err(UnknownGlobal);
+                            }
                         }
                         _ => {
                             error!("{:?}", e.instrs);

@@ -28,6 +28,7 @@ pub enum RuntimeError {
     IntegerOverflow(&'static str, u32, u32),
     InvalidConversionToInteger(&'static str, u32, u32),
     UnknownLabel,
+    UnknownGlobal,
     OutOfBoundsMemoryAccess,
     StackExhaustion(usize, usize),
 }
@@ -41,6 +42,7 @@ impl From<TypeCheckError> for RuntimeError {
 impl std::fmt::Debug for RuntimeError {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
+            Self::UnknownGlobal => write!(f, "unknown global"),
             Self::StackExhaustion(cur, max) => write!(f, "stack overflow ({cur}/{max})"),
             Self::IndirectCallTypeMismatch(..) => write!(f, "indirect call type mismatch"),
             Self::MissingData(arg0, arg1, arg2) => {

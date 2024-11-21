@@ -499,7 +499,8 @@ pub fn test(mut path: String) {
                 if let Some(name) = name {
                     todo!("Register: {_as:?} {name}")
                 } else {
-                    rt.modules.insert("bob".to_string(), rt.module);
+                    todo!("Register: {_as:?} ")
+                    // rt.modules.insert("bob".to_string(), rt.module);
                 }
             }
         }

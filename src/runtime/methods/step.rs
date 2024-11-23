@@ -247,6 +247,22 @@ impl Runtime {
                         let _ = *local!(i32, &0);
                         push!(i32, 0);
                     }
+                    #[allow(clippy::print_stdout)]
+                    ("spectest", "print_i32") => {
+                        let a = *local!(i32, &0);
+                        println!("{a}");
+                    }
+                    #[allow(clippy::print_stdout)]
+                    ("spectest", "print_i32_f32") => {
+                        let b = *local!(f32, &1);
+                        let a = *local!(i32, &0);
+                        println!("{a} {b}");
+                    }
+                    #[allow(clippy::print_stdout)]
+                    ("spectest", "print_f32") => {
+                        let a = *local!(f32, &0);
+                        println!("{a}");
+                    }
                     (module, function) => {
                         return Err(UnknownFunction(module.to_string(), function.to_string()));
                     }

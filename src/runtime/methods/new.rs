@@ -1,15 +1,11 @@
 use super::super::{
     clean_model::Model,
     error::{RuntimeError, RuntimeError::*},
-    typecheck, Frame, Runtime, Value,
+    Frame, Runtime, Value,
 };
 use crate::{
-    parser::{
-        Elem, ExportDesc, FuncIdx, Global,
-        Instr::{self, *},
-        LabelIdX, Module, Parsable, TableIdX, TypeIdX,
-    },
-    runtime::{clean_model::Function, typecheck::TypeCheckError},
+    parser::{ExportDesc, Global, Instr::*, LabelIdX, Module, Parsable, TypeIdX},
+    runtime::clean_model::Function,
 };
 use std::{
     collections::HashMap,

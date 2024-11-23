@@ -4,6 +4,7 @@ use crate::parser::{
     LabelIdX, LocalIdX, NumType, TypeIdX, ValType,
 };
 #[derive(Debug)]
+#[allow(unused)]
 pub struct TypingRules {
     pub input: Vec<ValType>,
     pub output: Vec<ValType>,
@@ -82,6 +83,7 @@ pub enum TypeCheckError {
     UnknownType,
 }
 
+#[allow(unused)]
 pub fn check(
     mut context: Vec<ValType>,
     locals: &[ValType],

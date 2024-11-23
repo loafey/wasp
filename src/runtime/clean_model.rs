@@ -7,7 +7,7 @@ use super::{
 use crate::{
     parser::{
         Data, Elem, ExportDesc, Expr, FuncIdx, FuncType, Global, GlobalIdX, ImportDesc, Instr,
-        Limits, Locals, MemArg, MemIdX, Module, Name, TableIdX, TypeIdX, ValType, BT,
+        Limits, Locals, MemArg, MemIdX, Module, Name, TableIdX, TypeIdX, BT,
     },
     ptr::{Ptr, PtrRW},
     runtime::typecheck,

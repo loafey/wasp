@@ -1,6 +1,6 @@
 use super::{error::ParseError, Parsable, ValType};
 
-#[derive(Debug)]
+#[derive(Debug, Clone, Copy)]
 #[allow(unused)]
 pub struct Locals {
     pub n: u32,

@@ -1,10 +1,16 @@
-use super::{memory::Memory, RuntimeError, RuntimeError::*, Value};
+use super::{
+    memory::Memory,
+    typecheck::TypeCheckError,
+    RuntimeError::{self, *},
+    Value,
+};
 use crate::{
     parser::{
         Data, Elem, ExportDesc, Expr, FuncIdx, FuncType, Global, GlobalIdX, ImportDesc, Instr,
-        Limits, MemArg, MemIdX, Module, Name, TableIdX, TypeIdX, BT,
+        Limits, Locals, MemArg, MemIdX, Module, Name, TableIdX, TypeIdX, ValType, BT,
     },
     ptr::{Ptr, PtrRW},
+    runtime::typecheck,
 };
 use std::{
     collections::HashMap,
@@ -20,9 +26,9 @@ pub enum Function {
     },
     Local {
         ty: FuncType,
-        locals: Vec<usize>,
+        _locals: Vec<Locals>,
         code: Vec<Instr>,
-        labels: HashMap<Vec<u32>, u32>,
+        _labels: HashMap<Vec<u32>, u32>,
     },
 }
 
@@ -58,6 +64,26 @@ pub struct Model {
 impl TryFrom<Module> for Model {
     type Error = RuntimeError;
     fn try_from(value: Module) -> Result<Self, Self::Error> {
+        let table_len = value.tables.tables.len() as u32;
+        let type_len = value.types.function_types.len() as u32;
+
+        let mut sigs = Vec::new();
+        for (_, TypeIdX(i)) in value.code.code.iter().zip(&value.funcs.functions) {
+            let Some(typ) = value.types.function_types.get(*i as usize) else {
+                return Err(RuntimeError::TypeError(
+                    typecheck::TypeCheckError::MissingFunction,
+                ));
+            };
+            sigs.push(typ.clone())
+        }
+
+        // let globs = value
+        //     .globals
+        //     .globals
+        //     .iter()
+        //     .map(|g| g.gt.t)
+        //     .collect::<Vec<_>>();
+
         let mut functions = HashMap::new();
         let mut import_count = 0;
         for (k, import) in value.imports.imports.into_iter().enumerate() {
@@ -88,7 +114,16 @@ impl TryFrom<Module> for Model {
         // }
         for (k, code) in value.code.code.into_iter().enumerate() {
             let ty = code.code.t;
-            let locals = ty.iter().enumerate().map(|(s, _)| s).collect();
+            let locals = ty.to_vec();
+            // locals.append(
+            //     &mut code
+            //         .code
+            //         .t
+            //         .iter()
+            //         .flat_map(|l| (0..l.n).map(|_| l.t))
+            //         .collect::<Vec<_>>(),
+            // );
+
             let ty = value.types.function_types[value.funcs.functions[k].0 as usize].clone();
             let mut code = code.code.e.instrs;
 
@@ -234,13 +269,87 @@ impl TryFrom<Module> for Model {
                 (k + import_count) as u32,
                 Function::Local {
                     ty,
-                    locals,
-                    labels: HashMap::new(),
+                    _locals: locals,
+                    _labels: HashMap::new(),
                     code,
                 },
             );
         }
-        let functions = functions.into();
+        let functions: Ptr<_> = functions.into();
+
+        let code_len = functions.len() as u32;
+        for (_, code) in functions.iter() {
+            let (_typ, code) = match code {
+                Function::Import { .. } => continue,
+                Function::Local { ty, code, .. } => (ty, code),
+            };
+
+            // let locals = typ.input.types.clone();
+
+            // this should be part of the typechecker
+            enum Unknown {
+                Table,
+                Function,
+                Type,
+            }
+            fn valid_calls(
+                instrs: &[Instr],
+                code_len: u32,
+                table_len: u32,
+                type_len: u32,
+            ) -> Result<(), Unknown> {
+                macro_rules! valid_calls {
+                    ($p:expr) => {
+                        valid_calls($p, code_len, table_len, type_len)
+                    };
+                }
+                for i in instrs {
+                    match i {
+                        Instr::x02_block(_, instrs) => valid_calls!(instrs)?,
+                        Instr::x03_loop(_, instrs) => valid_calls!(instrs)?,
+                        Instr::x04_if_else(_, instrs, maybe_instrs) => {
+                            valid_calls!(instrs)?;
+                            if let Some(instrs) = maybe_instrs {
+                                valid_calls!(instrs)?;
+                            }
+                        }
+                        Instr::x10_call(FuncIdx(i)) if *i >= code_len => {
+                            return Err(Unknown::Function);
+                        }
+                        Instr::x11_call_indirect(TypeIdX(_), TableIdX(i)) if *i >= table_len => {
+                            return Err(Unknown::Table);
+                        }
+                        Instr::x11_call_indirect(TypeIdX(t), TableIdX(_)) if *t >= type_len => {
+                            return Err(Unknown::Type);
+                        }
+                        _ => {}
+                    }
+                }
+                Ok(())
+            }
+            match valid_calls(code, code_len, table_len, type_len) {
+                Ok(_) => {}
+                Err(Unknown::Function) => {
+                    return Err(RuntimeError::TypeError(TypeCheckError::UnknownFunction))
+                }
+                Err(Unknown::Table) => {
+                    return Err(RuntimeError::TypeError(TypeCheckError::UnknownTable))
+                }
+                Err(Unknown::Type) => {
+                    return Err(RuntimeError::TypeError(TypeCheckError::UnknownType))
+                }
+            }
+
+            // let _ = typecheck::check(
+            //     Vec::new(),
+            //     &locals,
+            //     code,
+            //     &sigs,
+            //     &value.types.function_types,
+            //     &globs,
+            //     Some(typ.output.types.clone()),
+            // );
+        }
 
         let mut tables: Vec<_> = value
             .tables
@@ -260,6 +369,52 @@ impl TryFrom<Module> for Model {
                 }
             })
             .collect();
+
+        for e in &value.elems.elems {
+            let (offset, vec) = match e {
+                Elem::E0(expr, vec) | Elem::E2(_, expr, _, vec) => (
+                    match &expr.instrs[..] {
+                        [Instr::x41_i32_const(offset)] => *offset as u32,
+                        _ => todo!(),
+                    },
+                    vec.clone(),
+                ),
+                Elem::E4(expr, vec) | Elem::E6(_, expr, _, vec) => (
+                    match &expr.instrs[..] {
+                        [Instr::x41_i32_const(offset)] => *offset as u32,
+                        e => todo!("{e:?}"),
+                    },
+                    vec.iter()
+                        .flat_map(|e| {
+                            e.instrs.iter().map(|e| match e {
+                                Instr::x41_i32_const(offset) => FuncIdx(*offset as u32),
+                                e => todo!("{e:?}"),
+                            })
+                        })
+                        .collect(),
+                ),
+                Elem::E1(_, vec) | Elem::E3(_, vec) => (0, vec.clone()),
+                Elem::E5(_, vec) | Elem::E7(_, vec) => (
+                    0,
+                    vec.iter()
+                        .flat_map(|e| {
+                            e.instrs.iter().map(|e| match e {
+                                Instr::x41_i32_const(offset) => FuncIdx(*offset as u32),
+                                Instr::xd2_ref_func(f) => *f,
+                                Instr::xd0_ref_null(_) => FuncIdx(0),
+                                e => todo!("{e:?}"),
+                            })
+                        })
+                        .collect(),
+                ),
+            };
+            for FuncIdx(f) in vec {
+                let f = f + offset;
+                if f >= code_len {
+                    return Err(RuntimeError::TypeError(TypeCheckError::UnknownFunction));
+                }
+            }
+        }
 
         let mut elems = HashMap::new();
         for (i, elem) in value.elems.elems.into_iter().enumerate() {

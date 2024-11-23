@@ -248,7 +248,7 @@ impl Runtime {
                         push!(i32, 0);
                     }
                     (module, function) => {
-                        return Err(UnknownFunction(module.to_string(), function.to_string()))
+                        return Err(UnknownFunction(module.to_string(), function.to_string()));
                     }
                 }
                 let mut frame = unwrap!(self.stack.pop(), NoFrame);
@@ -454,11 +454,9 @@ impl Runtime {
                     }
                     x10_call(FuncIdx(id)) => {
                         let fun = &self.module.functions[id];
-                        let (ty, _) = match fun {
-                            Function::Import { ty, .. } => {
-                                (ty, (0..=ty.input.types.len()).collect::<Vec<_>>())
-                            }
-                            Function::Local { ty, locals, .. } => (ty, locals.clone()),
+                        let ty = match fun {
+                            Function::Import { ty, .. } => ty,
+                            Function::Local { ty, .. } => ty,
                         };
 
                         let mut locals = HashMap::new();

@@ -254,6 +254,7 @@ fn handle_action<T>(
             rt.stack.push(Frame {
                 func_id: fid,
                 pc: 0,
+                module: None,
                 stack: Vec::new(),
                 locals: args,
                 depth_stack: Vec::new(),
@@ -293,6 +294,7 @@ pub fn test(mut path: String) {
     .expect("failed to parse test data");
 
     let mut runtime: Option<Runtime> = None;
+    let mut registers: HashMap<String, crate::runtime::clean_model::Model> = HashMap::new();
 
     let mut skip = false;
     let mut module_index = -1;
@@ -320,7 +322,13 @@ pub fn test(mut path: String) {
                 }
 
                 // println!("@@@ Compiling {p:?}");
-                runtime = Some(Runtime::new(p.clone()).expect("failed to load module"));
+                runtime = Some({
+                    let mut rt = Runtime::new(p.clone()).expect("failed to load module");
+                    for (k, v) in &registers {
+                        rt.modules.insert(k.clone(), v.clone());
+                    }
+                    rt
+                });
                 // recreate_runtime = Box::new(move || {
                 //     *runtime.borrow_mut() =
                 //         Some(Runtime::new(p.clone()).expect("failed to load module"));
@@ -491,8 +499,9 @@ pub fn test(mut path: String) {
                 if let Some(name) = name {
                     todo!("Register: {_as:?} {name}")
                 } else {
-                    rt.modules.insert(_as, rt.module.clone());
+                    rt.modules.insert(_as.clone(), rt.module.clone());
                 }
+                registers.insert(_as, rt.module.clone());
             }
         }
     }

@@ -1,8 +1,8 @@
 # W.A.S.P
 
 ## Latest spec test (typechecking currently disabled)
-💅: 29\
-💩: 118
+💅: 30\
+💩: 117
 ## Failed: test-suite/test/core/data.wast
 ```bash
 thread 'main' panicked at src/testsuite.rs:323:56:
@@ -19,7 +19,7 @@ note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 
 ## Failed: test-suite/test/core/endianness.wast
 ```bash
-thread 'main' panicked at src/runtime/methods/step.rs:1361:25:
+thread 'main' panicked at src/runtime/methods/step.rs:1377:25:
 not implemented: instruction not supported : x76_i32_shr_u
 note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 ```
@@ -129,7 +129,7 @@ note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 
 ## Failed: test-suite/test/core/fac.wast
 ```bash
-thread 'main' panicked at src/runtime/methods/step.rs:1361:25:
+thread 'main' panicked at src/runtime/methods/step.rs:1377:25:
 not implemented: instruction not supported : x51_i64_eq
 note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 ```
@@ -157,12 +157,13 @@ note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 
 ## Failed: test-suite/test/core/func.wast
 ```bash
- ERROR wasp::testsuite > test 9/172 failed (module: 0, invoke: "local-first-i32", error: a local is missing: src/runtime/methods/step.rs:529:59)
+ ERROR wasp::testsuite > test 9/172 failed (module: 0, invoke: "local-first-i32", error: a local is missing: src/runtime/methods/step.rs:545:59)
 ```
 
 ## Failed: test-suite/test/core/func_ptrs.wast
 ```bash
- ERROR wasp::testsuite > test 5/36 failed: unknown function: spectest::print_i32 (module: 0, invoke: "four")
+83
+ ERROR wasp::testsuite > test 6/36 did not fail invalidating/parsing, expected error: "unknown table" (module: "test-suite/test/core/func_ptrs.1.wasm")
 ```
 
 ## Failed: test-suite/test/core/global.wast
@@ -211,12 +212,18 @@ note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 
 ## Failed: test-suite/test/core/imports.wast
 ```bash
- ERROR wasp::testsuite > test 4/178 failed (module: 1, invoke: "print32", error: unknown function: spectest::print_i32)
+13
+14 42
+13
+13
+13
+13
+ ERROR wasp::testsuite > test 5/178 failed (module: 1, invoke: "print64", error: unknown function: test::func-i64->i64)
 ```
 
 ## Failed: test-suite/test/core/int_exprs.wast
 ```bash
-thread 'main' panicked at src/runtime/methods/step.rs:1361:25:
+thread 'main' panicked at src/runtime/methods/step.rs:1377:25:
 not implemented: instruction not supported : x53_i64_lt_s
 note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 ```
@@ -251,24 +258,24 @@ note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 
 ## Failed: test-suite/test/core/load.wast
 ```bash
-thread 'main' panicked at src/runtime/methods/step.rs:1361:25:
+thread 'main' panicked at src/runtime/methods/step.rs:1377:25:
 not implemented: instruction not supported : x67_i32_clz
 note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 ```
 
 ## Failed: test-suite/test/core/local_get.wast
 ```bash
- ERROR wasp::testsuite > test 2/36 failed (module: 0, invoke: "type-local-i32", error: a local is missing: src/runtime/methods/step.rs:529:59)
+ ERROR wasp::testsuite > test 2/36 failed (module: 0, invoke: "type-local-i32", error: a local is missing: src/runtime/methods/step.rs:545:59)
 ```
 
 ## Failed: test-suite/test/core/local_set.wast
 ```bash
- ERROR wasp::testsuite > test 20/53 failed (module: 0, invoke: "write", error: a local is missing: src/runtime/methods/step.rs:529:59)
+ ERROR wasp::testsuite > test 20/53 failed (module: 0, invoke: "write", error: a local is missing: src/runtime/methods/step.rs:545:59)
 ```
 
 ## Failed: test-suite/test/core/local_tee.wast
 ```bash
-thread 'main' panicked at src/runtime/methods/step.rs:1361:25:
+thread 'main' panicked at src/runtime/methods/step.rs:1377:25:
 not implemented: instruction not supported : x8c_f32_neg
 note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 ```
@@ -365,14 +372,9 @@ UnknownInstruction(<3f>), bin pos: 75, stack: [
 note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 ```
 
-## Failed: test-suite/test/core/names.wast
-```bash
- ERROR wasp::testsuite > test 486/486 failed (module: 3, invoke: "print32", error: unknown function: spectest::print_i32)
-```
-
 ## Failed: test-suite/test/core/nop.wast
 ```bash
-thread 'main' panicked at src/runtime/methods/step.rs:1361:25:
+thread 'main' panicked at src/runtime/methods/step.rs:1377:25:
 not implemented: instruction not supported : x4c_i32_le_s
 note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 ```
@@ -649,7 +651,7 @@ note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 
 ## Failed: test-suite/test/core/stack.wast
 ```bash
-thread 'main' panicked at src/runtime/methods/step.rs:1361:25:
+thread 'main' panicked at src/runtime/methods/step.rs:1377:25:
 not implemented: instruction not supported : x51_i64_eq
 note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 ```
@@ -717,21 +719,21 @@ note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 
 ## Failed: test-suite/test/core/table_size.wast
 ```bash
-thread 'main' panicked at src/runtime/methods/step.rs:1361:25:
+thread 'main' panicked at src/runtime/methods/step.rs:1377:25:
 not implemented: instruction not supported : xfc_16_table_size(TableIdX(0))
 note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 ```
 
 ## Failed: test-suite/test/core/traps.wast
 ```bash
-thread 'main' panicked at src/runtime/methods/step.rs:1361:25:
+thread 'main' panicked at src/runtime/methods/step.rs:1377:25:
 not implemented: instruction not supported : x6d_i32_div_s
 note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 ```
 
 ## Failed: test-suite/test/core/unreachable.wast
 ```bash
- ERROR wasp::testsuite > Got error "hit an unreachable code segment: src/runtime/methods/step.rs:279:25", expected error: "unreachable" (module: 0, function "type-i32")
+ ERROR wasp::testsuite > Got error "hit an unreachable code segment: src/runtime/methods/step.rs:295:25", expected error: "unreachable" (module: 0, function "type-i32")
 ```
 
 ## Failed: test-suite/test/core/unreached-invalid.wast
@@ -757,7 +759,7 @@ note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 
 ## Failed: test-suite/test/core/unwind.wast
 ```bash
- ERROR wasp::testsuite > Got error "hit an unreachable code segment: src/runtime/methods/step.rs:279:25", expected error: "unreachable" (module: 0, function "func-unwind-by-unreachable")
+ ERROR wasp::testsuite > Got error "hit an unreachable code segment: src/runtime/methods/step.rs:295:25", expected error: "unreachable" (module: 0, function "func-unwind-by-unreachable")
 ```
 
 ## Failed: test-suite/test/core/utf8-custom-section-id.wast

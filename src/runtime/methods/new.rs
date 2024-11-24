@@ -57,6 +57,7 @@ impl Runtime {
             vec![Frame {
                 func_id: main_id,
                 pc: 0,
+                module: None,
                 stack: Vec::new(),
                 locals: HashMap::new(),
                 // labels: HashMap::new(),

@@ -65,6 +65,7 @@ impl Debug for DepthValue {
 #[derive(Debug)]
 pub struct Frame {
     pub func_id: u32,
+    pub module: Option<(String, String)>,
     pub pc: usize,
     pub stack: Vec<Value>,
     pub locals: HashMap<u32, Value>,

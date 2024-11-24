@@ -4,8 +4,8 @@ use super::super::{
     DepthValue, Frame, Runtime, Value,
 };
 use crate::parser::{
-    BlockType, DataIdx, ElemIdx, Expr, FuncIdx, GlobalIdX, Instr::*, LabelIdX, LocalIdX, MemArg,
-    RefTyp, TableIdX, TypeIdX, BT,
+    BlockType, DataIdx, ElemIdx, ExportDesc, Expr, FuncIdx, GlobalIdX, Instr::*, LabelIdX,
+    LocalIdX, MemArg, RefTyp, TableIdX, TypeIdX, BT,
 };
 use core::f64;
 use std::collections::HashMap;
@@ -132,6 +132,10 @@ macro_rules! gen_macros {
                 &f.stack
             };
 
+            (module) => {
+                &f.module
+            };
+
             (depth_stack) => {
                 &f.depth_stack
             };
@@ -208,7 +212,21 @@ impl Runtime {
         // println!("{:?}", get!(depth_stack));
         // println!();
 
-        match &self.module.functions[get!(func_id)] {
+        let func = if let Some((m, n)) = get!(module) {
+            if let Some(m) = self.modules.get(m) {
+                let desc = m.exports[n];
+                let ExportDesc::Func(TypeIdX(func_id)) = desc else {
+                    unreachable!()
+                };
+                &m.functions[&func_id]
+            } else {
+                &self.module.functions[get!(func_id)]
+            }
+        } else {
+            &self.module.functions[get!(func_id)]
+        };
+
+        match func {
             Function::Import { module, name, .. } => {
                 // println!();
                 // println!("calling {module:?}::{name:?}");
@@ -253,14 +271,36 @@ impl Runtime {
                         println!("{a}");
                     }
                     #[allow(clippy::print_stdout)]
+                    ("spectest", "print_i64") => {
+                        let a = *local!(i64, &0);
+                        println!("{a}");
+                    }
+                    #[allow(clippy::print_stdout)]
                     ("spectest", "print_i32_f32") => {
                         let b = *local!(f32, &1);
                         let a = *local!(i32, &0);
                         println!("{a} {b}");
                     }
                     #[allow(clippy::print_stdout)]
+                    ("spectest", "print_i64_f64") => {
+                        let b = *local!(f64, &1);
+                        let a = *local!(i64, &0);
+                        println!("{a} {b}");
+                    }
+                    #[allow(clippy::print_stdout)]
+                    ("spectest", "print_f64_f64") => {
+                        let b = *local!(f64, &1);
+                        let a = *local!(f64, &0);
+                        println!("{a} {b}");
+                    }
+                    #[allow(clippy::print_stdout)]
                     ("spectest", "print_f32") => {
                         let a = *local!(f32, &0);
+                        println!("{a}");
+                    }
+                    #[allow(clippy::print_stdout)]
+                    ("spectest", "print_f64") => {
+                        let a = *local!(f64, &0);
                         println!("{a}");
                     }
                     (module, function) => {
@@ -470,9 +510,11 @@ impl Runtime {
                     }
                     x10_call(FuncIdx(id)) => {
                         let fun = &self.module.functions[id];
-                        let ty = match fun {
-                            Function::Import { ty, .. } => ty,
-                            Function::Local { ty, .. } => ty,
+                        let (ty, module) = match fun {
+                            Function::Import { ty, module, name } => {
+                                (ty, Some((module.0.clone(), name.0.clone())))
+                            }
+                            Function::Local { ty, .. } => (ty, None),
                         };
 
                         let mut locals = HashMap::new();
@@ -483,6 +525,7 @@ impl Runtime {
                         self.stack.push(Frame {
                             func_id: *id,
                             pc: 0,
+                            module,
                             stack: Vec::new(),
                             locals,
                             depth_stack: Vec::new(),
@@ -526,6 +569,7 @@ impl Runtime {
                             func_id: *id,
                             pc: 0,
                             stack: Vec::new(),
+                            module: None,
                             locals,
                             depth_stack: Vec::new(),
                         });

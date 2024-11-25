@@ -485,12 +485,12 @@ pub fn test(mut path: String) {
                 let _rt = runtime.as_ref().expect("no rt set");
                 todo!("AssertUninstantiable")
             }
-            Case::AssertUnlinkable(_) => {
+            Case::AssertUnlinkable(a) => {
                 if skip {
                     continue;
                 }
                 let _rt = runtime.as_ref().expect("no rt set");
-                todo!("AssertUnlinkable")
+                todo!("AssertUnlinkable: {a:?}")
             }
             Case::Register(Register { _as, name, .. }) => {
                 if skip {

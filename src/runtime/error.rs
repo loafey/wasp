@@ -9,6 +9,7 @@ pub enum RuntimeError {
     UnknownFunction(String, String),
     ReturnedToNoFrame(Vec<Value>, &'static str, u32, u32),
     NoFrame(&'static str, u32, u32),
+    NoModule(String, &'static str, u32, u32),
     WrongType(&'static str, &'static str, &'static str, u32, u32),
     EmptyStack(&'static str, u32, u32),
     Unreachable(&'static str, u32, u32),
@@ -45,6 +46,12 @@ impl std::fmt::Debug for RuntimeError {
             Self::UnknownGlobal => write!(f, "unknown global"),
             Self::StackExhaustion(cur, max) => write!(f, "stack overflow ({cur}/{max})"),
             Self::IndirectCallTypeMismatch(..) => write!(f, "indirect call type mismatch"),
+            Self::NoModule(module, arg0, arg1, arg2) => {
+                write!(
+                    f,
+                    "tried to use unloaded module \"{module}\": {arg0}:{arg1}:{arg2}"
+                )
+            }
             Self::MissingData(arg0, arg1, arg2) => {
                 write!(f, "tried to get non-existent data: {arg0}:{arg1}:{arg2}")
             }

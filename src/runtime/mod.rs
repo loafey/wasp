@@ -8,8 +8,10 @@ mod error;
 use crate::parser::{BlockType, BT};
 pub use error::RuntimeError;
 
+mod import;
 mod methods;
 mod typecheck;
+pub use import::*;
 
 #[derive(Clone, Copy, PartialEq)]
 #[allow(unused)]
@@ -76,6 +78,6 @@ pub struct Frame {
 pub struct Runtime {
     pub _path: PathBuf,
     pub module: Model,
-    pub modules: HashMap<String, Model>,
+    pub modules: HashMap<String, Import>,
     pub stack: Vec<Frame>,
 }

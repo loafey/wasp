@@ -4,7 +4,7 @@ use std::{collections::HashMap, fs, path::PathBuf};
 
 use crate::{
     parser::{ExportDesc, TypeIdX},
-    runtime::{Frame, Runtime, RuntimeError, Value},
+    runtime::{Frame, Import, Runtime, RuntimeError, Value},
 };
 
 #[derive(Debug, Deserialize, Clone)]
@@ -325,8 +325,10 @@ pub fn test(mut path: String) {
                 runtime = Some({
                     let mut rt = Runtime::new(p.clone()).expect("failed to load module");
                     for (k, v) in &registers {
-                        rt.modules.insert(k.clone(), v.clone());
+                        rt.modules.insert(k.clone(), Import::WS(v.clone()));
                     }
+                    rt.modules
+                        .insert("spectest".to_string(), Import::spectest());
                     rt
                 });
                 // recreate_runtime = Box::new(move || {
@@ -499,7 +501,8 @@ pub fn test(mut path: String) {
                 if let Some(name) = name {
                     todo!("Register: {_as:?} {name}")
                 } else {
-                    rt.modules.insert(_as.clone(), rt.module.clone());
+                    rt.modules
+                        .insert(_as.clone(), Import::WS(rt.module.clone()));
                 }
                 registers.insert(_as, rt.module.clone());
             }

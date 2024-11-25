@@ -234,59 +234,125 @@ impl Runtime {
         // };
 
         // Fetch code
-
-        // Execute
-
-        match func {
+        let (code, ty, module) = match func {
             Function::Import { module, name, .. } => {
-                // println!();
                 let module = module.0.clone();
                 let module = unwrap!(self.modules.get(&module), move |a, b, c| NoModule(
                     module, a, b, c
                 ));
                 match module {
-                    Import::WS(model) => todo!(),
+                    Import::WS(model) => {
+                        let export = unwrap!(model.exports.get(&name.0), MissingFunction);
+                        let ExportDesc::Func(FuncIdx(id)) = export else {
+                            throw!(MissingFunction)
+                        };
+                        match unwrap!(model.functions.get(id), MissingFunction) {
+                            Function::Local { ty, code, .. } => (code, ty, model),
+                            Function::Import { .. } => todo!(),
+                        }
+                    }
                     Import::IO(funcs) => {
                         let func = unwrap!(funcs.get(&*name.0), MissingFunction);
                         for r in func(get!(locals))? {
                             push!(r)
                         }
+
+                        let mut frame = unwrap!(self.stack.pop(), NoFrame);
+                        let last = unwrap!(self.stack.last_mut(), NoFrame);
+                        last.stack.append(&mut frame.stack);
+                        return Ok(());
                     }
                 }
-                let mut frame = unwrap!(self.stack.pop(), NoFrame);
-                let last = unwrap!(self.stack.last_mut(), NoFrame);
-                last.stack.append(&mut frame.stack);
-                Ok(())
             }
-            Function::Local { code, ty, .. } => {
-                // println!("{ty:?}");
-                if *get!(pc) >= code.len() {
-                    let mut frame = unwrap!(self.stack.pop(), NoFrame);
-                    let last = unwrap!(self.stack.last_mut(), NoFrame);
-                    let mut col = Vec::new();
-                    for _ in 0..ty.output.types.len() {
-                        col.push(unwrap!(frame.stack.pop(), EmptyStack));
-                    }
-                    col.reverse();
-                    last.stack.append(&mut col);
-                    return Ok(());
+            Function::Local { ty, code, .. } => (code, ty, &self.module),
+        };
+
+        // Execute
+        if *get!(pc) >= code.len() {
+            let mut frame = unwrap!(self.stack.pop(), NoFrame);
+            let last = unwrap!(self.stack.last_mut(), NoFrame);
+            let mut col = Vec::new();
+            for _ in 0..ty.output.types.len() {
+                col.push(unwrap!(frame.stack.pop(), EmptyStack));
+            }
+            col.reverse();
+            last.stack.append(&mut col);
+            return Ok(());
+        }
+        let mut instr = &code[*get!(pc)];
+        instr = if let comment(_, r) = instr { r } else { instr };
+        let instr = instr;
+        // println!("{instr:?}");
+        set!(pc) += 1;
+        match instr {
+            x00_unreachable => {
+                throw!(Unreachable)
+            }
+            x01_nop => (),
+            x02_block(_, _) => throw!(Impossible),
+            x03_loop(_, _) => throw!(Impossible),
+            x04_if_else(_, _, _) => throw!(Impossible),
+            x0c_br(LabelIdX(label)) => {
+                let mut last = None;
+                // println!("{label}");
+                for _ in 0..=*label {
+                    last = pop_depth!();
                 }
-                let mut instr = &code[*get!(pc)];
-                instr = if let comment(_, r) = instr { r } else { instr };
-                let instr = instr;
-                // println!("{instr:?}");
-                set!(pc) += 1;
-                match instr {
-                    x00_unreachable => {
-                        throw!(Unreachable)
+                let bt = unwrap!(last, MissingJumpLabel);
+                match bt.bt {
+                    BT::Loop => {
+                        set!(pc) = bt.pos;
                     }
-                    x01_nop => (),
-                    x02_block(_, _) => throw!(Impossible),
-                    x03_loop(_, _) => throw!(Impossible),
-                    x04_if_else(_, _, _) => throw!(Impossible),
-                    x0c_br(LabelIdX(label)) => {
-                        let mut last = None;
-                        // println!("{label}");
+                    BT::Block => {
+                        set!(pc) = bt.pos + 1;
+                    }
+                }
+                for _ in 0..=*label {
+                    let mut collect = Vec::new();
+                    loop {
+                        let p = pop!();
+                        if matches!(p, Value::BlockLock) {
+                            match bt.vt {
+                                BlockType::Eps => {}
+                                BlockType::T(_) => {
+                                    collect.reverse();
+                                    push!(unwrap!(collect.pop(), EmptyStack));
+                                }
+                                BlockType::TypIdx(i) => {
+                                    let ft = unwrap!(
+                                        module.function_types.get(&(i as u32)),
+                                        MissingFunction
+                                    );
+                                    for _ in &ft.output.types {
+                                        push!(unwrap!(collect.pop(), EmptyStack))
+                                    }
+                                }
+                            }
+                            break;
+                        } else {
+                            collect.push(p);
+                        }
+                    }
+                }
+            }
+            x0d_br_if(LabelIdX(label)) => {
+                let val = pop!(i32);
+
+                if val != 0 {
+                    let mut last = None;
+                    if get!(depth_stack).len() as u32 == *label {
+                        let mut res = Vec::new();
+                        for _ in &ty.output.types {
+                            res.push(pop!());
+                        }
+                        res.reverse();
+                        match self.stack.last_mut() {
+                            Some(s) => s.stack.append(&mut res),
+                            None => {
+                                throw!(|a, b, c| ReturnedToNoFrame(res, a, b, c))
+                            }
+                        }
+                    } else {
                         for _ in 0..=*label {
                             last = pop_depth!();
                         }
@@ -305,1070 +371,992 @@ impl Runtime {
                                 let p = pop!();
                                 if matches!(p, Value::BlockLock) {
                                     match bt.vt {
-                                        BlockType::Eps => {}
+                                        BlockType::Eps => {
+                                            break;
+                                        }
                                         BlockType::T(_) => {
                                             collect.reverse();
                                             push!(unwrap!(collect.pop(), EmptyStack));
+                                            break;
                                         }
-                                        BlockType::TypIdx(i) => {
-                                            let ft = unwrap!(
-                                                self.module.function_types.get(&(i as u32)),
-                                                MissingFunction
-                                            );
-                                            for _ in &ft.output.types {
-                                                push!(unwrap!(collect.pop(), EmptyStack))
-                                            }
-                                        }
+                                        BlockType::TypIdx(_) => todo!(),
                                     }
-                                    break;
                                 } else {
                                     collect.push(p);
                                 }
                             }
                         }
                     }
-                    x0d_br_if(LabelIdX(label)) => {
-                        let val = pop!(i32);
+                }
+            }
+            x0e_br_table(labels, def) => {
+                let index = pop!(u32) as usize;
+                let label = if index >= labels.len() {
+                    *def
+                } else {
+                    labels[index]
+                };
 
-                        if val != 0 {
-                            let mut last = None;
-                            if get!(depth_stack).len() as u32 == *label {
-                                let mut res = Vec::new();
-                                for _ in &ty.output.types {
-                                    res.push(pop!());
-                                }
-                                res.reverse();
-                                match self.stack.last_mut() {
-                                    Some(s) => s.stack.append(&mut res),
-                                    None => {
-                                        throw!(|a, b, c| ReturnedToNoFrame(res, a, b, c))
+                if get!(depth_stack).len() as u32 == *label {
+                    let mut res = Vec::new();
+                    for _ in &ty.output.types {
+                        res.push(pop!());
+                    }
+                    res.reverse();
+                    match self.stack.last_mut() {
+                        Some(s) => s.stack.append(&mut res),
+                        None => throw!(|a, b, c| ReturnedToNoFrame(res, a, b, c)),
+                    }
+                } else {
+                    let mut last = None;
+                    for _ in 0..=*label {
+                        last = pop_depth!();
+                    }
+                    let bt = unwrap!(last, MissingJumpLabel);
+                    match bt.bt {
+                        BT::Loop => {
+                            set!(pc) = bt.pos;
+                        }
+                        BT::Block => {
+                            set!(pc) = bt.pos + 1;
+                        }
+                    }
+                    for _ in 0..=*label {
+                        let mut collect = Vec::new();
+                        loop {
+                            let p = pop!();
+                            if matches!(p, Value::BlockLock) {
+                                match bt.vt {
+                                    BlockType::Eps => {}
+                                    BlockType::T(_) => {
+                                        push!(collect.remove(0))
                                     }
+                                    BlockType::TypIdx(_) => todo!(),
                                 }
+                                break;
                             } else {
-                                for _ in 0..=*label {
-                                    last = pop_depth!();
-                                }
-                                let bt = unwrap!(last, MissingJumpLabel);
-                                match bt.bt {
-                                    BT::Loop => {
-                                        set!(pc) = bt.pos;
-                                    }
-                                    BT::Block => {
-                                        set!(pc) = bt.pos + 1;
-                                    }
-                                }
-                                for _ in 0..=*label {
-                                    let mut collect = Vec::new();
-                                    loop {
-                                        let p = pop!();
-                                        if matches!(p, Value::BlockLock) {
-                                            match bt.vt {
-                                                BlockType::Eps => {
-                                                    break;
-                                                }
-                                                BlockType::T(_) => {
-                                                    collect.reverse();
-                                                    push!(unwrap!(collect.pop(), EmptyStack));
-                                                    break;
-                                                }
-                                                BlockType::TypIdx(_) => todo!(),
-                                            }
-                                        } else {
-                                            collect.push(p);
-                                        }
-                                    }
-                                }
+                                collect.push(p);
                             }
                         }
                     }
-                    x0e_br_table(labels, def) => {
-                        let index = pop!(u32) as usize;
-                        let label = if index >= labels.len() {
-                            *def
-                        } else {
-                            labels[index]
-                        };
-
-                        if get!(depth_stack).len() as u32 == *label {
-                            let mut res = Vec::new();
-                            for _ in &ty.output.types {
-                                res.push(pop!());
-                            }
-                            res.reverse();
-                            match self.stack.last_mut() {
-                                Some(s) => s.stack.append(&mut res),
-                                None => throw!(|a, b, c| ReturnedToNoFrame(res, a, b, c)),
-                            }
-                        } else {
-                            let mut last = None;
-                            for _ in 0..=*label {
-                                last = pop_depth!();
-                            }
-                            let bt = unwrap!(last, MissingJumpLabel);
-                            match bt.bt {
-                                BT::Loop => {
-                                    set!(pc) = bt.pos;
-                                }
-                                BT::Block => {
-                                    set!(pc) = bt.pos + 1;
-                                }
-                            }
-                            for _ in 0..=*label {
-                                let mut collect = Vec::new();
-                                loop {
-                                    let p = pop!();
-                                    if matches!(p, Value::BlockLock) {
-                                        match bt.vt {
-                                            BlockType::Eps => {}
-                                            BlockType::T(_) => {
-                                                push!(collect.remove(0))
-                                            }
-                                            BlockType::TypIdx(_) => todo!(),
-                                        }
-                                        break;
-                                    } else {
-                                        collect.push(p);
-                                    }
-                                }
-                            }
-                        }
+                }
+            }
+            x0f_return => {
+                let mut last_f = unwrap!(self.stack.pop(), NoFrame);
+                let ty = unwrap!(module.functions.get(&last_f.func_id), MissingFunction);
+                let ty = match ty {
+                    Function::Import { ty, .. } => ty,
+                    Function::Local { ty, .. } => ty,
+                };
+                let mut res = Vec::new();
+                for _ in ty.output.types.iter() {
+                    let value = unwrap!(last_f.stack.pop(), EmptyStack);
+                    res.push(value)
+                }
+                res.reverse();
+                match self.stack.last_mut() {
+                    Some(s) => s.stack.append(&mut res),
+                    None => {
+                        throw!(|a, b, c| ReturnedToNoFrame(res, a, b, c))
                     }
-                    x0f_return => {
-                        let mut last_f = unwrap!(self.stack.pop(), NoFrame);
-                        let ty =
-                            unwrap!(self.module.functions.get(&last_f.func_id), MissingFunction);
-                        let ty = match ty {
-                            Function::Import { ty, .. } => ty,
-                            Function::Local { ty, .. } => ty,
-                        };
-                        let mut res = Vec::new();
-                        for _ in ty.output.types.iter() {
-                            let value = unwrap!(last_f.stack.pop(), EmptyStack);
-                            res.push(value)
-                        }
-                        res.reverse();
-                        match self.stack.last_mut() {
-                            Some(s) => s.stack.append(&mut res),
-                            None => {
-                                throw!(|a, b, c| ReturnedToNoFrame(res, a, b, c))
-                            }
-                        }
+                }
+            }
+            x10_call(FuncIdx(id)) => {
+                let fun = &module.functions[id];
+                let (ty, module) = match fun {
+                    Function::Import { ty, module, name } => {
+                        (ty, Some((module.0.clone(), name.0.clone())))
                     }
-                    x10_call(FuncIdx(id)) => {
-                        let fun = &self.module.functions[id];
-                        let (ty, module) = match fun {
-                            Function::Import { ty, module, name } => {
-                                (ty, Some((module.0.clone(), name.0.clone())))
-                            }
-                            Function::Local { ty, .. } => (ty, None),
-                        };
+                    Function::Local { ty, .. } => (ty, None),
+                };
 
-                        let mut locals = HashMap::new();
-                        for (i, _) in ty.input.types.iter().enumerate().rev() {
-                            locals.insert(i as u32, pop!());
-                        }
+                let mut locals = HashMap::new();
+                for (i, _) in ty.input.types.iter().enumerate().rev() {
+                    locals.insert(i as u32, pop!());
+                }
 
-                        self.stack.push(Frame {
-                            func_id: *id,
-                            pc: 0,
-                            module,
-                            stack: Vec::new(),
-                            locals,
-                            depth_stack: Vec::new(),
-                        });
-                    }
-                    x11_call_indirect(TypeIdX(type_index), TableIdX(table_index)) => {
-                        let function_index = pop!(i32);
+                self.stack.push(Frame {
+                    func_id: *id,
+                    pc: 0,
+                    module,
+                    stack: Vec::new(),
+                    locals,
+                    depth_stack: Vec::new(),
+                });
+            }
+            x11_call_indirect(TypeIdX(type_index), TableIdX(table_index)) => {
+                let function_index = pop!(i32);
 
-                        let ty =
-                            unwrap!(self.module.function_types.get(type_index), MissingFunction);
+                let ty = unwrap!(module.function_types.get(type_index), MissingFunction);
 
-                        let mut locals = HashMap::new();
-                        for (i, _) in ty.input.types.iter().enumerate().rev() {
-                            locals.insert(i as u32, pop!());
-                        }
+                let mut locals = HashMap::new();
+                for (i, _) in ty.input.types.iter().enumerate().rev() {
+                    locals.insert(i as u32, pop!());
+                }
 
-                        let table = &self.module.tables.read()[*table_index as usize];
-                        // println!(
-                        //     "Call info ({}): \n\tinputs: {locals:?}\n\tfunction_index: {function_index}",
-                        //     f.func_id
-                        // );
+                let table = &module.tables.read()[*table_index as usize];
+                // println!(
+                //     "Call info ({}): \n\tinputs: {locals:?}\n\tfunction_index: {function_index}",
+                //     f.func_id
+                // );
 
-                        let FuncIdx(id) =
-                            unwrap!(table.get(&(function_index as u32)), UndefinedElement);
-                        if *id == u32::MAX {
-                            throw!(UninitializedElement)
-                        }
+                let FuncIdx(id) = unwrap!(table.get(&(function_index as u32)), UndefinedElement);
+                if *id == u32::MAX {
+                    throw!(UninitializedElement)
+                }
 
-                        if let Some(func) = self.module.functions.get(id) {
-                            match func {
-                                Function::Import { ty: ty2, .. }
-                                | Function::Local { ty: ty2, .. } => {
-                                    if ty != ty2 {
-                                        throw!(IndirectCallTypeMismatch)
-                                    }
-                                }
+                if let Some(func) = module.functions.get(id) {
+                    match func {
+                        Function::Import { ty: ty2, .. } | Function::Local { ty: ty2, .. } => {
+                            if ty != ty2 {
+                                throw!(IndirectCallTypeMismatch)
                             }
                         }
+                    }
+                }
 
-                        self.stack.push(Frame {
-                            func_id: *id,
-                            pc: 0,
-                            stack: Vec::new(),
-                            module: None,
-                            locals,
-                            depth_stack: Vec::new(),
-                        });
+                self.stack.push(Frame {
+                    func_id: *id,
+                    pc: 0,
+                    stack: Vec::new(),
+                    module: None,
+                    locals,
+                    depth_stack: Vec::new(),
+                });
+            }
+            x1a_drop => {
+                pop!();
+            }
+            x1b_select => {
+                let cond = pop!(i32);
+                let y = pop!();
+                let x = pop!();
+                match cond == 0 {
+                    true => push!(y),
+                    false => push!(x),
+                }
+            }
+            x20_local_get(LocalIdX(id)) => push!(*local!(id)),
+            x21_local_set(LocalIdX(id)) => {
+                let val = pop!();
+                set_local!(*id, val);
+            }
+            x22_local_tee(LocalIdX(id)) => {
+                let last = pop!();
+                set_local!(*id, last);
+                push!(last);
+            }
+            x23_global_get(GlobalIdX(id)) => {
+                push!(self
+                    .module
+                    .globals
+                    .read()
+                    .get(id)
+                    .copied()
+                    .unwrap_or(Value::I32(0)))
+            }
+            x24_global_set(GlobalIdX(id)) => {
+                let pop = pop!();
+                module.globals.write().insert(*id, pop);
+            }
+            x28_i32_load(mem) => {
+                let addr = pop!(u32);
+                push!(i32, module.memory.read().get(addr as usize, *mem)?);
+            }
+            x29_i64_load(mem) => {
+                let addr = pop!(u32);
+                push!(i64, module.memory.read().get(addr as usize, *mem)?);
+            }
+            x2a_f32_load(mem) => {
+                let addr = pop!(u32);
+                push!(f32, module.memory.read().get(addr as usize, *mem)?);
+            }
+            x2b_f64_load(mem) => {
+                let addr = pop!(u32);
+                push!(f64, module.memory.read().get(addr as usize, *mem)?);
+            }
+            x2c_i32_load8_s(mem) => {
+                let addr = pop!(u32);
+                push!(
+                    i32,
+                    module.memory.read().get::<i8>(addr as usize, *mem)? as i32
+                );
+            }
+            x2d_i32_load8_u(mem) => {
+                let addr = pop!(u32);
+                push!(
+                    u32,
+                    module.memory.read().get::<u8>(addr as usize, *mem)? as u32
+                );
+            }
+            x2e_i32_load16_s(mem) => {
+                let addr = pop!(u32);
+                push!(
+                    i32,
+                    module.memory.read().get::<u16>(addr as usize, *mem)? as i32
+                );
+            }
+            x2f_i32_load16_u(mem) => {
+                let addr = pop!(u32);
+                push!(
+                    u32,
+                    module.memory.read().get::<u16>(addr as usize, *mem)? as u32
+                );
+            }
+            x30_i64_load8_s(mem) => {
+                let addr = pop!(u32);
+                push!(
+                    i64,
+                    module.memory.read().get::<i8>(addr as usize, *mem)? as i64
+                );
+            }
+            x31_i64_load8_u(mem) => {
+                let addr = pop!(u32);
+                push!(
+                    u64,
+                    module.memory.read().get::<u8>(addr as usize, *mem)? as u64
+                );
+            }
+            x32_i64_load16_s(mem) => {
+                let addr = pop!(u32);
+                push!(
+                    i64,
+                    module.memory.read().get::<i16>(addr as usize, *mem)? as i64
+                );
+            }
+            x33_i64_load16_u(mem) => {
+                let addr = pop!(u32);
+                push!(
+                    u64,
+                    module.memory.read().get::<u16>(addr as usize, *mem)? as u64
+                );
+            }
+            x34_i64_load32_s(mem) => {
+                let addr = pop!(u32);
+                push!(
+                    i64,
+                    module.memory.read().get::<i32>(addr as usize, *mem)? as i64
+                );
+            }
+            x35_i64_load32_u(mem) => {
+                let addr = pop!(u32);
+                push!(
+                    u64,
+                    module.memory.read().get::<u32>(addr as usize, *mem)? as u64
+                );
+            }
+            x36_i32_store(mem) => {
+                let v = pop!(i32);
+                let addr = pop!(u32);
+                module.memory.write().set(addr as usize, *mem, v)?;
+            }
+            x37_i64_store(mem) => {
+                let v = pop!(i64);
+                let addr = pop!(u32);
+                module.memory.write().set(addr as usize, *mem, v)?;
+            }
+            x38_f32_store(mem) => {
+                let v = pop!(f32);
+                let addr = pop!(u32);
+                module.memory.write().set(addr as usize, *mem, v)?;
+            }
+            x39_f64_store(mem) => {
+                let v = pop!(f64);
+                let addr = pop!(u32);
+                module.memory.write().set(addr as usize, *mem, v)?;
+            }
+            x3a_i32_store8(mem) => {
+                let v = pop!(i32);
+                let addr = pop!(u32);
+                module.memory.write().set(addr as usize, *mem, v as i8)?;
+            }
+            x3b_i32_store16(mem) => {
+                let v = pop!(i32);
+                let addr = pop!(u32);
+                module.memory.write().set(addr as usize, *mem, v as i16)?;
+            }
+            x3c_i64_store8(mem) => {
+                let v = pop!(i64);
+                let addr = pop!(u32);
+                module.memory.write().set(addr as usize, *mem, v as i8)?;
+            }
+            x3d_i64_store16(mem) => {
+                let v = pop!(i64);
+                let addr = pop!(u32);
+                module.memory.write().set(addr as usize, *mem, v as i16)?;
+            }
+            x3e_i64_store32(mem) => {
+                let v = pop!(i64);
+                let addr = pop!(u32);
+                module.memory.write().set(addr as usize, *mem, v as i32)?;
+            }
+            x40_grow => {
+                let amount = pop!(i32);
+                push!(i32, module.memory.write().grow(amount as usize))
+            }
+            x41_i32_const(val) => push!(i32, *val),
+            x42_i64_const(val) => push!(i64, *val),
+            x43_f32_const(val) => push!(f32, *val),
+            x44_f64_const(val) => push!(f64, *val),
+            x45_i32_eqz => {
+                let val = pop!(i32);
+                push!(i32, (val == 0) as i32);
+            }
+            x46_i32_eq => {
+                let y = pop!(i32);
+                let x = pop!(i32);
+                push!(i32, (x == y) as i32)
+            }
+            x47_i32_ne => {
+                let y = pop!(i32);
+                let x = pop!(i32);
+                push!(i32, (x != y) as i32)
+            }
+            x48_i32_lt_s => {
+                let y = pop!(i32);
+                let x = pop!(i32);
+                push!(i32, (x < y) as i32)
+            }
+            x49_i32_lt_u => {
+                let y = pop!(u32);
+                let x = pop!(u32);
+                push!(i32, (x < y) as i32)
+            }
+            x4a_i32_gt_s => {
+                let y = pop!(i32);
+                let x = pop!(i32);
+                push!(i32, (x > y) as i32)
+            }
+            x4b_i32_gt_u => {
+                let y = pop!(u32);
+                let x = pop!(u32);
+                push!(i32, (y > x) as i32)
+            }
+            x4d_i32_le_u => {
+                let y = pop!(u32);
+                let x = pop!(u32);
+                push!(i32, (x <= y) as i32)
+            }
+            x4e_i32_ge_s => {
+                let y = pop!(i32);
+                let x = pop!(i32);
+                push!(i32, (x >= y) as i32)
+            }
+            x4f_i32_ge_u => {
+                let y = pop!(u32);
+                let x = pop!(u32);
+                push!(i32, (x >= y) as i32)
+            }
+            x50_i64_eqz => {
+                let val = pop!(i64);
+                push!(i32, (val == 0) as i32);
+            }
+            x52_i64_ne => {
+                let y = pop!(i64);
+                let x = pop!(i64);
+                push!(i64, (x != y) as i64)
+            }
+            x58_i64_le_u => {
+                let y = pop!(i64);
+                let x = pop!(i64);
+                push!(i32, (x <= y) as i32)
+            }
+            x5b_f32_eq => {
+                let y = pop!(f32);
+                let x = pop!(f32);
+                push!(i32, (x == y) as i32)
+            }
+            x5e_f32_gt => {
+                let y = pop!(f32);
+                let x = pop!(f32);
+                push!(i32, (x > y) as i32)
+            }
+            x5f_f32_le => {
+                let y = pop!(f32);
+                let x = pop!(f32);
+                push!(i32, (x <= y) as i32)
+            }
+            x61_f64_eq => {
+                let y = pop!(f64);
+                let x = pop!(f64);
+                push!(i32, (x == y) as i32)
+            }
+            x65_f64_le => {
+                let y = pop!(f64);
+                let x = pop!(f64);
+                push!(i32, (x <= y) as i32)
+            }
+            x68_i32_ctz => {
+                let x = pop!(i32);
+                push!(i32, x.trailing_zeros() as i32)
+            }
+            x6a_i32_add => {
+                let y = pop!(i32);
+                let x = pop!(i32);
+                push!(i32, x.wrapping_add(y))
+            }
+            x6b_i32_sub => {
+                let y = pop!(i32);
+                let x = pop!(i32);
+                push!(i32, x.wrapping_sub(y))
+            }
+            x6c_i32_mul => {
+                let y = pop!(i32);
+                let x = pop!(i32);
+                push!(i32, x.wrapping_mul(y))
+            }
+            x6e_i32_div_u => {
+                let y = pop!(u32);
+                let x = pop!(u32);
+                push!(u32, x.wrapping_div(y))
+            }
+            x70_i32_rem_u => {
+                let y = pop!(u32);
+                let x = pop!(u32);
+                push!(u32, x.rem_euclid(y))
+            }
+            x71_i32_and => {
+                let y = pop!(i32);
+                let x = pop!(i32);
+                push!(i32, x & y)
+            }
+            x72_i32_or => {
+                let y = pop!(i32);
+                let x = pop!(i32);
+                push!(i32, x | y)
+            }
+            x73_i32_xor => {
+                let y = pop!(i32);
+                let x = pop!(i32);
+                push!(i32, x ^ y)
+            }
+            x74_i32_shl => {
+                let y = pop!(i32);
+                let x = pop!(i32);
+                push!(i32, x << y)
+            }
+            x7c_i64_add => {
+                let y = pop!(i64);
+                let x = pop!(i64);
+                push!(i64, x.wrapping_add(y))
+            }
+            x7d_i64_sub => {
+                let y = pop!(i64);
+                let x = pop!(i64);
+                push!(i64, x.wrapping_sub(y))
+            }
+            x7e_i64_mul => {
+                let y = pop!(i64);
+                let x = pop!(i64);
+                push!(i64, x.wrapping_mul(y))
+            }
+            x91_f32_sqrt => {
+                let x = pop!(f32);
+                push!(f32, x.sqrt())
+            }
+            x92_f32_add => {
+                let y = pop!(f32);
+                let x = pop!(f32);
+                push!(f32, x + y)
+            }
+            x93_f32_sub => {
+                let y = pop!(f32);
+                let x = pop!(f32);
+                push!(f32, x - y)
+            }
+            x94_f32_mul => {
+                let y = pop!(f32);
+                let x = pop!(f32);
+                push!(f32, x * y)
+            }
+            xa0_f64_add => {
+                let y = pop!(f64);
+                let x = pop!(f64);
+                push!(f64, x + y)
+            }
+            xa1_f64_sub => {
+                let y = pop!(f64);
+                let x = pop!(f64);
+                push!(f64, x - y)
+            }
+            xa2_f64_mul => {
+                let y = pop!(f64);
+                let x = pop!(f64);
+                push!(f64, x * y)
+            }
+            xa7_i32_wrap_i64 => {
+                let x = pop!(i64);
+                push!(i32, x.rem_euclid(2i64.pow(32)) as i32);
+            }
+            xa8_i32_trunc_f32_s => {
+                let x = pop!(f32);
+                if x.is_nan() {
+                    throw!(InvalidConversionToInteger)
+                }
+                if x >= i32::MAX as f32 || x < i32::MIN as f32 {
+                    throw!(IntegerOverflow);
+                }
+                let y = x.trunc() as i32;
+                push!(i32, y)
+            }
+            xa9_i32_trunc_f32_u => {
+                let x = pop!(f32).trunc();
+                if x.is_nan() {
+                    throw!(InvalidConversionToInteger)
+                }
+                if x >= u32::MAX as f32 || x < 0.0 {
+                    throw!(IntegerOverflow);
+                }
+                let y = x as u32;
+                push!(u32, y)
+            }
+            xaa_i32_trunc_f64_s => {
+                let x = pop!(f64).trunc();
+                if x.is_nan() {
+                    throw!(InvalidConversionToInteger)
+                }
+                if x > i32::MAX as f64 || x < i32::MIN as f64 {
+                    throw!(IntegerOverflow);
+                }
+                let y = x as i32;
+                push!(i32, y)
+            }
+            xab_i32_trunc_f64_u => {
+                let x = pop!(f64).trunc();
+                if x.is_nan() {
+                    throw!(InvalidConversionToInteger)
+                }
+                if x > u32::MAX as f64 || x < 0.0 {
+                    throw!(IntegerOverflow);
+                }
+                let y = x as u32;
+                push!(u32, y)
+            }
+            xac_i64_extend_i32_s => {
+                let x = pop!(i32) as i64;
+                push!(i64, x)
+            }
+            xad_i64_extend_i32_u => {
+                let x = pop!(u32) as u64;
+                push!(u64, x)
+            }
+            xae_i64_trunc_f32_s => {
+                let x = pop!(f32);
+                if x.is_nan() {
+                    throw!(InvalidConversionToInteger)
+                }
+                if x >= i64::MAX as f32 || x < i64::MIN as f32 {
+                    throw!(IntegerOverflow);
+                }
+                let y = x.trunc() as i64;
+                push!(i64, y)
+            }
+            xaf_i64_trunc_f32_u => {
+                let x = pop!(f32).trunc();
+                if x.is_nan() {
+                    throw!(InvalidConversionToInteger)
+                }
+                if x >= u64::MAX as f32 || x < 0.0 {
+                    throw!(IntegerOverflow);
+                }
+                let y = x as u64;
+                push!(u64, y)
+            }
+            xb0_i64_trunc_f64_s => {
+                let x = pop!(f64);
+                if x.is_nan() {
+                    throw!(InvalidConversionToInteger)
+                }
+                if x >= i64::MAX as f64 || x < i64::MIN as f64 {
+                    throw!(IntegerOverflow);
+                }
+                let y = x.trunc() as i64;
+                push!(i64, y)
+            }
+            xb1_i64_trunc_f64_u => {
+                let x = pop!(f64).trunc();
+                if x.is_nan() {
+                    throw!(InvalidConversionToInteger)
+                }
+                if x >= u64::MAX as f64 || x < 0.0 {
+                    throw!(IntegerOverflow);
+                }
+                let y = x as u64;
+                push!(u64, y)
+            }
+            xb2_f32_convert_i32_s => {
+                let x = pop!(i32) as f32;
+                push!(f32, x)
+            }
+            xb3_f32_convert_i32_u => {
+                let x = pop!(u32) as f32;
+                push!(f32, x)
+            }
+            xb4_f32_convert_i64_s => {
+                let x = pop!(i64) as f32;
+                push!(f32, x)
+            }
+            xb5_f32_convert_i64_u => {
+                let x = pop!(u64) as f32;
+                push!(f32, x)
+            }
+            xb6_f32_demote_f64 => {
+                let x = pop!(f64);
+                if x.is_nan() {
+                    // very ugly
+                    if x.to_bits()
+                        & 0b0111111111110100000000000000000000000000000000000000000000000000
+                        == 0b0111111111110100000000000000000000000000000000000000000000000000
+                    {
+                        push!(f32, f32::from_bits(0b11010100000000000000000000000000))
+                    } else if x.to_bits()
+                        & 0b0011111111100000000000000000000000000000000000000000000000000000
+                        == 0b0011111111100000000000000000000000000000000000000000000000000000
+                        && x.to_bits() & 0b1 == 0
+                    {
+                        push!(f32, f32::from_bits(0b10000000000000000000000000000000))
+                    } else {
+                        push!(f32, f32::from_bits(0b11010100000000000000000000000000))
                     }
-                    x1a_drop => {
-                        pop!();
-                    }
-                    x1b_select => {
-                        let cond = pop!(i32);
-                        let y = pop!();
-                        let x = pop!();
-                        match cond == 0 {
-                            true => push!(y),
-                            false => push!(x),
-                        }
-                    }
-                    x20_local_get(LocalIdX(id)) => push!(*local!(id)),
-                    x21_local_set(LocalIdX(id)) => {
-                        let val = pop!();
-                        set_local!(*id, val);
-                    }
-                    x22_local_tee(LocalIdX(id)) => {
-                        let last = pop!();
-                        set_local!(*id, last);
-                        push!(last);
-                    }
-                    x23_global_get(GlobalIdX(id)) => {
-                        push!(self
-                            .module
-                            .globals
-                            .read()
-                            .get(id)
-                            .copied()
-                            .unwrap_or(Value::I32(0)))
-                    }
-                    x24_global_set(GlobalIdX(id)) => {
-                        let pop = pop!();
-                        self.module.globals.write().insert(*id, pop);
-                    }
-                    x28_i32_load(mem) => {
-                        let addr = pop!(u32);
-                        push!(i32, self.module.memory.read().get(addr as usize, *mem)?);
-                    }
-                    x29_i64_load(mem) => {
-                        let addr = pop!(u32);
-                        push!(i64, self.module.memory.read().get(addr as usize, *mem)?);
-                    }
-                    x2a_f32_load(mem) => {
-                        let addr = pop!(u32);
-                        push!(f32, self.module.memory.read().get(addr as usize, *mem)?);
-                    }
-                    x2b_f64_load(mem) => {
-                        let addr = pop!(u32);
-                        push!(f64, self.module.memory.read().get(addr as usize, *mem)?);
-                    }
-                    x2c_i32_load8_s(mem) => {
-                        let addr = pop!(u32);
+                } else {
+                    let y = x as f32;
+                    push!(f32, y)
+                }
+            }
+
+            xb7_f64_convert_i32_s => {
+                let x = pop!(i32) as f64;
+                push!(f64, x)
+            }
+            xb8_f64_convert_i32_u => {
+                let x = pop!(u32) as f64;
+                push!(f64, x)
+            }
+            xb9_f64_convert_i64_s => {
+                let x = pop!(i64) as f64;
+                push!(f64, x)
+            }
+            xba_f64_convert_i64_u => {
+                let x = pop!(u64) as f64;
+                push!(f64, x)
+            }
+            xbb_f64_promote_f32 => {
+                let x = pop!(f32);
+                if x.is_nan() {
+                    // very ugly
+                    if x.to_bits() & 0b01111111110000000000000000000000
+                        == 0b01111111110000000000000000000000
+                    {
                         push!(
-                            i32,
-                            self.module.memory.read().get::<i8>(addr as usize, *mem)? as i32
-                        );
-                    }
-                    x2d_i32_load8_u(mem) => {
-                        let addr = pop!(u32);
+                            f64,
+                            f64::from_bits(
+                                0b0100000000000000000000000000000000000000000000000000000000000000
+                            )
+                        )
+                    } else {
                         push!(
-                            u32,
-                            self.module.memory.read().get::<u8>(addr as usize, *mem)? as u32
-                        );
-                    }
-                    x2e_i32_load16_s(mem) => {
-                        let addr = pop!(u32);
-                        push!(
-                            i32,
-                            self.module.memory.read().get::<u16>(addr as usize, *mem)? as i32
-                        );
-                    }
-                    x2f_i32_load16_u(mem) => {
-                        let addr = pop!(u32);
-                        push!(
-                            u32,
-                            self.module.memory.read().get::<u16>(addr as usize, *mem)? as u32
-                        );
-                    }
-                    x30_i64_load8_s(mem) => {
-                        let addr = pop!(u32);
-                        push!(
-                            i64,
-                            self.module.memory.read().get::<i8>(addr as usize, *mem)? as i64
-                        );
-                    }
-                    x31_i64_load8_u(mem) => {
-                        let addr = pop!(u32);
-                        push!(
-                            u64,
-                            self.module.memory.read().get::<u8>(addr as usize, *mem)? as u64
-                        );
-                    }
-                    x32_i64_load16_s(mem) => {
-                        let addr = pop!(u32);
-                        push!(
-                            i64,
-                            self.module.memory.read().get::<i16>(addr as usize, *mem)? as i64
-                        );
-                    }
-                    x33_i64_load16_u(mem) => {
-                        let addr = pop!(u32);
-                        push!(
-                            u64,
-                            self.module.memory.read().get::<u16>(addr as usize, *mem)? as u64
-                        );
-                    }
-                    x34_i64_load32_s(mem) => {
-                        let addr = pop!(u32);
-                        push!(
-                            i64,
-                            self.module.memory.read().get::<i32>(addr as usize, *mem)? as i64
-                        );
-                    }
-                    x35_i64_load32_u(mem) => {
-                        let addr = pop!(u32);
-                        push!(
-                            u64,
-                            self.module.memory.read().get::<u32>(addr as usize, *mem)? as u64
-                        );
-                    }
-                    x36_i32_store(mem) => {
-                        let v = pop!(i32);
-                        let addr = pop!(u32);
-                        self.module.memory.write().set(addr as usize, *mem, v)?;
-                    }
-                    x37_i64_store(mem) => {
-                        let v = pop!(i64);
-                        let addr = pop!(u32);
-                        self.module.memory.write().set(addr as usize, *mem, v)?;
-                    }
-                    x38_f32_store(mem) => {
-                        let v = pop!(f32);
-                        let addr = pop!(u32);
-                        self.module.memory.write().set(addr as usize, *mem, v)?;
-                    }
-                    x39_f64_store(mem) => {
-                        let v = pop!(f64);
-                        let addr = pop!(u32);
-                        self.module.memory.write().set(addr as usize, *mem, v)?;
-                    }
-                    x3a_i32_store8(mem) => {
-                        let v = pop!(i32);
-                        let addr = pop!(u32);
-                        self.module
-                            .memory
-                            .write()
-                            .set(addr as usize, *mem, v as i8)?;
-                    }
-                    x3b_i32_store16(mem) => {
-                        let v = pop!(i32);
-                        let addr = pop!(u32);
-                        self.module
-                            .memory
-                            .write()
-                            .set(addr as usize, *mem, v as i16)?;
-                    }
-                    x3c_i64_store8(mem) => {
-                        let v = pop!(i64);
-                        let addr = pop!(u32);
-                        self.module
-                            .memory
-                            .write()
-                            .set(addr as usize, *mem, v as i8)?;
-                    }
-                    x3d_i64_store16(mem) => {
-                        let v = pop!(i64);
-                        let addr = pop!(u32);
-                        self.module
-                            .memory
-                            .write()
-                            .set(addr as usize, *mem, v as i16)?;
-                    }
-                    x3e_i64_store32(mem) => {
-                        let v = pop!(i64);
-                        let addr = pop!(u32);
-                        self.module
-                            .memory
-                            .write()
-                            .set(addr as usize, *mem, v as i32)?;
-                    }
-                    x40_grow => {
-                        let amount = pop!(i32);
-                        push!(i32, self.module.memory.write().grow(amount as usize))
-                    }
-                    x41_i32_const(val) => push!(i32, *val),
-                    x42_i64_const(val) => push!(i64, *val),
-                    x43_f32_const(val) => push!(f32, *val),
-                    x44_f64_const(val) => push!(f64, *val),
-                    x45_i32_eqz => {
-                        let val = pop!(i32);
-                        push!(i32, (val == 0) as i32);
-                    }
-                    x46_i32_eq => {
-                        let y = pop!(i32);
-                        let x = pop!(i32);
-                        push!(i32, (x == y) as i32)
-                    }
-                    x47_i32_ne => {
-                        let y = pop!(i32);
-                        let x = pop!(i32);
-                        push!(i32, (x != y) as i32)
-                    }
-                    x48_i32_lt_s => {
-                        let y = pop!(i32);
-                        let x = pop!(i32);
-                        push!(i32, (x < y) as i32)
-                    }
-                    x49_i32_lt_u => {
-                        let y = pop!(u32);
-                        let x = pop!(u32);
-                        push!(i32, (x < y) as i32)
-                    }
-                    x4a_i32_gt_s => {
-                        let y = pop!(i32);
-                        let x = pop!(i32);
-                        push!(i32, (x > y) as i32)
-                    }
-                    x4b_i32_gt_u => {
-                        let y = pop!(u32);
-                        let x = pop!(u32);
-                        push!(i32, (y > x) as i32)
-                    }
-                    x4d_i32_le_u => {
-                        let y = pop!(u32);
-                        let x = pop!(u32);
-                        push!(i32, (x <= y) as i32)
-                    }
-                    x4e_i32_ge_s => {
-                        let y = pop!(i32);
-                        let x = pop!(i32);
-                        push!(i32, (x >= y) as i32)
-                    }
-                    x4f_i32_ge_u => {
-                        let y = pop!(u32);
-                        let x = pop!(u32);
-                        push!(i32, (x >= y) as i32)
-                    }
-                    x50_i64_eqz => {
-                        let val = pop!(i64);
-                        push!(i32, (val == 0) as i32);
-                    }
-                    x52_i64_ne => {
-                        let y = pop!(i64);
-                        let x = pop!(i64);
-                        push!(i64, (x != y) as i64)
-                    }
-                    x58_i64_le_u => {
-                        let y = pop!(i64);
-                        let x = pop!(i64);
-                        push!(i32, (x <= y) as i32)
-                    }
-                    x5b_f32_eq => {
-                        let y = pop!(f32);
-                        let x = pop!(f32);
-                        push!(i32, (x == y) as i32)
-                    }
-                    x5e_f32_gt => {
-                        let y = pop!(f32);
-                        let x = pop!(f32);
-                        push!(i32, (x > y) as i32)
-                    }
-                    x5f_f32_le => {
-                        let y = pop!(f32);
-                        let x = pop!(f32);
-                        push!(i32, (x <= y) as i32)
-                    }
-                    x61_f64_eq => {
-                        let y = pop!(f64);
-                        let x = pop!(f64);
-                        push!(i32, (x == y) as i32)
-                    }
-                    x65_f64_le => {
-                        let y = pop!(f64);
-                        let x = pop!(f64);
-                        push!(i32, (x <= y) as i32)
-                    }
-                    x68_i32_ctz => {
-                        let x = pop!(i32);
-                        push!(i32, x.trailing_zeros() as i32)
-                    }
-                    x6a_i32_add => {
-                        let y = pop!(i32);
-                        let x = pop!(i32);
-                        push!(i32, x.wrapping_add(y))
-                    }
-                    x6b_i32_sub => {
-                        let y = pop!(i32);
-                        let x = pop!(i32);
-                        push!(i32, x.wrapping_sub(y))
-                    }
-                    x6c_i32_mul => {
-                        let y = pop!(i32);
-                        let x = pop!(i32);
-                        push!(i32, x.wrapping_mul(y))
-                    }
-                    x6e_i32_div_u => {
-                        let y = pop!(u32);
-                        let x = pop!(u32);
-                        push!(u32, x.wrapping_div(y))
-                    }
-                    x70_i32_rem_u => {
-                        let y = pop!(u32);
-                        let x = pop!(u32);
-                        push!(u32, x.rem_euclid(y))
-                    }
-                    x71_i32_and => {
-                        let y = pop!(i32);
-                        let x = pop!(i32);
-                        push!(i32, x & y)
-                    }
-                    x72_i32_or => {
-                        let y = pop!(i32);
-                        let x = pop!(i32);
-                        push!(i32, x | y)
-                    }
-                    x73_i32_xor => {
-                        let y = pop!(i32);
-                        let x = pop!(i32);
-                        push!(i32, x ^ y)
-                    }
-                    x74_i32_shl => {
-                        let y = pop!(i32);
-                        let x = pop!(i32);
-                        push!(i32, x << y)
-                    }
-                    x7c_i64_add => {
-                        let y = pop!(i64);
-                        let x = pop!(i64);
-                        push!(i64, x.wrapping_add(y))
-                    }
-                    x7d_i64_sub => {
-                        let y = pop!(i64);
-                        let x = pop!(i64);
-                        push!(i64, x.wrapping_sub(y))
-                    }
-                    x7e_i64_mul => {
-                        let y = pop!(i64);
-                        let x = pop!(i64);
-                        push!(i64, x.wrapping_mul(y))
-                    }
-                    x91_f32_sqrt => {
-                        let x = pop!(f32);
-                        push!(f32, x.sqrt())
-                    }
-                    x92_f32_add => {
-                        let y = pop!(f32);
-                        let x = pop!(f32);
-                        push!(f32, x + y)
-                    }
-                    x93_f32_sub => {
-                        let y = pop!(f32);
-                        let x = pop!(f32);
-                        push!(f32, x - y)
-                    }
-                    x94_f32_mul => {
-                        let y = pop!(f32);
-                        let x = pop!(f32);
-                        push!(f32, x * y)
-                    }
-                    xa0_f64_add => {
-                        let y = pop!(f64);
-                        let x = pop!(f64);
-                        push!(f64, x + y)
-                    }
-                    xa1_f64_sub => {
-                        let y = pop!(f64);
-                        let x = pop!(f64);
-                        push!(f64, x - y)
-                    }
-                    xa2_f64_mul => {
-                        let y = pop!(f64);
-                        let x = pop!(f64);
-                        push!(f64, x * y)
-                    }
-                    xa7_i32_wrap_i64 => {
-                        let x = pop!(i64);
-                        push!(i32, x.rem_euclid(2i64.pow(32)) as i32);
-                    }
-                    xa8_i32_trunc_f32_s => {
-                        let x = pop!(f32);
-                        if x.is_nan() {
-                            throw!(InvalidConversionToInteger)
-                        }
-                        if x >= i32::MAX as f32 || x < i32::MIN as f32 {
-                            throw!(IntegerOverflow);
-                        }
-                        let y = x.trunc() as i32;
-                        push!(i32, y)
-                    }
-                    xa9_i32_trunc_f32_u => {
-                        let x = pop!(f32).trunc();
-                        if x.is_nan() {
-                            throw!(InvalidConversionToInteger)
-                        }
-                        if x >= u32::MAX as f32 || x < 0.0 {
-                            throw!(IntegerOverflow);
-                        }
-                        let y = x as u32;
-                        push!(u32, y)
-                    }
-                    xaa_i32_trunc_f64_s => {
-                        let x = pop!(f64).trunc();
-                        if x.is_nan() {
-                            throw!(InvalidConversionToInteger)
-                        }
-                        if x > i32::MAX as f64 || x < i32::MIN as f64 {
-                            throw!(IntegerOverflow);
-                        }
-                        let y = x as i32;
-                        push!(i32, y)
-                    }
-                    xab_i32_trunc_f64_u => {
-                        let x = pop!(f64).trunc();
-                        if x.is_nan() {
-                            throw!(InvalidConversionToInteger)
-                        }
-                        if x > u32::MAX as f64 || x < 0.0 {
-                            throw!(IntegerOverflow);
-                        }
-                        let y = x as u32;
-                        push!(u32, y)
-                    }
-                    xac_i64_extend_i32_s => {
-                        let x = pop!(i32) as i64;
-                        push!(i64, x)
-                    }
-                    xad_i64_extend_i32_u => {
-                        let x = pop!(u32) as u64;
-                        push!(u64, x)
-                    }
-                    xae_i64_trunc_f32_s => {
-                        let x = pop!(f32);
-                        if x.is_nan() {
-                            throw!(InvalidConversionToInteger)
-                        }
-                        if x >= i64::MAX as f32 || x < i64::MIN as f32 {
-                            throw!(IntegerOverflow);
-                        }
-                        let y = x.trunc() as i64;
-                        push!(i64, y)
-                    }
-                    xaf_i64_trunc_f32_u => {
-                        let x = pop!(f32).trunc();
-                        if x.is_nan() {
-                            throw!(InvalidConversionToInteger)
-                        }
-                        if x >= u64::MAX as f32 || x < 0.0 {
-                            throw!(IntegerOverflow);
-                        }
-                        let y = x as u64;
-                        push!(u64, y)
-                    }
-                    xb0_i64_trunc_f64_s => {
-                        let x = pop!(f64);
-                        if x.is_nan() {
-                            throw!(InvalidConversionToInteger)
-                        }
-                        if x >= i64::MAX as f64 || x < i64::MIN as f64 {
-                            throw!(IntegerOverflow);
-                        }
-                        let y = x.trunc() as i64;
-                        push!(i64, y)
-                    }
-                    xb1_i64_trunc_f64_u => {
-                        let x = pop!(f64).trunc();
-                        if x.is_nan() {
-                            throw!(InvalidConversionToInteger)
-                        }
-                        if x >= u64::MAX as f64 || x < 0.0 {
-                            throw!(IntegerOverflow);
-                        }
-                        let y = x as u64;
-                        push!(u64, y)
-                    }
-                    xb2_f32_convert_i32_s => {
-                        let x = pop!(i32) as f32;
-                        push!(f32, x)
-                    }
-                    xb3_f32_convert_i32_u => {
-                        let x = pop!(u32) as f32;
-                        push!(f32, x)
-                    }
-                    xb4_f32_convert_i64_s => {
-                        let x = pop!(i64) as f32;
-                        push!(f32, x)
-                    }
-                    xb5_f32_convert_i64_u => {
-                        let x = pop!(u64) as f32;
-                        push!(f32, x)
-                    }
-                    xb6_f32_demote_f64 => {
-                        let x = pop!(f64);
-                        if x.is_nan() {
-                            // very ugly
-                            if x.to_bits()
-                                & 0b0111111111110100000000000000000000000000000000000000000000000000
-                                == 0b0111111111110100000000000000000000000000000000000000000000000000 {
-                                push!(f32, f32::from_bits(0b11010100000000000000000000000000))
-                            } else if x.to_bits()
-                                & 0b0011111111100000000000000000000000000000000000000000000000000000
-                                == 0b0011111111100000000000000000000000000000000000000000000000000000
-                                && x.to_bits() & 0b1 == 0
-                            {
-                                push!(f32, f32::from_bits(0b10000000000000000000000000000000))
-                            } else {
-                                push!(f32, f32::from_bits(0b11010100000000000000000000000000))
-                            }
-                        } else {
-                            let y = x as f32;
-                            push!(f32, y)
-                        }
-                    }
+                            f64,
+                            f64::from_bits(
+                                0b0110101000000000000000000000000000000000000000000000000000000000
+                            )
+                        )
+                    }
+                } else {
+                    let y = x as f64;
+                    push!(f64, y)
+                }
+            }
+            xbc_i32_reinterpret_f32 => {
+                let x = pop!(f32);
+                push!(u32, x.to_bits());
+            }
+            xbd_i64_reinterpret_f64 => {
+                let x = pop!(f64);
+                push!(u64, x.to_bits());
+            }
+            xbe_f32_reinterpret_i32 => {
+                let x = pop!(u32);
+                push!(f32, f32::from_bits(x));
+            }
+            xbf_f64_reinterpret_i64 => {
+                let x = pop!(u64);
+                push!(f64, f64::from_bits(x));
+            }
+            xd0_ref_null(x) => match x {
+                RefTyp::FuncRef => todo!(),
+                RefTyp::ExternRef => todo!(),
+            },
+            xfc_0_i32_trunc_sat_f32_s => {
+                let x = pop!(f32);
+                if x.is_nan() {
+                    push!(i32, 0);
+                } else if x >= i32::MAX as f32 {
+                    push!(i32, i32::MAX)
+                } else if x < i32::MIN as f32 {
+                    push!(i32, i32::MIN)
+                } else {
+                    let y = x.trunc() as i32;
+                    push!(i32, y)
+                }
+            }
+            xfc_1_i32_trunc_sat_f32_u => {
+                let x = pop!(f32);
+                if x.is_nan() {
+                    push!(u32, 0);
+                } else if x >= u32::MAX as f32 {
+                    push!(u32, u32::MAX)
+                } else if x < u32::MIN as f32 {
+                    push!(u32, u32::MIN)
+                } else {
+                    let y = x.trunc() as u32;
+                    push!(u32, y)
+                }
+            }
+            xfc_2_i32_trunc_sat_f64_s => {
+                let x = pop!(f64);
+                if x.is_nan() {
+                    push!(i32, 0);
+                } else if x >= i32::MAX as f64 {
+                    push!(i32, i32::MAX)
+                } else if x < i32::MIN as f64 {
+                    push!(i32, i32::MIN)
+                } else {
+                    let y = x.trunc() as i32;
+                    push!(i32, y)
+                }
+            }
+            xfc_3_i32_trunc_sat_f64_u => {
+                let x = pop!(f64);
+                if x.is_nan() {
+                    push!(u32, 0);
+                } else if x >= u32::MAX as f64 {
+                    push!(u32, u32::MAX)
+                } else if x < u32::MIN as f64 {
+                    push!(u32, u32::MIN)
+                } else {
+                    let y = x.trunc() as u32;
+                    push!(u32, y)
+                }
+            }
+            xfc_4_i64_trunc_sat_f32_s => {
+                let x = pop!(f32);
+                if x.is_nan() {
+                    push!(i64, 0);
+                } else if x >= i64::MAX as f32 {
+                    push!(i64, i64::MAX)
+                } else if x < i64::MIN as f32 {
+                    push!(i64, i64::MIN)
+                } else {
+                    let y = x.trunc() as i64;
+                    push!(i64, y)
+                }
+            }
+            xfc_5_i64_trunc_sat_f32_u => {
+                let x = pop!(f32);
+                if x.is_nan() {
+                    push!(u64, 0);
+                } else if x >= u64::MAX as f32 {
+                    push!(u64, u64::MAX)
+                } else if x < u64::MIN as f32 {
+                    push!(u64, u64::MIN)
+                } else {
+                    let y = x.trunc() as u64;
+                    push!(u64, y)
+                }
+            }
+            xfc_6_i64_trunc_sat_f64_s => {
+                let x = pop!(f64);
+                if x.is_nan() {
+                    push!(i64, 0);
+                } else if x >= i64::MAX as f64 {
+                    push!(i64, i64::MAX)
+                } else if x < i64::MIN as f64 {
+                    push!(i64, i64::MIN)
+                } else {
+                    let y = x.trunc() as i64;
+                    push!(i64, y)
+                }
+            }
+            xfc_7_i64_trunc_sat_f64_u => {
+                let x = pop!(f64);
+                if x.is_nan() {
+                    push!(u64, 0);
+                } else if x >= u64::MAX as f64 {
+                    push!(u64, u64::MAX)
+                } else if x < u64::MIN as f64 {
+                    push!(u64, u64::MIN)
+                } else {
+                    let y = x.trunc() as u64;
+                    push!(u64, y)
+                }
+            }
+            xfc_8_memory_init(DataIdx(i), _) => {
+                let amount = pop!(i32) as usize;
+                let source = pop!(i32) as usize;
+                let destination = pop!(i32) as usize;
+                let datas = module.datas.read();
+                let val = unwrap!(datas.get(i), MissingData);
+                if source + amount > val.len() {
+                    throw!(DataInitOutOfRange)
+                }
+                module
+                    .memory
+                    .write()
+                    .slice_write(destination, &val[source..source + amount])?
+            }
+            xfc_9_data_drop(DataIdx(i)) => {
+                module.datas.write().insert(*i, Vec::new());
+            }
+            xfc_10_memory_copy(_, _) => {
+                let amount = pop!(i32) as usize;
+                let source = pop!(i32) as usize;
+                let destination = pop!(i32) as usize;
+                // println!("amount: {amount}, source: {source}, dest: {destination}");
+                module.memory.write().copy(source, amount, destination)?;
+            }
+            xfc_11_memory_fill(_) => {
+                let amount = pop!(i32) as usize;
+                let val = pop!(i32) as u8;
+                let ptr = pop!(i32) as usize;
+                module.memory.write().bulk_write(ptr, amount, val)?;
+            }
+            xfc_12_table_init(ElemIdx(e), TableIdX(t)) => {
+                let amount = pop!(i32) as u32;
+                let source = pop!(i32) as u32;
+                let destination = pop!(i32) as u32;
+                let elems = module.elems.read();
+                let elems = unwrap!(elems.get(e), MissingElementIndex);
+                let mut tables = module.tables.write();
+                let table = unwrap!(tables.get_mut(*t as usize), MissingTableIndex);
 
-                    xb7_f64_convert_i32_s => {
-                        let x = pop!(i32) as f64;
-                        push!(f64, x)
-                    }
-                    xb8_f64_convert_i32_u => {
-                        let x = pop!(u32) as f64;
-                        push!(f64, x)
-                    }
-                    xb9_f64_convert_i64_s => {
-                        let x = pop!(i64) as f64;
-                        push!(f64, x)
-                    }
-                    xba_f64_convert_i64_u => {
-                        let x = pop!(u64) as f64;
-                        push!(f64, x)
-                    }
-                    xbb_f64_promote_f32 => {
-                        let x = pop!(f32);
-                        if x.is_nan() {
-                            // very ugly
-                            if x.to_bits() & 0b01111111110000000000000000000000
-                                == 0b01111111110000000000000000000000
-                            {
-                                push!(f64, f64::from_bits(0b0100000000000000000000000000000000000000000000000000000000000000))
-                            } else {
-                                push!(f64, f64::from_bits(0b0110101000000000000000000000000000000000000000000000000000000000))
-                            }
-                        } else {
-                            let y = x as f64;
-                            push!(f64, y)
-                        }
-                    }
-                    xbc_i32_reinterpret_f32 => {
-                        let x = pop!(f32);
-                        push!(u32, x.to_bits());
-                    }
-                    xbd_i64_reinterpret_f64 => {
-                        let x = pop!(f64);
-                        push!(u64, x.to_bits());
-                    }
-                    xbe_f32_reinterpret_i32 => {
-                        let x = pop!(u32);
-                        push!(f32, f32::from_bits(x));
-                    }
-                    xbf_f64_reinterpret_i64 => {
-                        let x = pop!(u64);
-                        push!(f64, f64::from_bits(x));
-                    }
-                    xd0_ref_null(x) => match x {
-                        RefTyp::FuncRef => todo!(),
-                        RefTyp::ExternRef => todo!(),
-                    },
-                    xfc_0_i32_trunc_sat_f32_s => {
-                        let x = pop!(f32);
-                        if x.is_nan() {
-                            push!(i32, 0);
-                        } else if x >= i32::MAX as f32 {
-                            push!(i32, i32::MAX)
-                        } else if x < i32::MIN as f32 {
-                            push!(i32, i32::MIN)
-                        } else {
-                            let y = x.trunc() as i32;
-                            push!(i32, y)
-                        }
-                    }
-                    xfc_1_i32_trunc_sat_f32_u => {
-                        let x = pop!(f32);
-                        if x.is_nan() {
-                            push!(u32, 0);
-                        } else if x >= u32::MAX as f32 {
-                            push!(u32, u32::MAX)
-                        } else if x < u32::MIN as f32 {
-                            push!(u32, u32::MIN)
-                        } else {
-                            let y = x.trunc() as u32;
-                            push!(u32, y)
-                        }
-                    }
-                    xfc_2_i32_trunc_sat_f64_s => {
-                        let x = pop!(f64);
-                        if x.is_nan() {
-                            push!(i32, 0);
-                        } else if x >= i32::MAX as f64 {
-                            push!(i32, i32::MAX)
-                        } else if x < i32::MIN as f64 {
-                            push!(i32, i32::MIN)
-                        } else {
-                            let y = x.trunc() as i32;
-                            push!(i32, y)
-                        }
-                    }
-                    xfc_3_i32_trunc_sat_f64_u => {
-                        let x = pop!(f64);
-                        if x.is_nan() {
-                            push!(u32, 0);
-                        } else if x >= u32::MAX as f64 {
-                            push!(u32, u32::MAX)
-                        } else if x < u32::MIN as f64 {
-                            push!(u32, u32::MIN)
-                        } else {
-                            let y = x.trunc() as u32;
-                            push!(u32, y)
-                        }
-                    }
-                    xfc_4_i64_trunc_sat_f32_s => {
-                        let x = pop!(f32);
-                        if x.is_nan() {
-                            push!(i64, 0);
-                        } else if x >= i64::MAX as f32 {
-                            push!(i64, i64::MAX)
-                        } else if x < i64::MIN as f32 {
-                            push!(i64, i64::MIN)
-                        } else {
-                            let y = x.trunc() as i64;
-                            push!(i64, y)
-                        }
-                    }
-                    xfc_5_i64_trunc_sat_f32_u => {
-                        let x = pop!(f32);
-                        if x.is_nan() {
-                            push!(u64, 0);
-                        } else if x >= u64::MAX as f32 {
-                            push!(u64, u64::MAX)
-                        } else if x < u64::MIN as f32 {
-                            push!(u64, u64::MIN)
-                        } else {
-                            let y = x.trunc() as u64;
-                            push!(u64, y)
-                        }
-                    }
-                    xfc_6_i64_trunc_sat_f64_s => {
-                        let x = pop!(f64);
-                        if x.is_nan() {
-                            push!(i64, 0);
-                        } else if x >= i64::MAX as f64 {
-                            push!(i64, i64::MAX)
-                        } else if x < i64::MIN as f64 {
-                            push!(i64, i64::MIN)
-                        } else {
-                            let y = x.trunc() as i64;
-                            push!(i64, y)
-                        }
-                    }
-                    xfc_7_i64_trunc_sat_f64_u => {
-                        let x = pop!(f64);
-                        if x.is_nan() {
-                            push!(u64, 0);
-                        } else if x >= u64::MAX as f64 {
-                            push!(u64, u64::MAX)
-                        } else if x < u64::MIN as f64 {
-                            push!(u64, u64::MIN)
-                        } else {
-                            let y = x.trunc() as u64;
-                            push!(u64, y)
-                        }
-                    }
-                    xfc_8_memory_init(DataIdx(i), _) => {
-                        let amount = pop!(i32) as usize;
-                        let source = pop!(i32) as usize;
-                        let destination = pop!(i32) as usize;
-                        let datas = self.module.datas.read();
-                        let val = unwrap!(datas.get(i), MissingData);
-                        if source + amount > val.len() {
-                            throw!(DataInitOutOfRange)
-                        }
-                        self.module
-                            .memory
-                            .write()
-                            .slice_write(destination, &val[source..source + amount])?
-                    }
-                    xfc_9_data_drop(DataIdx(i)) => {
-                        self.module.datas.write().insert(*i, Vec::new());
-                    }
-                    xfc_10_memory_copy(_, _) => {
-                        let amount = pop!(i32) as usize;
-                        let source = pop!(i32) as usize;
-                        let destination = pop!(i32) as usize;
-                        // println!("amount: {amount}, source: {source}, dest: {destination}");
-                        self.module
-                            .memory
-                            .write()
-                            .copy(source, amount, destination)?;
-                    }
-                    xfc_11_memory_fill(_) => {
-                        let amount = pop!(i32) as usize;
-                        let val = pop!(i32) as u8;
-                        let ptr = pop!(i32) as usize;
-                        self.module.memory.write().bulk_write(ptr, amount, val)?;
-                    }
-                    xfc_12_table_init(ElemIdx(e), TableIdX(t)) => {
-                        let amount = pop!(i32) as u32;
-                        let source = pop!(i32) as u32;
-                        let destination = pop!(i32) as u32;
-                        let elems = self.module.elems.read();
-                        let elems = unwrap!(elems.get(e), MissingElementIndex);
-                        let mut tables = self.module.tables.write();
-                        let table = unwrap!(tables.get_mut(*t as usize), MissingTableIndex);
+                let check_1 = source + amount > elems.instrs.len() as u32;
+                let check_2 = destination < table.table_length.0 as u32;
+                let check_3 = destination + amount > table.table_length.1 as u32;
+                if check_1 || check_2 || check_3 {
+                    throw!(OutOfBoundsTableAccess)
+                }
 
-                        let check_1 = source + amount > elems.instrs.len() as u32;
-                        let check_2 = destination < table.table_length.0 as u32;
-                        let check_3 = destination + amount > table.table_length.1 as u32;
-                        if check_1 || check_2 || check_3 {
-                            throw!(OutOfBoundsTableAccess)
-                        }
+                for i in 0..amount {
+                    // should crash here
+                    let e = match elems.instrs[(i + source) as usize] {
+                        x41_i32_const(i) => FuncIdx(i as u32),
+                        _ => todo!(),
+                    };
+                    table.insert(i + destination, e);
+                }
+            }
+            xfc_13_elem_drop(ElemIdx(i)) => {
+                module.elems.write().insert(*i, Expr { instrs: Vec::new() });
+            }
+            xfc_14_table_copy(TableIdX(a), TableIdX(b)) => {
+                let amount = pop!(i32) as u32;
+                let source = pop!(i32) as u32;
+                let destination = pop!(i32) as u32;
+                let mut tables = module.tables.write();
+                let a = unwrap!(tables.get(*a as usize), MissingTableIndex);
+                let check_1 = source + amount > a.len() as u32;
+                let mut clones = Vec::new();
+                for i in 0..amount {
+                    let index = i + source;
+                    let f = unwrap!(a.get(&index), OutOfBoundsTableAccess);
+                    clones.push(*f);
+                }
 
-                        for i in 0..amount {
-                            // should crash here
-                            let e = match elems.instrs[(i + source) as usize] {
-                                x41_i32_const(i) => FuncIdx(i as u32),
-                                _ => todo!(),
-                            };
-                            table.insert(i + destination, e);
-                        }
-                    }
-                    xfc_13_elem_drop(ElemIdx(i)) => {
-                        self.module
-                            .elems
-                            .write()
-                            .insert(*i, Expr { instrs: Vec::new() });
-                    }
-                    xfc_14_table_copy(TableIdX(a), TableIdX(b)) => {
-                        let amount = pop!(i32) as u32;
-                        let source = pop!(i32) as u32;
-                        let destination = pop!(i32) as u32;
-                        let mut tables = self.module.tables.write();
-                        let a = unwrap!(tables.get(*a as usize), MissingTableIndex);
-                        let check_1 = source + amount > a.len() as u32;
-                        let mut clones = Vec::new();
-                        for i in 0..amount {
-                            let index = i + source;
-                            let f = unwrap!(a.get(&index), OutOfBoundsTableAccess);
-                            clones.push(*f);
-                        }
+                let b = unwrap!(tables.get_mut(*b as usize), MissingTableIndex);
+                let check_2 = destination < b.table_length.0 as u32;
+                let check_3 = destination + amount > b.table_length.1 as u32;
 
-                        let b = unwrap!(tables.get_mut(*b as usize), MissingTableIndex);
-                        let check_2 = destination < b.table_length.0 as u32;
-                        let check_3 = destination + amount > b.table_length.1 as u32;
+                if check_1 || check_2 || check_3 {
+                    throw!(OutOfBoundsTableAccess)
+                }
 
-                        if check_1 || check_2 || check_3 {
-                            throw!(OutOfBoundsTableAccess)
-                        }
-
-                        for (i, v) in clones.into_iter().enumerate() {
-                            let index = i as u32 + destination;
-                            b.insert(index, v);
-                        }
-                    }
-                    block_start(bt, be, vt) => {
-                        // println!("block_start: {vt:?}");
-                        let mut to_push = Vec::new();
-                        if matches!(bt, BT::Block) {
-                            match vt {
-                                BlockType::Eps => {}
-                                BlockType::T(_) => {}
-                                BlockType::TypIdx(t) => {
-                                    for _ in unwrap!(
-                                        self.module.function_types.get(&(*t as u32)),
-                                        MissingFunction
-                                    )
+                for (i, v) in clones.into_iter().enumerate() {
+                    let index = i as u32 + destination;
+                    b.insert(index, v);
+                }
+            }
+            block_start(bt, be, vt) => {
+                // println!("block_start: {vt:?}");
+                let mut to_push = Vec::new();
+                if matches!(bt, BT::Block) {
+                    match vt {
+                        BlockType::Eps => {}
+                        BlockType::T(_) => {}
+                        BlockType::TypIdx(t) => {
+                            for _ in
+                                unwrap!(module.function_types.get(&(*t as u32)), MissingFunction)
                                     .input
                                     .types
                                     .iter()
-                                    {
-                                        to_push.push(pop!());
-                                    }
-                                }
-                            };
-                        }
-                        push!(Value::BlockLock);
-                        match bt {
-                            BT::Block => push_depth!(DepthValue {
-                                bt: *bt,
-                                pos: *be,
-                                vt: *vt,
-                            }),
-                            BT::Loop => push_depth!(DepthValue {
-                                bt: *bt,
-                                pos: get!(pc) - 1,
-                                vt: *vt,
-                            }),
-                        }
-                        for p in to_push {
-                            push!(p);
-                        }
-                    }
-                    block_end(_, _, bt) => {
-                        // println!("block_end: {bt:?}");
-                        let mut last = Vec::new();
-                        loop {
-                            if let Some(Value::BlockLock) = peek!() {
-                                pop!();
-                                break;
-                            }
-                            last.push(pop!());
-                        }
-                        match bt {
-                            BlockType::Eps => {}
-                            BlockType::T(_) => match last.last() {
-                                Some(p) => push!(*p),
-                                None => throw!(EmptyStack),
-                            },
-                            BlockType::TypIdx(t) => {
-                                let func = unwrap!(
-                                    self.module.function_types.get(&(*t as u32)),
-                                    MissingFunction
-                                );
-                                for _ in 0..func.output.types.len() {
-                                    push!(unwrap!(last.pop(), EmptyStack));
-                                }
+                            {
+                                to_push.push(pop!());
                             }
                         }
-                        pop_depth!();
-                    }
-                    if_then_else(jump_index) => {
-                        let val = pop!(i32);
-
-                        if val != 0 {
-                            set!(pc) = *jump_index;
-                        }
-                        // for (i, c) in code.iter().enumerate() {
-                        //     println!("{i}:\t{c:?}");
-                        // }
-                    }
-                    else_jump(jump_index) => {
-                        // for (i, c) in code.iter().enumerate() {
-                        //     println!("{i}:\t{c:?}");
-                        // }
-                        set!(pc) = *jump_index;
-                    }
-                    f => {
-                        unimplemented!("instruction not supported : {f:?}")
-                    }
-                };
-                Ok(())
+                    };
+                }
+                push!(Value::BlockLock);
+                match bt {
+                    BT::Block => push_depth!(DepthValue {
+                        bt: *bt,
+                        pos: *be,
+                        vt: *vt,
+                    }),
+                    BT::Loop => push_depth!(DepthValue {
+                        bt: *bt,
+                        pos: get!(pc) - 1,
+                        vt: *vt,
+                    }),
+                }
+                for p in to_push {
+                    push!(p);
+                }
             }
-        }
+            block_end(_, _, bt) => {
+                // println!("block_end: {bt:?}");
+                let mut last = Vec::new();
+                loop {
+                    if let Some(Value::BlockLock) = peek!() {
+                        pop!();
+                        break;
+                    }
+                    last.push(pop!());
+                }
+                match bt {
+                    BlockType::Eps => {}
+                    BlockType::T(_) => match last.last() {
+                        Some(p) => push!(*p),
+                        None => throw!(EmptyStack),
+                    },
+                    BlockType::TypIdx(t) => {
+                        let func =
+                            unwrap!(module.function_types.get(&(*t as u32)), MissingFunction);
+                        for _ in 0..func.output.types.len() {
+                            push!(unwrap!(last.pop(), EmptyStack));
+                        }
+                    }
+                }
+                pop_depth!();
+            }
+            if_then_else(jump_index) => {
+                let val = pop!(i32);
+
+                if val != 0 {
+                    set!(pc) = *jump_index;
+                }
+                // for (i, c) in code.iter().enumerate() {
+                //     println!("{i}:\t{c:?}");
+                // }
+            }
+            else_jump(jump_index) => {
+                // for (i, c) in code.iter().enumerate() {
+                //     println!("{i}:\t{c:?}");
+                // }
+                set!(pc) = *jump_index;
+            }
+            f => {
+                unimplemented!("instruction not supported : {f:?}")
+            }
+        };
+        Ok(())
     }
 }

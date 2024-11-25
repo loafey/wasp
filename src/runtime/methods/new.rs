@@ -4,7 +4,7 @@ use super::super::{
     Frame, Runtime, Value,
 };
 use crate::{
-    parser::{ExportDesc, Global, Instr::*, LabelIdX, Module, Parsable, TypeIdX},
+    parser::{ExportDesc, FuncIdx, Global, Instr::*, LabelIdX, Module, Parsable, TypeIdX},
     runtime::clean_model::Function,
 };
 use std::{
@@ -47,7 +47,7 @@ impl Runtime {
             globals.insert(i as u32, val);
         }
 
-        let stack = if let Some(ExportDesc::Func(TypeIdX(main_id))) = module
+        let stack = if let Some(ExportDesc::Func(FuncIdx(main_id))) = module
             .exports
             .exports
             .iter()

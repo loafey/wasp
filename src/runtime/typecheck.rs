@@ -75,6 +75,7 @@ pub enum TypeCheckError {
     WrongTypeOnStack,
     EmptyStack,
     MissingFunction,
+    MissingType,
     IfElseTypeMismatch(Vec<ValType>, Vec<ValType>),
     ReturnTypeMismatch(Vec<ValType>, Vec<ValType>),
     MissingLocal,

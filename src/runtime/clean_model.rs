@@ -92,7 +92,12 @@ impl TryFrom<Module> for Model {
             };
             import_count += 1;
 
-            let ty = value.types.function_types[ty_id as usize].clone();
+            let ty = value
+                .types
+                .function_types
+                .get(ty_id as usize)
+                .ok_or(RuntimeError::TypeError(TypeCheckError::MissingType))?
+                .clone();
 
             let v = Function::Import {
                 ty,

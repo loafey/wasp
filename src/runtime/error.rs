@@ -22,6 +22,7 @@ pub enum RuntimeError {
     MissingData(&'static str, u32, u32),
     DataInitOutOfRange(&'static str, u32, u32),
     MissingElementIndex(&'static str, u32, u32),
+    MissingType(&'static str, u32, u32),
     TypeError(TypeCheckError),
     UninitializedElement(&'static str, u32, u32),
     UndefinedElement(&'static str, u32, u32),
@@ -67,6 +68,9 @@ impl std::fmt::Debug for RuntimeError {
                     f,
                     "returned, but no more frames ({stack:?}): {arg0}:{arg1}:{arg2}"
                 )
+            }
+            Self::MissingType(arg0, arg1, arg2) => {
+                write!(f, "missing type: {arg0}:{arg1}:{arg2}")
             }
             Self::NoFrame(arg0, arg1, arg2) => {
                 write!(f, "ran out of stack frames: {arg0}:{arg1}:{arg2}")

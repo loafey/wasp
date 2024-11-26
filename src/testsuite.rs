@@ -1,3 +1,4 @@
+use core::panic::PanicInfo;
 use monostate::MustBe;
 use serde::Deserialize;
 use std::{collections::HashMap, fs, path::PathBuf};
@@ -144,6 +145,7 @@ enum Case {
     AssertUninstantiable(AssertUninstantiable),
     AssertUnlinkable(AssertUnlinkable),
     Register(Register),
+    Default,
 }
 
 #[derive(Debug, Deserialize)]
@@ -269,7 +271,28 @@ fn handle_action<T>(
     }
 }
 
+static mut LAST_CASE: (usize, Case) = (0, Case::Default);
+
 pub fn test(mut path: String) {
+    std::panic::set_hook(Box::new(|info| {
+        #[allow(clippy::format_collect)]
+        let fmted = format!("{info}")
+            .lines()
+            .map(|s| format!("\t{s}\n"))
+            .collect::<String>();
+        error!(
+            "oops the test-suite panicked!\nReason:\n{fmted}Last test ({}):\n\t{:?}",
+            unsafe {
+                #[allow(static_mut_refs)]
+                &LAST_CASE.0
+            },
+            unsafe {
+                #[allow(static_mut_refs)]
+                &LAST_CASE.1
+            }
+        )
+    }));
+
     let input = path.to_string();
     if !PathBuf::from(&path).exists() {
         // ugly fix to work around spec test weirdness
@@ -304,12 +327,16 @@ pub fn test(mut path: String) {
     let total_tests = tests.commands.len();
 
     for (test_i, test) in tests.commands.into_iter().enumerate() {
+        unsafe {
+            LAST_CASE = (test_i, test.clone());
+        }
         let test_i = test_i + 1;
         // println!("\n{}/{total_tests}", test_i);
         if let Some(rt) = &mut runtime {
             rt.stack = Vec::new();
         }
         match test {
+            Case::Default => continue,
             Case::Module(module) => {
                 let mut p = p.clone();
                 p.pop();

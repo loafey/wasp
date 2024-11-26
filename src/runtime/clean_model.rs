@@ -292,7 +292,6 @@ impl TryFrom<Module> for Model {
         }
         let functions: Ptr<_> = functions.into();
 
-        let code_len = functions.len() as u32;
         for code in functions.iter() {
             let (_typ, code) = match code {
                 Function::Foreign { .. } => continue,
@@ -342,10 +341,10 @@ impl TryFrom<Module> for Model {
                 }
                 Ok(())
             }
-            match valid_calls(code, code_len, tables.len() as u32, type_len) {
+            match valid_calls(code, functions.len() as u32, tables.len() as u32, type_len) {
                 Ok(_) => {}
                 Err(Unknown::Function) => {
-                    return Err(RuntimeError::TypeError(TypeCheckError::UnknownFunction))
+                    return Err(RuntimeError::TypeError(TypeCheckError::UnknownFunction));
                 }
                 Err(Unknown::Table) => {
                     return Err(RuntimeError::TypeError(TypeCheckError::UnknownTable))
@@ -354,16 +353,6 @@ impl TryFrom<Module> for Model {
                     return Err(RuntimeError::TypeError(TypeCheckError::UnknownType))
                 }
             }
-
-            // let _ = typecheck::check(
-            //     Vec::new(),
-            //     &locals,
-            //     code,
-            //     &sigs,
-            //     &value.types.function_types,
-            //     &globs,
-            //     Some(typ.output.types.clone()),
-            // );
         }
 
         for e in &value.elems.elems {
@@ -406,7 +395,8 @@ impl TryFrom<Module> for Model {
             };
             for FuncIdx(f) in vec {
                 let f = f + offset;
-                if f >= code_len {
+                if f >= functions.len() as u32 {
+                    println!("here {f} {}", functions.len());
                     return Err(RuntimeError::TypeError(TypeCheckError::UnknownFunction));
                 }
             }

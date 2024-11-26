@@ -255,13 +255,17 @@ impl Runtime {
                         match import {
                             Import::WS(ws) => (
                                 ws,
-                                *match unwrap!(ws.exports.get(&name), MissingFunction) {
+                                *match unwrap!(ws.exports.get(&name), |a, b, c| {
+                                    MissingFunctionImport(name.clone(), a, b, c)
+                                }) {
                                     ExportDesc::Func(FuncIdx(x)) => x,
                                     _ => panic!(),
                                 },
                             ),
                             Import::IO { functions, .. } => {
-                                let func = unwrap!(functions.get(name.as_str()), MissingFunction);
+                                let func = unwrap!(functions.get(name.as_str()), |a, b, c| {
+                                    MissingFunctionImport(name.clone(), a, b, c)
+                                });
                                 for r in func(get!(locals))? {
                                     push!(r)
                                 }
@@ -778,6 +782,11 @@ impl Runtime {
                 let x = pop!(u32);
                 push!(i32, (y > x) as i32)
             }
+            x4c_i32_le_s => {
+                let y = pop!(i32);
+                let x = pop!(i32);
+                push!(i32, (x <= y) as i32)
+            }
             x4d_i32_le_u => {
                 let y = pop!(u32);
                 let x = pop!(u32);
@@ -800,12 +809,22 @@ impl Runtime {
             x52_i64_ne => {
                 let y = pop!(i64);
                 let x = pop!(i64);
-                push!(i64, (x != y) as i64)
+                push!(i32, (x != y) as i32)
+            }
+            x55_i64_gt_s => {
+                let y = pop!(i64);
+                let x = pop!(i64);
+                push!(i32, (x > y) as i32)
             }
             x58_i64_le_u => {
                 let y = pop!(i64);
                 let x = pop!(i64);
                 push!(i32, (x <= y) as i32)
+            }
+            x5a_i64_ge_u => {
+                let y = pop!(u64);
+                let x = pop!(u64);
+                push!(i32, (x > y) as i32)
             }
             x5b_f32_eq => {
                 let y = pop!(f32);

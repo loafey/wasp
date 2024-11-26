@@ -355,7 +355,7 @@ impl TryFrom<Module> for Model {
             }
         }
 
-        for e in &value.elems.elems {
+        for e in value.elems.elems.iter() {
             let (offset, vec) = match e {
                 Elem::E0(expr, vec) | Elem::E2(_, expr, _, vec) => (
                     match &expr.instrs[..] {

@@ -17,6 +17,7 @@ pub enum RuntimeError {
     Impossible(&'static str, u32, u32),
     MissingLocal(&'static str, u32, u32),
     MissingFunction(&'static str, u32, u32),
+    MissingFunctionImport(String, &'static str, u32, u32),
     MissingJumpLabel(&'static str, u32, u32),
     MissingTableIndex(&'static str, u32, u32),
     OutOfBoundsTableAccess(&'static str, u32, u32),
@@ -96,6 +97,9 @@ impl std::fmt::Debug for RuntimeError {
             }
             Self::MissingFunction(arg0, arg1, arg2) => {
                 write!(f, "missing function index: {arg0}:{arg1}:{arg2}")
+            }
+            Self::MissingFunctionImport(name, arg0, arg1, arg2) => {
+                write!(f, "missing function {name:?}: {arg0}:{arg1}:{arg2}")
             }
             Self::MissingJumpLabel(arg0, arg1, arg2) => {
                 write!(f, "missing jump label: {arg0}:{arg1}:{arg2}")

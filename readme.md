@@ -5,21 +5,21 @@
 💩: 117
 ## Failed: test-suite/test/core/data.wast
 ```bash
-thread 'main' panicked at src/runtime/clean_model.rs:530:42:
+thread 'main' panicked at src/runtime/clean_model.rs:512:42:
 not yet implemented
 note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 ```
 
 ## Failed: test-suite/test/core/elem.wast
 ```bash
-thread 'main' panicked at src/runtime/clean_model.rs:391:38:
+thread 'main' panicked at src/runtime/clean_model.rs:387:38:
 not yet implemented: xd2_ref_func(FuncIdx(0))
 note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 ```
 
 ## Failed: test-suite/test/core/endianness.wast
 ```bash
-thread 'main' panicked at src/runtime/methods/step.rs:1415:17:
+thread 'main' panicked at src/runtime/methods/step.rs:1427:17:
 not implemented: instruction not supported : x76_i32_shr_u
 note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 ```
@@ -129,7 +129,7 @@ note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 
 ## Failed: test-suite/test/core/fac.wast
 ```bash
-thread 'main' panicked at src/runtime/methods/step.rs:1415:17:
+thread 'main' panicked at src/runtime/methods/step.rs:1427:17:
 not implemented: instruction not supported : x51_i64_eq
 note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 ```
@@ -157,7 +157,7 @@ note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 
 ## Failed: test-suite/test/core/func.wast
 ```bash
- ERROR wasp::testsuite > test 9/172 failed (module: 0, invoke: "local-first-i32", error: a local is missing: src/runtime/methods/step.rs:575:51)
+ ERROR wasp::testsuite > test 9/172 failed (module: 0, invoke: "local-first-i32", error: a local is missing: src/runtime/methods/step.rs:578:51)
 ```
 
 ## Failed: test-suite/test/core/func_ptrs.wast
@@ -226,13 +226,13 @@ note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 24
 13
 thread 'main' panicked at src/testsuite.rs:329:58:
-failed to load module: type error: UnknownTable
+failed to load module: type error: UnknownFunction
 note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 ```
 
 ## Failed: test-suite/test/core/int_exprs.wast
 ```bash
-thread 'main' panicked at src/runtime/methods/step.rs:1415:17:
+thread 'main' panicked at src/runtime/methods/step.rs:1427:17:
 not implemented: instruction not supported : x53_i64_lt_s
 note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 ```
@@ -267,24 +267,24 @@ note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 
 ## Failed: test-suite/test/core/load.wast
 ```bash
-thread 'main' panicked at src/runtime/methods/step.rs:1415:17:
+thread 'main' panicked at src/runtime/methods/step.rs:1427:17:
 not implemented: instruction not supported : x67_i32_clz
 note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 ```
 
 ## Failed: test-suite/test/core/local_get.wast
 ```bash
- ERROR wasp::testsuite > test 2/36 failed (module: 0, invoke: "type-local-i32", error: a local is missing: src/runtime/methods/step.rs:575:51)
+ ERROR wasp::testsuite > test 2/36 failed (module: 0, invoke: "type-local-i32", error: a local is missing: src/runtime/methods/step.rs:578:51)
 ```
 
 ## Failed: test-suite/test/core/local_set.wast
 ```bash
- ERROR wasp::testsuite > test 20/53 failed (module: 0, invoke: "write", error: a local is missing: src/runtime/methods/step.rs:575:51)
+ ERROR wasp::testsuite > test 20/53 failed (module: 0, invoke: "write", error: a local is missing: src/runtime/methods/step.rs:578:51)
 ```
 
 ## Failed: test-suite/test/core/local_tee.wast
 ```bash
-thread 'main' panicked at src/runtime/methods/step.rs:1415:17:
+thread 'main' panicked at src/runtime/methods/step.rs:1427:17:
 not implemented: instruction not supported : x8c_f32_neg
 note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 ```
@@ -383,7 +383,7 @@ note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 
 ## Failed: test-suite/test/core/nop.wast
 ```bash
-thread 'main' panicked at src/runtime/methods/step.rs:1415:17:
+thread 'main' panicked at src/runtime/methods/step.rs:1427:17:
 not implemented: instruction not supported : x4c_i32_le_s
 note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 ```
@@ -660,7 +660,7 @@ note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 
 ## Failed: test-suite/test/core/stack.wast
 ```bash
-thread 'main' panicked at src/runtime/methods/step.rs:1415:17:
+thread 'main' panicked at src/runtime/methods/step.rs:1427:17:
 not implemented: instruction not supported : x51_i64_eq
 note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 ```
@@ -728,14 +728,14 @@ note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 
 ## Failed: test-suite/test/core/table_size.wast
 ```bash
-thread 'main' panicked at src/runtime/methods/step.rs:1415:17:
+thread 'main' panicked at src/runtime/methods/step.rs:1427:17:
 not implemented: instruction not supported : xfc_16_table_size(TableIdX(0))
 note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 ```
 
 ## Failed: test-suite/test/core/traps.wast
 ```bash
-thread 'main' panicked at src/runtime/methods/step.rs:1415:17:
+thread 'main' panicked at src/runtime/methods/step.rs:1427:17:
 not implemented: instruction not supported : x6d_i32_div_s
 note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 ```

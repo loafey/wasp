@@ -275,7 +275,7 @@ impl Runtime {
                     }
                     FuncId::Foreign { module, id } => todo!("foreign call {module}::({id})"),
                 };
-                match unwrap!(module.functions.get(&function), MissingFunction) {
+                match unwrap!(module.functions.get(function as usize), MissingFunction) {
                     Function::Foreign { module, name, .. } => {
                         func_id = FuncId::ForeignPre {
                             module: module.0.clone(),
@@ -342,7 +342,7 @@ impl Runtime {
                                 }
                                 BlockType::TypIdx(i) => {
                                     let ft = unwrap!(
-                                        module.function_types.get(&(i as u32)),
+                                        module.function_types.get(i as usize),
                                         MissingFunction
                                     );
                                     for _ in &ft.output.types {
@@ -470,7 +470,7 @@ impl Runtime {
                     FuncId::ForeignPre { .. } => todo!(),
                     FuncId::Foreign { .. } => todo!(),
                 };
-                let ty = unwrap!(module.functions.get(func_id), MissingFunction);
+                let ty = unwrap!(module.functions.get(*func_id as usize), MissingFunction);
                 let ty = match ty {
                     Function::Foreign { ty, .. } => ty,
                     Function::Native { ty, .. } => ty,
@@ -489,7 +489,7 @@ impl Runtime {
                 }
             }
             x10_call(FuncIdx(id)) => {
-                let fun = &module.functions[id];
+                let fun = &module.functions[*id as usize];
                 let (ty, module, func_id) = match fun {
                     Function::Foreign { ty, module, name } => (
                         ty,
@@ -519,7 +519,10 @@ impl Runtime {
             x11_call_indirect(TypeIdX(type_index), TableIdX(table_index)) => {
                 let function_index = pop!(i32);
 
-                let ty = unwrap!(module.function_types.get(type_index), MissingFunction);
+                let ty = unwrap!(
+                    module.function_types.get(*type_index as usize),
+                    MissingFunction
+                );
 
                 let mut locals = HashMap::new();
                 for (i, _) in ty.input.types.iter().enumerate().rev() {
@@ -540,7 +543,7 @@ impl Runtime {
                     throw!(UninitializedElement)
                 }
 
-                if let Some(func) = module.functions.get(&id) {
+                if let Some(func) = module.functions.get(id as usize) {
                     match func {
                         Function::Foreign { ty: ty2, .. } | Function::Native { ty: ty2, .. } => {
                             if ty != ty2 {
@@ -583,7 +586,7 @@ impl Runtime {
                 push!(last);
             }
             x23_global_get(GlobalIdX(id)) => {
-                match unwrap!(module.globals.read().get(id), MissingGlobal) {
+                match unwrap!(module.globals.read().get(*id as usize), MissingGlobal) {
                     Global::Native(value) => {
                         push!(*value)
                     }
@@ -596,7 +599,11 @@ impl Runtime {
             }
             x24_global_set(GlobalIdX(id)) => {
                 let pop = pop!();
-                module.globals.write().insert(*id, Global::Native(pop));
+                let mut r = module.globals.write();
+                let Some(r) = r.get_mut(*id as usize) else {
+                    unreachable!()
+                };
+                *r = Global::Native(pop);
             }
             x28_i32_load(mem) => {
                 let addr = pop!(u32);
@@ -1234,7 +1241,7 @@ impl Runtime {
                 let source = pop!(i32) as usize;
                 let destination = pop!(i32) as usize;
                 let datas = module.datas.read();
-                let val = unwrap!(datas.get(i), MissingData);
+                let val = unwrap!(datas.get(*i as usize), MissingData);
                 if source + amount > val.len() {
                     throw!(DataInitOutOfRange)
                 }
@@ -1244,7 +1251,9 @@ impl Runtime {
                     .slice_write(destination, &val[source..source + amount])?
             }
             xfc_9_data_drop(DataIdx(i)) => {
-                module.datas.write().insert(*i, Vec::new());
+                if let Some(r) = module.datas.write().get_mut(*i as usize) {
+                    *r = Vec::new();
+                }
             }
             xfc_10_memory_copy(_, _) => {
                 let amount = pop!(i32) as usize;
@@ -1264,7 +1273,7 @@ impl Runtime {
                 let source = pop!(i32) as u32;
                 let destination = pop!(i32) as u32;
                 let elems = module.elems.read();
-                let elems = unwrap!(elems.get(e), MissingElementIndex);
+                let elems = unwrap!(elems.get(*e as usize), MissingElementIndex);
                 let mut tables = module.tables.write();
                 let table = unwrap!(tables.get_mut(*t as usize), MissingTableIndex);
                 let (table, table_length) = match table {
@@ -1292,7 +1301,11 @@ impl Runtime {
                 }
             }
             xfc_13_elem_drop(ElemIdx(i)) => {
-                module.elems.write().insert(*i, Expr { instrs: Vec::new() });
+                let mut r = module.elems.write();
+                let Some(r) = r.get_mut(*i as usize) else {
+                    unreachable!()
+                };
+                *r = Expr { instrs: Vec::new() };
             }
             xfc_14_table_copy(TableIdX(a), TableIdX(b)) => {
                 let amount = pop!(i32) as u32;
@@ -1342,7 +1355,7 @@ impl Runtime {
                         BlockType::T(_) => {}
                         BlockType::TypIdx(t) => {
                             for _ in
-                                unwrap!(module.function_types.get(&(*t as u32)), MissingFunction)
+                                unwrap!(module.function_types.get(*t as usize), MissingFunction)
                                     .input
                                     .types
                                     .iter()
@@ -1386,8 +1399,7 @@ impl Runtime {
                         None => throw!(EmptyStack),
                     },
                     BlockType::TypIdx(t) => {
-                        let func =
-                            unwrap!(module.function_types.get(&(*t as u32)), MissingFunction);
+                        let func = unwrap!(module.function_types.get(*t as usize), MissingFunction);
                         for _ in 0..func.output.types.len() {
                             push!(unwrap!(last.pop(), EmptyStack));
                         }

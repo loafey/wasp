@@ -47,13 +47,13 @@ pub enum Table {
 
 #[derive(Debug, Clone)]
 pub struct Model {
-    pub functions: Ptr<HashMap<u32, Function>>,
+    pub functions: Ptr<Vec<Function>>,
     pub tables: PtrRW<Vec<Table>>,
-    pub elems: PtrRW<HashMap<u32, Expr>>,
-    pub function_types: Ptr<HashMap<u32, FuncType>>,
-    pub globals: PtrRW<HashMap<u32, Global>>,
+    pub elems: PtrRW<Vec<Expr>>,
+    pub function_types: Ptr<Vec<FuncType>>,
+    pub globals: PtrRW<Vec<Global>>,
     pub exports: Ptr<HashMap<String, ExportDesc>>,
-    pub datas: PtrRW<HashMap<u32, Vec<u8>>>,
+    pub datas: PtrRW<Vec<Vec<u8>>>,
     pub memory: PtrRW<Memory<{ 65536 + 1 }>>,
 }
 impl TryFrom<Module> for Model {
@@ -78,10 +78,8 @@ impl TryFrom<Module> for Model {
         //     .map(|g| g.gt.t)
         //     .collect::<Vec<_>>();
 
-        let mut functions = HashMap::new();
-        let mut import_count = 0;
-        let mut globals = HashMap::new();
-        let mut global_count = 0;
+        let mut functions = Vec::new();
+        let mut globals = Vec::new();
         let mut tables = Vec::new();
 
         for import in value.imports.imports.into_iter() {
@@ -100,15 +98,13 @@ impl TryFrom<Module> for Model {
                         name: import.name,
                     };
 
-                    functions.insert(import_count as u32, v);
-                    import_count += 1;
+                    functions.push(v);
                 }
                 ImportDesc::Global(_) => {
-                    globals.insert(
-                        global_count as u32,
-                        Global::Foreign(import.module.0.clone(), import.name.0.clone()),
-                    );
-                    global_count += 1;
+                    globals.push(Global::Foreign(
+                        import.module.0.clone(),
+                        import.name.0.clone(),
+                    ));
                 }
                 ImportDesc::Table(_) => {
                     tables.push(Table::Foreign {
@@ -287,20 +283,17 @@ impl TryFrom<Module> for Model {
                 pc += 1;
             }
 
-            functions.insert(
-                (k + import_count) as u32,
-                Function::Native {
-                    ty,
-                    _locals: locals,
-                    _labels: HashMap::new(),
-                    code,
-                },
-            );
+            functions.push(Function::Native {
+                ty,
+                _locals: locals,
+                _labels: HashMap::new(),
+                code,
+            });
         }
         let functions: Ptr<_> = functions.into();
 
         let code_len = functions.len() as u32;
-        for (_, code) in functions.iter() {
+        for code in functions.iter() {
             let (_typ, code) = match code {
                 Function::Foreign { .. } => continue,
                 Function::Native { ty, code, .. } => (ty, code),
@@ -419,8 +412,8 @@ impl TryFrom<Module> for Model {
             }
         }
 
-        let mut elems = HashMap::new();
-        for (i, elem) in value.elems.elems.into_iter().enumerate() {
+        let mut elems = Vec::new();
+        for elem in value.elems.elems.into_iter() {
             match elem {
                 Elem::E0(expr, vec) => match &expr.instrs[..] {
                     [Instr::x41_i32_const(off)] => {
@@ -430,32 +423,26 @@ impl TryFrom<Module> for Model {
                             };
                             table.insert(*off as u32 + i as u32, v);
                         }
-                        elems.insert(i as u32, expr.clone());
+                        elems.push(expr.clone());
                     }
                     _ => panic!(),
                 },
                 Elem::E1(_fr, funcs) => {
-                    elems.insert(
-                        i as u32,
-                        Expr {
-                            instrs: funcs
-                                .into_iter()
-                                .map(|FuncIdx(i)| Instr::x41_i32_const(i as i32))
-                                .collect(),
-                        },
-                    );
+                    elems.push(Expr {
+                        instrs: funcs
+                            .into_iter()
+                            .map(|FuncIdx(i)| Instr::x41_i32_const(i as i32))
+                            .collect(),
+                    });
                 }
                 Elem::E2(TableIdX(t), expr, _rt, vec) => match &expr.instrs[..] {
                     [Instr::x41_i32_const(off)] => {
-                        elems.insert(
-                            i as u32,
-                            Expr {
-                                instrs: vec
-                                    .iter()
-                                    .map(|FuncIdx(i)| Instr::x41_i32_const(*i as i32))
-                                    .collect(),
-                            },
-                        );
+                        elems.push(Expr {
+                            instrs: vec
+                                .iter()
+                                .map(|FuncIdx(i)| Instr::x41_i32_const(*i as i32))
+                                .collect(),
+                        });
                         for (i, v) in vec.iter().enumerate() {
                             let Table::Native { table, .. } = &mut tables[t as usize] else {
                                 unreachable!()
@@ -470,7 +457,7 @@ impl TryFrom<Module> for Model {
                 Elem::E5(_rt, vec) => {
                     // might be wrong
                     for expr in vec {
-                        elems.insert(i as u32, expr);
+                        elems.push(expr);
                     }
                 }
                 Elem::E6(_, _, _, _) => todo!(),
@@ -480,14 +467,7 @@ impl TryFrom<Module> for Model {
         let elems = elems.into();
         let tables = tables.into();
 
-        let function_types = value
-            .types
-            .function_types
-            .into_iter()
-            .enumerate()
-            .map(|(i, f)| (i as u32, f))
-            .collect::<HashMap<_, _>>()
-            .into();
+        let function_types = value.types.function_types.into();
 
         let exports = value
             .exports
@@ -497,8 +477,7 @@ impl TryFrom<Module> for Model {
             .collect::<HashMap<_, _>>()
             .into();
 
-        for (i, PGlobal { e, .. }) in value.globals.globals.iter().enumerate() {
-            let i = i + global_count;
+        for PGlobal { e, .. } in value.globals.globals.iter() {
             let val = match e.instrs[0] {
                 Instr::x41_i32_const(x) => Value::I32(x),
                 Instr::x42_i64_const(x) => Value::I64(x),
@@ -506,7 +485,7 @@ impl TryFrom<Module> for Model {
                 Instr::x44_f64_const(x) => Value::F64(x),
                 _ => return Err(GlobalWithoutValue),
             };
-            globals.insert(i as u32, Global::Native(val));
+            globals.push(Global::Native(val));
         }
 
         let (mem_cur, mem_max) = value
@@ -520,14 +499,14 @@ impl TryFrom<Module> for Model {
             .unwrap_or((1, usize::MAX));
         let mut memory = Memory::new(mem_cur, mem_max);
 
-        let mut datas = HashMap::new();
-        for (i, d) in value.datas.data.iter().enumerate() {
+        let mut datas = Vec::new();
+        for d in value.datas.data.iter() {
             match d {
                 Data::ActiveX(MemIdX(0), e, vec) | Data::Active(e, vec) => {
                     let p = match &e.instrs[..] {
                         [Instr::x41_i32_const(p)] => p,
                         [Instr::x23_global_get(GlobalIdX(i))] => {
-                            if let Some(k) = globals.get(i) {
+                            if let Some(k) = globals.get(*i as usize) {
                                 match k {
                                     Global::Native(Value::I32(p)) => p,
                                     _ => todo!(),
@@ -551,10 +530,9 @@ impl TryFrom<Module> for Model {
                             *v,
                         )?;
                     }
+                    datas.push(vec.clone());
                 }
-                Data::Passive(v) => {
-                    datas.insert(i as u32, v.clone());
-                }
+                Data::Passive(v) => datas.push(v.clone()),
                 Data::ActiveX(_, _, _) => todo!(""),
             }
         }

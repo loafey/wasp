@@ -68,7 +68,7 @@ impl Runtime {
         };
 
         let module = Model::try_from(module)?;
-        for f in module.functions.values() {
+        for f in module.functions.iter() {
             match f {
                 Function::Foreign { .. } => continue,
                 Function::Native { code, .. } => {

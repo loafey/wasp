@@ -464,8 +464,8 @@ impl Runtime {
                 let mut last_f = unwrap!(self.stack.pop(), NoFrame);
                 let func_id = match &last_f.func_id {
                     FuncId::Id(id) => id,
-                    FuncId::ForeignPre { module, name } => todo!(),
-                    FuncId::Foreign { module, id } => todo!(),
+                    FuncId::ForeignPre { .. } => todo!(),
+                    FuncId::Foreign { .. } => todo!(),
                 };
                 let ty = unwrap!(module.functions.get(func_id), MissingFunction);
                 let ty = match ty {

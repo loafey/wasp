@@ -3,7 +3,7 @@ use serde::Deserialize;
 use std::{collections::HashMap, fs, path::PathBuf};
 
 use crate::{
-    parser::{ExportDesc, FuncIdx, TypeIdX},
+    parser::{ExportDesc, FuncIdx},
     runtime::{Frame, FuncId, Import, Runtime, RuntimeError, Value},
 };
 
@@ -239,11 +239,10 @@ fn handle_action<T>(
                 todo!()
             }
 
-            let fid = unsafe { rt.modules["_$_main_$_"].as_ws() }
+            let fid = *unsafe { rt.modules["_$_main_$_"].as_ws() }
                 .exports
                 .get(&field)
-                .expect("no function")
-                .clone();
+                .expect("no function");
 
             let ExportDesc::Func(FuncIdx(fid)) = fid else {
                 panic!("no function with this id")

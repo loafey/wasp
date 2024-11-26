@@ -1,4 +1,4 @@
-use super::{error::ParseError, FuncIdx, GlobalIdX, MemIdX, Parsable, TableIdX, TypeIdX};
+use super::{error::ParseError, FuncIdx, GlobalIdX, MemIdX, Parsable, TableIdX};
 use crate::hex::Hex;
 use std::io::Read;
 

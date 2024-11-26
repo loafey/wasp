@@ -4,7 +4,7 @@ use super::super::{
     Frame, Runtime, Value,
 };
 use crate::{
-    parser::{ExportDesc, FuncIdx, Global, Instr::*, LabelIdX, Module, Parsable, TypeIdX},
+    parser::{ExportDesc, FuncIdx, Global, Instr::*, LabelIdX, Module, Parsable},
     runtime::{clean_model::Function, FuncId, Import},
 };
 use std::{

@@ -91,9 +91,9 @@ impl Import {
                     Global::Foreign(..) => todo!("re-export of global"),
                 }
             }
-            Import::IO { globals, .. } => {
-                *globals.get(name).expect(&format!("missing global: {name}"))
-            }
+            Import::IO { globals, .. } => *globals
+                .get(name)
+                .unwrap_or_else(|| panic!("missing global: {name}")),
         }
     }
 

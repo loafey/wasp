@@ -2,9 +2,8 @@
 
 use std::{collections::HashMap, fmt::Debug, path::PathBuf};
 pub mod clean_model;
-mod memory;
-use clean_model::Model;
 mod error;
+mod memory;
 use crate::parser::{BlockType, BT};
 pub use error::RuntimeError;
 
@@ -67,8 +66,15 @@ impl Debug for DepthValue {
 #[derive(Debug, Clone)]
 pub enum FuncId {
     Id(u32),
-    ForeignPre { module: String, name: String },
-    Foreign { module: String, id: u32 },
+    ForeignPre {
+        module: String,
+        name: String,
+    },
+    #[allow(unused)]
+    Foreign {
+        module: String,
+        id: u32,
+    },
 }
 
 #[derive(Debug)]

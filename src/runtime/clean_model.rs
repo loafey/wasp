@@ -95,7 +95,7 @@ impl TryFrom<Module> for Model {
         let mut globals = HashMap::new();
         let mut global_count = 0;
 
-        for (_, import) in value.imports.imports.into_iter().enumerate() {
+        for import in value.imports.imports.into_iter() {
             match import.desc {
                 ImportDesc::Func(TypeIdX(ty_id)) => {
                     let ty = value

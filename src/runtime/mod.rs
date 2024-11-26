@@ -64,7 +64,7 @@ impl Debug for DepthValue {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub enum FuncId {
     Id(u32),
     ForeignPre { module: String, name: String },

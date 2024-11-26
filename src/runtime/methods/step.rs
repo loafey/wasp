@@ -227,78 +227,69 @@ impl Runtime {
         // println!();
 
         let (code, ty, module) = {
+            let mut func_id = get!(func_id).clone();
             loop {
-                let (module, function) = match get!(func_id) {
-                    FuncId::Id(id) => (get!(module), *id),
-                    FuncId::ForeignPre { module, name } => todo!("foreign call {module}::{name}"),
+                let (module, function) = match func_id {
+                    FuncId::Id(id) => (
+                        unsafe {
+                            unwrap!(self.modules.get(get!(module)), |a, b, c| NoModule(
+                                get!(module).clone(),
+                                a,
+                                b,
+                                c
+                            ))
+                            .as_ws()
+                        },
+                        id,
+                    ),
+                    FuncId::ForeignPre { module, name } => {
+                        let import = unwrap!(self.modules.get(&module), |a, b, c| NoModule(
+                            get!(module).clone(),
+                            a,
+                            b,
+                            c
+                        ));
+                        match import {
+                            Import::WS(ws) => (
+                                ws,
+                                *match unwrap!(ws.exports.get(&name), MissingFunction) {
+                                    ExportDesc::Func(FuncIdx(x)) => x,
+                                    _ => panic!(),
+                                },
+                            ),
+                            Import::IO(funcs) => {
+                                let func = unwrap!(funcs.get(name.as_str()), MissingFunction);
+                                for r in func(get!(locals))? {
+                                    push!(r)
+                                }
+
+                                let mut frame = unwrap!(self.stack.pop(), NoFrame);
+                                let last = unwrap!(self.stack.last_mut(), NoFrame);
+                                last.stack.append(&mut frame.stack);
+                                return Ok(());
+                            }
+                        }
+                    }
                     FuncId::Foreign { module, id } => todo!("foreign call {module}::({id})"),
                 };
-                let import = unwrap!(self.modules.get(module), |a, b, c| NoModule(
-                    get!(module).clone(),
-                    a,
-                    b,
-                    c
-                ));
-                let Import::WS(module) = import else {
-                    unreachable!()
-                };
                 match unwrap!(module.functions.get(&function), MissingFunction) {
-                    Function::Foreign { ty, module, name } => todo!(),
+                    Function::Foreign { module, name, .. } => {
+                        func_id = FuncId::ForeignPre {
+                            module: module.0.clone(),
+                            name: name.0.clone(),
+                        }
+                    }
                     Function::Native {
                         ty,
                         _locals,
                         code,
                         _labels,
                     } => {
-                        let module = unwrap!(self.modules.get(get!(module)), |a, b, c| NoModule(
-                            get!(module).clone(),
-                            a,
-                            b,
-                            c
-                        ));
                         break (code, ty, module);
                     }
                 }
             }
         };
-
-        let module = match module {
-            Import::WS(model) => model,
-            Import::IO(hash_map) => todo!("IO call"),
-        };
-
-        // Fetch code
-        // let (code, ty, module) = match func {
-        //     Function::Foreign { module, name, .. } => {
-        //         let module = module.0.clone();
-        //         let module = unwrap!(self.modules.get(&module), move |a, b, c| NoModule(
-        //             module, a, b, c
-        //         ));
-        //         match module {
-        //             Import::WS(model) => {
-        //                 let export = unwrap!(model.exports.get(&name.0), MissingFunction);
-        //                 let ExportDesc::Func(FuncIdx(id)) = export else {
-        //                     throw!(MissingFunction)
-        //                 };
-        //                 match unwrap!(model.functions.get(id), MissingFunction) {
-        //                     Function::Native { ty, code, .. } => (code, ty, model),
-        //                     Function::Foreign { .. } => todo!(),
-        //                 }
-        //             }
-        //             Import::IO(funcs) => {
-        //                 let func = unwrap!(funcs.get(&*name.0), MissingFunction);
-        //                 for r in func(get!(locals))? {
-        //                     push!(r)
-        //                 }
-
-        //                 let mut frame = unwrap!(self.stack.pop(), NoFrame);
-        //                 let last = unwrap!(self.stack.last_mut(), NoFrame);
-        //                 last.stack.append(&mut frame.stack);
-        //                 return Ok(());
-        //             }
-        //         }
-        //     }
-        // };
 
         // Execute
         if *get!(pc) >= code.len() {
@@ -501,9 +492,16 @@ impl Runtime {
             }
             x10_call(FuncIdx(id)) => {
                 let fun = &module.functions[id];
-                let (ty, module) = match fun {
-                    Function::Foreign { ty, module, name } => (ty, module.0.clone()),
-                    Function::Native { ty, .. } => (ty, get!(module).clone()),
+                let (ty, module, func_id) = match fun {
+                    Function::Foreign { ty, module, name } => (
+                        ty,
+                        module.0.clone(),
+                        FuncId::ForeignPre {
+                            module: module.0.clone(),
+                            name: name.0.clone(),
+                        },
+                    ),
+                    Function::Native { ty, .. } => (ty, get!(module).clone(), FuncId::Id(*id)),
                 };
 
                 let mut locals = HashMap::new();
@@ -512,7 +510,7 @@ impl Runtime {
                 }
 
                 self.stack.push(Frame {
-                    func_id: FuncId::Id(*id),
+                    func_id,
                     pc: 0,
                     module,
                     stack: Vec::new(),

@@ -59,7 +59,6 @@ pub struct Model {
 impl TryFrom<Module> for Model {
     type Error = RuntimeError;
     fn try_from(value: Module) -> Result<Self, Self::Error> {
-        let table_len = value.tables.tables.len() as u32;
         let type_len = value.types.function_types.len() as u32;
 
         let mut sigs = Vec::new();
@@ -84,7 +83,6 @@ impl TryFrom<Module> for Model {
         let mut globals = HashMap::new();
         let mut global_count = 0;
         let mut tables = Vec::new();
-        let mut table_count = 0;
 
         for import in value.imports.imports.into_iter() {
             match import.desc {
@@ -112,10 +110,29 @@ impl TryFrom<Module> for Model {
                     );
                     global_count += 1;
                 }
-                ImportDesc::Table(t) => {}
+                ImportDesc::Table(_) => {
+                    tables.push(Table::Foreign {
+                        module: import.module.0.clone(),
+                        name: import.name.0.clone(),
+                    });
+                }
                 _ => (),
             }
         }
+
+        tables.extend(value.tables.tables.into_iter().map(|t| {
+            let table_length = match t.lim {
+                Limits::Min(m) => (0, m as usize),
+                Limits::MinMax(n, m) => (n as usize, m as usize),
+            };
+            let table = (table_length.0..table_length.1)
+                .map(|a| (a as u32, FuncIdx(u32::MAX)))
+                .collect();
+            Table::Native {
+                table,
+                table_length,
+            }
+        }));
 
         for (k, code) in value.code.code.into_iter().enumerate() {
             let ty = code.code.t;
@@ -332,7 +349,7 @@ impl TryFrom<Module> for Model {
                 }
                 Ok(())
             }
-            match valid_calls(code, code_len, table_len, type_len) {
+            match valid_calls(code, code_len, tables.len() as u32, type_len) {
                 Ok(_) => {}
                 Err(Unknown::Function) => {
                     return Err(RuntimeError::TypeError(TypeCheckError::UnknownFunction))
@@ -355,20 +372,6 @@ impl TryFrom<Module> for Model {
             //     Some(typ.output.types.clone()),
             // );
         }
-
-        tables.extend(value.tables.tables.into_iter().map(|t| {
-            let table_length = match t.lim {
-                Limits::Min(m) => (0, m as usize),
-                Limits::MinMax(n, m) => (n as usize, m as usize),
-            };
-            let table = (table_length.0..table_length.1)
-                .map(|a| (a as u32, FuncIdx(u32::MAX)))
-                .collect();
-            Table::Native {
-                table,
-                table_length,
-            }
-        }));
 
         for e in &value.elems.elems {
             let (offset, vec) = match e {

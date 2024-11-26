@@ -279,12 +279,7 @@ impl Runtime {
                             name: name.0.clone(),
                         }
                     }
-                    Function::Native {
-                        ty,
-                        _locals,
-                        code,
-                        _labels,
-                    } => {
+                    Function::Native { ty, code, .. } => {
                         break (code, ty, module);
                     }
                 }

@@ -274,6 +274,7 @@ fn handle_action<T>(
 static mut LAST_CASE: (usize, Case) = (0, Case::Default);
 
 pub fn test(mut path: String) {
+    #[allow(static_mut_refs)]
     std::panic::set_hook(Box::new(|info| {
         #[allow(clippy::format_collect)]
         let fmted = format!("{info}")
@@ -282,14 +283,8 @@ pub fn test(mut path: String) {
             .collect::<String>();
         error!(
             "oops the test-suite panicked!\nReason:\n{fmted}Last test ({}):\n\t{:?}",
-            unsafe {
-                #[allow(static_mut_refs)]
-                &LAST_CASE.0
-            },
-            unsafe {
-                #[allow(static_mut_refs)]
-                &LAST_CASE.1
-            }
+            unsafe { &LAST_CASE.0 },
+            unsafe { &LAST_CASE.1 }
         )
     }));
 

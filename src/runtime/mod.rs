@@ -65,9 +65,16 @@ impl Debug for DepthValue {
 }
 
 #[derive(Debug)]
+pub enum FuncId {
+    Id(u32),
+    ForeignPre { module: String, name: String },
+    Foreign { module: String, id: u32 },
+}
+
+#[derive(Debug)]
 pub struct Frame {
-    pub func_id: u32,
-    pub module: Option<(String, String)>,
+    pub func_id: FuncId,
+    pub module: String,
     pub pc: usize,
     pub stack: Vec<Value>,
     pub locals: HashMap<u32, Value>,
@@ -77,7 +84,6 @@ pub struct Frame {
 
 pub struct Runtime {
     pub _path: PathBuf,
-    pub module: Model,
     pub modules: HashMap<String, Import>,
     pub stack: Vec<Frame>,
 }

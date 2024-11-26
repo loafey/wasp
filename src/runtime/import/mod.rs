@@ -71,6 +71,13 @@ pub enum Import {
     IO(HashMap<&'static str, Function>),
 }
 impl Import {
+    pub unsafe fn as_ws(&self) -> &Model {
+        match &self {
+            Import::WS(model) => &model,
+            Import::IO(_) => panic!(),
+        }
+    }
+
     #[allow(clippy::print_stdout)]
     pub fn spectest() -> Self {
         let map: Vec<(&'static str, Function)> = vec![

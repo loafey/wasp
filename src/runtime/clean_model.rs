@@ -19,12 +19,12 @@ use std::{
 
 #[derive(Debug)]
 pub enum Function {
-    Import {
+    Foreign {
         ty: FuncType,
         module: Name,
         name: Name,
     },
-    Local {
+    Native {
         ty: FuncType,
         _locals: Vec<Locals>,
         code: Vec<Instr>,
@@ -99,7 +99,7 @@ impl TryFrom<Module> for Model {
                 .ok_or(RuntimeError::TypeError(TypeCheckError::MissingType))?
                 .clone();
 
-            let v = Function::Import {
+            let v = Function::Foreign {
                 ty,
                 module: import.module,
                 name: import.name,
@@ -272,7 +272,7 @@ impl TryFrom<Module> for Model {
 
             functions.insert(
                 (k + import_count) as u32,
-                Function::Local {
+                Function::Native {
                     ty,
                     _locals: locals,
                     _labels: HashMap::new(),
@@ -285,8 +285,8 @@ impl TryFrom<Module> for Model {
         let code_len = functions.len() as u32;
         for (_, code) in functions.iter() {
             let (_typ, code) = match code {
-                Function::Import { .. } => continue,
-                Function::Local { ty, code, .. } => (ty, code),
+                Function::Foreign { .. } => continue,
+                Function::Native { ty, code, .. } => (ty, code),
             };
 
             // let locals = typ.input.types.clone();

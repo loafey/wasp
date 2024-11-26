@@ -6,9 +6,9 @@ use super::super::{
 use crate::{
     parser::{
         BlockType, DataIdx, ElemIdx, ExportDesc, Expr, FuncIdx, GlobalIdX, Instr::*, LabelIdX,
-        LocalIdX, MemArg, RefTyp, TableIdX, TypeIdX, BT,
+        LocalIdX, RefTyp, TableIdX, TypeIdX, BT,
     },
-    runtime::Import,
+    runtime::{FuncId, Import},
 };
 use core::f64;
 use std::collections::HashMap;
@@ -135,6 +135,10 @@ macro_rules! gen_macros {
                 &f.stack
             };
 
+            (module) => {
+                &f.module
+            };
+
             (locals) => {
                 &f.locals
             };
@@ -159,6 +163,9 @@ macro_rules! gen_macros {
         macro_rules! set {
             (pc) => {
                 f.pc
+            };
+            (stack) => {
+                f.stack
             };
         }
 
@@ -219,53 +226,79 @@ impl Runtime {
         // println!("{:?}", get!(depth_stack));
         // println!();
 
-        let func = // if let Some((m, n)) = get!(module) {
-            // if let Some(m) = self.modules.get(m) {
-                // let desc = m.exports[n];
-                // let ExportDesc::Func(TypeIdX(func_id)) = desc else {
-                    // unreachable!()
-                // };
-                // &m.functions[&func_id]
-            // } else {
-                // &self.module.functions[get!(func_id)]
-            // }
-        // } else {
-            &self.module.functions[get!(func_id)];
-        // };
-
-        // Fetch code
-        let (code, ty, module) = match func {
-            Function::Import { module, name, .. } => {
-                let module = module.0.clone();
-                let module = unwrap!(self.modules.get(&module), move |a, b, c| NoModule(
-                    module, a, b, c
+        let (code, ty, module) = {
+            loop {
+                let (module, function) = match get!(func_id) {
+                    FuncId::Id(id) => (get!(module), *id),
+                    FuncId::ForeignPre { module, name } => todo!("foreign call {module}::{name}"),
+                    FuncId::Foreign { module, id } => todo!("foreign call {module}::({id})"),
+                };
+                let import = unwrap!(self.modules.get(module), |a, b, c| NoModule(
+                    get!(module).clone(),
+                    a,
+                    b,
+                    c
                 ));
-                match module {
-                    Import::WS(model) => {
-                        let export = unwrap!(model.exports.get(&name.0), MissingFunction);
-                        let ExportDesc::Func(FuncIdx(id)) = export else {
-                            throw!(MissingFunction)
-                        };
-                        match unwrap!(model.functions.get(id), MissingFunction) {
-                            Function::Local { ty, code, .. } => (code, ty, model),
-                            Function::Import { .. } => todo!(),
-                        }
-                    }
-                    Import::IO(funcs) => {
-                        let func = unwrap!(funcs.get(&*name.0), MissingFunction);
-                        for r in func(get!(locals))? {
-                            push!(r)
-                        }
-
-                        let mut frame = unwrap!(self.stack.pop(), NoFrame);
-                        let last = unwrap!(self.stack.last_mut(), NoFrame);
-                        last.stack.append(&mut frame.stack);
-                        return Ok(());
+                let Import::WS(module) = import else {
+                    unreachable!()
+                };
+                match unwrap!(module.functions.get(&function), MissingFunction) {
+                    Function::Foreign { ty, module, name } => todo!(),
+                    Function::Native {
+                        ty,
+                        _locals,
+                        code,
+                        _labels,
+                    } => {
+                        let module = unwrap!(self.modules.get(get!(module)), |a, b, c| NoModule(
+                            get!(module).clone(),
+                            a,
+                            b,
+                            c
+                        ));
+                        break (code, ty, module);
                     }
                 }
             }
-            Function::Local { ty, code, .. } => (code, ty, &self.module),
         };
+
+        let module = match module {
+            Import::WS(model) => model,
+            Import::IO(hash_map) => todo!("IO call"),
+        };
+
+        // Fetch code
+        // let (code, ty, module) = match func {
+        //     Function::Foreign { module, name, .. } => {
+        //         let module = module.0.clone();
+        //         let module = unwrap!(self.modules.get(&module), move |a, b, c| NoModule(
+        //             module, a, b, c
+        //         ));
+        //         match module {
+        //             Import::WS(model) => {
+        //                 let export = unwrap!(model.exports.get(&name.0), MissingFunction);
+        //                 let ExportDesc::Func(FuncIdx(id)) = export else {
+        //                     throw!(MissingFunction)
+        //                 };
+        //                 match unwrap!(model.functions.get(id), MissingFunction) {
+        //                     Function::Native { ty, code, .. } => (code, ty, model),
+        //                     Function::Foreign { .. } => todo!(),
+        //                 }
+        //             }
+        //             Import::IO(funcs) => {
+        //                 let func = unwrap!(funcs.get(&*name.0), MissingFunction);
+        //                 for r in func(get!(locals))? {
+        //                     push!(r)
+        //                 }
+
+        //                 let mut frame = unwrap!(self.stack.pop(), NoFrame);
+        //                 let last = unwrap!(self.stack.last_mut(), NoFrame);
+        //                 last.stack.append(&mut frame.stack);
+        //                 return Ok(());
+        //             }
+        //         }
+        //     }
+        // };
 
         // Execute
         if *get!(pc) >= code.len() {
@@ -443,10 +476,15 @@ impl Runtime {
             }
             x0f_return => {
                 let mut last_f = unwrap!(self.stack.pop(), NoFrame);
-                let ty = unwrap!(module.functions.get(&last_f.func_id), MissingFunction);
+                let func_id = match &last_f.func_id {
+                    FuncId::Id(id) => id,
+                    FuncId::ForeignPre { module, name } => todo!(),
+                    FuncId::Foreign { module, id } => todo!(),
+                };
+                let ty = unwrap!(module.functions.get(func_id), MissingFunction);
                 let ty = match ty {
-                    Function::Import { ty, .. } => ty,
-                    Function::Local { ty, .. } => ty,
+                    Function::Foreign { ty, .. } => ty,
+                    Function::Native { ty, .. } => ty,
                 };
                 let mut res = Vec::new();
                 for _ in ty.output.types.iter() {
@@ -464,10 +502,8 @@ impl Runtime {
             x10_call(FuncIdx(id)) => {
                 let fun = &module.functions[id];
                 let (ty, module) = match fun {
-                    Function::Import { ty, module, name } => {
-                        (ty, Some((module.0.clone(), name.0.clone())))
-                    }
-                    Function::Local { ty, .. } => (ty, None),
+                    Function::Foreign { ty, module, name } => (ty, module.0.clone()),
+                    Function::Native { ty, .. } => (ty, get!(module).clone()),
                 };
 
                 let mut locals = HashMap::new();
@@ -476,7 +512,7 @@ impl Runtime {
                 }
 
                 self.stack.push(Frame {
-                    func_id: *id,
+                    func_id: FuncId::Id(*id),
                     pc: 0,
                     module,
                     stack: Vec::new(),
@@ -500,14 +536,14 @@ impl Runtime {
                 //     f.func_id
                 // );
 
-                let FuncIdx(id) = unwrap!(table.get(&(function_index as u32)), UndefinedElement);
-                if *id == u32::MAX {
+                let FuncIdx(id) = *unwrap!(table.get(&(function_index as u32)), UndefinedElement);
+                if id == u32::MAX {
                     throw!(UninitializedElement)
                 }
 
-                if let Some(func) = module.functions.get(id) {
+                if let Some(func) = module.functions.get(&id) {
                     match func {
-                        Function::Import { ty: ty2, .. } | Function::Local { ty: ty2, .. } => {
+                        Function::Foreign { ty: ty2, .. } | Function::Native { ty: ty2, .. } => {
                             if ty != ty2 {
                                 throw!(IndirectCallTypeMismatch)
                             }
@@ -515,11 +551,12 @@ impl Runtime {
                     }
                 }
 
+                let module = get!(module).clone();
                 self.stack.push(Frame {
-                    func_id: *id,
+                    func_id: FuncId::Id(id),
                     pc: 0,
                     stack: Vec::new(),
-                    module: None,
+                    module,
                     locals,
                     depth_stack: Vec::new(),
                 });
@@ -547,8 +584,7 @@ impl Runtime {
                 push!(last);
             }
             x23_global_get(GlobalIdX(id)) => {
-                push!(self
-                    .module
+                push!(module
                     .globals
                     .read()
                     .get(id)

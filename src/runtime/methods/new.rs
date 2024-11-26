@@ -5,7 +5,7 @@ use super::super::{
 };
 use crate::{
     parser::{ExportDesc, FuncIdx, Global, Instr::*, LabelIdX, Module, Parsable, TypeIdX},
-    runtime::clean_model::Function,
+    runtime::{clean_model::Function, FuncId, Import},
 };
 use std::{
     collections::HashMap,
@@ -55,9 +55,9 @@ impl Runtime {
             .map(|f| f.d)
         {
             vec![Frame {
-                func_id: main_id,
+                func_id: FuncId::Id(main_id),
                 pc: 0,
-                module: None,
+                module: "_$_main_$_".to_string(),
                 stack: Vec::new(),
                 locals: HashMap::new(),
                 // labels: HashMap::new(),
@@ -70,8 +70,8 @@ impl Runtime {
         let module = Model::try_from(module)?;
         for f in module.functions.values() {
             match f {
-                Function::Import { .. } => continue,
-                Function::Local { code, .. } => {
+                Function::Foreign { .. } => continue,
+                Function::Native { code, .. } => {
                     let mut depth = 0;
                     for c in code {
                         match c {
@@ -98,9 +98,10 @@ impl Runtime {
                 }
             }
         }
+        let mut modules = HashMap::new();
+        modules.insert("_$_main_$_".to_string(), Import::WS(module));
         Ok(Self {
-            module,
-            modules: HashMap::new(),
+            modules,
             stack,
             _path: path.as_ref().to_path_buf(),
         })

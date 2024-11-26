@@ -4,7 +4,7 @@ use std::{collections::HashMap, fs, path::PathBuf};
 
 use crate::{
     parser::{ExportDesc, FuncIdx, TypeIdX},
-    runtime::{Frame, Import, Runtime, RuntimeError, Value},
+    runtime::{Frame, FuncId, Import, Runtime, RuntimeError, Value},
 };
 
 #[derive(Debug, Deserialize, Clone)]
@@ -239,7 +239,11 @@ fn handle_action<T>(
                 todo!()
             }
 
-            let fid = *rt.module.exports.get(&field).expect("no function");
+            let fid = unsafe { rt.modules["_$_main_$_"].as_ws() }
+                .exports
+                .get(&field)
+                .expect("no function")
+                .clone();
 
             let ExportDesc::Func(FuncIdx(fid)) = fid else {
                 panic!("no function with this id")
@@ -252,9 +256,9 @@ fn handle_action<T>(
                 .collect::<HashMap<_, _>>();
 
             rt.stack.push(Frame {
-                func_id: fid,
+                func_id: FuncId::Id(fid),
                 pc: 0,
-                module: None,
+                module: "_$_main_$_".to_string(),
                 stack: Vec::new(),
                 locals: args,
                 depth_stack: Vec::new(),
@@ -501,10 +505,12 @@ pub fn test(mut path: String) {
                 if let Some(name) = name {
                     todo!("Register: {_as:?} {name}")
                 } else {
-                    rt.modules
-                        .insert(_as.clone(), Import::WS(rt.module.clone()));
+                    rt.modules.insert(
+                        _as.clone(),
+                        Import::WS(unsafe { rt.modules["_$_main_$_"].as_ws() }.clone()),
+                    );
+                    registers.insert(_as, unsafe { rt.modules["_$_main_$_"].as_ws() }.clone());
                 }
-                registers.insert(_as, rt.module.clone());
             }
         }
     }

@@ -33,6 +33,7 @@ fn main() {
     if path.ends_with(".wast") {
         testsuite::test(path);
     } else {
+        let name = "_$_main_$_".to_string();
         let mut runtime = Runtime::new(path).expect("Failed to load runtime");
         loop {
             if let Err(e) = runtime.step() {

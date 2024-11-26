@@ -12,10 +12,7 @@ use crate::{
     ptr::{Ptr, PtrRW},
     runtime::typecheck,
 };
-use std::{
-    collections::HashMap,
-    ops::{Deref, DerefMut},
-};
+use std::collections::HashMap;
 
 #[derive(Debug)]
 pub enum Function {
@@ -39,21 +36,13 @@ pub enum Global {
 }
 
 #[derive(Debug)]
-pub struct Table {
-    table: HashMap<u32, FuncIdx>,
-    pub table_length: (usize, usize),
-}
-impl Deref for Table {
-    type Target = HashMap<u32, FuncIdx>;
-
-    fn deref(&self) -> &Self::Target {
-        &self.table
-    }
-}
-impl DerefMut for Table {
-    fn deref_mut(&mut self) -> &mut Self::Target {
-        &mut self.table
-    }
+pub enum Table {
+    Native {
+        table: HashMap<u32, FuncIdx>,
+        table_length: (usize, usize),
+    },
+    #[allow(unused)]
+    Foreign { module: String, name: String },
 }
 
 #[derive(Debug, Clone)]
@@ -94,6 +83,8 @@ impl TryFrom<Module> for Model {
         let mut import_count = 0;
         let mut globals = HashMap::new();
         let mut global_count = 0;
+        let mut tables = Vec::new();
+        let mut table_count = 0;
 
         for import in value.imports.imports.into_iter() {
             match import.desc {
@@ -121,6 +112,7 @@ impl TryFrom<Module> for Model {
                     );
                     global_count += 1;
                 }
+                ImportDesc::Table(t) => {}
                 _ => (),
             }
         }
@@ -364,24 +356,19 @@ impl TryFrom<Module> for Model {
             // );
         }
 
-        let mut tables: Vec<_> = value
-            .tables
-            .tables
-            .into_iter()
-            .map(|t| {
-                let table_length = match t.lim {
-                    Limits::Min(m) => (0, m as usize),
-                    Limits::MinMax(n, m) => (n as usize, m as usize),
-                };
-                let table = (table_length.0..table_length.1)
-                    .map(|a| (a as u32, FuncIdx(u32::MAX)))
-                    .collect();
-                Table {
-                    table,
-                    table_length,
-                }
-            })
-            .collect();
+        tables.extend(value.tables.tables.into_iter().map(|t| {
+            let table_length = match t.lim {
+                Limits::Min(m) => (0, m as usize),
+                Limits::MinMax(n, m) => (n as usize, m as usize),
+            };
+            let table = (table_length.0..table_length.1)
+                .map(|a| (a as u32, FuncIdx(u32::MAX)))
+                .collect();
+            Table::Native {
+                table,
+                table_length,
+            }
+        }));
 
         for e in &value.elems.elems {
             let (offset, vec) = match e {
@@ -435,7 +422,10 @@ impl TryFrom<Module> for Model {
                 Elem::E0(expr, vec) => match &expr.instrs[..] {
                     [Instr::x41_i32_const(off)] => {
                         for (i, v) in vec.into_iter().enumerate() {
-                            tables[0].table.insert(*off as u32 + i as u32, v);
+                            let Table::Native { table, .. } = &mut tables[0] else {
+                                unreachable!()
+                            };
+                            table.insert(*off as u32 + i as u32, v);
                         }
                         elems.insert(i as u32, expr.clone());
                     }
@@ -464,7 +454,10 @@ impl TryFrom<Module> for Model {
                             },
                         );
                         for (i, v) in vec.iter().enumerate() {
-                            tables[t as usize].table.insert(*off as u32 + i as u32, *v);
+                            let Table::Native { table, .. } = &mut tables[t as usize] else {
+                                unreachable!()
+                            };
+                            table.insert(*off as u32 + i as u32, *v);
                         }
                     }
                     _ => panic!(),

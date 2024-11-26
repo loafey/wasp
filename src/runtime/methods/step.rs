@@ -8,7 +8,10 @@ use crate::{
         BlockType, DataIdx, ElemIdx, ExportDesc, Expr, FuncIdx, GlobalIdX, Instr::*, LabelIdX,
         LocalIdX, RefTyp, TableIdX, TypeIdX, BT,
     },
-    runtime::{clean_model::Global, FuncId, Import},
+    runtime::{
+        clean_model::{Global, Table},
+        FuncId, Import,
+    },
 };
 use core::f64;
 use std::collections::HashMap;
@@ -528,7 +531,10 @@ impl Runtime {
                 //     "Call info ({}): \n\tinputs: {locals:?}\n\tfunction_index: {function_index}",
                 //     f.func_id
                 // );
-
+                let table = match table {
+                    Table::Native { table, .. } => table,
+                    Table::Foreign { .. } => todo!(),
+                };
                 let FuncIdx(id) = *unwrap!(table.get(&(function_index as u32)), UndefinedElement);
                 if id == u32::MAX {
                     throw!(UninitializedElement)
@@ -1261,10 +1267,17 @@ impl Runtime {
                 let elems = unwrap!(elems.get(e), MissingElementIndex);
                 let mut tables = module.tables.write();
                 let table = unwrap!(tables.get_mut(*t as usize), MissingTableIndex);
+                let (table, table_length) = match table {
+                    Table::Native {
+                        table,
+                        table_length,
+                    } => (table, table_length),
+                    Table::Foreign { .. } => todo!(),
+                };
 
                 let check_1 = source + amount > elems.instrs.len() as u32;
-                let check_2 = destination < table.table_length.0 as u32;
-                let check_3 = destination + amount > table.table_length.1 as u32;
+                let check_2 = destination < table_length.0 as u32;
+                let check_3 = destination + amount > table_length.1 as u32;
                 if check_1 || check_2 || check_3 {
                     throw!(OutOfBoundsTableAccess)
                 }
@@ -1287,6 +1300,11 @@ impl Runtime {
                 let destination = pop!(i32) as u32;
                 let mut tables = module.tables.write();
                 let a = unwrap!(tables.get(*a as usize), MissingTableIndex);
+                let a = match a {
+                    Table::Native { table, .. } => table,
+                    Table::Foreign { .. } => todo!(),
+                };
+
                 let check_1 = source + amount > a.len() as u32;
                 let mut clones = Vec::new();
                 for i in 0..amount {
@@ -1296,8 +1314,15 @@ impl Runtime {
                 }
 
                 let b = unwrap!(tables.get_mut(*b as usize), MissingTableIndex);
-                let check_2 = destination < b.table_length.0 as u32;
-                let check_3 = destination + amount > b.table_length.1 as u32;
+                let (b, b_len) = match b {
+                    Table::Native {
+                        table,
+                        table_length,
+                    } => (table, table_length),
+                    Table::Foreign { .. } => todo!(),
+                };
+                let check_2 = destination < b_len.0 as u32;
+                let check_3 = destination + amount > b_len.1 as u32;
 
                 if check_1 || check_2 || check_3 {
                     throw!(OutOfBoundsTableAccess)

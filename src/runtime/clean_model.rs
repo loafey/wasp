@@ -6,8 +6,8 @@ use super::{
 };
 use crate::{
     parser::{
-        Data, Elem, ExportDesc, Expr, FuncIdx, FuncType, Global, GlobalIdX, ImportDesc, Instr,
-        Limits, Locals, MemArg, MemIdX, Module, Name, TableIdX, TypeIdX, BT,
+        Data, Elem, ExportDesc, Expr, FuncIdx, FuncType, Global as PGlobal, GlobalIdX, ImportDesc,
+        Instr, Limits, Locals, MemArg, MemIdX, Module, Name, TableIdX, TypeIdX, BT,
     },
     ptr::{Ptr, PtrRW},
     runtime::typecheck,
@@ -30,6 +30,12 @@ pub enum Function {
         code: Vec<Instr>,
         _labels: HashMap<Vec<u32>, u32>,
     },
+}
+
+#[derive(Debug, Clone)]
+pub enum Global {
+    Native(Value),
+    Foreign(String, String),
 }
 
 #[derive(Debug)]
@@ -56,7 +62,7 @@ pub struct Model {
     pub tables: PtrRW<Vec<Table>>,
     pub elems: PtrRW<HashMap<u32, Expr>>,
     pub function_types: Ptr<HashMap<u32, FuncType>>,
-    pub globals: PtrRW<HashMap<u32, Value>>,
+    pub globals: PtrRW<HashMap<u32, Global>>,
     pub exports: Ptr<HashMap<String, ExportDesc>>,
     pub datas: PtrRW<HashMap<u32, Vec<u8>>>,
     pub memory: PtrRW<Memory<{ 65536 + 1 }>>,
@@ -86,37 +92,39 @@ impl TryFrom<Module> for Model {
 
         let mut functions = HashMap::new();
         let mut import_count = 0;
-        for (k, import) in value.imports.imports.into_iter().enumerate() {
-            let ImportDesc::Func(TypeIdX(ty_id)) = import.desc else {
-                continue;
-            };
-            import_count += 1;
+        let mut globals = HashMap::new();
+        let mut global_count = 0;
 
-            let ty = value
-                .types
-                .function_types
-                .get(ty_id as usize)
-                .ok_or(RuntimeError::TypeError(TypeCheckError::MissingType))?
-                .clone();
+        for (_, import) in value.imports.imports.into_iter().enumerate() {
+            match import.desc {
+                ImportDesc::Func(TypeIdX(ty_id)) => {
+                    let ty = value
+                        .types
+                        .function_types
+                        .get(ty_id as usize)
+                        .ok_or(RuntimeError::TypeError(TypeCheckError::MissingType))?
+                        .clone();
 
-            let v = Function::Foreign {
-                ty,
-                module: import.module,
-                name: import.name,
-            };
+                    let v = Function::Foreign {
+                        ty,
+                        module: import.module,
+                        name: import.name,
+                    };
 
-            functions.insert(k as u32, v);
+                    functions.insert(import_count as u32, v);
+                    import_count += 1;
+                }
+                ImportDesc::Global(_) => {
+                    globals.insert(
+                        global_count as u32,
+                        Global::Foreign(import.module.0.clone(), import.name.0.clone()),
+                    );
+                    global_count += 1;
+                }
+                _ => (),
+            }
         }
 
-        // println!(
-        // "{} {} {}",
-        // value.code.code.len(),
-        // value.funcs.functions.len(),
-        // value.types.function_types.len()
-        // );
-        // for v in &value.types.function_types {
-        // println!("{v:?}")
-        // }
         for (k, code) in value.code.code.into_iter().enumerate() {
             let ty = code.code.t;
             let locals = ty.to_vec();
@@ -493,8 +501,8 @@ impl TryFrom<Module> for Model {
             .collect::<HashMap<_, _>>()
             .into();
 
-        let mut globals = HashMap::new();
-        for (i, Global { e, .. }) in value.globals.globals.iter().enumerate() {
+        for (i, PGlobal { e, .. }) in value.globals.globals.iter().enumerate() {
+            let i = i + global_count;
             let val = match e.instrs[0] {
                 Instr::x41_i32_const(x) => Value::I32(x),
                 Instr::x42_i64_const(x) => Value::I64(x),
@@ -502,7 +510,7 @@ impl TryFrom<Module> for Model {
                 Instr::x44_f64_const(x) => Value::F64(x),
                 _ => return Err(GlobalWithoutValue),
             };
-            globals.insert(i as u32, val);
+            globals.insert(i as u32, Global::Native(val));
         }
 
         let (mem_cur, mem_max) = value
@@ -525,7 +533,7 @@ impl TryFrom<Module> for Model {
                         [Instr::x23_global_get(GlobalIdX(i))] => {
                             if let Some(k) = globals.get(i) {
                                 match k {
-                                    Value::I32(p) => p,
+                                    Global::Native(Value::I32(p)) => p,
                                     _ => todo!(),
                                 }
                             } else {

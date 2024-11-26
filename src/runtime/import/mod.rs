@@ -1,6 +1,12 @@
 use std::collections::HashMap;
 
-use super::{clean_model::Model, RuntimeError, RuntimeError::*, Value};
+use crate::parser::{ExportDesc, GlobalIdX};
+
+use super::{
+    clean_model::{Global, Model},
+    RuntimeError::{self, *},
+    Value,
+};
 
 pub type Locals<'t> = &'t HashMap<u32, Value>;
 pub type Stack = Vec<Value>;
@@ -68,13 +74,33 @@ macro_rules! get {
 }
 pub enum Import {
     WS(Model),
-    IO(HashMap<&'static str, Function>),
+    IO {
+        functions: HashMap<&'static str, Function>,
+        globals: HashMap<&'static str, Value>,
+    },
 }
 impl Import {
+    pub fn get_global(&self, name: &str) -> Value {
+        match self {
+            Import::WS(model) => {
+                let Some(ExportDesc::Global(GlobalIdX(i))) = model.exports.get(name) else {
+                    unreachable!()
+                };
+                match model.globals.read().get(i).expect("missing global") {
+                    Global::Native(value) => *value,
+                    Global::Foreign(..) => todo!("re-export of global"),
+                }
+            }
+            Import::IO { globals, .. } => {
+                *globals.get(name).expect(&format!("missing global: {name}"))
+            }
+        }
+    }
+
     pub unsafe fn as_ws(&self) -> &Model {
         match &self {
-            Import::WS(model) => &model,
-            Import::IO(_) => panic!(),
+            Import::WS(model) => model,
+            Import::IO { .. } => panic!(),
         }
     }
 
@@ -129,6 +155,19 @@ impl Import {
         for (k, v) in map {
             res.insert(k, v);
         }
-        Self::IO(res)
+
+        let mut globals = HashMap::new();
+        globals.insert("global_i32", Value::I32(666));
+        globals.insert("global_i64", Value::I64(666));
+        globals.insert("global_f32", Value::F32(f32::from_bits(1143383654)));
+        globals.insert(
+            "global_f64",
+            Value::F64(f64::from_bits(4649074691427585229)),
+        );
+
+        Self::IO {
+            functions: res,
+            globals,
+        }
     }
 }

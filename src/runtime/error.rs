@@ -10,6 +10,7 @@ pub enum RuntimeError {
     ReturnedToNoFrame(Vec<Value>, &'static str, u32, u32),
     NoFrame(&'static str, u32, u32),
     NoModule(String, &'static str, u32, u32),
+    MissingGlobal(&'static str, u32, u32),
     WrongType(&'static str, &'static str, &'static str, u32, u32),
     EmptyStack(&'static str, u32, u32),
     Unreachable(&'static str, u32, u32),
@@ -71,6 +72,9 @@ impl std::fmt::Debug for RuntimeError {
             }
             Self::MissingType(arg0, arg1, arg2) => {
                 write!(f, "missing type: {arg0}:{arg1}:{arg2}")
+            }
+            Self::MissingGlobal(arg0, arg1, arg2) => {
+                write!(f, "missing global: {arg0}:{arg1}:{arg2}")
             }
             Self::NoFrame(arg0, arg1, arg2) => {
                 write!(f, "ran out of stack frames: {arg0}:{arg1}:{arg2}")

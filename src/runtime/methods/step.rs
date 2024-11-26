@@ -8,7 +8,7 @@ use crate::{
         BlockType, DataIdx, ElemIdx, ExportDesc, Expr, FuncIdx, GlobalIdX, Instr::*, LabelIdX,
         LocalIdX, RefTyp, TableIdX, TypeIdX, BT,
     },
-    runtime::{FuncId, Import},
+    runtime::{clean_model::Global, FuncId, Import},
 };
 use core::f64;
 use std::collections::HashMap;
@@ -257,8 +257,8 @@ impl Runtime {
                                     _ => panic!(),
                                 },
                             ),
-                            Import::IO(funcs) => {
-                                let func = unwrap!(funcs.get(name.as_str()), MissingFunction);
+                            Import::IO { functions, .. } => {
+                                let func = unwrap!(functions.get(name.as_str()), MissingFunction);
                                 for r in func(get!(locals))? {
                                     push!(r)
                                 }
@@ -577,16 +577,20 @@ impl Runtime {
                 push!(last);
             }
             x23_global_get(GlobalIdX(id)) => {
-                push!(module
-                    .globals
-                    .read()
-                    .get(id)
-                    .copied()
-                    .unwrap_or(Value::I32(0)))
+                match unwrap!(module.globals.read().get(id), MissingGlobal) {
+                    Global::Native(value) => {
+                        push!(*value)
+                    }
+                    Global::Foreign(module, name) => push!(unwrap!(
+                        self.modules.get(module),
+                        |a, b, c| NoModule(module.clone(), a, b, c)
+                    )
+                    .get_global(name)),
+                }
             }
             x24_global_set(GlobalIdX(id)) => {
                 let pop = pop!();
-                module.globals.write().insert(*id, pop);
+                module.globals.write().insert(*id, Global::Native(pop));
             }
             x28_i32_load(mem) => {
                 let addr = pop!(u32);

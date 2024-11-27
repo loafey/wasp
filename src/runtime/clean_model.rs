@@ -40,8 +40,10 @@ pub enum Table {
         table: HashMap<u32, FuncIdx>,
         table_length: (usize, usize),
     },
-    #[allow(unused)]
-    Foreign { module: String, name: String },
+    Foreign {
+        module: String,
+        name: String,
+    },
 }
 
 #[allow(clippy::type_complexity)]

@@ -1,16 +1,21 @@
 use std::collections::HashMap;
 
-use crate::parser::{ExportDesc, GlobalIdX};
+use crate::{
+    parser::{ExportDesc, GlobalIdX},
+    ptr::PtrRW,
+};
 
 use super::{
     clean_model::{Global, Model},
+    memory::Memory,
     RuntimeError::{self, *},
     Value,
 };
 
 pub type Locals<'t> = &'t HashMap<u32, Value>;
+pub type Mem<'t> = &'t mut Memory<{ 65536 + 1 }>;
 pub type Stack = Vec<Value>;
-pub type Function = &'static dyn Fn(Locals) -> Result<Stack, RuntimeError>;
+pub type Function = &'static dyn Fn(Locals, Mem) -> Result<Stack, RuntimeError>;
 
 macro_rules! unwrap {
     ($expr:expr, $err:expr) => {
@@ -77,6 +82,7 @@ pub enum Import {
     IO {
         functions: HashMap<&'static str, Function>,
         globals: HashMap<&'static str, Value>,
+        memory: PtrRW<Memory<{ 65536 + 1 }>>,
     },
 }
 impl Import {
@@ -112,45 +118,45 @@ impl Import {
     #[allow(clippy::print_stdout)]
     pub fn spectest() -> Self {
         let map: Vec<(&'static str, Function)> = vec![
-            ("print_i32", &|locals| {
+            ("print_i32", &|locals, _| {
                 let a = *get!(i32, &0, locals);
                 println!("{a}");
                 Ok(Vec::new())
             }),
-            ("print_i64", &|locals| {
+            ("print_i64", &|locals, _| {
                 let a = *get!(i64, &0, locals);
                 println!("{a}");
                 Ok(Vec::new())
             }),
             #[allow(clippy::print_stdout)]
-            ("print_i32_f32", &|locals| {
+            ("print_i32_f32", &|locals, _| {
                 let b = *get!(f32, &1, locals);
                 let a = *get!(i32, &0, locals);
                 println!("{a} {b}");
                 Ok(Vec::new())
             }),
             #[allow(clippy::print_stdout)]
-            ("print_i64_f64", &|locals| {
+            ("print_i64_f64", &|locals, _| {
                 let b = *get!(f64, &1, locals);
                 let a = *get!(i64, &0, locals);
                 println!("{a} {b}");
                 Ok(Vec::new())
             }),
             #[allow(clippy::print_stdout)]
-            ("print_f64_f64", &|locals| {
+            ("print_f64_f64", &|locals, _| {
                 let b = *get!(f64, &1, locals);
                 let a = *get!(f64, &0, locals);
                 println!("{a} {b}");
                 Ok(Vec::new())
             }),
             #[allow(clippy::print_stdout)]
-            ("print_f32", &|locals| {
+            ("print_f32", &|locals, _| {
                 let a = *get!(f32, &0, locals);
                 println!("{a}");
                 Ok(Vec::new())
             }),
             #[allow(clippy::print_stdout)]
-            ("print_f64", &|locals| {
+            ("print_f64", &|locals, _| {
                 let a = *get!(f64, &0, locals);
                 println!("{a}");
                 Ok(Vec::new())
@@ -173,6 +179,7 @@ impl Import {
         Self::IO {
             functions: res,
             globals,
+            memory: Memory::new(1, 1).into(),
         }
     }
 }

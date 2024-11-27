@@ -262,11 +262,13 @@ impl Runtime {
                                     _ => panic!(),
                                 },
                             ),
-                            Import::IO { functions, .. } => {
+                            Import::IO {
+                                functions, memory, ..
+                            } => {
                                 let func = unwrap!(functions.get(name.as_str()), |a, b, c| {
                                     MissingFunctionImport(name.clone(), a, b, c)
                                 });
-                                for r in func(get!(locals))? {
+                                for r in func(get!(locals), &mut memory.write())? {
                                     push!(r)
                                 }
 

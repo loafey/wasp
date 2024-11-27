@@ -1,4 +1,3 @@
-use core::panic::PanicInfo;
 use monostate::MustBe;
 use serde::Deserialize;
 use std::{collections::HashMap, fs, path::PathBuf};

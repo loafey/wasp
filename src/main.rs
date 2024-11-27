@@ -4,7 +4,6 @@
 #![deny(clippy::print_stderr)]
 use hex::Hex;
 use parser::MemArg;
-use ptr::PtrRW;
 use runtime::{Import, Runtime, RuntimeError, Value};
 use std::{collections::HashMap, env::args, mem::MaybeUninit};
 mod hex;

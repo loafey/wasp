@@ -284,8 +284,8 @@ impl Runtime {
                 match unwrap!(module.functions.get(function as usize), MissingFunction) {
                     Function::Foreign { module, name, .. } => {
                         func_id = FuncId::ForeignPre {
-                            module: module.0.clone(),
-                            name: name.0.clone(),
+                            module: module.clone(),
+                            name: name.clone(),
                         }
                     }
                     Function::Native { ty, code, .. } => {
@@ -499,10 +499,10 @@ impl Runtime {
                 let (ty, module, func_id) = match fun {
                     Function::Foreign { ty, module, name } => (
                         ty,
-                        module.0.clone(),
+                        module.clone(),
                         FuncId::ForeignPre {
-                            module: module.0.clone(),
-                            name: name.0.clone(),
+                            module: module.clone(),
+                            name: name.clone(),
                         },
                     ),
                     Function::Native { ty, .. } => (ty, get!(module).clone(), FuncId::Id(*id)),

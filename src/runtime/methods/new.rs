@@ -4,8 +4,8 @@ use super::super::{
     Frame, Runtime, Value,
 };
 use crate::{
-    parser::{ExportDesc, FuncIdx, Global, Instr::*, LabelIdX, Module, Parsable},
-    runtime::{clean_model::Function, FuncId, Import},
+    parser::{ExportDesc, FuncIdx, Global, Instr::*, Module, Parsable},
+    runtime::{FuncId, Import},
 };
 use std::{
     collections::HashMap,

@@ -521,8 +521,20 @@ pub fn test(mut path: String) {
                 if skip || matches!(module_type, ModuleType::Text) {
                     continue;
                 }
-                let _rt = runtime.as_ref().expect("no rt set");
-                todo!("AssertUnlinkable: {filename:?} {text}")
+
+                let mut p = p.clone();
+                p.pop();
+                p.push(&filename);
+                let mut rt = Runtime::build(&p);
+                rt = rt.add_io("spectest", Import::spectest());
+                for (k, v) in &registers {
+                    rt = rt.add_ws(&k.clone(), v.clone());
+                }
+                match rt.build() {
+                    Ok(_) => error!("test {test_i}/{total_tests} did not fail linking, expected error: {text:?} (module: {p:?})"),
+                    Err(e) if format!("{e:?}").contains(&text) => continue,
+                    Err(e) => error!("test {test_i}/{total_tests} got wrong error, expected error: {text:?}, got {e:?} (module: {p:?})")
+                }
             }
             Case::Register(Register { _as, name, .. }) => {
                 if skip {

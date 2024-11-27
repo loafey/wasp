@@ -33,6 +33,7 @@
         "repr",
         "resulttype",
         "sasm",
+        "spectest",
         "tableidx",
         "tablesec",
         "tabletype",

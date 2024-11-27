@@ -99,9 +99,10 @@ impl RuntimeBuilder {
                 deps.remove(k);
             }
             if deps == old {
-                panic!(
-                    "missing depedency or cycle:\n\tfixed: {ordered:?}\n\tdependencies left: {deps:?}"
-                )
+                return Err(RuntimeError::UnknownImport(file!(), line!(), column!()));
+                // panic!(
+                //     "missing dependency or cycle:\n\tfixed: {ordered:?}\n\tdependencies left: {deps:?}"
+                // )
             } else {
                 old = deps.clone();
             }

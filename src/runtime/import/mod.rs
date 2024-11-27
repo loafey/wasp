@@ -118,7 +118,7 @@ impl Import {
     }
 
     #[allow(clippy::print_stdout)]
-    pub fn spectest() -> Self {
+    pub fn spectest() -> IO {
         let map: Vec<(&'static str, Function)> = vec![
             ("print_i32", &|locals, _| {
                 let a = *get!(i32, &0, locals);
@@ -178,10 +178,10 @@ impl Import {
             Value::F64(f64::from_bits(4649074691427585229)),
         );
 
-        Self::IO(IO {
+        IO {
             functions: res,
             globals,
             memory: Memory::new(1, 1).into(),
-        })
+        }
     }
 }

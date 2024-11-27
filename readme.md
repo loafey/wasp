@@ -7,7 +7,7 @@
 ```bash
  ERROR wasp::testsuite > oops the test-suite panicked!
 Reason:
-	panicked at src/runtime/clean_model.rs:501:42:
+	panicked at src/runtime/clean_model.rs:489:38:
 	not yet implemented
 Last test (5):
 	Module(Module { _type: MustBe!("module"), _name: None, filename: "data.5.wasm" })
@@ -17,7 +17,7 @@ Last test (5):
 ```bash
  ERROR wasp::testsuite > oops the test-suite panicked!
 Reason:
-	panicked at src/runtime/clean_model.rs:376:38:
+	panicked at src/runtime/clean_model.rs:358:34:
 	not yet implemented: xd2_ref_func(FuncIdx(0))
 Last test (0):
 	Module(Module { _type: MustBe!("module"), _name: None, filename: "elem.0.wasm" })
@@ -37,7 +37,7 @@ Last test (1):
 ```bash
  ERROR wasp::testsuite > oops the test-suite panicked!
 Reason:
-	panicked at src/testsuite.rs:241:17:
+	panicked at src/testsuite.rs:240:17:
 	not yet implemented
 Last test (13):
 	AssertReturn(AssertReturn { _type: MustBe!("assert_return"), action: Invoke { module: Some("$Func"), field: "e", args: [I32 { value: "42" }] }, expected: [I32 { value: "43" }] })
@@ -47,7 +47,7 @@ Last test (13):
 ```bash
  ERROR wasp::testsuite > oops the test-suite panicked!
 Reason:
-	panicked at src/testsuite.rs:351:58:
+	panicked at src/testsuite.rs:356:32:
 	failed to load module: ParseError(File: "test-suite/test/core/f32.0.wasm"
 	UnknownInstruction(<95>), bin pos: 149, stack: [
 	    "wasp::parser::instr::Instr",
@@ -66,7 +66,7 @@ Last test (0):
 ```bash
  ERROR wasp::testsuite > oops the test-suite panicked!
 Reason:
-	panicked at src/testsuite.rs:351:58:
+	panicked at src/testsuite.rs:356:32:
 	failed to load module: ParseError(File: "test-suite/test/core/f32_bitwise.0.wasm"
 	UnknownInstruction(<8b>), bin pos: 62, stack: [
 	    "wasp::parser::instr::Instr",
@@ -85,7 +85,7 @@ Last test (0):
 ```bash
  ERROR wasp::testsuite > oops the test-suite panicked!
 Reason:
-	panicked at src/testsuite.rs:351:58:
+	panicked at src/testsuite.rs:356:32:
 	failed to load module: ParseError(File: "test-suite/test/core/f32_cmp.0.wasm"
 	UnknownInstruction(<5d>), bin pos: 85, stack: [
 	    "wasp::parser::instr::Instr",
@@ -104,7 +104,7 @@ Last test (0):
 ```bash
  ERROR wasp::testsuite > oops the test-suite panicked!
 Reason:
-	panicked at src/testsuite.rs:351:58:
+	panicked at src/testsuite.rs:356:32:
 	failed to load module: ParseError(File: "test-suite/test/core/f64.0.wasm"
 	UnknownInstruction(<a3>), bin pos: 149, stack: [
 	    "wasp::parser::instr::Instr",
@@ -123,7 +123,7 @@ Last test (0):
 ```bash
  ERROR wasp::testsuite > oops the test-suite panicked!
 Reason:
-	panicked at src/testsuite.rs:351:58:
+	panicked at src/testsuite.rs:356:32:
 	failed to load module: ParseError(File: "test-suite/test/core/f64_bitwise.0.wasm"
 	UnknownInstruction(<a6>), bin pos: 76, stack: [
 	    "wasp::parser::instr::Instr",
@@ -142,7 +142,7 @@ Last test (0):
 ```bash
  ERROR wasp::testsuite > oops the test-suite panicked!
 Reason:
-	panicked at src/testsuite.rs:351:58:
+	panicked at src/testsuite.rs:356:32:
 	failed to load module: ParseError(File: "test-suite/test/core/f64_cmp.0.wasm"
 	UnknownInstruction(<64>), bin pos: 101, stack: [
 	    "wasp::parser::instr::Instr",
@@ -176,7 +176,7 @@ Last test (1):
 ```bash
  ERROR wasp::testsuite > oops the test-suite panicked!
 Reason:
-	panicked at src/testsuite.rs:351:58:
+	panicked at src/testsuite.rs:356:32:
 	failed to load module: ParseError(File: "test-suite/test/core/float_misc.0.wasm"
 	UnknownInstruction(<95>), bin pos: 413, stack: [
 	    "wasp::parser::instr::Instr",
@@ -206,7 +206,7 @@ Last test (0):
 ```bash
  ERROR wasp::testsuite > oops the test-suite panicked!
 Reason:
-	panicked at src/testsuite.rs:351:58:
+	panicked at src/testsuite.rs:356:32:
 	failed to load module: GlobalWithoutOffset
 Last test (0):
 	Module(Module { _type: MustBe!("module"), _name: None, filename: "global.0.wasm" })
@@ -216,7 +216,7 @@ Last test (0):
 ```bash
  ERROR wasp::testsuite > oops the test-suite panicked!
 Reason:
-	panicked at src/testsuite.rs:351:58:
+	panicked at src/testsuite.rs:356:32:
 	failed to load module: ParseError(File: "test-suite/test/core/i32.0.wasm"
 	UnknownInstruction(<6f>), bin pos: 332, stack: [
 	    "wasp::parser::instr::Instr",
@@ -235,7 +235,7 @@ Last test (0):
 ```bash
  ERROR wasp::testsuite > oops the test-suite panicked!
 Reason:
-	panicked at src/testsuite.rs:351:58:
+	panicked at src/testsuite.rs:356:32:
 	failed to load module: ParseError(File: "test-suite/test/core/i64.0.wasm"
 	UnknownInstruction(<81>), bin pos: 357, stack: [
 	    "wasp::parser::instr::Instr",
@@ -269,13 +269,14 @@ Last test (0):
 24
 24
 24
-13
  ERROR wasp::testsuite > oops the test-suite panicked!
 Reason:
-	panicked at src/runtime/clean_model.rs:411:33:
-	internal error: entered unreachable code
-Last test (72):
-	Module(Module { _type: MustBe!("module"), _name: None, filename: "imports.60.wasm" })
+	panicked at src/runtime/methods/new.rs:112:17:
+	missing depedency or cycle:
+	Fixed: []
+	Dependencies left: {"_$_main_$_": {"test"}}
+Last test (5):
+	AssertInvalid(AssertInvalid { _type: MustBe!("assert_invalid"), filename: "imports.2.wasm", text: "unknown type", module_type: Binary })
 ```
 
 ## Failed: test-suite/test/core/int_exprs.wast
@@ -297,7 +298,7 @@ Last test (3):
 ```bash
  ERROR wasp::testsuite > oops the test-suite panicked!
 Reason:
-	panicked at src/testsuite.rs:351:58:
+	panicked at src/testsuite.rs:356:32:
 	failed to load module: ParseError(File: "test-suite/test/core/left-to-right.0.wasm"
 	UnknownInstruction(<6f>), bin pos: 1805, stack: [
 	    "wasp::parser::instr::Instr",
@@ -356,7 +357,7 @@ Last test (45):
 ```bash
  ERROR wasp::testsuite > oops the test-suite panicked!
 Reason:
-	panicked at src/testsuite.rs:351:58:
+	panicked at src/testsuite.rs:356:32:
 	failed to load module: ParseError(File: "test-suite/test/core/loop.0.wasm"
 	UnknownInstruction(<5d>), bin pos: 2324, stack: [
 	    "wasp::parser::instr::Instr",
@@ -404,7 +405,7 @@ Last test (7):
 ```bash
  ERROR wasp::testsuite > oops the test-suite panicked!
 Reason:
-	panicked at src/testsuite.rs:351:58:
+	panicked at src/testsuite.rs:356:32:
 	failed to load module: ParseError(File: "test-suite/test/core/memory_grow.0.wasm"
 	UnknownInstruction(<3f>), bin pos: 179, stack: [
 	    "wasp::parser::instr::Instr",
@@ -428,7 +429,7 @@ Last test (0):
 ```bash
  ERROR wasp::testsuite > oops the test-suite panicked!
 Reason:
-	panicked at src/testsuite.rs:351:58:
+	panicked at src/testsuite.rs:356:32:
 	failed to load module: ParseError(File: "test-suite/test/core/memory_size.0.wasm"
 	UnknownInstruction(<3f>), bin pos: 52, stack: [
 	    "wasp::parser::instr::Instr",
@@ -447,7 +448,7 @@ Last test (0):
 ```bash
  ERROR wasp::testsuite > oops the test-suite panicked!
 Reason:
-	panicked at src/testsuite.rs:351:58:
+	panicked at src/testsuite.rs:356:32:
 	failed to load module: ParseError(File: "test-suite/test/core/memory_trap.0.wasm"
 	UnknownInstruction(<3f>), bin pos: 75, stack: [
 	    "wasp::parser::instr::Instr",
@@ -471,7 +472,7 @@ Last test (0):
 ```bash
  ERROR wasp::testsuite > oops the test-suite panicked!
 Reason:
-	panicked at src/testsuite.rs:351:58:
+	panicked at src/testsuite.rs:356:32:
 	failed to load module: ParseError(File: "test-suite/test/core/ref_func.1.wasm"
 	UnknownInstruction(<d1>), bin pos: 220, stack: [
 	    "wasp::parser::instr::Instr",
@@ -490,7 +491,7 @@ Last test (2):
 ```bash
  ERROR wasp::testsuite > oops the test-suite panicked!
 Reason:
-	panicked at src/testsuite.rs:315:6:
+	panicked at src/testsuite.rs:314:6:
 	failed to parse test data: Error("data did not match any variant of untagged enum Case", line: 5, column: 2)
 Last test (0):
 	Default
@@ -500,7 +501,7 @@ Last test (0):
 ```bash
  ERROR wasp::testsuite > oops the test-suite panicked!
 Reason:
-	panicked at src/testsuite.rs:315:6:
+	panicked at src/testsuite.rs:314:6:
 	failed to parse test data: Error("data did not match any variant of untagged enum Case", line: 5, column: 154)
 Last test (0):
 	Default
@@ -515,7 +516,7 @@ Last test (0):
 ```bash
  ERROR wasp::testsuite > oops the test-suite panicked!
 Reason:
-	panicked at src/testsuite.rs:315:6:
+	panicked at src/testsuite.rs:314:6:
 	failed to parse test data: Error("data did not match any variant of untagged enum Case", line: 33, column: 2)
 Last test (0):
 	Default
@@ -778,7 +779,7 @@ memory allocation of 77309411344 bytes failed
 ```bash
  ERROR wasp::testsuite > oops the test-suite panicked!
 Reason:
-	panicked at src/testsuite.rs:351:58:
+	panicked at src/testsuite.rs:356:32:
 	failed to load module: ParseError(File: "test-suite/test/core/table_fill.0.wasm"
 	UnknownInstruction(<25>), bin pos: 96, stack: [
 	    "wasp::parser::instr::Instr",
@@ -797,7 +798,7 @@ Last test (0):
 ```bash
  ERROR wasp::testsuite > oops the test-suite panicked!
 Reason:
-	panicked at src/testsuite.rs:315:6:
+	panicked at src/testsuite.rs:314:6:
 	failed to parse test data: Error("data did not match any variant of untagged enum Case", line: 8, column: 2)
 Last test (0):
 	Default
@@ -807,7 +808,7 @@ Last test (0):
 ```bash
  ERROR wasp::testsuite > oops the test-suite panicked!
 Reason:
-	panicked at src/testsuite.rs:315:6:
+	panicked at src/testsuite.rs:314:6:
 	failed to parse test data: Error("data did not match any variant of untagged enum Case", line: 44, column: 2)
 Last test (0):
 	Default
@@ -822,7 +823,7 @@ Last test (0):
 ```bash
  ERROR wasp::testsuite > oops the test-suite panicked!
 Reason:
-	panicked at src/testsuite.rs:315:6:
+	panicked at src/testsuite.rs:314:6:
 	failed to parse test data: Error("data did not match any variant of untagged enum Case", line: 10, column: 2)
 Last test (0):
 	Default
@@ -862,7 +863,7 @@ Last test (1):
 ```bash
  ERROR wasp::testsuite > oops the test-suite panicked!
 Reason:
-	panicked at src/testsuite.rs:351:58:
+	panicked at src/testsuite.rs:356:32:
 	failed to load module: ParseError(File: "test-suite/test/core/unreached-valid.0.wasm"
 	UnknownInstruction(<d1>), bin pos: 273, stack: [
 	    "wasp::parser::instr::Instr",
@@ -889,11 +890,25 @@ Last test (0):
 
 ## Failed: test-suite/test/core/utf8-import-field.wast
 ```bash
- ERROR wasp::testsuite > test 1/176 did not fail invalidating/parsing, expected error: "malformed UTF-8 encoding" (module: "test-suite/test/core/utf8-import-field.0.wasm")
+ ERROR wasp::testsuite > oops the test-suite panicked!
+Reason:
+	panicked at src/runtime/methods/new.rs:112:17:
+	missing depedency or cycle:
+	Fixed: []
+	Dependencies left: {"_$_main_$_": {"�"}}
+Last test (0):
+	AssertMalformed(AssertMalformed { _type: MustBe!("assert_malformed"), filename: "utf8-import-field.0.wasm", text: "malformed UTF-8 encoding", module_type: Binary })
 ```
 
 ## Failed: test-suite/test/core/utf8-import-module.wast
 ```bash
- ERROR wasp::testsuite > test 1/176 did not fail invalidating/parsing, expected error: "malformed UTF-8 encoding" (module: "test-suite/test/core/utf8-import-module.0.wasm")
+ ERROR wasp::testsuite > oops the test-suite panicked!
+Reason:
+	panicked at src/runtime/methods/new.rs:112:17:
+	missing depedency or cycle:
+	Fixed: []
+	Dependencies left: {"_$_main_$_": {"test"}}
+Last test (0):
+	AssertMalformed(AssertMalformed { _type: MustBe!("assert_malformed"), filename: "utf8-import-module.0.wasm", text: "malformed UTF-8 encoding", module_type: Binary })
 ```
 

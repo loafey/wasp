@@ -4,7 +4,7 @@ use std::{collections::HashMap, fs, path::PathBuf};
 
 use crate::{
     parser::{ExportDesc, FuncIdx},
-    runtime::{Frame, FuncId, Import, Runtime, RuntimeError, Value},
+    runtime::{Frame, FuncId, Import, Runtime, RuntimeError, ToImport, Value},
 };
 
 #[derive(Debug, Deserialize, Clone)]
@@ -314,7 +314,8 @@ pub fn test(mut path: String) {
     .expect("failed to parse test data");
 
     let mut runtime: Option<Runtime> = None;
-    let mut registers: HashMap<String, crate::runtime::clean_model::Model> = HashMap::new();
+    let mut registers: HashMap<String, PathBuf> = HashMap::new();
+    let mut current_path = PathBuf::new();
 
     let mut skip = false;
     let mut module_index = -1;
@@ -347,16 +348,14 @@ pub fn test(mut path: String) {
 
                 // println!("@@@ Compiling {p:?}");
                 runtime = Some({
-                    let mut rt = Runtime::build(p.clone())
-                        .build()
-                        .expect("failed to load module");
+                    let mut rt = Runtime::build(p.clone());
+                    rt = rt.add_io("spectest", Import::spectest());
                     for (k, v) in &registers {
-                        rt.modules.insert(k.clone(), Import::WS(v.clone()));
+                        rt = rt.add_ws(&k.clone(), v.clone());
                     }
-                    rt.modules
-                        .insert("spectest".to_string(), Import::spectest());
-                    rt
+                    rt.build().expect("failed to load module")
                 });
+                current_path = p.clone();
                 // recreate_runtime = Box::new(move || {
                 //     *runtime.borrow_mut() =
                 //         Some(Runtime::new(p.clone()).expect("failed to load module"));
@@ -534,11 +533,7 @@ pub fn test(mut path: String) {
                 if let Some(name) = name {
                     todo!("Register: {_as:?} {name}")
                 } else {
-                    rt.modules.insert(
-                        _as.clone(),
-                        Import::WS(unsafe { rt.modules["_$_main_$_"].as_ws() }.clone()),
-                    );
-                    registers.insert(_as, unsafe { rt.modules["_$_main_$_"].as_ws() }.clone());
+                    registers.insert(_as, current_path.clone());
                 }
             }
         }

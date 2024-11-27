@@ -14,7 +14,7 @@ use std::{
     path::{Path, PathBuf},
 };
 
-enum ToImport {
+pub enum ToImport {
     IO(IO),
     WS(PathBuf),
 }
@@ -98,6 +98,7 @@ impl RuntimeBuilder {
         for k in &ordered {
             deps.remove(k);
         }
+        let mut old = deps.clone();
         while !deps.is_empty() {
             for (k, v) in &deps {
                 if v.iter().all(|a| ordered.contains(a)) {
@@ -106,6 +107,13 @@ impl RuntimeBuilder {
             }
             for k in &ordered {
                 deps.remove(k);
+            }
+            if deps == old {
+                panic!(
+                    "missing depedency or cycle:\nFixed: {ordered:?}\nDependencies left: {deps:?}"
+                )
+            } else {
+                old = deps.clone();
             }
             // println!("Ordered: {ordered:?}\tNon-ordered: {:?}", deps);
         }

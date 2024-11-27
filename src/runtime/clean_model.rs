@@ -406,8 +406,11 @@ impl TryFrom<Module> for Model {
                 Elem::E0(expr, vec) => match &expr.instrs[..] {
                     [Instr::x41_i32_const(off)] => {
                         for (i, v) in vec.into_iter().enumerate() {
-                            let Table::Native { table, .. } = &mut tables[0] else {
-                                unreachable!()
+                            let table = match &mut tables[0] {
+                                Table::Native { table, .. } => table,
+                                Table::Foreign { module, name } => {
+                                    todo!("{module}::{name}")
+                                }
                             };
                             table.insert(*off as u32 + i as u32, v);
                         }

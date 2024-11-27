@@ -531,9 +531,15 @@ pub fn test(mut path: String) {
                     rt = rt.add_ws(&k.clone(), v.clone());
                 }
                 match rt.build() {
-                    Ok(_) => error!("test {test_i}/{total_tests} did not fail linking, expected error: {text:?} (module: {p:?})"),
+                    Ok(_) => {
+                        error!("test {test_i}/{total_tests} did not fail linking, expected error: {text:?} (module: {p:?})");
+                        std::process::exit(1);
+                    }
                     Err(e) if format!("{e:?}").contains(&text) => continue,
-                    Err(e) => error!("test {test_i}/{total_tests} got wrong error, expected error: {text:?}, got {e:?} (module: {p:?})")
+                    Err(e) => {
+                        error!("test {test_i}/{total_tests} got wrong error, expected error: {text:?}, got {e:?} (module: {p:?})");
+                        std::process::exit(1);
+                    }
                 }
             }
             Case::Register(Register { _as, name, .. }) => {

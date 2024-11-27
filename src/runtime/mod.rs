@@ -1,6 +1,6 @@
 // ! WARNING, this module consists of macro abuse! :)
 
-use std::{collections::HashMap, fmt::Debug, path::PathBuf};
+use std::{collections::HashMap, fmt::Debug};
 pub mod clean_model;
 mod error;
 mod memory;
@@ -90,7 +90,6 @@ pub struct Frame {
 }
 
 pub struct Runtime {
-    pub _path: PathBuf,
-    pub modules: HashMap<String, Import>,
+    pub(super) modules: HashMap<String, Import>,
     pub stack: Vec<Frame>,
 }

@@ -8,7 +8,7 @@ use crate::{
     runtime::{FuncId, Import, IO},
 };
 use std::{
-    collections::HashMap,
+    collections::{BTreeSet, HashMap},
     fs::File,
     io::{Cursor, Read},
     path::{Path, PathBuf},
@@ -18,6 +18,25 @@ enum ToImport {
     IO(IO),
     WS(PathBuf),
 }
+
+enum Intermediate {
+    IO(IO),
+    WS(Module),
+}
+impl Intermediate {
+    pub fn get_dependencies(&self) -> BTreeSet<String> {
+        match self {
+            Intermediate::IO(_) => BTreeSet::new(),
+            Intermediate::WS(module) => module
+                .imports
+                .imports
+                .iter()
+                .map(|i| i.module.0.clone())
+                .collect(),
+        }
+    }
+}
+
 pub struct RuntimeBuilder {
     path: PathBuf,
     modules: HashMap<String, ToImport>,
@@ -34,10 +53,50 @@ impl RuntimeBuilder {
         self
     }
 
-    pub fn build(self) -> Result<Runtime, RuntimeError> {
-        let mut rt = Runtime::new(self.path)?;
+    pub fn build(mut self) -> Result<Runtime, RuntimeError> {
+        let mut ordered = HashMap::new();
+        self.modules
+            .insert("_$_main_$_".to_string(), ToImport::WS(self.path.clone()));
+        for (k, v) in self.modules {
+            ordered.insert(
+                k,
+                match v {
+                    ToImport::IO(io) => Intermediate::IO(io),
+                    ToImport::WS(path) => {
+                        let mut buf = Vec::new();
 
-        Ok(rt)
+                        let mut f = File::open(&path).expect("Failed to open file");
+                        f.read_to_end(&mut buf).expect("Failed to read file");
+
+                        let mut cursor = Cursor::new(&buf[..]);
+                        let mut stack = Vec::new();
+                        let module = match Module::parse(&mut cursor, &mut stack) {
+                            Ok(o) => o,
+                            Err(e) => {
+                                stack.reverse();
+                                return Err(RuntimeError::ParseError(format!(
+                                    "File: {:?}\n{e:?}, bin pos: {}, stack: {stack:#?}",
+                                    path,
+                                    cursor.position()
+                                )));
+                            }
+                        };
+                        Intermediate::WS(module)
+                    }
+                },
+            );
+        }
+        let deps = ordered
+            .iter()
+            .map(|(k, v)| (k, v.get_dependencies()))
+            .collect::<HashMap<_, _>>();
+        println!("get_dependencies: {deps:?}");
+        // do a topological sort here
+
+        // let rt = Runtime::new(ordered)?;
+        todo!()
+
+        // Ok(rt)
     }
 }
 
@@ -49,47 +108,18 @@ impl Runtime {
         }
     }
 
-    fn new<P: AsRef<Path>>(path: P) -> Result<Self, RuntimeError> {
-        let mut buf = Vec::new();
-
-        let mut f = File::open(path.as_ref()).expect("Failed to open file");
-        f.read_to_end(&mut buf).expect("Failed to read file");
-
-        let mut cursor = Cursor::new(&buf[..]);
-        let mut stack = Vec::new();
-        let module = match Module::parse(&mut cursor, &mut stack) {
-            Ok(o) => o,
-            Err(e) => {
-                stack.reverse();
-                return Err(RuntimeError::ParseError(format!(
-                    "File: {:?}\n{e:?}, bin pos: {}, stack: {stack:#?}",
-                    path.as_ref(),
-                    cursor.position()
-                )));
-            }
-        };
-
-        let mut globals = HashMap::new();
-        for (i, Global { e, .. }) in module.globals.globals.iter().enumerate() {
-            let val = match e.instrs[0] {
-                x41_i32_const(x) => Value::I32(x),
-                x42_i64_const(x) => Value::I64(x),
-                x43_f32_const(x) => Value::F32(x),
-                x44_f64_const(x) => Value::F64(x),
-                _ => return Err(GlobalWithoutValue),
-            };
-            globals.insert(i as u32, val);
+    fn new<P: AsRef<Path>>(modules: HashMap<String, Import>) -> Result<Self, RuntimeError> {
+        let stack = if let Some(ExportDesc::Func(FuncIdx(main_id))) = match &modules["_$_main_$_"] {
+            Import::WS(module) => module,
+            Import::IO(_) => unreachable!(),
         }
-
-        let stack = if let Some(ExportDesc::Func(FuncIdx(main_id))) = module
-            .exports
-            .exports
-            .iter()
-            .find(|s| matches!(&*s.nm.0, "main" | "_start"))
-            .map(|f| f.d)
+        .exports
+        .iter()
+        .find(|s| matches!(&**s.0, "main" | "_start"))
+        .map(|f| f.1)
         {
             vec![Frame {
-                func_id: FuncId::Id(main_id),
+                func_id: FuncId::Id(*main_id),
                 pc: 0,
                 module: "_$_main_$_".to_string(),
                 stack: Vec::new(),
@@ -101,14 +131,6 @@ impl Runtime {
             Vec::new()
         };
 
-        let module = Model::try_from(module)?;
-
-        let mut modules = HashMap::new();
-        modules.insert("_$_main_$_".to_string(), Import::WS(module));
-        Ok(Self {
-            modules,
-            stack,
-            _path: path.as_ref().to_path_buf(),
-        })
+        Ok(Self { modules, stack })
     }
 }

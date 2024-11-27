@@ -7,7 +7,7 @@
 ```bash
  ERROR wasp::testsuite > oops the test-suite panicked!
 Reason:
-	panicked at src/runtime/clean_model.rs:502:42:
+	panicked at src/runtime/clean_model.rs:501:42:
 	not yet implemented
 Last test (5):
 	Module(Module { _type: MustBe!("module"), _name: None, filename: "data.5.wasm" })
@@ -270,11 +270,10 @@ Last test (0):
 24
 24
 13
-here 3 3
  ERROR wasp::testsuite > oops the test-suite panicked!
 Reason:
-	panicked at src/testsuite.rs:351:58:
-	failed to load module: type error: UnknownFunction
+	panicked at src/runtime/clean_model.rs:411:33:
+	internal error: entered unreachable code
 Last test (72):
 	Module(Module { _type: MustBe!("module"), _name: None, filename: "imports.60.wasm" })
 ```
@@ -772,13 +771,7 @@ memory allocation of 77309411344 bytes failed
 
 ## Failed: test-suite/test/core/table_copy.wast
 ```bash
-here 19 13
- ERROR wasp::testsuite > oops the test-suite panicked!
-Reason:
-	panicked at src/testsuite.rs:351:58:
-	failed to load module: type error: UnknownFunction
-Last test (2):
-	Module(Module { _type: MustBe!("module"), _name: None, filename: "table_copy.1.wasm" })
+ ERROR wasp::testsuite > Got error "undefined element", expected error: "uninitialized element" (module: 1, function "check_t0")
 ```
 
 ## Failed: test-suite/test/core/table_fill.wast
@@ -822,13 +815,7 @@ Last test (0):
 
 ## Failed: test-suite/test/core/table_init.wast
 ```bash
-here 19 12
- ERROR wasp::testsuite > oops the test-suite panicked!
-Reason:
-	panicked at src/testsuite.rs:351:58:
-	failed to load module: type error: UnknownFunction
-Last test (2):
-	Module(Module { _type: MustBe!("module"), _name: None, filename: "table_init.1.wasm" })
+ ERROR wasp::testsuite > test 4/780 failed: out of bounds table access (module: 1, invoke: "test")
 ```
 
 ## Failed: test-suite/test/core/table_set.wast

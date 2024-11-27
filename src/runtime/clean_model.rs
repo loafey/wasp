@@ -356,7 +356,7 @@ impl TryFrom<Module> for Model {
         }
 
         for e in value.elems.elems.iter() {
-            let (offset, vec) = match e {
+            let (_, vec) = match e {
                 Elem::E0(expr, vec) | Elem::E2(_, expr, _, vec) => (
                     match &expr.instrs[..] {
                         [Instr::x41_i32_const(offset)] => *offset as u32,
@@ -394,9 +394,7 @@ impl TryFrom<Module> for Model {
                 ),
             };
             for FuncIdx(f) in vec {
-                let f = f + offset;
                 if f >= functions.len() as u32 {
-                    // println!("here {f} {}", functions.len());
                     return Err(RuntimeError::TypeError(TypeCheckError::UnknownFunction));
                 }
             }

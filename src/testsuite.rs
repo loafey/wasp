@@ -347,7 +347,9 @@ pub fn test(mut path: String) {
 
                 // println!("@@@ Compiling {p:?}");
                 runtime = Some({
-                    let mut rt = Runtime::new(p.clone()).expect("failed to load module");
+                    let mut rt = Runtime::build(p.clone())
+                        .build()
+                        .expect("failed to load module");
                     for (k, v) in &registers {
                         rt.modules.insert(k.clone(), Import::WS(v.clone()));
                     }
@@ -494,7 +496,7 @@ pub fn test(mut path: String) {
                 p.pop();
                 p.push(&filename);
 
-                match Runtime::new(&p) {
+                match Runtime::build(&p).build() {
                     Ok(_) => {
                         error!("test {test_i}/{total_tests} did not fail invalidating/parsing, expected error: {text:?} (module: {p:?})");
                         std::process::exit(1);

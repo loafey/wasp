@@ -77,13 +77,15 @@ macro_rules! get {
         val
     }};
 }
+
+pub struct IO {
+    pub functions: HashMap<&'static str, Function>,
+    pub globals: HashMap<&'static str, Value>,
+    pub memory: PtrRW<Memory<{ 65536 + 1 }>>,
+}
 pub enum Import {
     WS(Model),
-    IO {
-        functions: HashMap<&'static str, Function>,
-        globals: HashMap<&'static str, Value>,
-        memory: PtrRW<Memory<{ 65536 + 1 }>>,
-    },
+    IO(IO),
 }
 impl Import {
     pub fn get_global(&self, name: &str) -> Value {
@@ -102,7 +104,7 @@ impl Import {
                     Global::Foreign(..) => todo!("re-export of global"),
                 }
             }
-            Import::IO { globals, .. } => *globals
+            Import::IO(IO { globals, .. }) => *globals
                 .get(name)
                 .unwrap_or_else(|| panic!("missing global: {name}")),
         }
@@ -176,10 +178,10 @@ impl Import {
             Value::F64(f64::from_bits(4649074691427585229)),
         );
 
-        Self::IO {
+        Self::IO(IO {
             functions: res,
             globals,
             memory: Memory::new(1, 1).into(),
-        }
+        })
     }
 }

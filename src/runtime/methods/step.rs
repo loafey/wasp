@@ -10,7 +10,7 @@ use crate::{
     },
     runtime::{
         clean_model::{Global, Table},
-        FuncId, Import,
+        FuncId, Import, IO,
     },
 };
 use core::f64;
@@ -262,9 +262,9 @@ impl Runtime {
                                     _ => panic!(),
                                 },
                             ),
-                            Import::IO {
+                            Import::IO(IO {
                                 functions, memory, ..
-                            } => {
+                            }) => {
                                 let func = unwrap!(functions.get(name.as_str()), |a, b, c| {
                                     MissingFunctionImport(name.clone(), a, b, c)
                                 });

@@ -9,6 +9,7 @@ pub use error::RuntimeError;
 
 mod import;
 mod methods;
+pub use memory::Memory;
 mod typecheck;
 pub use import::*;
 

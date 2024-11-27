@@ -5,17 +5,51 @@ use super::super::{
 };
 use crate::{
     parser::{ExportDesc, FuncIdx, Global, Instr::*, Module, Parsable},
-    runtime::{FuncId, Import},
+    runtime::{FuncId, Import, IO},
 };
 use std::{
     collections::HashMap,
     fs::File,
     io::{Cursor, Read},
-    path::Path,
+    path::{Path, PathBuf},
 };
 
+enum ToImport {
+    IO(IO),
+    WS(PathBuf),
+}
+pub struct RuntimeBuilder {
+    path: PathBuf,
+    modules: HashMap<String, ToImport>,
+}
+impl RuntimeBuilder {
+    pub fn add_ws<P: AsRef<Path>>(mut self, name: &str, p: P) -> Self {
+        self.modules
+            .insert(name.to_string(), ToImport::WS(p.as_ref().to_path_buf()));
+        self
+    }
+
+    pub fn add_io(mut self, name: &str, io: IO) -> Self {
+        self.modules.insert(name.to_string(), ToImport::IO(io));
+        self
+    }
+
+    pub fn build(self) -> Result<Runtime, RuntimeError> {
+        let mut rt = Runtime::new(self.path)?;
+
+        Ok(rt)
+    }
+}
+
 impl Runtime {
-    pub fn new<P: AsRef<Path>>(path: P) -> Result<Self, RuntimeError> {
+    pub fn build<P: AsRef<Path>>(path: P) -> RuntimeBuilder {
+        RuntimeBuilder {
+            path: path.as_ref().to_path_buf(),
+            modules: HashMap::new(),
+        }
+    }
+
+    fn new<P: AsRef<Path>>(path: P) -> Result<Self, RuntimeError> {
         let mut buf = Vec::new();
 
         let mut f = File::open(path.as_ref()).expect("Failed to open file");

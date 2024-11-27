@@ -1,10 +1,6 @@
-use super::super::{
-    clean_model::Model,
-    error::{RuntimeError, RuntimeError::*},
-    Frame, Runtime, Value,
-};
+use super::super::{clean_model::Model, error::RuntimeError, Frame, Runtime};
 use crate::{
-    parser::{ExportDesc, FuncIdx, Global, Instr::*, Module, Parsable},
+    parser::{ExportDesc, FuncIdx, Module, Parsable},
     runtime::{FuncId, Import, IO},
 };
 use std::{
@@ -92,12 +88,6 @@ impl RuntimeBuilder {
             .collect::<HashMap<_, _>>();
 
         let mut ordered = Vec::new();
-        deps.iter()
-            .filter(|(_, v)| v.is_empty())
-            .for_each(|(k, _)| ordered.push(k.clone()));
-        for k in &ordered {
-            deps.remove(k);
-        }
         let mut old = deps.clone();
         while !deps.is_empty() {
             for (k, v) in &deps {
@@ -110,7 +100,7 @@ impl RuntimeBuilder {
             }
             if deps == old {
                 panic!(
-                    "missing depedency or cycle:\nFixed: {ordered:?}\nDependencies left: {deps:?}"
+                    "missing depedency or cycle:\n\tfixed: {ordered:?}\n\tdependencies left: {deps:?}"
                 )
             } else {
                 old = deps.clone();

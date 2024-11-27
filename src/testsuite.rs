@@ -4,7 +4,7 @@ use std::{collections::HashMap, fs, path::PathBuf};
 
 use crate::{
     parser::{ExportDesc, FuncIdx},
-    runtime::{Frame, FuncId, Import, Runtime, RuntimeError, ToImport, Value},
+    runtime::{Frame, FuncId, Import, Runtime, RuntimeError, Value},
 };
 
 #[derive(Debug, Deserialize, Clone)]
@@ -346,7 +346,6 @@ pub fn test(mut path: String) {
                     continue;
                 }
 
-                // println!("@@@ Compiling {p:?}");
                 runtime = Some({
                     let mut rt = Runtime::build(p.clone());
                     rt = rt.add_io("spectest", Import::spectest());
@@ -356,10 +355,6 @@ pub fn test(mut path: String) {
                     rt.build().expect("failed to load module")
                 });
                 current_path = p.clone();
-                // recreate_runtime = Box::new(move || {
-                //     *runtime.borrow_mut() =
-                //         Some(Runtime::new(p.clone()).expect("failed to load module"));
-                // });
             }
             Case::AssertReturn(AssertReturn {
                 action, expected, ..
@@ -495,7 +490,13 @@ pub fn test(mut path: String) {
                 p.pop();
                 p.push(&filename);
 
-                match Runtime::build(&p).build() {
+                let mut rt = Runtime::build(p.clone());
+                rt = rt.add_io("spectest", Import::spectest());
+                for (k, v) in &registers {
+                    rt = rt.add_ws(&k.clone(), v.clone());
+                }
+
+                match rt.build() {
                     Ok(_) => {
                         error!("test {test_i}/{total_tests} did not fail invalidating/parsing, expected error: {text:?} (module: {p:?})");
                         std::process::exit(1);
@@ -517,8 +518,7 @@ pub fn test(mut path: String) {
                 ..
             }) => {
                 // we skip this test for now
-                #[allow(clippy::overly_complex_bool_expr)]
-                if true || skip || matches!(module_type, ModuleType::Text) {
+                if skip || matches!(module_type, ModuleType::Text) {
                     continue;
                 }
                 let _rt = runtime.as_ref().expect("no rt set");
@@ -528,7 +528,6 @@ pub fn test(mut path: String) {
                 if skip {
                     continue;
                 }
-                let rt = runtime.as_mut().expect("no rt set");
 
                 if let Some(name) = name {
                     todo!("Register: {_as:?} {name}")

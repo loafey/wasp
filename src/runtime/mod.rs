@@ -12,7 +12,6 @@ mod methods;
 pub use memory::Memory;
 mod typecheck;
 pub use import::*;
-pub use methods::ToImport;
 
 #[derive(Clone, Copy, PartialEq)]
 #[allow(unused)]

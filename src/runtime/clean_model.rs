@@ -7,7 +7,7 @@ use super::{
 use crate::{
     parser::{
         Data, Elem, ExportDesc, Expr, FuncIdx, FuncType, Global as PGlobal, GlobalIdX, ImportDesc,
-        Instr, Limits, Locals, MemArg, MemIdX, Module, Name, TableIdX, TypeIdX, BT,
+        Instr, LabelIdX, Limits, Locals, MemArg, MemIdX, Module, Name, TableIdX, TypeIdX, BT,
     },
     ptr::{Ptr, PtrRW},
     runtime::typecheck,
@@ -530,6 +530,37 @@ impl TryFrom<Module> for Model {
         let globals = globals.into();
         let datas = datas.into();
         let memory = memory.into();
+
+        for f in functions.iter() {
+            match f {
+                Function::Foreign { .. } => continue,
+                Function::Native { code, .. } => {
+                    let mut depth = 0;
+                    for c in code {
+                        match c {
+                            Instr::x0c_br(LabelIdX(i)) | Instr::x0d_br_if(LabelIdX(i)) => {
+                                if *i > depth {
+                                    return Err(RuntimeError::UnknownLabel);
+                                }
+                            }
+                            Instr::x0e_br_table(ls, LabelIdX(i)) => {
+                                for LabelIdX(i) in ls {
+                                    if *i > depth {
+                                        return Err(RuntimeError::UnknownLabel);
+                                    }
+                                }
+                                if *i > depth {
+                                    return Err(RuntimeError::UnknownLabel);
+                                }
+                            }
+                            Instr::block_start(_, _, _) => depth += 1,
+                            Instr::block_end(_, _, _) => depth -= 1,
+                            _ => {}
+                        }
+                    }
+                }
+            }
+        }
 
         Ok(Self {
             functions,

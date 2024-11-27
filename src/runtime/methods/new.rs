@@ -68,36 +68,7 @@ impl Runtime {
         };
 
         let module = Model::try_from(module)?;
-        for f in module.functions.iter() {
-            match f {
-                Function::Foreign { .. } => continue,
-                Function::Native { code, .. } => {
-                    let mut depth = 0;
-                    for c in code {
-                        match c {
-                            x0c_br(LabelIdX(i)) | x0d_br_if(LabelIdX(i)) => {
-                                if *i > depth {
-                                    return Err(RuntimeError::UnknownLabel);
-                                }
-                            }
-                            x0e_br_table(ls, LabelIdX(i)) => {
-                                for LabelIdX(i) in ls {
-                                    if *i > depth {
-                                        return Err(RuntimeError::UnknownLabel);
-                                    }
-                                }
-                                if *i > depth {
-                                    return Err(RuntimeError::UnknownLabel);
-                                }
-                            }
-                            block_start(_, _, _) => depth += 1,
-                            block_end(_, _, _) => depth -= 1,
-                            _ => {}
-                        }
-                    }
-                }
-            }
-        }
+
         let mut modules = HashMap::new();
         modules.insert("_$_main_$_".to_string(), Import::WS(module));
         Ok(Self {

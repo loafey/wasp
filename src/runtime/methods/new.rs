@@ -54,11 +54,11 @@ impl RuntimeBuilder {
     }
 
     pub fn build(mut self) -> Result<Runtime, RuntimeError> {
-        let mut ordered = HashMap::new();
+        let mut non_ordered = HashMap::new();
         self.modules
             .insert("_$_main_$_".to_string(), ToImport::WS(self.path.clone()));
         for (k, v) in self.modules {
-            ordered.insert(
+            non_ordered.insert(
                 k,
                 match v {
                     ToImport::IO(io) => Intermediate::IO(io),
@@ -86,17 +86,43 @@ impl RuntimeBuilder {
                 },
             );
         }
-        let deps = ordered
+        let mut deps = non_ordered
             .iter()
-            .map(|(k, v)| (k, v.get_dependencies()))
+            .map(|(k, v)| (k.clone(), v.get_dependencies()))
             .collect::<HashMap<_, _>>();
-        println!("get_dependencies: {deps:?}");
+
+        let mut ordered = Vec::new();
+        deps.iter()
+            .filter(|(_, v)| v.is_empty())
+            .for_each(|(k, _)| ordered.push(k.clone()));
+        for k in &ordered {
+            deps.remove(k);
+        }
+        while !deps.is_empty() {
+            for (k, v) in &deps {
+                if v.iter().all(|a| ordered.contains(a)) {
+                    ordered.push(k.clone());
+                }
+            }
+            for k in &ordered {
+                deps.remove(k);
+            }
+            // println!("Ordered: {ordered:?}\tNon-ordered: {:?}", deps);
+        }
+        // println!("get_dependencies: {deps:?}");
         // do a topological sort here
 
-        // let rt = Runtime::new(ordered)?;
-        todo!()
+        let mut modules = HashMap::new();
+        for k in ordered {
+            let r = match non_ordered.remove(&k) {
+                Some(Intermediate::IO(io)) => Import::IO(io),
+                Some(Intermediate::WS(module)) => Import::WS(Model::try_from(module)?),
+                _ => panic!(),
+            };
+            modules.insert(k, r);
+        }
 
-        // Ok(rt)
+        Runtime::new(modules)
     }
 }
 
@@ -108,7 +134,7 @@ impl Runtime {
         }
     }
 
-    fn new<P: AsRef<Path>>(modules: HashMap<String, Import>) -> Result<Self, RuntimeError> {
+    fn new(modules: HashMap<String, Import>) -> Result<Self, RuntimeError> {
         let stack = if let Some(ExportDesc::Func(FuncIdx(main_id))) = match &modules["_$_main_$_"] {
             Import::WS(module) => module,
             Import::IO(_) => unreachable!(),

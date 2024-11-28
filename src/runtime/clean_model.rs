@@ -15,11 +15,13 @@ use crate::{
 use std::collections::HashMap;
 
 #[derive(Debug)]
-pub struct Function {
-    pub ty: FuncType,
-    pub _locals: Vec<Locals>,
-    pub code: Vec<Instr>,
-    pub _labels: HashMap<Vec<u32>, u32>,
+pub enum Function {
+    WS {
+        ty: FuncType,
+        _locals: Vec<Locals>,
+        code: Vec<Instr>,
+        _labels: HashMap<Vec<u32>, u32>,
+    },
 }
 
 #[derive(Debug, Clone)]
@@ -258,7 +260,7 @@ fn get_functions(
         }
 
         functions.push(
-            Function {
+            Function::WS {
                 ty,
                 _locals: locals,
                 _labels: HashMap::new(),
@@ -277,7 +279,7 @@ fn validate_calls(
     type_len: u32,
 ) -> Result<(), RuntimeError> {
     for code in functions {
-        let Function { code, .. } = code.as_ref();
+        let Function::WS { code, .. } = code.as_ref();
 
         // let locals = typ.input.types.clone();
 
@@ -530,7 +532,7 @@ fn setup_data<const N: usize>(
 
 fn validate_label_depth(functions: &[Ptr<Function>]) -> Result<(), RuntimeError> {
     for f in functions {
-        let Function { code, .. } = f.as_ref();
+        let Function::WS { code, .. } = f.as_ref();
         let mut depth = 0;
         for c in code {
             match c {

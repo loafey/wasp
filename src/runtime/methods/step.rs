@@ -248,7 +248,7 @@ impl Runtime {
                     FuncId::Foreign { module, id } => todo!("foreign call {module}::({id})"),
                 };
                 let ptr = unwrap!(module.functions.get(function as usize), MissingFunction);
-                let Function { ty, code, .. } = ptr.as_ref();
+                let Function::WS { ty, code, .. } = ptr.as_ref();
                 break (code, ty, module);
             }
         };
@@ -434,7 +434,7 @@ impl Runtime {
                     FuncId::Foreign { .. } => todo!(),
                 };
                 let ty = unwrap!(module.functions.get(*func_id as usize), MissingFunction);
-                let Function { ty, .. } = ty.as_ref();
+                let Function::WS { ty, .. } = ty.as_ref();
                 let mut res = Vec::new();
                 for _ in ty.output.types.iter() {
                     let value = unwrap!(last_f.stack.pop(), EmptyStack);
@@ -450,7 +450,7 @@ impl Runtime {
             }
             x10_call(FuncIdx(id)) => {
                 let fun = &module.functions[*id as usize];
-                let Function { ty, .. } = fun.as_ref();
+                let Function::WS { ty, .. } = fun.as_ref();
                 let (ty, module, func_id) = (ty, get!(module).clone(), FuncId::Id(*id));
 
                 let mut locals = HashMap::new();
@@ -495,7 +495,7 @@ impl Runtime {
                 }
 
                 if let Some(func) = module.functions.get(id as usize) {
-                    let Function { ty: ty2, .. } = func.as_ref();
+                    let Function::WS { ty: ty2, .. } = func.as_ref();
                     if ty.as_ref() != ty2 {
                         throw!(IndirectCallTypeMismatch)
                     }

@@ -1,9 +1,9 @@
 use super::{
     memory::Memory,
     typecheck::TypeCheckError,
-    IOFunction, Import,
+    IOFuncInner, IOFunction, Import, Mem,
     RuntimeError::{self, *},
-    Value,
+    Stack, Value, IO,
 };
 use crate::{
     parser::{
@@ -23,7 +23,7 @@ pub enum Function {
     },
     IO {
         ty: FuncType,
-        func: IOFunction,
+        func: IOFuncInner,
     },
 }
 
@@ -42,11 +42,7 @@ impl std::fmt::Debug for Function {
                 .field("code", code)
                 .field("_labels", _labels)
                 .finish(),
-            Self::IO { ty, .. } => f
-                .debug_struct("IO")
-                .field("ty", ty)
-                .field("func", &"...")
-                .finish(),
+            Self::IO { .. } => write!(f, "IO"),
         }
     }
 }
@@ -95,7 +91,21 @@ fn setup_imports(
                         .ok_or(RuntimeError::MissingFunction(file!(), line!(), column!()))?;
                     functions.push(c.clone());
                 }
-                Import::IO(io) => todo!("io import"),
+                Import::IO(IO {
+                    functions: funcs, ..
+                }) => {
+                    let IOFunction { ty, func } = funcs
+                        .get(&*import.name.0)
+                        .ok_or(RuntimeError::MissingFunction(file!(), line!(), column!()))?;
+
+                    functions.push(
+                        Function::IO {
+                            func: *func,
+                            ty: ty.clone(),
+                        }
+                        .into(),
+                    )
+                }
             },
             ImportDesc::Global(_) => {
                 globals

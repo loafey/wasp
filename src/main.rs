@@ -4,7 +4,7 @@
 #![deny(clippy::print_stderr)]
 use hex::Hex;
 use parser::MemArg;
-use runtime::{Runtime, RuntimeError, Value, IO};
+use runtime::{IOFunction, Runtime, RuntimeError, Value, IO};
 use std::{collections::HashMap, env::args, mem::MaybeUninit};
 mod hex;
 mod parser;
@@ -35,61 +35,65 @@ fn main() {
         testsuite::test(path);
     } else {
         let mut runtime = Runtime::build(path)
-            .add_io(
-                "wasi_snapshot_preview1",
-                IO {
-                    functions: {
-                        let map: Vec<(&'static str, runtime::IOFunction)> = vec![
-                            ("args_sizes_get", &|_, _| Ok(vec![Value::I32(0)])),
-                            #[allow(clippy::print_stdout)]
-                            ("fd_write", &|locals, memory| {
-                                let Some(Value::I32(fd)) = locals.get(&0) else {
-                                    panic!()
-                                };
-                                let Some(Value::I32(iovs_base)) = locals.get(&1) else {
-                                    panic!()
-                                };
-                                let Some(Value::I32(iovs_length)) = locals.get(&2) else {
-                                    panic!()
-                                };
-                                let Some(Value::I32(bytes_written)) = locals.get(&2) else {
-                                    panic!()
-                                };
-                                // println!("fd: {fd}, base: {iovs_base}, len: {iovs_length}");
-                                let bytes_written = *bytes_written as usize;
-                                let mut written = 0i32;
-                                for i in 0..*iovs_length as usize {
-                                    let ptr = *iovs_base as usize + i * 8;
-                                    let buf = memory.get::<u32>(ptr, MemArg::default())? as usize;
-                                    let buf_len =
-                                        memory.get::<u32>(ptr + 4, MemArg::default())? as usize;
-
-                                    let mut b = Vec::new();
-                                    for i in 0..buf_len {
-                                        b.push(memory.get::<u8>(buf + i, MemArg::default())?);
-                                        written += 1;
-                                    }
-                                    // print!("{b:?}");
-                                    match fd {
-                                        1 => print!("{}", String::from_utf8_lossy(&b)),
-                                        _ => panic!(),
-                                    }
-                                }
-                                memory.set(bytes_written, MemArg::default(), written)?;
-                                Ok(vec![Value::I32(0)])
-                            }),
-                        ];
-
-                        let mut res = HashMap::new();
-                        for (k, v) in map {
-                            res.insert(k, v);
-                        }
-                        res
-                    },
-                    globals: HashMap::new(),
-                    memory: runtime::Memory::new(0, 0).into(),
-                },
-            )
+            // .add_io(
+            //     "wasi_snapshot_preview1",
+            //     IO {
+            //         functions: {
+            //             let map: Vec<(&'static str, runtime::IOFunction)> = vec![
+            //                 (
+            //                     "args_sizes_get",
+            //                     IOFunction {
+            //                         ty: todo!(),
+            //                         func: &|_, _| Ok(vec![Value::I32(0)]),
+            //                     },
+            //                 ),
+            //                 #[allow(clippy::print_stdout)]
+            //                 ("fd_write", &|locals, memory| {
+            //                     let Some(Value::I32(fd)) = locals.get(&0) else {
+            //                         panic!()
+            //                     };
+            //                     let Some(Value::I32(iovs_base)) = locals.get(&1) else {
+            //                         panic!()
+            //                     };
+            //                     let Some(Value::I32(iovs_length)) = locals.get(&2) else {
+            //                         panic!()
+            //                     };
+            //                     let Some(Value::I32(bytes_written)) = locals.get(&2) else {
+            //                         panic!()
+            //                     };
+            //                     // println!("fd: {fd}, base: {iovs_base}, len: {iovs_length}");
+            //                     let bytes_written = *bytes_written as usize;
+            //                     let mut written = 0i32;
+            //                     for i in 0..*iovs_length as usize {
+            //                         let ptr = *iovs_base as usize + i * 8;
+            //                         let buf = memory.get::<u32>(ptr, MemArg::default())? as usize;
+            //                         let buf_len =
+            //                             memory.get::<u32>(ptr + 4, MemArg::default())? as usize;
+            //                         let mut b = Vec::new();
+            //                         for i in 0..buf_len {
+            //                             b.push(memory.get::<u8>(buf + i, MemArg::default())?);
+            //                             written += 1;
+            //                         }
+            //                         // print!("{b:?}");
+            //                         match fd {
+            //                             1 => print!("{}", String::from_utf8_lossy(&b)),
+            //                             _ => panic!(),
+            //                         }
+            //                     }
+            //                     memory.set(bytes_written, MemArg::default(), written)?;
+            //                     Ok(vec![Value::I32(0)])
+            //                 }),
+            //             ];
+            //             let mut res = HashMap::new();
+            //             for (k, v) in map {
+            //                 res.insert(k, v);
+            //             }
+            //             res
+            //         },
+            //         globals: HashMap::new(),
+            //         memory: runtime::Memory::new(0, 0).into(),
+            //     },
+            // )
             .build()
             .expect("Failed to load runtime");
         // let memory = unsafe { runtime.modules["_$_main_$_"].as_ws() }

@@ -1,7 +1,7 @@
 use std::collections::HashMap;
 
 use crate::{
-    parser::{ExportDesc, GlobalIdX},
+    parser::{ExportDesc, FuncType, GlobalIdX, NumType, ResultType, ValType},
     ptr::PtrRW,
 };
 
@@ -15,8 +15,12 @@ use super::{
 pub type Locals<'t> = &'t HashMap<u32, Value>;
 pub type Mem<'t> = &'t mut Memory<{ 65536 + 1 }>;
 pub type Stack = Vec<Value>;
+pub type IOFuncInner = &'static dyn Fn(Locals, Mem) -> Result<Stack, RuntimeError>;
 
-pub type IOFunction = &'static dyn Fn(Locals, Mem) -> Result<Stack, RuntimeError>;
+pub struct IOFunction {
+    pub ty: FuncType,
+    pub func: IOFuncInner,
+}
 
 macro_rules! unwrap {
     ($expr:expr, $err:expr) => {
@@ -121,49 +125,126 @@ impl Import {
     #[allow(clippy::print_stdout)]
     pub fn spectest() -> IO {
         let map: Vec<(&'static str, IOFunction)> = vec![
-            ("print_i32", &|locals, _| {
-                let a = *get!(i32, &0, locals);
-                println!("{a}");
-                Ok(Vec::new())
-            }),
-            ("print_i64", &|locals, _| {
-                let a = *get!(i64, &0, locals);
-                println!("{a}");
-                Ok(Vec::new())
-            }),
+            (
+                "print_i32",
+                IOFunction {
+                    func: &|locals, _| {
+                        let a = *get!(i32, &0, locals);
+                        println!("{a}");
+                        Ok(Vec::new())
+                    },
+                    ty: FuncType {
+                        input: ResultType {
+                            types: vec![ValType::Num(NumType::I32)],
+                        },
+                        output: ResultType { types: Vec::new() },
+                    },
+                },
+            ),
+            (
+                "print_i64",
+                IOFunction {
+                    func: &|locals, _| {
+                        let a = *get!(i64, &0, locals);
+                        println!("{a}");
+                        Ok(Vec::new())
+                    },
+                    ty: FuncType {
+                        input: ResultType {
+                            types: vec![ValType::Num(NumType::I64)],
+                        },
+                        output: ResultType { types: Vec::new() },
+                    },
+                },
+            ),
             #[allow(clippy::print_stdout)]
-            ("print_i32_f32", &|locals, _| {
-                let b = *get!(f32, &1, locals);
-                let a = *get!(i32, &0, locals);
-                println!("{a} {b}");
-                Ok(Vec::new())
-            }),
+            (
+                "print_i32_f32",
+                IOFunction {
+                    func: &|locals, _| {
+                        let b = *get!(f32, &1, locals);
+                        let a = *get!(i32, &0, locals);
+                        println!("{a} {b}");
+                        Ok(Vec::new())
+                    },
+                    ty: FuncType {
+                        input: ResultType {
+                            types: vec![ValType::Num(NumType::I32)],
+                        },
+                        output: ResultType { types: Vec::new() },
+                    },
+                },
+            ),
             #[allow(clippy::print_stdout)]
-            ("print_i64_f64", &|locals, _| {
-                let b = *get!(f64, &1, locals);
-                let a = *get!(i64, &0, locals);
-                println!("{a} {b}");
-                Ok(Vec::new())
-            }),
+            (
+                "print_i64_f64",
+                IOFunction {
+                    func: &|locals, _| {
+                        let b = *get!(f64, &1, locals);
+                        let a = *get!(i64, &0, locals);
+                        println!("{a} {b}");
+                        Ok(Vec::new())
+                    },
+                    ty: FuncType {
+                        input: ResultType {
+                            types: vec![ValType::Num(NumType::I64), ValType::Num(NumType::I64)],
+                        },
+                        output: ResultType { types: Vec::new() },
+                    },
+                },
+            ),
             #[allow(clippy::print_stdout)]
-            ("print_f64_f64", &|locals, _| {
-                let b = *get!(f64, &1, locals);
-                let a = *get!(f64, &0, locals);
-                println!("{a} {b}");
-                Ok(Vec::new())
-            }),
+            (
+                "print_f64_f64",
+                IOFunction {
+                    func: &|locals, _| {
+                        let b = *get!(f64, &1, locals);
+                        let a = *get!(f64, &0, locals);
+                        println!("{a} {b}");
+                        Ok(Vec::new())
+                    },
+                    ty: FuncType {
+                        input: ResultType {
+                            types: vec![ValType::Num(NumType::F64), ValType::Num(NumType::I64)],
+                        },
+                        output: ResultType { types: Vec::new() },
+                    },
+                },
+            ),
             #[allow(clippy::print_stdout)]
-            ("print_f32", &|locals, _| {
-                let a = *get!(f32, &0, locals);
-                println!("{a}");
-                Ok(Vec::new())
-            }),
+            (
+                "print_f32",
+                IOFunction {
+                    func: &|locals, _| {
+                        let a = *get!(f32, &0, locals);
+                        println!("{a}");
+                        Ok(Vec::new())
+                    },
+                    ty: FuncType {
+                        input: ResultType {
+                            types: vec![ValType::Num(NumType::F32)],
+                        },
+                        output: ResultType { types: Vec::new() },
+                    },
+                },
+            ),
             #[allow(clippy::print_stdout)]
-            ("print_f64", &|locals, _| {
-                let a = *get!(f64, &0, locals);
-                println!("{a}");
-                Ok(Vec::new())
-            }),
+            (
+                "print_f64",
+                IOFunction {
+                    func: &|locals, _| {
+                        let a = *get!(f64, &0, locals);
+                        println!("{a}");
+                        Ok(Vec::new())
+                    },
+                    ty: FuncType {
+                        input: ResultType {
+                            types: vec![ValType::Num(NumType::F64)],
+                        },
+                        output: ResultType { types: Vec::new() },
+                    },
+                },
+            ),
         ];
         let mut res = HashMap::new();
         for (k, v) in map {

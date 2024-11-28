@@ -250,7 +250,7 @@ impl Runtime {
             match ptr.as_ref() {
                 Function::WS { ty, code, .. } => (code, ty, module),
                 Function::IO { ty, func } => {
-                    todo!();
+                    let Frame { locals, .. } = unwrap!(self.stack.pop(), NoFrame);
                     return Ok(());
                 }
             }

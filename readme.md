@@ -1,8 +1,8 @@
 # W.A.S.P
 
 ## Latest spec test (typechecking currently disabled)
-💅: 29\
-💩: 118
+💅: 30\
+💩: 117
 ## Failed: test-suite/test/core/bulk.wast
 ```bash
  ERROR wasp::testsuite > oops the test-suite panicked!
@@ -208,12 +208,7 @@ Last test (0):
 
 ## Failed: test-suite/test/core/func_ptrs.wast
 ```bash
- ERROR wasp::testsuite > oops the test-suite panicked!
-Reason:
-	panicked at src/runtime/methods/step.rs:253:21:
-	not yet implemented
-Last test (4):
-	Action(ActionWrap { _type: MustBe!("action"), action: Invoke { module: None, field: "four", args: [I32 { value: "83" }] } })
+ ERROR wasp::testsuite > test 6/36 did not fail invalidating/parsing, expected error: "unknown table" (module: "test-suite/test/core/func_ptrs.1.wasm")
 ```
 
 ## Failed: test-suite/test/core/global.wast
@@ -271,12 +266,7 @@ Last test (0):
 
 ## Failed: test-suite/test/core/imports.wast
 ```bash
- ERROR wasp::testsuite > oops the test-suite panicked!
-Reason:
-	panicked at src/runtime/methods/step.rs:253:21:
-	not yet implemented
-Last test (3):
-	AssertReturn(AssertReturn { _type: MustBe!("assert_return"), action: Invoke { module: None, field: "print32", args: [I32 { value: "13" }] }, expected: [] })
+ ERROR wasp::testsuite > test 4/178 failed (module: 1, invoke: "print32", got [i32(14)], but expected [])
 ```
 
 ## Failed: test-suite/test/core/int_exprs.wast
@@ -461,16 +451,6 @@ Reason:
 	])
 Last test (0):
 	Module(Module { _type: MustBe!("module"), _name: None, filename: "memory_trap.0.wasm" })
-```
-
-## Failed: test-suite/test/core/names.wast
-```bash
- ERROR wasp::testsuite > oops the test-suite panicked!
-Reason:
-	panicked at src/runtime/methods/step.rs:253:21:
-	not yet implemented
-Last test (485):
-	AssertReturn(AssertReturn { _type: MustBe!("assert_return"), action: Invoke { module: None, field: "print32", args: [I32 { value: "42" }, I32 { value: "123" }] }, expected: [] })
 ```
 
 ## Failed: test-suite/test/core/nop.wast

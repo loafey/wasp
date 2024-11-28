@@ -169,7 +169,7 @@ impl Import {
                     },
                     ty: FuncType {
                         input: ResultType {
-                            types: vec![ValType::Num(NumType::I32)],
+                            types: vec![ValType::Num(NumType::I32), ValType::Num(NumType::F32)],
                         },
                         output: ResultType { types: Vec::new() },
                     },

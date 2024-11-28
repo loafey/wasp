@@ -1,7 +1,8 @@
 use std::{
+    cell::RefCell as STDLock,
     fmt::{Debug, Display},
     ops::Deref,
-    sync::{Arc, RwLock as STDLock, Weak as WeakArc},
+    rc::{Rc as STDPtr, Weak as WeakArc}, // sync::{Arc as STDPtr, RwLock as STDLock, Weak as WeakArc},
 };
 
 pub struct RwLock<T> {
@@ -13,13 +14,19 @@ impl<T> RwLock<T> {
             lock: STDLock::new(t),
         }
     }
-    pub fn write(&self) -> std::sync::RwLockWriteGuard<'_, T> {
-        self.lock.write().expect("poison!")
+    pub fn write(&self) -> std::cell::RefMut<'_, T> {
+        self.lock.borrow_mut()
     }
+    pub fn read(&self) -> std::cell::Ref<'_, T> {
+        self.lock.borrow()
+    }
+    // pub fn write(&self) -> std::sync::RwLockWriteGuard<'_, T> {
+    //     self.lock.write().expect("poison!")
+    // }
 
-    pub fn read(&self) -> std::sync::RwLockReadGuard<'_, T> {
-        self.lock.read().expect("poison!")
-    }
+    // pub fn read(&self) -> std::sync::RwLockReadGuard<'_, T> {
+    //     self.lock.read().expect("poison!")
+    // }
 }
 impl<T: Debug> Debug for RwLock<T> {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
@@ -28,14 +35,14 @@ impl<T: Debug> Debug for RwLock<T> {
 }
 
 pub enum Ptr<T> {
-    Strong { inner: Arc<T> },
+    Strong { inner: STDPtr<T> },
     Weak { inner: WeakArc<T> },
 }
 impl<T> Clone for Ptr<T> {
     fn clone(&self) -> Self {
         match self {
             Ptr::Strong { inner } => Ptr::Weak {
-                inner: Arc::downgrade(inner),
+                inner: STDPtr::downgrade(inner),
             },
             Ptr::Weak { inner } => Ptr::Weak {
                 inner: inner.clone(),
@@ -46,7 +53,7 @@ impl<T> Clone for Ptr<T> {
 impl<T> From<T> for Ptr<T> {
     fn from(value: T) -> Self {
         Self::Strong {
-            inner: Arc::new(value),
+            inner: STDPtr::new(value),
         }
     }
 }

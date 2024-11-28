@@ -115,7 +115,7 @@ impl RuntimeBuilder {
         for k in ordered {
             let r = match non_ordered.remove(&k) {
                 Some(Intermediate::IO(io)) => Import::IO(io),
-                Some(Intermediate::WS(module)) => Import::WS(Model::try_from(module)?),
+                Some(Intermediate::WS(module)) => Import::WS(Model::try_from((&modules, module))?),
                 _ => panic!(),
             };
             modules.insert(k, r);

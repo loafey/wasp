@@ -1,13 +1,33 @@
 # W.A.S.P
 
 ## Latest spec test (typechecking currently disabled)
-💅: 30\
-💩: 117
+💅: 28\
+💩: 119
+## Failed: test-suite/test/core/binary-leb128.wast
+```bash
+ ERROR wasp::testsuite > oops the test-suite panicked!
+Reason:
+	panicked at src/runtime/clean_model.rs:57:39:
+	not yet implemented: io import
+Last test (10):
+	Module(Module { _type: MustBe!("module"), _name: None, filename: "binary-leb128.10.wasm" })
+```
+
+## Failed: test-suite/test/core/bulk.wast
+```bash
+ ERROR wasp::testsuite > oops the test-suite panicked!
+Reason:
+	panicked at src/ptr.rs:18:19:
+	already borrowed: BorrowMutError
+Last test (99):
+	Action(ActionWrap { _type: MustBe!("action"), action: Invoke { module: None, field: "copy", args: [I32 { value: "3" }, I32 { value: "0" }, I32 { value: "3" }] } })
+```
+
 ## Failed: test-suite/test/core/data.wast
 ```bash
  ERROR wasp::testsuite > oops the test-suite panicked!
 Reason:
-	panicked at src/runtime/clean_model.rs:489:38:
+	panicked at src/runtime/clean_model.rs:504:38:
 	not yet implemented
 Last test (5):
 	Module(Module { _type: MustBe!("module"), _name: None, filename: "data.5.wasm" })
@@ -17,7 +37,7 @@ Last test (5):
 ```bash
  ERROR wasp::testsuite > oops the test-suite panicked!
 Reason:
-	panicked at src/runtime/clean_model.rs:358:34:
+	panicked at src/runtime/clean_model.rs:361:34:
 	not yet implemented: xd2_ref_func(FuncIdx(0))
 Last test (0):
 	Module(Module { _type: MustBe!("module"), _name: None, filename: "elem.0.wasm" })
@@ -27,7 +47,7 @@ Last test (0):
 ```bash
  ERROR wasp::testsuite > oops the test-suite panicked!
 Reason:
-	panicked at src/runtime/methods/step.rs:1448:17:
+	panicked at src/runtime/methods/step.rs:1429:17:
 	not implemented: instruction not supported : x76_i32_shr_u
 Last test (1):
 	AssertReturn(AssertReturn { _type: MustBe!("assert_return"), action: Invoke { module: None, field: "i32_load16_s", args: [I32 { value: "4294967295" }] }, expected: [I32 { value: "4294967295" }] })
@@ -47,7 +67,7 @@ Last test (13):
 ```bash
  ERROR wasp::testsuite > oops the test-suite panicked!
 Reason:
-	panicked at src/testsuite.rs:356:32:
+	panicked at src/testsuite.rs:355:32:
 	failed to load module: ParseError(File: "test-suite/test/core/f32.0.wasm"
 	UnknownInstruction(<95>), bin pos: 149, stack: [
 	    "wasp::parser::instr::Instr",
@@ -66,7 +86,7 @@ Last test (0):
 ```bash
  ERROR wasp::testsuite > oops the test-suite panicked!
 Reason:
-	panicked at src/testsuite.rs:356:32:
+	panicked at src/testsuite.rs:355:32:
 	failed to load module: ParseError(File: "test-suite/test/core/f32_bitwise.0.wasm"
 	UnknownInstruction(<8b>), bin pos: 62, stack: [
 	    "wasp::parser::instr::Instr",
@@ -85,7 +105,7 @@ Last test (0):
 ```bash
  ERROR wasp::testsuite > oops the test-suite panicked!
 Reason:
-	panicked at src/testsuite.rs:356:32:
+	panicked at src/testsuite.rs:355:32:
 	failed to load module: ParseError(File: "test-suite/test/core/f32_cmp.0.wasm"
 	UnknownInstruction(<5d>), bin pos: 85, stack: [
 	    "wasp::parser::instr::Instr",
@@ -104,7 +124,7 @@ Last test (0):
 ```bash
  ERROR wasp::testsuite > oops the test-suite panicked!
 Reason:
-	panicked at src/testsuite.rs:356:32:
+	panicked at src/testsuite.rs:355:32:
 	failed to load module: ParseError(File: "test-suite/test/core/f64.0.wasm"
 	UnknownInstruction(<a3>), bin pos: 149, stack: [
 	    "wasp::parser::instr::Instr",
@@ -123,7 +143,7 @@ Last test (0):
 ```bash
  ERROR wasp::testsuite > oops the test-suite panicked!
 Reason:
-	panicked at src/testsuite.rs:356:32:
+	panicked at src/testsuite.rs:355:32:
 	failed to load module: ParseError(File: "test-suite/test/core/f64_bitwise.0.wasm"
 	UnknownInstruction(<a6>), bin pos: 76, stack: [
 	    "wasp::parser::instr::Instr",
@@ -142,7 +162,7 @@ Last test (0):
 ```bash
  ERROR wasp::testsuite > oops the test-suite panicked!
 Reason:
-	panicked at src/testsuite.rs:356:32:
+	panicked at src/testsuite.rs:355:32:
 	failed to load module: ParseError(File: "test-suite/test/core/f64_cmp.0.wasm"
 	UnknownInstruction(<64>), bin pos: 101, stack: [
 	    "wasp::parser::instr::Instr",
@@ -161,7 +181,7 @@ Last test (0):
 ```bash
  ERROR wasp::testsuite > oops the test-suite panicked!
 Reason:
-	panicked at src/runtime/methods/step.rs:1448:17:
+	panicked at src/runtime/methods/step.rs:1429:17:
 	not implemented: instruction not supported : x51_i64_eq
 Last test (1):
 	AssertReturn(AssertReturn { _type: MustBe!("assert_return"), action: Invoke { module: None, field: "fac-rec", args: [I64 { value: "25" }] }, expected: [I64 { value: "7034535277573963776" }] })
@@ -176,7 +196,7 @@ Last test (1):
 ```bash
  ERROR wasp::testsuite > oops the test-suite panicked!
 Reason:
-	panicked at src/testsuite.rs:356:32:
+	panicked at src/testsuite.rs:355:32:
 	failed to load module: ParseError(File: "test-suite/test/core/float_misc.0.wasm"
 	UnknownInstruction(<95>), bin pos: 413, stack: [
 	    "wasp::parser::instr::Instr",
@@ -193,20 +213,24 @@ Last test (0):
 
 ## Failed: test-suite/test/core/func.wast
 ```bash
- ERROR wasp::testsuite > test 9/172 failed (module: 0, invoke: "local-first-i32", error: a local is missing: src/runtime/methods/step.rs:584:51)
+ ERROR wasp::testsuite > test 9/172 failed (module: 0, invoke: "local-first-i32", error: a local is missing: src/runtime/methods/step.rs:570:51)
 ```
 
 ## Failed: test-suite/test/core/func_ptrs.wast
 ```bash
-83
- ERROR wasp::testsuite > test 6/36 did not fail invalidating/parsing, expected error: "unknown table" (module: "test-suite/test/core/func_ptrs.1.wasm")
+ ERROR wasp::testsuite > oops the test-suite panicked!
+Reason:
+	panicked at src/runtime/clean_model.rs:57:39:
+	not yet implemented: io import
+Last test (0):
+	Module(Module { _type: MustBe!("module"), _name: None, filename: "func_ptrs.0.wasm" })
 ```
 
 ## Failed: test-suite/test/core/global.wast
 ```bash
  ERROR wasp::testsuite > oops the test-suite panicked!
 Reason:
-	panicked at src/testsuite.rs:356:32:
+	panicked at src/testsuite.rs:355:32:
 	failed to load module: GlobalWithoutOffset
 Last test (0):
 	Module(Module { _type: MustBe!("module"), _name: None, filename: "global.0.wasm" })
@@ -216,7 +240,7 @@ Last test (0):
 ```bash
  ERROR wasp::testsuite > oops the test-suite panicked!
 Reason:
-	panicked at src/testsuite.rs:356:32:
+	panicked at src/testsuite.rs:355:32:
 	failed to load module: ParseError(File: "test-suite/test/core/i32.0.wasm"
 	UnknownInstruction(<6f>), bin pos: 332, stack: [
 	    "wasp::parser::instr::Instr",
@@ -235,7 +259,7 @@ Last test (0):
 ```bash
  ERROR wasp::testsuite > oops the test-suite panicked!
 Reason:
-	panicked at src/testsuite.rs:356:32:
+	panicked at src/testsuite.rs:355:32:
 	failed to load module: ParseError(File: "test-suite/test/core/i64.0.wasm"
 	UnknownInstruction(<81>), bin pos: 357, stack: [
 	    "wasp::parser::instr::Instr",
@@ -257,33 +281,19 @@ Last test (0):
 
 ## Failed: test-suite/test/core/imports.wast
 ```bash
-13
-14 42
-13
-13
-13
-13
-24
-25 53
-24
-24
-24
-24
  ERROR wasp::testsuite > oops the test-suite panicked!
 Reason:
-	panicked at src/runtime/methods/new.rs:112:17:
-	missing depedency or cycle:
-	Fixed: []
-	Dependencies left: {"_$_main_$_": {"test"}}
-Last test (5):
-	AssertInvalid(AssertInvalid { _type: MustBe!("assert_invalid"), filename: "imports.2.wasm", text: "unknown type", module_type: Binary })
+	panicked at src/runtime/clean_model.rs:57:39:
+	not yet implemented: io import
+Last test (2):
+	Module(Module { _type: MustBe!("module"), _name: None, filename: "imports.1.wasm" })
 ```
 
 ## Failed: test-suite/test/core/int_exprs.wast
 ```bash
  ERROR wasp::testsuite > oops the test-suite panicked!
 Reason:
-	panicked at src/runtime/methods/step.rs:1448:17:
+	panicked at src/runtime/methods/step.rs:1429:17:
 	not implemented: instruction not supported : x53_i64_lt_s
 Last test (3):
 	AssertReturn(AssertReturn { _type: MustBe!("assert_return"), action: Invoke { module: None, field: "i64.no_fold_cmp_s_offset", args: [I64 { value: "9223372036854775807" }, I64 { value: "0" }] }, expected: [I32 { value: "1" }] })
@@ -298,7 +308,7 @@ Last test (3):
 ```bash
  ERROR wasp::testsuite > oops the test-suite panicked!
 Reason:
-	panicked at src/testsuite.rs:356:32:
+	panicked at src/testsuite.rs:355:32:
 	failed to load module: ParseError(File: "test-suite/test/core/left-to-right.0.wasm"
 	UnknownInstruction(<6f>), bin pos: 1805, stack: [
 	    "wasp::parser::instr::Instr",
@@ -317,7 +327,7 @@ Last test (0):
 ```bash
  ERROR wasp::testsuite > oops the test-suite panicked!
 Reason:
-	panicked at src/testsuite.rs:534:21:
+	panicked at src/testsuite.rs:551:21:
 	not yet implemented: Register: "Mf" $Mf
 Last test (1):
 	Register(Register { _type: MustBe!("register"), name: Some("$Mf"), _as: "Mf" })
@@ -327,7 +337,7 @@ Last test (1):
 ```bash
  ERROR wasp::testsuite > oops the test-suite panicked!
 Reason:
-	panicked at src/runtime/methods/step.rs:1448:17:
+	panicked at src/runtime/methods/step.rs:1429:17:
 	not implemented: instruction not supported : x67_i32_clz
 Last test (31):
 	AssertReturn(AssertReturn { _type: MustBe!("assert_return"), action: Invoke { module: None, field: "as-unary-operand", args: [] }, expected: [I32 { value: "32" }] })
@@ -335,19 +345,19 @@ Last test (31):
 
 ## Failed: test-suite/test/core/local_get.wast
 ```bash
- ERROR wasp::testsuite > test 2/36 failed (module: 0, invoke: "type-local-i32", error: a local is missing: src/runtime/methods/step.rs:584:51)
+ ERROR wasp::testsuite > test 2/36 failed (module: 0, invoke: "type-local-i32", error: a local is missing: src/runtime/methods/step.rs:570:51)
 ```
 
 ## Failed: test-suite/test/core/local_set.wast
 ```bash
- ERROR wasp::testsuite > test 20/53 failed (module: 0, invoke: "write", error: a local is missing: src/runtime/methods/step.rs:584:51)
+ ERROR wasp::testsuite > test 20/53 failed (module: 0, invoke: "write", error: a local is missing: src/runtime/methods/step.rs:570:51)
 ```
 
 ## Failed: test-suite/test/core/local_tee.wast
 ```bash
  ERROR wasp::testsuite > oops the test-suite panicked!
 Reason:
-	panicked at src/runtime/methods/step.rs:1448:17:
+	panicked at src/runtime/methods/step.rs:1429:17:
 	not implemented: instruction not supported : x8c_f32_neg
 Last test (45):
 	AssertReturn(AssertReturn { _type: MustBe!("assert_return"), action: Invoke { module: None, field: "as-unary-operand", args: [F32 { value: "0" }] }, expected: [F32 { value: "4286640610" }] })
@@ -357,7 +367,7 @@ Last test (45):
 ```bash
  ERROR wasp::testsuite > oops the test-suite panicked!
 Reason:
-	panicked at src/testsuite.rs:356:32:
+	panicked at src/testsuite.rs:355:32:
 	failed to load module: ParseError(File: "test-suite/test/core/loop.0.wasm"
 	UnknownInstruction(<5d>), bin pos: 2324, stack: [
 	    "wasp::parser::instr::Instr",
@@ -405,7 +415,7 @@ Last test (7):
 ```bash
  ERROR wasp::testsuite > oops the test-suite panicked!
 Reason:
-	panicked at src/testsuite.rs:356:32:
+	panicked at src/testsuite.rs:355:32:
 	failed to load module: ParseError(File: "test-suite/test/core/memory_grow.0.wasm"
 	UnknownInstruction(<3f>), bin pos: 179, stack: [
 	    "wasp::parser::instr::Instr",
@@ -429,7 +439,7 @@ Last test (0):
 ```bash
  ERROR wasp::testsuite > oops the test-suite panicked!
 Reason:
-	panicked at src/testsuite.rs:356:32:
+	panicked at src/testsuite.rs:355:32:
 	failed to load module: ParseError(File: "test-suite/test/core/memory_size.0.wasm"
 	UnknownInstruction(<3f>), bin pos: 52, stack: [
 	    "wasp::parser::instr::Instr",
@@ -448,7 +458,7 @@ Last test (0):
 ```bash
  ERROR wasp::testsuite > oops the test-suite panicked!
 Reason:
-	panicked at src/testsuite.rs:356:32:
+	panicked at src/testsuite.rs:355:32:
 	failed to load module: ParseError(File: "test-suite/test/core/memory_trap.0.wasm"
 	UnknownInstruction(<3f>), bin pos: 75, stack: [
 	    "wasp::parser::instr::Instr",
@@ -463,6 +473,16 @@ Last test (0):
 	Module(Module { _type: MustBe!("module"), _name: None, filename: "memory_trap.0.wasm" })
 ```
 
+## Failed: test-suite/test/core/names.wast
+```bash
+ ERROR wasp::testsuite > oops the test-suite panicked!
+Reason:
+	panicked at src/runtime/clean_model.rs:57:39:
+	not yet implemented: io import
+Last test (484):
+	Module(Module { _type: MustBe!("module"), _name: None, filename: "names.3.wasm" })
+```
+
 ## Failed: test-suite/test/core/nop.wast
 ```bash
  ERROR wasp::testsuite > test 63/88 failed (module: 0, invoke: "as-memory.grow-everywhere", got [i32(1)], but expected [i32(3)])
@@ -472,7 +492,7 @@ Last test (0):
 ```bash
  ERROR wasp::testsuite > oops the test-suite panicked!
 Reason:
-	panicked at src/testsuite.rs:356:32:
+	panicked at src/testsuite.rs:355:32:
 	failed to load module: ParseError(File: "test-suite/test/core/ref_func.1.wasm"
 	UnknownInstruction(<d1>), bin pos: 220, stack: [
 	    "wasp::parser::instr::Instr",
@@ -754,7 +774,7 @@ Last test (0):
 ```bash
  ERROR wasp::testsuite > oops the test-suite panicked!
 Reason:
-	panicked at src/runtime/methods/step.rs:1448:17:
+	panicked at src/runtime/methods/step.rs:1429:17:
 	not implemented: instruction not supported : x51_i64_eq
 Last test (1):
 	AssertReturn(AssertReturn { _type: MustBe!("assert_return"), action: Invoke { module: None, field: "fac-expr", args: [I64 { value: "25" }] }, expected: [I64 { value: "7034535277573963776" }] })
@@ -779,7 +799,7 @@ memory allocation of 77309411344 bytes failed
 ```bash
  ERROR wasp::testsuite > oops the test-suite panicked!
 Reason:
-	panicked at src/testsuite.rs:356:32:
+	panicked at src/testsuite.rs:355:32:
 	failed to load module: ParseError(File: "test-suite/test/core/table_fill.0.wasm"
 	UnknownInstruction(<25>), bin pos: 96, stack: [
 	    "wasp::parser::instr::Instr",
@@ -833,17 +853,27 @@ Last test (0):
 ```bash
  ERROR wasp::testsuite > oops the test-suite panicked!
 Reason:
-	panicked at src/runtime/methods/step.rs:1448:17:
+	panicked at src/runtime/methods/step.rs:1429:17:
 	not implemented: instruction not supported : xfc_16_table_size(TableIdX(0))
 Last test (1):
 	AssertReturn(AssertReturn { _type: MustBe!("assert_return"), action: Invoke { module: None, field: "size-t0", args: [] }, expected: [I32 { value: "0" }] })
+```
+
+## Failed: test-suite/test/core/token.wast
+```bash
+ ERROR wasp::testsuite > oops the test-suite panicked!
+Reason:
+	panicked at src/runtime/clean_model.rs:57:39:
+	not yet implemented: io import
+Last test (11):
+	Module(Module { _type: MustBe!("module"), _name: None, filename: "token.11.wasm" })
 ```
 
 ## Failed: test-suite/test/core/traps.wast
 ```bash
  ERROR wasp::testsuite > oops the test-suite panicked!
 Reason:
-	panicked at src/runtime/methods/step.rs:1448:17:
+	panicked at src/runtime/methods/step.rs:1429:17:
 	not implemented: instruction not supported : x6d_i32_div_s
 Last test (1):
 	AssertTrap(AssertTrap { _type: MustBe!("assert_trap"), action: Invoke { module: None, field: "no_dce.i32.div_s", args: [I32 { value: "1" }, I32 { value: "0" }] }, text: "integer divide by zero" })
@@ -851,7 +881,7 @@ Last test (1):
 
 ## Failed: test-suite/test/core/unreachable.wast
 ```bash
- ERROR wasp::testsuite > Got error "hit an unreachable code segment: src/runtime/methods/step.rs:317:17", expected error: "unreachable" (module: 0, function "type-i32")
+ ERROR wasp::testsuite > Got error "hit an unreachable code segment: src/runtime/methods/step.rs:312:17", expected error: "unreachable" (module: 0, function "type-i32")
 ```
 
 ## Failed: test-suite/test/core/unreached-invalid.wast
@@ -863,7 +893,7 @@ Last test (1):
 ```bash
  ERROR wasp::testsuite > oops the test-suite panicked!
 Reason:
-	panicked at src/testsuite.rs:356:32:
+	panicked at src/testsuite.rs:355:32:
 	failed to load module: ParseError(File: "test-suite/test/core/unreached-valid.0.wasm"
 	UnknownInstruction(<d1>), bin pos: 273, stack: [
 	    "wasp::parser::instr::Instr",
@@ -880,35 +910,11 @@ Last test (0):
 
 ## Failed: test-suite/test/core/unwind.wast
 ```bash
- ERROR wasp::testsuite > Got error "hit an unreachable code segment: src/runtime/methods/step.rs:317:17", expected error: "unreachable" (module: 0, function "func-unwind-by-unreachable")
+ ERROR wasp::testsuite > Got error "hit an unreachable code segment: src/runtime/methods/step.rs:312:17", expected error: "unreachable" (module: 0, function "func-unwind-by-unreachable")
 ```
 
 ## Failed: test-suite/test/core/utf8-custom-section-id.wast
 ```bash
  ERROR wasp::testsuite > test 1/176 did not fail invalidating/parsing, expected error: "malformed UTF-8 encoding" (module: "test-suite/test/core/utf8-custom-section-id.0.wasm")
-```
-
-## Failed: test-suite/test/core/utf8-import-field.wast
-```bash
- ERROR wasp::testsuite > oops the test-suite panicked!
-Reason:
-	panicked at src/runtime/methods/new.rs:112:17:
-	missing depedency or cycle:
-	Fixed: []
-	Dependencies left: {"_$_main_$_": {"�"}}
-Last test (0):
-	AssertMalformed(AssertMalformed { _type: MustBe!("assert_malformed"), filename: "utf8-import-field.0.wasm", text: "malformed UTF-8 encoding", module_type: Binary })
-```
-
-## Failed: test-suite/test/core/utf8-import-module.wast
-```bash
- ERROR wasp::testsuite > oops the test-suite panicked!
-Reason:
-	panicked at src/runtime/methods/new.rs:112:17:
-	missing depedency or cycle:
-	Fixed: []
-	Dependencies left: {"_$_main_$_": {"test"}}
-Last test (0):
-	AssertMalformed(AssertMalformed { _type: MustBe!("assert_malformed"), filename: "utf8-import-module.0.wasm", text: "malformed UTF-8 encoding", module_type: Binary })
 ```
 

@@ -1,6 +1,7 @@
 use super::{
     memory::Memory,
     typecheck::TypeCheckError,
+    Import,
     RuntimeError::{self, *},
     Value,
 };
@@ -14,18 +15,11 @@ use crate::{
 use std::collections::HashMap;
 
 #[derive(Debug)]
-pub enum Function {
-    Foreign {
-        ty: FuncType,
-        module: String,
-        name: String,
-    },
-    Native {
-        ty: FuncType,
-        _locals: Vec<Locals>,
-        code: Vec<Instr>,
-        _labels: HashMap<Vec<u32>, u32>,
-    },
+pub struct Function {
+    pub ty: FuncType,
+    pub _locals: Vec<Locals>,
+    pub code: Vec<Instr>,
+    pub _labels: HashMap<Vec<u32>, u32>,
 }
 
 #[derive(Debug, Clone)]
@@ -48,6 +42,7 @@ pub enum Table {
 
 #[allow(clippy::type_complexity)]
 fn setup_imports(
+    other: &HashMap<String, Import>,
     value: &Module,
 ) -> Result<(Vec<Ptr<Function>>, Vec<PtrRW<Global>>, Vec<PtrRW<Table>>), RuntimeError> {
     let mut functions = Vec::new();
@@ -56,21 +51,23 @@ fn setup_imports(
 
     for import in &value.imports.imports {
         match import.desc {
-            ImportDesc::Func(TypeIdX(ty_id)) => {
-                let ty = value
-                    .types
-                    .function_types
-                    .get(ty_id as usize)
-                    .ok_or(RuntimeError::TypeError(TypeCheckError::MissingType))?
-                    .clone();
-
-                let v = Function::Foreign {
-                    ty,
-                    module: import.module.0.clone(),
-                    name: import.name.0.clone(),
+            ImportDesc::Func(_) => {
+                let other = match other.get(&import.module.0).expect("impossible!") {
+                    Import::WS(model) => model,
+                    Import::IO(io) => todo!("io import"),
                 };
-
-                functions.push(v.into());
+                let exp = other
+                    .exports
+                    .get(&import.name.0)
+                    .ok_or(RuntimeError::MissingFunction(file!(), line!(), column!()))?;
+                let ExportDesc::Func(FuncIdx(id)) = exp else {
+                    todo!("insert proper error here")
+                };
+                let c = other
+                    .functions
+                    .get(*id as usize)
+                    .ok_or(RuntimeError::MissingFunction(file!(), line!(), column!()))?;
+                functions.push(c.clone());
             }
             ImportDesc::Global(_) => {
                 globals
@@ -262,7 +259,7 @@ fn get_functions(
         }
 
         functions.push(
-            Function::Native {
+            Function {
                 ty,
                 _locals: locals,
                 _labels: HashMap::new(),
@@ -282,8 +279,7 @@ fn validate_calls(
 ) -> Result<(), RuntimeError> {
     for code in functions {
         let (_typ, code) = match code.as_ref() {
-            Function::Foreign { .. } => continue,
-            Function::Native { ty, code, .. } => (ty, code),
+            Function { ty, code, .. } => (ty, code),
         };
 
         // let locals = typ.input.types.clone();
@@ -538,8 +534,7 @@ fn setup_data<const N: usize>(
 fn validate_label_depth(functions: &[Ptr<Function>]) -> Result<(), RuntimeError> {
     for f in functions {
         match f.as_ref() {
-            Function::Foreign { .. } => continue,
-            Function::Native { code, .. } => {
+            Function { code, .. } => {
                 let mut depth = 0;
                 for c in code {
                     match c {
@@ -580,12 +575,12 @@ pub struct Model {
     pub datas: Vec<PtrRW<Vec<u8>>>,
     pub memory: PtrRW<Memory<{ 65536 + 1 }>>,
 }
-impl TryFrom<Module> for Model {
+impl TryFrom<(&HashMap<String, Import>, Module)> for Model {
     type Error = RuntimeError;
-    fn try_from(value: Module) -> Result<Self, Self::Error> {
+    fn try_from((other, value): (&HashMap<String, Import>, Module)) -> Result<Self, Self::Error> {
         let type_len = value.types.function_types.len() as u32;
 
-        let (mut functions, mut globals, mut tables) = setup_imports(&value)?;
+        let (mut functions, mut globals, mut tables) = setup_imports(other, &value)?;
         get_tables(&value, &mut tables)?;
         get_functions(
             value.code.code,
@@ -612,12 +607,7 @@ impl TryFrom<Module> for Model {
                 .collect(),
             elems,
             globals,
-            exports: value
-                .exports
-                .exports
-                .iter()
-                .map(|exp| (exp.nm.0.clone(), exp.d))
-                .collect::<HashMap<_, _>>(),
+            exports: value.exports.exports.into_iter().collect::<HashMap<_, _>>(),
             datas,
             memory: memory.into(),
         })

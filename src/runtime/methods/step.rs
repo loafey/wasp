@@ -283,13 +283,7 @@ impl Runtime {
                 };
                 let ptr = unwrap!(module.functions.get(function as usize), MissingFunction);
                 match ptr.as_ref() {
-                    Function::Foreign { module, name, .. } => {
-                        func_id = FuncId::ForeignPre {
-                            module: module.clone(),
-                            name: name.clone(),
-                        }
-                    }
-                    Function::Native { ty, code, .. } => {
+                    Function { ty, code, .. } => {
                         break (code, ty, module);
                     }
                 }
@@ -479,8 +473,7 @@ impl Runtime {
                 };
                 let ty = unwrap!(module.functions.get(*func_id as usize), MissingFunction);
                 let ty = match ty.as_ref() {
-                    Function::Foreign { ty, .. } => ty,
-                    Function::Native { ty, .. } => ty,
+                    Function { ty, .. } => ty,
                 };
                 let mut res = Vec::new();
                 for _ in ty.output.types.iter() {
@@ -498,15 +491,7 @@ impl Runtime {
             x10_call(FuncIdx(id)) => {
                 let fun = &module.functions[*id as usize];
                 let (ty, module, func_id) = match fun.as_ref() {
-                    Function::Foreign { ty, module, name } => (
-                        ty,
-                        module.clone(),
-                        FuncId::ForeignPre {
-                            module: module.clone(),
-                            name: name.clone(),
-                        },
-                    ),
-                    Function::Native { ty, .. } => (ty, get!(module).clone(), FuncId::Id(*id)),
+                    Function { ty, .. } => (ty, get!(module).clone(), FuncId::Id(*id)),
                 };
 
                 let mut locals = HashMap::new();
@@ -552,7 +537,7 @@ impl Runtime {
 
                 if let Some(func) = module.functions.get(id as usize) {
                     match func.as_ref() {
-                        Function::Foreign { ty: ty2, .. } | Function::Native { ty: ty2, .. } => {
+                        Function { ty: ty2, .. } => {
                             if ty.as_ref() != ty2 {
                                 throw!(IndirectCallTypeMismatch)
                             }

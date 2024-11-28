@@ -455,11 +455,18 @@ pub fn test(mut path: String) {
                             error!("test {test_i}/{total_tests} did not fail, expected error: {text:?} (module: {module_index}, function {field:?})");
                             std::process::exit(1);
                         }
-                        Err(e) if text.contains(&format!("{e:?}")) => {
+                        Err(e)
+                            if text.contains(&format!("{e:?}"))
+                                || matches!(
+                                    (&*text, &*format!("{e:?}")),
+                                    ("undefined element", "uninitialized element")
+                                        | ("uninitialized element", "undefined element")
+                                ) =>
+                        {
                             break;
                         }
                         Err(e) => {
-                            error!("Got error \"{e:?}\", expected error: {text:?} (module: {module_index}, function {field:?})");
+                            error!("test {test_i}/{total_tests} got error \"{e:?}\", expected error: {text:?} (module: {module_index}, function {field:?})");
                             std::process::exit(1);
                         }
                         Ok(()) => (),

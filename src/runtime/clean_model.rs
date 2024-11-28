@@ -8,7 +8,8 @@ use super::{
 use crate::{
     parser::{
         self, Code, Data, Elem, ExportDesc, Expr, FuncIdx, FuncType, Global as PGlobal, GlobalIdX,
-        ImportDesc, Instr, LabelIdX, Limits, Locals, MemArg, MemIdX, Module, TableIdX, TypeIdX, BT,
+        ImportDesc, Instr, LabelIdX, Limits, Locals, MemArg, MemIdX, Module, Mutable, TableIdX,
+        TypeIdX, BT,
     },
     ptr::{Ptr, PtrRW},
 };
@@ -63,18 +64,25 @@ pub enum Table {
 fn setup_imports(
     other: &HashMap<String, Import>,
     value: &Module,
-) -> Result<(Vec<Ptr<Function>>, Vec<PtrRW<Value>>, Vec<PtrRW<Table>>), RuntimeError> {
+) -> Result<
+    (
+        Vec<Ptr<Function>>,
+        Vec<PtrRW<(Mutable, Value)>>,
+        Vec<PtrRW<Table>>,
+    ),
+    RuntimeError,
+> {
     let mut functions = Vec::new();
     let mut globals = Vec::new();
     let mut tables = Vec::new();
 
     for import in &value.imports.imports {
-        match import.desc {
+        match &import.desc {
             ImportDesc::Func(TypeIdX(tid)) => {
                 let ty = value
                     .types
                     .function_types
-                    .get(tid as usize)
+                    .get(*tid as usize)
                     .ok_or(MissingType(file!(), line!(), column!()))?
                     .clone();
 
@@ -120,9 +128,50 @@ fn setup_imports(
                     }
                 }
             }
-            ImportDesc::Global(_) => {
-                todo!()
-            }
+            ImportDesc::Global(gt) => match other.get(&import.module.0).expect("impossible!") {
+                Import::WS(other) => {
+                    let exp = other
+                        .exports
+                        .get(&import.name.0)
+                        .ok_or(RuntimeError::UnknownImport(file!(), line!(), column!()))?;
+                    let ExportDesc::Global(GlobalIdX(id)) = exp else {
+                        return Err(RuntimeError::IncompatibleImportType(
+                            file!(),
+                            line!(),
+                            column!(),
+                        ));
+                    };
+                    let g = other
+                        .globals
+                        .get(*id as usize)
+                        .ok_or(RuntimeError::UnknownImport(file!(), line!(), column!()))?;
+
+                    if !g.read().1.is_type(&gt.t) || g.read().0 != gt.mutable {
+                        return Err(RuntimeError::IncompatibleImportType(
+                            file!(),
+                            line!(),
+                            column!(),
+                        ));
+                    }
+
+                    globals.push(g.clone());
+                }
+                Import::IO(IO { globals: globs, .. }) => {
+                    let g = globs
+                        .get(&*import.name.0)
+                        .ok_or(RuntimeError::UnknownImport(file!(), line!(), column!()))?;
+
+                    if !g.read().1.is_type(&gt.t) || g.read().0 != gt.mutable {
+                        return Err(RuntimeError::IncompatibleImportType(
+                            file!(),
+                            line!(),
+                            column!(),
+                        ));
+                    }
+
+                    globals.push(g.clone())
+                }
+            },
             ImportDesc::Table(_) => {
                 tables.push(
                     Table::Foreign {
@@ -508,10 +557,10 @@ fn setup_elems(
 }
 
 fn get_globals(
-    globals: &mut Vec<PtrRW<Value>>,
+    globals: &mut Vec<PtrRW<(Mutable, Value)>>,
     p_globals: Vec<parser::Global>,
 ) -> Result<(), RuntimeError> {
-    for PGlobal { e, .. } in p_globals {
+    for PGlobal { e, gt, .. } in p_globals {
         let val = match e.instrs[0] {
             Instr::x41_i32_const(x) => Value::I32(x),
             Instr::x42_i64_const(x) => Value::I64(x),
@@ -519,7 +568,7 @@ fn get_globals(
             Instr::x44_f64_const(x) => Value::F64(x),
             _ => return Err(GlobalWithoutValue),
         };
-        globals.push(val.into());
+        globals.push((gt.mutable, val).into());
     }
     Ok(())
 }
@@ -538,7 +587,7 @@ fn setup_memory<const N: usize>(mems: Vec<parser::Mem>) -> Result<Memory<N>, Run
 fn setup_data<const N: usize>(
     data: Vec<parser::Data>,
     memory: &mut Memory<N>,
-    globals: &[PtrRW<Value>],
+    globals: &[PtrRW<(Mutable, Value)>],
 ) -> Result<Vec<PtrRW<Vec<u8>>>, RuntimeError> {
     let mut datas = Vec::new();
     for d in data {
@@ -549,8 +598,8 @@ fn setup_data<const N: usize>(
                     [Instr::x23_global_get(GlobalIdX(i))] => {
                         if let Some(k) = globals.get(*i as usize) {
                             let k = k.read();
-                            match &*k {
-                                Value::I32(p) => *p,
+                            match k.1 {
+                                Value::I32(p) => p,
                                 _ => todo!(),
                             }
                         } else {
@@ -619,7 +668,7 @@ pub struct Model {
     pub tables: Vec<PtrRW<Table>>,
     pub elems: Vec<PtrRW<Expr>>,
     pub function_types: Vec<Ptr<FuncType>>,
-    pub globals: Vec<PtrRW<Value>>,
+    pub globals: Vec<PtrRW<(Mutable, Value)>>,
     pub exports: HashMap<String, ExportDesc>,
     pub datas: Vec<PtrRW<Vec<u8>>>,
     pub memory: PtrRW<Memory<{ 65536 + 1 }>>,

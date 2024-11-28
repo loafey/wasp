@@ -4,7 +4,7 @@ use std::{collections::HashMap, fmt::Debug};
 pub mod clean_model;
 mod error;
 mod memory;
-use crate::parser::{BlockType, BT};
+use crate::parser::{BlockType, NumType, RefTyp, ValType, BT};
 pub use error::RuntimeError;
 
 mod import;
@@ -24,7 +24,19 @@ pub enum Value {
     FuncRef(u32),
     BlockLock,
 }
+
 impl Value {
+    pub fn is_type(&self, rhs: &ValType) -> bool {
+        match (self, rhs) {
+            (Value::I32(_), ValType::Num(NumType::I32))
+            | (Value::I64(_), ValType::Num(NumType::I64))
+            | (Value::F32(_), ValType::Num(NumType::F32))
+            | (Value::F64(_), ValType::Num(NumType::F64))
+            | (Value::Externref(_), ValType::Ref(RefTyp::ExternRef))
+            | (Value::FuncRef(_), ValType::Ref(RefTyp::FuncRef)) => true,
+            _ => false,
+        }
+    }
     pub fn as_str(&self) -> &'static str {
         match self {
             Value::I32(_) => "i32",

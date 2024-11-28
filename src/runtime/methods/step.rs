@@ -543,14 +543,14 @@ impl Runtime {
             }
             x23_global_get(GlobalIdX(id)) => {
                 let global = unwrap!(module.globals.get(*id as usize), MissingGlobal).read();
-                push!(*global);
+                push!(global.1);
             }
             x24_global_set(GlobalIdX(id)) => {
                 let pop = pop!();
                 let Some(r) = module.globals.get(*id as usize) else {
                     unreachable!()
                 };
-                *r.write() = pop;
+                r.write().1 = pop;
             }
             x28_i32_load(mem) => {
                 let addr = pop!(u32);

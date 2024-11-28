@@ -1,7 +1,7 @@
 use std::collections::HashMap;
 
 use crate::{
-    parser::{ExportDesc, FuncType, GlobalIdX, NumType, ResultType, ValType},
+    parser::{ExportDesc, FuncType, GlobalIdX, Mutable, NumType, ResultType, ValType},
     ptr::PtrRW,
 };
 
@@ -81,7 +81,7 @@ macro_rules! get {
 
 pub struct IO {
     pub functions: HashMap<&'static str, IOFunction>,
-    pub globals: HashMap<&'static str, Value>,
+    pub globals: HashMap<&'static str, PtrRW<(Mutable, Value)>>,
     pub memory: PtrRW<Memory<{ 65536 + 1 }>>,
 }
 pub enum Import {
@@ -101,12 +101,16 @@ impl Import {
                     .expect("missing global")
                     .read();
                 match &*global {
-                    value => *value,
+                    value => value.1,
                 }
             }
-            Import::IO(IO { globals, .. }) => *globals
-                .get(name)
-                .unwrap_or_else(|| panic!("missing global: {name}")),
+            Import::IO(IO { globals, .. }) => {
+                globals
+                    .get(name)
+                    .unwrap_or_else(|| panic!("missing global: {name}"))
+                    .read()
+                    .1
+            }
         }
     }
 
@@ -170,12 +174,19 @@ impl Import {
         }
 
         let mut globals = HashMap::new();
-        globals.insert("global_i32", Value::I32(666));
-        globals.insert("global_i64", Value::I64(666));
-        globals.insert("global_f32", Value::F32(f32::from_bits(1143383654)));
+        globals.insert("global_i32", (Mutable::Const, Value::I32(666)).into());
+        globals.insert("global_i64", (Mutable::Const, Value::I64(666)).into());
+        globals.insert(
+            "global_f32",
+            (Mutable::Const, Value::F32(f32::from_bits(1143383654))).into(),
+        );
         globals.insert(
             "global_f64",
-            Value::F64(f64::from_bits(4649074691427585229)),
+            (
+                Mutable::Const,
+                Value::F64(f64::from_bits(4649074691427585229)),
+            )
+                .into(),
         );
 
         IO {

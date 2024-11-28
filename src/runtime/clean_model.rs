@@ -1,9 +1,9 @@
 use super::{
     memory::Memory,
     typecheck::TypeCheckError,
-    IOFunction, Import, Mem,
+    IOFunction, Import,
     RuntimeError::{self, *},
-    Stack, Value, IO,
+    Value, IO,
 };
 use crate::{
     parser::{
@@ -49,15 +49,9 @@ impl std::fmt::Debug for Function {
 }
 
 #[derive(Debug)]
-pub enum Table {
-    Native {
-        table: HashMap<u32, FuncIdx>,
-        table_length: (usize, usize),
-    },
-    Foreign {
-        module: String,
-        name: String,
-    },
+pub struct Table {
+    pub table: HashMap<u32, FuncIdx>,
+    pub table_length: (usize, usize),
 }
 
 #[allow(clippy::type_complexity)]
@@ -173,13 +167,7 @@ fn setup_imports(
                 }
             },
             ImportDesc::Table(_) => {
-                tables.push(
-                    Table::Foreign {
-                        module: import.module.0.clone(),
-                        name: import.name.0.clone(),
-                    }
-                    .into(),
-                );
+                todo!()
             }
             _ => (),
         }
@@ -197,7 +185,7 @@ fn get_tables(value: &Module, tables: &mut Vec<PtrRW<Table>>) -> Result<(), Runt
         let table = (table_length.0..table_length.1)
             .map(|a| (a as u32, FuncIdx(u32::MAX)))
             .collect();
-        Table::Native {
+        Table {
             table,
             table_length,
         }
@@ -497,12 +485,7 @@ fn setup_elems(
                 [Instr::x41_i32_const(off)] => {
                     for (i, v) in vec.into_iter().enumerate() {
                         let mut table = tables[0].write();
-                        let table = match &mut *table {
-                            Table::Native { table, .. } => table,
-                            Table::Foreign { module, name } => {
-                                todo!("{module}::{name}")
-                            }
-                        };
+                        let Table { table, .. } = &mut *table;
                         table.insert(*off as u32 + i as u32, v);
                     }
                     result.push(expr.clone().into());
@@ -533,10 +516,7 @@ fn setup_elems(
                     );
                     for (i, v) in vec.iter().enumerate() {
                         let mut table = tables[t as usize].write();
-                        let Table::Native { table, .. } = &mut *table else {
-                            unreachable!()
-                        };
-                        table.insert(*off as u32 + i as u32, *v);
+                        table.table.insert(*off as u32 + i as u32, *v);
                     }
                 }
                 _ => panic!(),

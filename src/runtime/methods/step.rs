@@ -490,10 +490,7 @@ impl Runtime {
                 //     "Call info ({}): \n\tinputs: {locals:?}\n\tfunction_index: {function_index}",
                 //     f.func_id
                 // );
-                let table = match &*table {
-                    Table::Native { table, .. } => table,
-                    Table::Foreign { .. } => todo!(),
-                };
+                let Table { table, .. } = &*table;
                 let FuncIdx(id) = *unwrap!(table.get(&(function_index as u32)), UndefinedElement);
                 if id == u32::MAX {
                     throw!(UninitializedElement)
@@ -1235,13 +1232,10 @@ impl Runtime {
                 let destination = pop!(i32) as u32;
                 let elems = unwrap!(module.elems.get(*e as usize), MissingElementIndex);
                 let mut table = unwrap!(module.tables.get(*t as usize), MissingTableIndex).write();
-                let (table, table_length) = match &mut *table {
-                    Table::Native {
-                        table,
-                        table_length,
-                    } => (table, table_length),
-                    Table::Foreign { .. } => todo!(),
-                };
+                let Table {
+                    table,
+                    table_length,
+                } = &mut *table;
 
                 let check_1 = source + amount > elems.read().instrs.len() as u32;
                 let check_2 = destination < table_length.0 as u32;
@@ -1270,10 +1264,7 @@ impl Runtime {
                 let source = pop!(i32) as u32;
                 let destination = pop!(i32) as u32;
                 let mut a = unwrap!(module.tables.get(*a as usize), MissingTableIndex).write();
-                let a = match &mut *a {
-                    Table::Native { table, .. } => table,
-                    Table::Foreign { .. } => todo!(),
-                };
+                let a = &mut a.table;
 
                 let check_1 = source + amount > a.len() as u32;
                 let mut clones = Vec::new();
@@ -1284,13 +1275,10 @@ impl Runtime {
                 }
 
                 let mut b = unwrap!(module.tables.get(*b as usize), MissingTableIndex).write();
-                let (b, b_len) = match &mut *b {
-                    Table::Native {
-                        table,
-                        table_length,
-                    } => (table, table_length),
-                    Table::Foreign { .. } => todo!(),
-                };
+                let Table {
+                    table: b,
+                    table_length: b_len,
+                } = &mut *b;
                 let check_2 = destination < b_len.0 as u32;
                 let check_3 = destination + amount > b_len.1 as u32;
 

@@ -1,9 +1,6 @@
 use std::collections::HashMap;
 
-use crate::{
-    parser::{ExportDesc, FuncType, GlobalIdX, Mutable, NumType, ResultType, ValType},
-    ptr::PtrRW,
-};
+use crate::{parser::Mutable, ptr::PtrRW};
 
 use super::{
     clean_model::Model,
@@ -89,31 +86,6 @@ pub enum Import {
     IO(IO),
 }
 impl Import {
-    pub fn get_global(&self, name: &str) -> Value {
-        match self {
-            Import::WS(model) => {
-                let Some(ExportDesc::Global(GlobalIdX(i))) = model.exports.get(name) else {
-                    unreachable!()
-                };
-                let global = model
-                    .globals
-                    .get(*i as usize)
-                    .expect("missing global")
-                    .read();
-                match &*global {
-                    value => value.1,
-                }
-            }
-            Import::IO(IO { globals, .. }) => {
-                globals
-                    .get(name)
-                    .unwrap_or_else(|| panic!("missing global: {name}"))
-                    .read()
-                    .1
-            }
-        }
-    }
-
     pub unsafe fn as_ws(&self) -> &Model {
         match &self {
             Import::WS(model) => model,

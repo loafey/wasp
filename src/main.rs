@@ -3,9 +3,8 @@
 #![deny(clippy::print_stdout)]
 #![deny(clippy::print_stderr)]
 use hex::Hex;
-use parser::MemArg;
-use runtime::{IOFunction, Runtime, RuntimeError, Value, IO};
-use std::{collections::HashMap, env::args, mem::MaybeUninit};
+use runtime::{Runtime, RuntimeError};
+use std::{env::args, mem::MaybeUninit};
 mod hex;
 mod parser;
 mod ptr;

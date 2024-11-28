@@ -27,15 +27,15 @@ pub enum Value {
 
 impl Value {
     pub fn is_type(&self, rhs: &ValType) -> bool {
-        match (self, rhs) {
+        matches!(
+            (self, rhs),
             (Value::I32(_), ValType::Num(NumType::I32))
-            | (Value::I64(_), ValType::Num(NumType::I64))
-            | (Value::F32(_), ValType::Num(NumType::F32))
-            | (Value::F64(_), ValType::Num(NumType::F64))
-            | (Value::Externref(_), ValType::Ref(RefTyp::ExternRef))
-            | (Value::FuncRef(_), ValType::Ref(RefTyp::FuncRef)) => true,
-            _ => false,
-        }
+                | (Value::I64(_), ValType::Num(NumType::I64))
+                | (Value::F32(_), ValType::Num(NumType::F32))
+                | (Value::F64(_), ValType::Num(NumType::F64))
+                | (Value::Externref(_), ValType::Ref(RefTyp::ExternRef))
+                | (Value::FuncRef(_), ValType::Ref(RefTyp::FuncRef))
+        )
     }
     pub fn as_str(&self) -> &'static str {
         match self {

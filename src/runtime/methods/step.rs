@@ -8,10 +8,7 @@ use crate::{
         BlockType, DataIdx, ElemIdx, Expr, FuncIdx, GlobalIdX, Instr::*, LabelIdX, LocalIdX,
         RefTyp, TableIdX, TypeIdX, BT,
     },
-    runtime::{
-        clean_model::{Global, Table},
-        FuncId,
-    },
+    runtime::{clean_model::Table, FuncId},
 };
 use core::f64;
 use std::collections::HashMap;
@@ -546,23 +543,14 @@ impl Runtime {
             }
             x23_global_get(GlobalIdX(id)) => {
                 let global = unwrap!(module.globals.get(*id as usize), MissingGlobal).read();
-                match &*global {
-                    Global::Native(value) => {
-                        push!(*value)
-                    }
-                    Global::Foreign(module, name) => push!(unwrap!(
-                        self.modules.get(module),
-                        |a, b, c| NoModule(module.clone(), a, b, c)
-                    )
-                    .get_global(name)),
-                }
+                push!(*global);
             }
             x24_global_set(GlobalIdX(id)) => {
                 let pop = pop!();
                 let Some(r) = module.globals.get(*id as usize) else {
                     unreachable!()
                 };
-                *r.write() = Global::Native(pop);
+                *r.write() = pop;
             }
             x28_i32_load(mem) => {
                 let addr = pop!(u32);

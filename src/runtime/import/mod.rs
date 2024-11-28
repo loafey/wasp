@@ -6,7 +6,7 @@ use crate::{
 };
 
 use super::{
-    clean_model::{Global, Model},
+    clean_model::Model,
     memory::Memory,
     RuntimeError::{self, *},
     Value,
@@ -101,8 +101,7 @@ impl Import {
                     .expect("missing global")
                     .read();
                 match &*global {
-                    Global::Native(value) => *value,
-                    Global::Foreign(..) => todo!("re-export of global"),
+                    value => *value,
                 }
             }
             Import::IO(IO { globals, .. }) => *globals

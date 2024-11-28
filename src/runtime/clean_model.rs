@@ -47,12 +47,6 @@ impl std::fmt::Debug for Function {
     }
 }
 
-#[derive(Debug, Clone)]
-pub enum Global {
-    Native(Value),
-    Foreign(String, String),
-}
-
 #[derive(Debug)]
 pub enum Table {
     Native {
@@ -69,7 +63,7 @@ pub enum Table {
 fn setup_imports(
     other: &HashMap<String, Import>,
     value: &Module,
-) -> Result<(Vec<Ptr<Function>>, Vec<PtrRW<Global>>, Vec<PtrRW<Table>>), RuntimeError> {
+) -> Result<(Vec<Ptr<Function>>, Vec<PtrRW<Value>>, Vec<PtrRW<Table>>), RuntimeError> {
     let mut functions = Vec::new();
     let mut globals = Vec::new();
     let mut tables = Vec::new();
@@ -127,8 +121,7 @@ fn setup_imports(
                 }
             }
             ImportDesc::Global(_) => {
-                globals
-                    .push(Global::Foreign(import.module.0.clone(), import.name.0.clone()).into());
+                todo!()
             }
             ImportDesc::Table(_) => {
                 tables.push(
@@ -515,7 +508,7 @@ fn setup_elems(
 }
 
 fn get_globals(
-    globals: &mut Vec<PtrRW<Global>>,
+    globals: &mut Vec<PtrRW<Value>>,
     p_globals: Vec<parser::Global>,
 ) -> Result<(), RuntimeError> {
     for PGlobal { e, .. } in p_globals {
@@ -526,7 +519,7 @@ fn get_globals(
             Instr::x44_f64_const(x) => Value::F64(x),
             _ => return Err(GlobalWithoutValue),
         };
-        globals.push(Global::Native(val).into());
+        globals.push(val.into());
     }
     Ok(())
 }
@@ -545,7 +538,7 @@ fn setup_memory<const N: usize>(mems: Vec<parser::Mem>) -> Result<Memory<N>, Run
 fn setup_data<const N: usize>(
     data: Vec<parser::Data>,
     memory: &mut Memory<N>,
-    globals: &[PtrRW<Global>],
+    globals: &[PtrRW<Value>],
 ) -> Result<Vec<PtrRW<Vec<u8>>>, RuntimeError> {
     let mut datas = Vec::new();
     for d in data {
@@ -557,7 +550,7 @@ fn setup_data<const N: usize>(
                         if let Some(k) = globals.get(*i as usize) {
                             let k = k.read();
                             match &*k {
-                                Global::Native(Value::I32(p)) => *p,
+                                Value::I32(p) => *p,
                                 _ => todo!(),
                             }
                         } else {
@@ -626,7 +619,7 @@ pub struct Model {
     pub tables: Vec<PtrRW<Table>>,
     pub elems: Vec<PtrRW<Expr>>,
     pub function_types: Vec<Ptr<FuncType>>,
-    pub globals: Vec<PtrRW<Global>>,
+    pub globals: Vec<PtrRW<Value>>,
     pub exports: HashMap<String, ExportDesc>,
     pub datas: Vec<PtrRW<Vec<u8>>>,
     pub memory: PtrRW<Memory<{ 65536 + 1 }>>,

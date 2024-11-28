@@ -5,12 +5,12 @@ use super::super::{
 };
 use crate::{
     parser::{
-        BlockType, DataIdx, ElemIdx, ExportDesc, Expr, FuncIdx, GlobalIdX, Instr::*, LabelIdX,
-        LocalIdX, RefTyp, TableIdX, TypeIdX, BT,
+        BlockType, DataIdx, ElemIdx, Expr, FuncIdx, GlobalIdX, Instr::*, LabelIdX, LocalIdX,
+        RefTyp, TableIdX, TypeIdX, BT,
     },
     runtime::{
         clean_model::{Global, Table},
-        FuncId, Import, IO,
+        FuncId,
     },
 };
 use core::f64;
@@ -230,7 +230,7 @@ impl Runtime {
         // println!();
 
         let (code, ty, module) = {
-            let mut func_id = get!(func_id).clone();
+            let func_id = get!(func_id).clone();
             loop {
                 let (module, function) = match func_id {
                     FuncId::Id(id) => (
@@ -245,48 +245,11 @@ impl Runtime {
                         },
                         id,
                     ),
-                    FuncId::ForeignPre { module, name } => {
-                        let import = unwrap!(self.modules.get(&module), |a, b, c| NoModule(
-                            get!(module).clone(),
-                            a,
-                            b,
-                            c
-                        ));
-                        match import {
-                            Import::WS(ws) => (
-                                ws,
-                                *match unwrap!(ws.exports.get(&name), |a, b, c| {
-                                    MissingFunctionImport(name.clone(), a, b, c)
-                                }) {
-                                    ExportDesc::Func(FuncIdx(x)) => x,
-                                    _ => panic!(),
-                                },
-                            ),
-                            Import::IO(IO {
-                                functions, memory, ..
-                            }) => {
-                                let func = unwrap!(functions.get(name.as_str()), |a, b, c| {
-                                    MissingFunctionImport(name.clone(), a, b, c)
-                                });
-                                for r in func(get!(locals), &mut memory.write())? {
-                                    push!(r)
-                                }
-
-                                let mut frame = unwrap!(self.stack.pop(), NoFrame);
-                                let last = unwrap!(self.stack.last_mut(), NoFrame);
-                                last.stack.append(&mut frame.stack);
-                                return Ok(());
-                            }
-                        }
-                    }
                     FuncId::Foreign { module, id } => todo!("foreign call {module}::({id})"),
                 };
                 let ptr = unwrap!(module.functions.get(function as usize), MissingFunction);
-                match ptr.as_ref() {
-                    Function { ty, code, .. } => {
-                        break (code, ty, module);
-                    }
-                }
+                let Function { ty, code, .. } = ptr.as_ref();
+                break (code, ty, module);
             }
         };
 
@@ -468,13 +431,10 @@ impl Runtime {
                 let mut last_f = unwrap!(self.stack.pop(), NoFrame);
                 let func_id = match &last_f.func_id {
                     FuncId::Id(id) => id,
-                    FuncId::ForeignPre { .. } => todo!(),
                     FuncId::Foreign { .. } => todo!(),
                 };
                 let ty = unwrap!(module.functions.get(*func_id as usize), MissingFunction);
-                let ty = match ty.as_ref() {
-                    Function { ty, .. } => ty,
-                };
+                let Function { ty, .. } = ty.as_ref();
                 let mut res = Vec::new();
                 for _ in ty.output.types.iter() {
                     let value = unwrap!(last_f.stack.pop(), EmptyStack);
@@ -490,9 +450,8 @@ impl Runtime {
             }
             x10_call(FuncIdx(id)) => {
                 let fun = &module.functions[*id as usize];
-                let (ty, module, func_id) = match fun.as_ref() {
-                    Function { ty, .. } => (ty, get!(module).clone(), FuncId::Id(*id)),
-                };
+                let Function { ty, .. } = fun.as_ref();
+                let (ty, module, func_id) = (ty, get!(module).clone(), FuncId::Id(*id));
 
                 let mut locals = HashMap::new();
                 for (i, _) in ty.input.types.iter().enumerate().rev() {
@@ -536,12 +495,9 @@ impl Runtime {
                 }
 
                 if let Some(func) = module.functions.get(id as usize) {
-                    match func.as_ref() {
-                        Function { ty: ty2, .. } => {
-                            if ty.as_ref() != ty2 {
-                                throw!(IndirectCallTypeMismatch)
-                            }
-                        }
+                    let Function { ty: ty2, .. } = func.as_ref();
+                    if ty.as_ref() != ty2 {
+                        throw!(IndirectCallTypeMismatch)
                     }
                 }
 

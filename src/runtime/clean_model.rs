@@ -51,24 +51,23 @@ fn setup_imports(
 
     for import in &value.imports.imports {
         match import.desc {
-            ImportDesc::Func(_) => {
-                let other = match other.get(&import.module.0).expect("impossible!") {
-                    Import::WS(model) => model,
-                    Import::IO(io) => todo!("io import"),
-                };
-                let exp = other
-                    .exports
-                    .get(&import.name.0)
-                    .ok_or(RuntimeError::MissingFunction(file!(), line!(), column!()))?;
-                let ExportDesc::Func(FuncIdx(id)) = exp else {
-                    todo!("insert proper error here")
-                };
-                let c = other
-                    .functions
-                    .get(*id as usize)
-                    .ok_or(RuntimeError::MissingFunction(file!(), line!(), column!()))?;
-                functions.push(c.clone());
-            }
+            ImportDesc::Func(_) => match other.get(&import.module.0).expect("impossible!") {
+                Import::WS(other) => {
+                    let exp = other
+                        .exports
+                        .get(&import.name.0)
+                        .ok_or(RuntimeError::MissingFunction(file!(), line!(), column!()))?;
+                    let ExportDesc::Func(FuncIdx(id)) = exp else {
+                        todo!("insert proper error here")
+                    };
+                    let c = other
+                        .functions
+                        .get(*id as usize)
+                        .ok_or(RuntimeError::MissingFunction(file!(), line!(), column!()))?;
+                    functions.push(c.clone());
+                }
+                Import::IO(io) => todo!("io import"),
+            },
             ImportDesc::Global(_) => {
                 globals
                     .push(Global::Foreign(import.module.0.clone(), import.name.0.clone()).into());
@@ -278,9 +277,7 @@ fn validate_calls(
     type_len: u32,
 ) -> Result<(), RuntimeError> {
     for code in functions {
-        let (_typ, code) = match code.as_ref() {
-            Function { ty, code, .. } => (ty, code),
-        };
+        let Function { code, .. } = code.as_ref();
 
         // let locals = typ.input.types.clone();
 
@@ -533,31 +530,28 @@ fn setup_data<const N: usize>(
 
 fn validate_label_depth(functions: &[Ptr<Function>]) -> Result<(), RuntimeError> {
     for f in functions {
-        match f.as_ref() {
-            Function { code, .. } => {
-                let mut depth = 0;
-                for c in code {
-                    match c {
-                        Instr::x0c_br(LabelIdX(i)) | Instr::x0d_br_if(LabelIdX(i)) => {
-                            if *i > depth {
-                                return Err(RuntimeError::UnknownLabel);
-                            }
-                        }
-                        Instr::x0e_br_table(ls, LabelIdX(i)) => {
-                            for LabelIdX(i) in ls {
-                                if *i > depth {
-                                    return Err(RuntimeError::UnknownLabel);
-                                }
-                            }
-                            if *i > depth {
-                                return Err(RuntimeError::UnknownLabel);
-                            }
-                        }
-                        Instr::block_start(_, _, _) => depth += 1,
-                        Instr::block_end(_, _, _) => depth -= 1,
-                        _ => {}
+        let Function { code, .. } = f.as_ref();
+        let mut depth = 0;
+        for c in code {
+            match c {
+                Instr::x0c_br(LabelIdX(i)) | Instr::x0d_br_if(LabelIdX(i)) => {
+                    if *i > depth {
+                        return Err(RuntimeError::UnknownLabel);
                     }
                 }
+                Instr::x0e_br_table(ls, LabelIdX(i)) => {
+                    for LabelIdX(i) in ls {
+                        if *i > depth {
+                            return Err(RuntimeError::UnknownLabel);
+                        }
+                    }
+                    if *i > depth {
+                        return Err(RuntimeError::UnknownLabel);
+                    }
+                }
+                Instr::block_start(_, _, _) => depth += 1,
+                Instr::block_end(_, _, _) => depth -= 1,
+                _ => {}
             }
         }
     }

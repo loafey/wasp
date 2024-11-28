@@ -15,6 +15,7 @@ pub enum ToImport {
     WS(PathBuf),
 }
 
+#[allow(clippy::large_enum_variant)]
 enum Intermediate {
     IO(IO),
     WS(Module),

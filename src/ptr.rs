@@ -1,7 +1,7 @@
 use std::{
     fmt::{Debug, Display},
     ops::Deref,
-    sync::{Arc, RwLock as STDLock},
+    sync::{Arc, RwLock as STDLock, Weak as WeakArc},
 };
 
 pub struct RwLock<T> {
@@ -27,44 +27,61 @@ impl<T: Debug> Debug for RwLock<T> {
     }
 }
 
-pub struct Ptr<T> {
-    inner: Arc<T>,
+pub enum Ptr<T> {
+    Strong { inner: Arc<T> },
+    Weak { inner: WeakArc<T> },
 }
 impl<T> Clone for Ptr<T> {
     fn clone(&self) -> Self {
-        Self {
-            inner: self.inner.clone(),
+        match self {
+            Ptr::Strong { inner } => Ptr::Weak {
+                inner: Arc::downgrade(inner),
+            },
+            Ptr::Weak { inner } => Ptr::Weak {
+                inner: inner.clone(),
+            },
         }
     }
 }
 impl<T> From<T> for Ptr<T> {
     fn from(value: T) -> Self {
-        Self {
+        Self::Strong {
             inner: Arc::new(value),
         }
     }
 }
+impl<T> AsRef<T> for Ptr<T> {
+    fn as_ref(&self) -> &T {
+        self.deref()
+    }
+}
 impl<T> Deref for Ptr<T> {
-    type Target = Arc<T>;
+    type Target = T;
 
     fn deref(&self) -> &Self::Target {
-        &self.inner
+        match self {
+            Ptr::Strong { inner } => inner,
+            Ptr::Weak { inner } => match inner.upgrade() {
+                Some(_) => unsafe { &*inner.as_ptr() },
+                None => panic!("null pointer exception"),
+            },
+        }
     }
 }
 impl<T: Debug> Debug for Ptr<T> {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        self.inner.fmt(f)
+        self.deref().fmt(f)
     }
 }
 
 impl<T: Display> Display for Ptr<T> {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        self.inner.fmt(f)
+        self.deref().fmt(f)
     }
 }
 
 pub struct PtrRW<T> {
-    inner: Arc<RwLock<T>>,
+    inner: Ptr<RwLock<T>>,
 }
 impl<T> Clone for PtrRW<T> {
     fn clone(&self) -> Self {
@@ -74,10 +91,10 @@ impl<T> Clone for PtrRW<T> {
     }
 }
 impl<T> Deref for PtrRW<T> {
-    type Target = Arc<RwLock<T>>;
+    type Target = RwLock<T>;
 
     fn deref(&self) -> &Self::Target {
-        &self.inner
+        self.inner.deref()
     }
 }
 impl<T: Debug> Debug for PtrRW<T> {
@@ -88,7 +105,7 @@ impl<T: Debug> Debug for PtrRW<T> {
 impl<T> From<T> for PtrRW<T> {
     fn from(value: T) -> Self {
         Self {
-            inner: Arc::new(RwLock::new(value)),
+            inner: RwLock::new(value).into(),
         }
     }
 }

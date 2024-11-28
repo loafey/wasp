@@ -94,12 +94,12 @@ impl Import {
                 let Some(ExportDesc::Global(GlobalIdX(i))) = model.exports.get(name) else {
                     unreachable!()
                 };
-                match model
+                let global = model
                     .globals
-                    .read()
                     .get(*i as usize)
                     .expect("missing global")
-                {
+                    .read();
+                match &*global {
                     Global::Native(value) => *value,
                     Global::Foreign(..) => todo!("re-export of global"),
                 }

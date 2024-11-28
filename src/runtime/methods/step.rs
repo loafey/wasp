@@ -281,7 +281,8 @@ impl Runtime {
                     }
                     FuncId::Foreign { module, id } => todo!("foreign call {module}::({id})"),
                 };
-                match unwrap!(module.functions.get(function as usize), MissingFunction) {
+                let ptr = unwrap!(module.functions.get(function as usize), MissingFunction);
+                match ptr.as_ref() {
                     Function::Foreign { module, name, .. } => {
                         func_id = FuncId::ForeignPre {
                             module: module.clone(),
@@ -477,7 +478,7 @@ impl Runtime {
                     FuncId::Foreign { .. } => todo!(),
                 };
                 let ty = unwrap!(module.functions.get(*func_id as usize), MissingFunction);
-                let ty = match ty {
+                let ty = match ty.as_ref() {
                     Function::Foreign { ty, .. } => ty,
                     Function::Native { ty, .. } => ty,
                 };
@@ -496,7 +497,7 @@ impl Runtime {
             }
             x10_call(FuncIdx(id)) => {
                 let fun = &module.functions[*id as usize];
-                let (ty, module, func_id) = match fun {
+                let (ty, module, func_id) = match fun.as_ref() {
                     Function::Foreign { ty, module, name } => (
                         ty,
                         module.clone(),
@@ -535,12 +536,12 @@ impl Runtime {
                     locals.insert(i as u32, pop!());
                 }
 
-                let table = &module.tables.read()[*table_index as usize];
+                let table = module.tables[*table_index as usize].read();
                 // println!(
                 //     "Call info ({}): \n\tinputs: {locals:?}\n\tfunction_index: {function_index}",
                 //     f.func_id
                 // );
-                let table = match table {
+                let table = match &*table {
                     Table::Native { table, .. } => table,
                     Table::Foreign { .. } => todo!(),
                 };
@@ -550,9 +551,9 @@ impl Runtime {
                 }
 
                 if let Some(func) = module.functions.get(id as usize) {
-                    match func {
+                    match func.as_ref() {
                         Function::Foreign { ty: ty2, .. } | Function::Native { ty: ty2, .. } => {
-                            if ty != ty2 {
+                            if ty.as_ref() != ty2 {
                                 throw!(IndirectCallTypeMismatch)
                             }
                         }
@@ -592,7 +593,8 @@ impl Runtime {
                 push!(last);
             }
             x23_global_get(GlobalIdX(id)) => {
-                match unwrap!(module.globals.read().get(*id as usize), MissingGlobal) {
+                let global = unwrap!(module.globals.get(*id as usize), MissingGlobal).read();
+                match &*global {
                     Global::Native(value) => {
                         push!(*value)
                     }
@@ -605,11 +607,10 @@ impl Runtime {
             }
             x24_global_set(GlobalIdX(id)) => {
                 let pop = pop!();
-                let mut r = module.globals.write();
-                let Some(r) = r.get_mut(*id as usize) else {
+                let Some(r) = module.globals.get(*id as usize) else {
                     unreachable!()
                 };
-                *r = Global::Native(pop);
+                *r.write() = Global::Native(pop);
             }
             x28_i32_load(mem) => {
                 let addr = pop!(u32);
@@ -1261,8 +1262,7 @@ impl Runtime {
                 let amount = pop!(i32) as usize;
                 let source = pop!(i32) as usize;
                 let destination = pop!(i32) as usize;
-                let datas = module.datas.read();
-                let val = unwrap!(datas.get(*i as usize), MissingData);
+                let val = unwrap!(module.datas.get(*i as usize), MissingData).read();
                 if source + amount > val.len() {
                     throw!(DataInitOutOfRange)
                 }
@@ -1272,8 +1272,8 @@ impl Runtime {
                     .slice_write(destination, &val[source..source + amount])?
             }
             xfc_9_data_drop(DataIdx(i)) => {
-                if let Some(r) = module.datas.write().get_mut(*i as usize) {
-                    *r = Vec::new();
+                if let Some(r) = module.datas.get(*i as usize) {
+                    *r.write() = Vec::new();
                 }
             }
             xfc_10_memory_copy(_, _) => {
@@ -1293,11 +1293,9 @@ impl Runtime {
                 let amount = pop!(i32) as u32;
                 let source = pop!(i32) as u32;
                 let destination = pop!(i32) as u32;
-                let elems = module.elems.read();
-                let elems = unwrap!(elems.get(*e as usize), MissingElementIndex);
-                let mut tables = module.tables.write();
-                let table = unwrap!(tables.get_mut(*t as usize), MissingTableIndex);
-                let (table, table_length) = match table {
+                let elems = unwrap!(module.elems.get(*e as usize), MissingElementIndex);
+                let mut table = unwrap!(module.tables.get(*t as usize), MissingTableIndex).write();
+                let (table, table_length) = match &mut *table {
                     Table::Native {
                         table,
                         table_length,
@@ -1305,7 +1303,7 @@ impl Runtime {
                     Table::Foreign { .. } => todo!(),
                 };
 
-                let check_1 = source + amount > elems.instrs.len() as u32;
+                let check_1 = source + amount > elems.read().instrs.len() as u32;
                 let check_2 = destination < table_length.0 as u32;
                 let check_3 = destination + amount > table_length.1 as u32;
                 if check_1 || check_2 || check_3 {
@@ -1314,7 +1312,7 @@ impl Runtime {
 
                 for i in 0..amount {
                     // should crash here
-                    let e = match elems.instrs[(i + source) as usize] {
+                    let e = match elems.read().instrs[(i + source) as usize] {
                         x41_i32_const(i) => FuncIdx(i as u32),
                         _ => todo!(),
                     };
@@ -1322,19 +1320,17 @@ impl Runtime {
                 }
             }
             xfc_13_elem_drop(ElemIdx(i)) => {
-                let mut r = module.elems.write();
-                let Some(r) = r.get_mut(*i as usize) else {
+                let Some(r) = module.elems.get(*i as usize) else {
                     unreachable!()
                 };
-                *r = Expr { instrs: Vec::new() };
+                *r.write() = Expr { instrs: Vec::new() };
             }
             xfc_14_table_copy(TableIdX(a), TableIdX(b)) => {
                 let amount = pop!(i32) as u32;
                 let source = pop!(i32) as u32;
                 let destination = pop!(i32) as u32;
-                let mut tables = module.tables.write();
-                let a = unwrap!(tables.get(*a as usize), MissingTableIndex);
-                let a = match a {
+                let mut a = unwrap!(module.tables.get(*a as usize), MissingTableIndex).write();
+                let a = match &mut *a {
                     Table::Native { table, .. } => table,
                     Table::Foreign { .. } => todo!(),
                 };
@@ -1347,8 +1343,8 @@ impl Runtime {
                     clones.push(*f);
                 }
 
-                let b = unwrap!(tables.get_mut(*b as usize), MissingTableIndex);
-                let (b, b_len) = match b {
+                let mut b = unwrap!(module.tables.get(*b as usize), MissingTableIndex).write();
+                let (b, b_len) = match &mut *b {
                     Table::Native {
                         table,
                         table_length,

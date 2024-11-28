@@ -47,7 +47,9 @@ pub enum Table {
 }
 
 #[allow(clippy::type_complexity)]
-fn setup_imports(value: &Module) -> Result<(Vec<Function>, Vec<Global>, Vec<Table>), RuntimeError> {
+fn setup_imports(
+    value: &Module,
+) -> Result<(Vec<Ptr<Function>>, Vec<PtrRW<Global>>, Vec<PtrRW<Table>>), RuntimeError> {
     let mut functions = Vec::new();
     let mut globals = Vec::new();
     let mut tables = Vec::new();
@@ -68,19 +70,20 @@ fn setup_imports(value: &Module) -> Result<(Vec<Function>, Vec<Global>, Vec<Tabl
                     name: import.name.0.clone(),
                 };
 
-                functions.push(v);
+                functions.push(v.into());
             }
             ImportDesc::Global(_) => {
-                globals.push(Global::Foreign(
-                    import.module.0.clone(),
-                    import.name.0.clone(),
-                ));
+                globals
+                    .push(Global::Foreign(import.module.0.clone(), import.name.0.clone()).into());
             }
             ImportDesc::Table(_) => {
-                tables.push(Table::Foreign {
-                    module: import.module.0.clone(),
-                    name: import.name.0.clone(),
-                });
+                tables.push(
+                    Table::Foreign {
+                        module: import.module.0.clone(),
+                        name: import.name.0.clone(),
+                    }
+                    .into(),
+                );
             }
             _ => (),
         }
@@ -89,7 +92,7 @@ fn setup_imports(value: &Module) -> Result<(Vec<Function>, Vec<Global>, Vec<Tabl
     Ok((functions, globals, tables))
 }
 
-fn get_tables(value: &Module, tables: &mut Vec<Table>) -> Result<(), RuntimeError> {
+fn get_tables(value: &Module, tables: &mut Vec<PtrRW<Table>>) -> Result<(), RuntimeError> {
     tables.extend(value.tables.tables.iter().map(|t| {
         let table_length = match t.lim {
             Limits::Min(m) => (0, m as usize),
@@ -102,6 +105,7 @@ fn get_tables(value: &Module, tables: &mut Vec<Table>) -> Result<(), RuntimeErro
             table,
             table_length,
         }
+        .into()
     }));
     Ok(())
 }
@@ -110,7 +114,7 @@ fn get_functions(
     code: Vec<Code>,
     function_types: &[FuncType],
     function_idx: &[TypeIdX],
-    functions: &mut Vec<Function>,
+    functions: &mut Vec<Ptr<Function>>,
 ) -> Result<(), RuntimeError> {
     for (k, code) in code.into_iter().enumerate() {
         let ty = code.code.t;
@@ -257,24 +261,27 @@ fn get_functions(
             pc += 1;
         }
 
-        functions.push(Function::Native {
-            ty,
-            _locals: locals,
-            _labels: HashMap::new(),
-            code,
-        });
+        functions.push(
+            Function::Native {
+                ty,
+                _locals: locals,
+                _labels: HashMap::new(),
+                code,
+            }
+            .into(),
+        );
     }
 
     Ok(())
 }
 
 fn validate_calls(
-    functions: &[Function],
-    tables: &[Table],
+    functions: &[Ptr<Function>],
+    tables: &[PtrRW<Table>],
     type_len: u32,
 ) -> Result<(), RuntimeError> {
     for code in functions {
-        let (_typ, code) = match code {
+        let (_typ, code) = match code.as_ref() {
             Function::Foreign { .. } => continue,
             Function::Native { ty, code, .. } => (ty, code),
         };
@@ -336,7 +343,7 @@ fn validate_calls(
     Ok(())
 }
 
-fn validate_elems(elems: &[Elem], functions: &[Function]) -> Result<(), RuntimeError> {
+fn validate_elems(elems: &[Elem], functions: &[Ptr<Function>]) -> Result<(), RuntimeError> {
     for e in elems {
         let (_, vec) = match e {
             Elem::E0(expr, vec) | Elem::E2(_, expr, _, vec) => (
@@ -384,14 +391,18 @@ fn validate_elems(elems: &[Elem], functions: &[Function]) -> Result<(), RuntimeE
     Ok(())
 }
 
-fn setup_elems(elems: Vec<Elem>, tables: &mut [Table]) -> Result<Vec<Expr>, RuntimeError> {
+fn setup_elems(
+    elems: Vec<Elem>,
+    tables: &mut [PtrRW<Table>],
+) -> Result<Vec<PtrRW<Expr>>, RuntimeError> {
     let mut result = Vec::new();
     for elem in elems.into_iter() {
         match elem {
             Elem::E0(expr, vec) => match &expr.instrs[..] {
                 [Instr::x41_i32_const(off)] => {
                     for (i, v) in vec.into_iter().enumerate() {
-                        let table = match &mut tables[0] {
+                        let mut table = tables[0].write();
+                        let table = match &mut *table {
                             Table::Native { table, .. } => table,
                             Table::Foreign { module, name } => {
                                 todo!("{module}::{name}")
@@ -399,28 +410,35 @@ fn setup_elems(elems: Vec<Elem>, tables: &mut [Table]) -> Result<Vec<Expr>, Runt
                         };
                         table.insert(*off as u32 + i as u32, v);
                     }
-                    result.push(expr.clone());
+                    result.push(expr.clone().into());
                 }
                 _ => panic!(),
             },
             Elem::E1(_fr, funcs) => {
-                result.push(Expr {
-                    instrs: funcs
-                        .into_iter()
-                        .map(|FuncIdx(i)| Instr::x41_i32_const(i as i32))
-                        .collect(),
-                });
+                result.push(
+                    Expr {
+                        instrs: funcs
+                            .into_iter()
+                            .map(|FuncIdx(i)| Instr::x41_i32_const(i as i32))
+                            .collect(),
+                    }
+                    .into(),
+                );
             }
             Elem::E2(TableIdX(t), expr, _rt, vec) => match &expr.instrs[..] {
                 [Instr::x41_i32_const(off)] => {
-                    result.push(Expr {
-                        instrs: vec
-                            .iter()
-                            .map(|FuncIdx(i)| Instr::x41_i32_const(*i as i32))
-                            .collect(),
-                    });
+                    result.push(
+                        Expr {
+                            instrs: vec
+                                .iter()
+                                .map(|FuncIdx(i)| Instr::x41_i32_const(*i as i32))
+                                .collect(),
+                        }
+                        .into(),
+                    );
                     for (i, v) in vec.iter().enumerate() {
-                        let Table::Native { table, .. } = &mut tables[t as usize] else {
+                        let mut table = tables[t as usize].write();
+                        let Table::Native { table, .. } = &mut *table else {
                             unreachable!()
                         };
                         table.insert(*off as u32 + i as u32, *v);
@@ -433,7 +451,7 @@ fn setup_elems(elems: Vec<Elem>, tables: &mut [Table]) -> Result<Vec<Expr>, Runt
             Elem::E5(_rt, vec) => {
                 // might be wrong
                 for expr in vec {
-                    result.push(expr);
+                    result.push(expr.into());
                 }
             }
             Elem::E6(_, _, _, _) => todo!(),
@@ -444,7 +462,7 @@ fn setup_elems(elems: Vec<Elem>, tables: &mut [Table]) -> Result<Vec<Expr>, Runt
 }
 
 fn get_globals(
-    globals: &mut Vec<Global>,
+    globals: &mut Vec<PtrRW<Global>>,
     p_globals: Vec<parser::Global>,
 ) -> Result<(), RuntimeError> {
     for PGlobal { e, .. } in p_globals {
@@ -455,7 +473,7 @@ fn get_globals(
             Instr::x44_f64_const(x) => Value::F64(x),
             _ => return Err(GlobalWithoutValue),
         };
-        globals.push(Global::Native(val));
+        globals.push(Global::Native(val).into());
     }
     Ok(())
 }
@@ -474,18 +492,19 @@ fn setup_memory<const N: usize>(mems: Vec<parser::Mem>) -> Result<Memory<N>, Run
 fn setup_data<const N: usize>(
     data: Vec<parser::Data>,
     memory: &mut Memory<N>,
-    globals: &[Global],
-) -> Result<Vec<Vec<u8>>, RuntimeError> {
+    globals: &[PtrRW<Global>],
+) -> Result<Vec<PtrRW<Vec<u8>>>, RuntimeError> {
     let mut datas = Vec::new();
     for d in data {
         match d {
             Data::ActiveX(MemIdX(0), e, vec) | Data::Active(e, vec) => {
                 let p = match &e.instrs[..] {
-                    [Instr::x41_i32_const(p)] => p,
+                    [Instr::x41_i32_const(p)] => *p,
                     [Instr::x23_global_get(GlobalIdX(i))] => {
                         if let Some(k) = globals.get(*i as usize) {
-                            match k {
-                                Global::Native(Value::I32(p)) => p,
+                            let k = k.read();
+                            match &*k {
+                                Global::Native(Value::I32(p)) => *p,
                                 _ => todo!(),
                             }
                         } else {
@@ -499,7 +518,7 @@ fn setup_data<const N: usize>(
                 };
                 for (i, v) in vec.iter().enumerate() {
                     memory.set(
-                        *p as usize + i,
+                        p as usize + i,
                         MemArg {
                             align: 0,
                             offset: 0,
@@ -507,18 +526,18 @@ fn setup_data<const N: usize>(
                         *v,
                     )?;
                 }
-                datas.push(vec.clone());
+                datas.push(vec.clone().into());
             }
-            Data::Passive(v) => datas.push(v.clone()),
+            Data::Passive(v) => datas.push(v.clone().into()),
             Data::ActiveX(_, _, _) => todo!(""),
         }
     }
     Ok(datas)
 }
 
-fn validate_label_depth(functions: &[Function]) -> Result<(), RuntimeError> {
+fn validate_label_depth(functions: &[Ptr<Function>]) -> Result<(), RuntimeError> {
     for f in functions {
-        match f {
+        match f.as_ref() {
             Function::Foreign { .. } => continue,
             Function::Native { code, .. } => {
                 let mut depth = 0;
@@ -552,13 +571,13 @@ fn validate_label_depth(functions: &[Function]) -> Result<(), RuntimeError> {
 
 #[derive(Debug, Clone)]
 pub struct Model {
-    pub functions: Ptr<Vec<Function>>,
-    pub tables: PtrRW<Vec<Table>>,
-    pub elems: PtrRW<Vec<Expr>>,
-    pub function_types: Ptr<Vec<FuncType>>,
-    pub globals: PtrRW<Vec<Global>>,
-    pub exports: Ptr<HashMap<String, ExportDesc>>,
-    pub datas: PtrRW<Vec<Vec<u8>>>,
+    pub functions: Vec<Ptr<Function>>,
+    pub tables: Vec<PtrRW<Table>>,
+    pub elems: Vec<PtrRW<Expr>>,
+    pub function_types: Vec<Ptr<FuncType>>,
+    pub globals: Vec<PtrRW<Global>>,
+    pub exports: HashMap<String, ExportDesc>,
+    pub datas: Vec<PtrRW<Vec<u8>>>,
     pub memory: PtrRW<Memory<{ 65536 + 1 }>>,
 }
 impl TryFrom<Module> for Model {
@@ -583,19 +602,23 @@ impl TryFrom<Module> for Model {
         validate_label_depth(&functions)?;
 
         Ok(Self {
-            functions: functions.into(),
-            tables: tables.into(),
-            function_types: value.types.function_types.into(),
-            elems: elems.into(),
-            globals: globals.into(),
+            functions,
+            tables,
+            function_types: value
+                .types
+                .function_types
+                .into_iter()
+                .map(Into::into)
+                .collect(),
+            elems,
+            globals,
             exports: value
                 .exports
                 .exports
                 .iter()
                 .map(|exp| (exp.nm.0.clone(), exp.d))
-                .collect::<HashMap<_, _>>()
-                .into(),
-            datas: datas.into(),
+                .collect::<HashMap<_, _>>(),
+            datas,
             memory: memory.into(),
         })
     }

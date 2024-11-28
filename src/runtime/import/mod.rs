@@ -15,7 +15,8 @@ use super::{
 pub type Locals<'t> = &'t HashMap<u32, Value>;
 pub type Mem<'t> = &'t mut Memory<{ 65536 + 1 }>;
 pub type Stack = Vec<Value>;
-pub type Function = &'static dyn Fn(Locals, Mem) -> Result<Stack, RuntimeError>;
+
+pub type IOFunction = &'static dyn Fn(Locals, Mem) -> Result<Stack, RuntimeError>;
 
 macro_rules! unwrap {
     ($expr:expr, $err:expr) => {
@@ -79,7 +80,7 @@ macro_rules! get {
 }
 
 pub struct IO {
-    pub functions: HashMap<&'static str, Function>,
+    pub functions: HashMap<&'static str, IOFunction>,
     pub globals: HashMap<&'static str, Value>,
     pub memory: PtrRW<Memory<{ 65536 + 1 }>>,
 }
@@ -119,7 +120,7 @@ impl Import {
 
     #[allow(clippy::print_stdout)]
     pub fn spectest() -> IO {
-        let map: Vec<(&'static str, Function)> = vec![
+        let map: Vec<(&'static str, IOFunction)> = vec![
             ("print_i32", &|locals, _| {
                 let a = *get!(i32, &0, locals);
                 println!("{a}");

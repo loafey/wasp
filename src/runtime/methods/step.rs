@@ -231,26 +231,26 @@ impl Runtime {
 
         let (code, ty, module) = {
             let func_id = get!(func_id).clone();
-            loop {
-                let (module, function) = match func_id {
-                    FuncId::Id(id) => (
-                        unsafe {
-                            unwrap!(self.modules.get(get!(module)), |a, b, c| NoModule(
-                                get!(module).clone(),
-                                a,
-                                b,
-                                c
-                            ))
-                            .as_ws()
-                        },
-                        id,
-                    ),
-                    FuncId::Foreign { module, id } => todo!("foreign call {module}::({id})"),
-                };
-                let ptr = unwrap!(module.functions.get(function as usize), MissingFunction);
-                let Function::WS { ty, code, .. } = ptr.as_ref();
-                break (code, ty, module);
-            }
+            let (module, function) = match func_id {
+                FuncId::Id(id) => (
+                    unsafe {
+                        unwrap!(self.modules.get(get!(module)), |a, b, c| NoModule(
+                            get!(module).clone(),
+                            a,
+                            b,
+                            c
+                        ))
+                        .as_ws()
+                    },
+                    id,
+                ),
+                FuncId::Foreign { module, id } => todo!("foreign call {module}::({id})"),
+            };
+            let ptr = unwrap!(module.functions.get(function as usize), MissingFunction);
+            let Function::WS { ty, code, .. } = ptr.as_ref() else {
+                todo!("io call in step")
+            };
+            (code, ty, module)
         };
 
         // Execute
@@ -434,7 +434,9 @@ impl Runtime {
                     FuncId::Foreign { .. } => todo!(),
                 };
                 let ty = unwrap!(module.functions.get(*func_id as usize), MissingFunction);
-                let Function::WS { ty, .. } = ty.as_ref();
+                let Function::WS { ty, .. } = ty.as_ref() else {
+                    panic!("return in IO :(")
+                };
                 let mut res = Vec::new();
                 for _ in ty.output.types.iter() {
                     let value = unwrap!(last_f.stack.pop(), EmptyStack);
@@ -450,7 +452,10 @@ impl Runtime {
             }
             x10_call(FuncIdx(id)) => {
                 let fun = &module.functions[*id as usize];
-                let Function::WS { ty, .. } = fun.as_ref();
+                let ty = match fun.as_ref() {
+                    Function::WS { ty, .. } => ty,
+                    Function::IO { ty, .. } => ty,
+                };
                 let (ty, module, func_id) = (ty, get!(module).clone(), FuncId::Id(*id));
 
                 let mut locals = HashMap::new();
@@ -495,7 +500,10 @@ impl Runtime {
                 }
 
                 if let Some(func) = module.functions.get(id as usize) {
-                    let Function::WS { ty: ty2, .. } = func.as_ref();
+                    let ty2 = match func.as_ref() {
+                        Function::WS { ty, .. } => ty,
+                        Function::IO { ty, .. } => ty,
+                    };
                     if ty.as_ref() != ty2 {
                         throw!(IndirectCallTypeMismatch)
                     }

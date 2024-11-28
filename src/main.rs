@@ -39,7 +39,7 @@ fn main() {
                 "wasi_snapshot_preview1",
                 IO {
                     functions: {
-                        let map: Vec<(&'static str, runtime::Function)> = vec![
+                        let map: Vec<(&'static str, runtime::IOFunction)> = vec![
                             ("args_sizes_get", &|_, _| Ok(vec![Value::I32(0)])),
                             #[allow(clippy::print_stdout)]
                             ("fd_write", &|locals, memory| {

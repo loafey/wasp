@@ -1,7 +1,7 @@
 use super::{
     memory::Memory,
     typecheck::TypeCheckError,
-    Import,
+    IOFunction, Import,
     RuntimeError::{self, *},
     Value,
 };
@@ -14,7 +14,6 @@ use crate::{
 };
 use std::collections::HashMap;
 
-#[derive(Debug)]
 pub enum Function {
     WS {
         ty: FuncType,
@@ -22,6 +21,34 @@ pub enum Function {
         code: Vec<Instr>,
         _labels: HashMap<Vec<u32>, u32>,
     },
+    IO {
+        ty: FuncType,
+        func: IOFunction,
+    },
+}
+
+impl std::fmt::Debug for Function {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            Self::WS {
+                ty,
+                _locals,
+                code,
+                _labels,
+            } => f
+                .debug_struct("WS")
+                .field("ty", ty)
+                .field("_locals", _locals)
+                .field("code", code)
+                .field("_labels", _labels)
+                .finish(),
+            Self::IO { ty, .. } => f
+                .debug_struct("IO")
+                .field("ty", ty)
+                .field("func", &"...")
+                .finish(),
+        }
+    }
 }
 
 #[derive(Debug, Clone)]
@@ -279,7 +306,9 @@ fn validate_calls(
     type_len: u32,
 ) -> Result<(), RuntimeError> {
     for code in functions {
-        let Function::WS { code, .. } = code.as_ref();
+        let Function::WS { code, .. } = code.as_ref() else {
+            continue;
+        };
 
         // let locals = typ.input.types.clone();
 
@@ -532,7 +561,9 @@ fn setup_data<const N: usize>(
 
 fn validate_label_depth(functions: &[Ptr<Function>]) -> Result<(), RuntimeError> {
     for f in functions {
-        let Function::WS { code, .. } = f.as_ref();
+        let Function::WS { code, .. } = f.as_ref() else {
+            continue;
+        };
         let mut depth = 0;
         for c in code {
             match c {

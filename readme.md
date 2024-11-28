@@ -15,19 +15,14 @@ Last test (99):
 
 ## Failed: test-suite/test/core/data.wast
 ```bash
- ERROR wasp::testsuite > oops the test-suite panicked!
-Reason:
-	panicked at src/runtime/clean_model.rs:542:38:
-	not yet implemented
-Last test (5):
-	Module(Module { _type: MustBe!("module"), _name: None, filename: "data.5.wasm" })
+ ERROR wasp::testsuite > test 10/61 did not fail invalidating/parsing, expected error: "unknown global" (module: "test-suite/test/core/data.9.wasm")
 ```
 
 ## Failed: test-suite/test/core/elem.wast
 ```bash
  ERROR wasp::testsuite > oops the test-suite panicked!
 Reason:
-	panicked at src/runtime/clean_model.rs:399:34:
+	panicked at src/runtime/clean_model.rs:460:34:
 	not yet implemented: xd2_ref_func(FuncIdx(0))
 Last test (0):
 	Module(Module { _type: MustBe!("module"), _name: None, filename: "elem.0.wasm" })
@@ -37,7 +32,7 @@ Last test (0):
 ```bash
  ERROR wasp::testsuite > oops the test-suite panicked!
 Reason:
-	panicked at src/runtime/methods/step.rs:1396:17:
+	panicked at src/runtime/methods/step.rs:1384:17:
 	not implemented: instruction not supported : x76_i32_shr_u
 Last test (1):
 	AssertReturn(AssertReturn { _type: MustBe!("assert_return"), action: Invoke { module: None, field: "i32_load16_s", args: [I32 { value: "4294967295" }] }, expected: [I32 { value: "4294967295" }] })
@@ -171,7 +166,7 @@ Last test (0):
 ```bash
  ERROR wasp::testsuite > oops the test-suite panicked!
 Reason:
-	panicked at src/runtime/methods/step.rs:1396:17:
+	panicked at src/runtime/methods/step.rs:1384:17:
 	not implemented: instruction not supported : x51_i64_eq
 Last test (1):
 	AssertReturn(AssertReturn { _type: MustBe!("assert_return"), action: Invoke { module: None, field: "fac-rec", args: [I64 { value: "25" }] }, expected: [I64 { value: "7034535277573963776" }] })
@@ -203,7 +198,7 @@ Last test (0):
 
 ## Failed: test-suite/test/core/func.wast
 ```bash
- ERROR wasp::testsuite > test 9/172 failed (module: 0, invoke: "local-first-i32", error: a local is missing: src/runtime/methods/step.rs:537:51)
+ ERROR wasp::testsuite > test 9/172 failed (module: 0, invoke: "local-first-i32", error: a local is missing: src/runtime/methods/step.rs:534:51)
 ```
 
 ## Failed: test-suite/test/core/func_ptrs.wast
@@ -266,14 +261,19 @@ Last test (0):
 
 ## Failed: test-suite/test/core/imports.wast
 ```bash
- ERROR wasp::testsuite > test 4/178 failed (module: 1, invoke: "print32", got [i32(14)], but expected [])
+ ERROR wasp::testsuite > oops the test-suite panicked!
+Reason:
+	panicked at src/runtime/clean_model.rs:503:33:
+	not yet implemented: spectest::table
+Last test (72):
+	Module(Module { _type: MustBe!("module"), _name: None, filename: "imports.60.wasm" })
 ```
 
 ## Failed: test-suite/test/core/int_exprs.wast
 ```bash
  ERROR wasp::testsuite > oops the test-suite panicked!
 Reason:
-	panicked at src/runtime/methods/step.rs:1396:17:
+	panicked at src/runtime/methods/step.rs:1384:17:
 	not implemented: instruction not supported : x53_i64_lt_s
 Last test (3):
 	AssertReturn(AssertReturn { _type: MustBe!("assert_return"), action: Invoke { module: None, field: "i64.no_fold_cmp_s_offset", args: [I64 { value: "9223372036854775807" }, I64 { value: "0" }] }, expected: [I32 { value: "1" }] })
@@ -307,7 +307,7 @@ Last test (0):
 ```bash
  ERROR wasp::testsuite > oops the test-suite panicked!
 Reason:
-	panicked at src/testsuite.rs:551:21:
+	panicked at src/testsuite.rs:557:21:
 	not yet implemented: Register: "Mf" $Mf
 Last test (1):
 	Register(Register { _type: MustBe!("register"), name: Some("$Mf"), _as: "Mf" })
@@ -317,7 +317,7 @@ Last test (1):
 ```bash
  ERROR wasp::testsuite > oops the test-suite panicked!
 Reason:
-	panicked at src/runtime/methods/step.rs:1396:17:
+	panicked at src/runtime/methods/step.rs:1384:17:
 	not implemented: instruction not supported : x67_i32_clz
 Last test (31):
 	AssertReturn(AssertReturn { _type: MustBe!("assert_return"), action: Invoke { module: None, field: "as-unary-operand", args: [] }, expected: [I32 { value: "32" }] })
@@ -325,19 +325,19 @@ Last test (31):
 
 ## Failed: test-suite/test/core/local_get.wast
 ```bash
- ERROR wasp::testsuite > test 2/36 failed (module: 0, invoke: "type-local-i32", error: a local is missing: src/runtime/methods/step.rs:537:51)
+ ERROR wasp::testsuite > test 2/36 failed (module: 0, invoke: "type-local-i32", error: a local is missing: src/runtime/methods/step.rs:534:51)
 ```
 
 ## Failed: test-suite/test/core/local_set.wast
 ```bash
- ERROR wasp::testsuite > test 20/53 failed (module: 0, invoke: "write", error: a local is missing: src/runtime/methods/step.rs:537:51)
+ ERROR wasp::testsuite > test 20/53 failed (module: 0, invoke: "write", error: a local is missing: src/runtime/methods/step.rs:534:51)
 ```
 
 ## Failed: test-suite/test/core/local_tee.wast
 ```bash
  ERROR wasp::testsuite > oops the test-suite panicked!
 Reason:
-	panicked at src/runtime/methods/step.rs:1396:17:
+	panicked at src/runtime/methods/step.rs:1384:17:
 	not implemented: instruction not supported : x8c_f32_neg
 Last test (45):
 	AssertReturn(AssertReturn { _type: MustBe!("assert_return"), action: Invoke { module: None, field: "as-unary-operand", args: [F32 { value: "0" }] }, expected: [F32 { value: "4286640610" }] })
@@ -744,7 +744,7 @@ Last test (0):
 ```bash
  ERROR wasp::testsuite > oops the test-suite panicked!
 Reason:
-	panicked at src/runtime/methods/step.rs:1396:17:
+	panicked at src/runtime/methods/step.rs:1384:17:
 	not implemented: instruction not supported : x51_i64_eq
 Last test (1):
 	AssertReturn(AssertReturn { _type: MustBe!("assert_return"), action: Invoke { module: None, field: "fac-expr", args: [I64 { value: "25" }] }, expected: [I64 { value: "7034535277573963776" }] })
@@ -823,7 +823,7 @@ Last test (0):
 ```bash
  ERROR wasp::testsuite > oops the test-suite panicked!
 Reason:
-	panicked at src/runtime/methods/step.rs:1396:17:
+	panicked at src/runtime/methods/step.rs:1384:17:
 	not implemented: instruction not supported : xfc_16_table_size(TableIdX(0))
 Last test (1):
 	AssertReturn(AssertReturn { _type: MustBe!("assert_return"), action: Invoke { module: None, field: "size-t0", args: [] }, expected: [I32 { value: "0" }] })
@@ -834,7 +834,7 @@ Last test (1):
  ERROR wasp::testsuite > oops the test-suite panicked!
 Reason:
 	panicked at src/testsuite.rs:355:32:
-	failed to load module: missing function index: src/runtime/clean_model.rs:99:80
+	failed to load module: unknown import: src/runtime/clean_model.rs:125:82
 Last test (11):
 	Module(Module { _type: MustBe!("module"), _name: None, filename: "token.11.wasm" })
 ```
@@ -843,7 +843,7 @@ Last test (11):
 ```bash
  ERROR wasp::testsuite > oops the test-suite panicked!
 Reason:
-	panicked at src/runtime/methods/step.rs:1396:17:
+	panicked at src/runtime/methods/step.rs:1384:17:
 	not implemented: instruction not supported : x6d_i32_div_s
 Last test (1):
 	AssertTrap(AssertTrap { _type: MustBe!("assert_trap"), action: Invoke { module: None, field: "no_dce.i32.div_s", args: [I32 { value: "1" }, I32 { value: "0" }] }, text: "integer divide by zero" })
@@ -851,7 +851,7 @@ Last test (1):
 
 ## Failed: test-suite/test/core/unreachable.wast
 ```bash
- ERROR wasp::testsuite > Got error "hit an unreachable code segment: src/runtime/methods/step.rs:278:17", expected error: "unreachable" (module: 0, function "type-i32")
+ ERROR wasp::testsuite > Got error "hit an unreachable code segment: src/runtime/methods/step.rs:275:17", expected error: "unreachable" (module: 0, function "type-i32")
 ```
 
 ## Failed: test-suite/test/core/unreached-invalid.wast
@@ -880,7 +880,7 @@ Last test (0):
 
 ## Failed: test-suite/test/core/unwind.wast
 ```bash
- ERROR wasp::testsuite > Got error "hit an unreachable code segment: src/runtime/methods/step.rs:278:17", expected error: "unreachable" (module: 0, function "func-unwind-by-unreachable")
+ ERROR wasp::testsuite > Got error "hit an unreachable code segment: src/runtime/methods/step.rs:275:17", expected error: "unreachable" (module: 0, function "func-unwind-by-unreachable")
 ```
 
 ## Failed: test-suite/test/core/utf8-custom-section-id.wast

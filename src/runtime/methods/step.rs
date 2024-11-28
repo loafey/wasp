@@ -1235,6 +1235,7 @@ impl Runtime {
                 let Table {
                     table,
                     table_length,
+                    ..
                 } = &mut *table;
 
                 let check_1 = source + amount > elems.read().instrs.len() as u32;
@@ -1278,6 +1279,7 @@ impl Runtime {
                 let Table {
                     table: b,
                     table_length: b_len,
+                    ..
                 } = &mut *b;
                 let check_2 = destination < b_len.0 as u32;
                 let check_3 = destination + amount > b_len.1 as u32;

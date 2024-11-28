@@ -8,8 +8,8 @@ use super::{
 use crate::{
     parser::{
         self, Code, Data, Elem, ExportDesc, Expr, FuncIdx, FuncType, Global as PGlobal, GlobalIdX,
-        ImportDesc, Instr, LabelIdX, Limits, Locals, MemArg, MemIdX, Module, Mutable, TableIdX,
-        TypeIdX, BT,
+        ImportDesc, Instr, LabelIdX, Limits, Locals, MemArg, MemIdX, Module, Mutable, RefTyp,
+        TableIdX, TableType, TypeIdX, BT,
     },
     ptr::{Ptr, PtrRW},
 };
@@ -52,6 +52,7 @@ impl std::fmt::Debug for Function {
 pub struct Table {
     pub table: HashMap<u32, FuncIdx>,
     pub table_length: (usize, usize),
+    pub typ: RefTyp,
 }
 
 #[allow(clippy::type_complexity)]
@@ -166,7 +167,7 @@ fn setup_imports(
                     globals.push(g.clone())
                 }
             },
-            ImportDesc::Table(_) => match other.get(&import.module.0).expect("impossible!") {
+            ImportDesc::Table(t) => match other.get(&import.module.0).expect("impossible!") {
                 Import::WS(other) => {
                     let exp = other
                         .exports
@@ -184,13 +185,65 @@ fn setup_imports(
                         .get(*id as usize)
                         .ok_or(RuntimeError::UnknownImport(file!(), line!(), column!()))?;
 
+                    let tt = g.read().typ;
+                    if t.et != tt {
+                        return Err(RuntimeError::IncompatibleImportType(
+                            file!(),
+                            line!(),
+                            column!(),
+                        ));
+                    }
+                    let l = g.read().table_length;
+                    println!("{t:?}, {l:?}");
+                    if l.0 == l.1 {
+                        match t.lim {
+                            Limits::Min(i) => {
+                                if i > l.0 as u32 {
+                                    return Err(RuntimeError::IncompatibleImportType(
+                                        file!(),
+                                        line!(),
+                                        column!(),
+                                    ));
+                                }
+                            }
+                            Limits::MinMax(_, _) => {
+                                return Err(RuntimeError::IncompatibleImportType(
+                                    file!(),
+                                    line!(),
+                                    column!(),
+                                ))
+                            }
+                        }
+                    } else {
+                        match t.lim {
+                            Limits::Min(_) => {}
+                            Limits::MinMax(l1, l2) => {
+                                println!("stuck here");
+                                // if l.0 as u32 > l1 && l.1 as u32 != l2 {
+                                //     return Err(RuntimeError::IncompatibleImportType(
+                                //         file!(),
+                                //         line!(),
+                                //         column!(),
+                                //     ));
+                                // }
+                            }
+                        }
+                    }
+
                     tables.push(g.clone());
                 }
                 Import::IO(IO { tables: tabs, .. }) => {
                     let g = tabs
                         .get(&*import.name.0)
                         .ok_or(RuntimeError::UnknownImport(file!(), line!(), column!()))?;
-
+                    let tt = g.read().typ;
+                    if t.et != tt {
+                        return Err(RuntimeError::IncompatibleImportType(
+                            file!(),
+                            line!(),
+                            column!(),
+                        ));
+                    }
                     tables.push(g.clone())
                 }
             },
@@ -204,7 +257,7 @@ fn setup_imports(
 fn get_tables(value: &Module, tables: &mut Vec<PtrRW<Table>>) -> Result<(), RuntimeError> {
     tables.extend(value.tables.tables.iter().map(|t| {
         let table_length = match t.lim {
-            Limits::Min(m) => (0, m as usize),
+            Limits::Min(m) => (m as usize, m as usize),
             Limits::MinMax(n, m) => (n as usize, m as usize),
         };
         let table = (table_length.0..table_length.1)
@@ -213,6 +266,7 @@ fn get_tables(value: &Module, tables: &mut Vec<PtrRW<Table>>) -> Result<(), Runt
         Table {
             table,
             table_length,
+            typ: t.et,
         }
         .into()
     }));

@@ -1,6 +1,9 @@
 use std::collections::HashMap;
 
-use crate::{parser::Mutable, ptr::PtrRW};
+use crate::{
+    parser::{Mutable, RefTyp},
+    ptr::PtrRW,
+};
 
 use super::{
     clean_model::{Model, Table},
@@ -168,6 +171,16 @@ impl Import {
             Table {
                 table: HashMap::new(),
                 table_length: (10, 20),
+                typ: RefTyp::FuncRef,
+            }
+            .into(),
+        );
+        tables.insert(
+            "table_1",
+            Table {
+                table: HashMap::new(),
+                table_length: (0, 0),
+                typ: RefTyp::ExternRef,
             }
             .into(),
         );

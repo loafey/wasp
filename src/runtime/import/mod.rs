@@ -3,7 +3,7 @@ use std::collections::HashMap;
 use crate::{parser::Mutable, ptr::PtrRW};
 
 use super::{
-    clean_model::Model,
+    clean_model::{Model, Table},
     memory::Memory,
     RuntimeError::{self, *},
     Value,
@@ -79,6 +79,7 @@ macro_rules! get {
 pub struct IO {
     pub functions: HashMap<&'static str, IOFunction>,
     pub globals: HashMap<&'static str, PtrRW<(Mutable, Value)>>,
+    pub tables: HashMap<&'static str, PtrRW<Table>>,
     pub memory: PtrRW<Memory<{ 65536 + 1 }>>,
 }
 pub enum Import {
@@ -165,6 +166,7 @@ impl Import {
             functions: res,
             globals,
             memory: Memory::new(1, 1).into(),
+            tables: HashMap::new(),
         }
     }
 }

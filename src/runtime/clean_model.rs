@@ -166,9 +166,34 @@ fn setup_imports(
                     globals.push(g.clone())
                 }
             },
-            ImportDesc::Table(_) => {
-                todo!()
-            }
+            ImportDesc::Table(_) => match other.get(&import.module.0).expect("impossible!") {
+                Import::WS(other) => {
+                    let exp = other
+                        .exports
+                        .get(&import.name.0)
+                        .ok_or(RuntimeError::UnknownImport(file!(), line!(), column!()))?;
+                    let ExportDesc::Table(TableIdX(id)) = exp else {
+                        return Err(RuntimeError::IncompatibleImportType(
+                            file!(),
+                            line!(),
+                            column!(),
+                        ));
+                    };
+                    let g = other
+                        .tables
+                        .get(*id as usize)
+                        .ok_or(RuntimeError::UnknownImport(file!(), line!(), column!()))?;
+
+                    tables.push(g.clone());
+                }
+                Import::IO(IO { tables: tabs, .. }) => {
+                    let g = tabs
+                        .get(&*import.name.0)
+                        .ok_or(RuntimeError::UnknownImport(file!(), line!(), column!()))?;
+
+                    tables.push(g.clone())
+                }
+            },
             _ => (),
         }
     }

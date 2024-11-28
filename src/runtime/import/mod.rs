@@ -162,11 +162,21 @@ impl Import {
                 .into(),
         );
 
+        let mut tables = HashMap::new();
+        tables.insert(
+            "table",
+            Table {
+                table: HashMap::new(),
+                table_length: (10, 20),
+            }
+            .into(),
+        );
+
         IO {
             functions: res,
             globals,
             memory: Memory::new(1, 1).into(),
-            tables: HashMap::new(),
+            tables,
         }
     }
 }

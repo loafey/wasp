@@ -1,7 +1,7 @@
 use super::{
     memory::Memory,
     typecheck::TypeCheckError,
-    IOFuncInner, IOFunction, Import, Mem,
+    IOFunction, Import, Mem,
     RuntimeError::{self, *},
     Stack, Value, IO,
 };
@@ -23,7 +23,7 @@ pub enum Function {
     },
     IO {
         ty: FuncType,
-        func: IOFuncInner,
+        func: IOFunction,
     },
 }
 
@@ -76,37 +76,40 @@ fn setup_imports(
 
     for import in &value.imports.imports {
         match import.desc {
-            ImportDesc::Func(_) => match other.get(&import.module.0).expect("impossible!") {
-                Import::WS(other) => {
-                    let exp = other
-                        .exports
-                        .get(&import.name.0)
-                        .ok_or(RuntimeError::MissingFunction(file!(), line!(), column!()))?;
-                    let ExportDesc::Func(FuncIdx(id)) = exp else {
-                        todo!("insert proper error here")
-                    };
-                    let c = other
-                        .functions
-                        .get(*id as usize)
-                        .ok_or(RuntimeError::MissingFunction(file!(), line!(), column!()))?;
-                    functions.push(c.clone());
-                }
-                Import::IO(IO {
-                    functions: funcs, ..
-                }) => {
-                    let IOFunction { ty, func } = funcs
-                        .get(&*import.name.0)
-                        .ok_or(RuntimeError::MissingFunction(file!(), line!(), column!()))?;
+            ImportDesc::Func(TypeIdX(tid)) => {
+                let ty = value
+                    .types
+                    .function_types
+                    .get(tid as usize)
+                    .ok_or(MissingType(file!(), line!(), column!()))?
+                    .clone();
 
-                    functions.push(
-                        Function::IO {
-                            func: *func,
-                            ty: ty.clone(),
-                        }
-                        .into(),
-                    )
+                match other.get(&import.module.0).expect("impossible!") {
+                    Import::WS(other) => {
+                        let exp = other
+                            .exports
+                            .get(&import.name.0)
+                            .ok_or(RuntimeError::UnknownImport(file!(), line!(), column!()))?;
+                        let ExportDesc::Func(FuncIdx(id)) = exp else {
+                            todo!("insert proper error here")
+                        };
+                        let c = other
+                            .functions
+                            .get(*id as usize)
+                            .ok_or(RuntimeError::UnknownImport(file!(), line!(), column!()))?;
+                        functions.push(c.clone());
+                    }
+                    Import::IO(IO {
+                        functions: funcs, ..
+                    }) => {
+                        let func = funcs
+                            .get(&*import.name.0)
+                            .ok_or(RuntimeError::UnknownImport(file!(), line!(), column!()))?;
+
+                        functions.push(Function::IO { func: *func, ty }.into())
+                    }
                 }
-            },
+            }
             ImportDesc::Global(_) => {
                 globals
                     .push(Global::Foreign(import.module.0.clone(), import.name.0.clone()).into());

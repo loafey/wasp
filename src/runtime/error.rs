@@ -9,6 +9,7 @@ pub enum RuntimeError {
     UnknownFunction(String, String),
     ReturnedToNoFrame(Vec<Value>, &'static str, u32, u32),
     UnknownImport(&'static str, u32, u32),
+    IncompatibleImportType(&'static str, u32, u32),
     NoFrame(&'static str, u32, u32),
     NoModule(String, &'static str, u32, u32),
     MissingGlobal(&'static str, u32, u32),
@@ -55,6 +56,9 @@ impl std::fmt::Debug for RuntimeError {
                     f,
                     "tried to use unloaded module \"{module}\": {arg0}:{arg1}:{arg2}"
                 )
+            }
+            Self::IncompatibleImportType(arg0, arg1, arg2) => {
+                write!(f, "incompatible import type: {arg0}:{arg1}:{arg2}")
             }
             Self::UnknownImport(arg0, arg1, arg2) => {
                 write!(f, "unknown import: {arg0}:{arg1}:{arg2}")

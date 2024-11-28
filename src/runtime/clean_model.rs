@@ -91,12 +91,28 @@ fn setup_imports(
                             .get(&import.name.0)
                             .ok_or(RuntimeError::UnknownImport(file!(), line!(), column!()))?;
                         let ExportDesc::Func(FuncIdx(id)) = exp else {
-                            todo!("insert proper error here")
+                            return Err(RuntimeError::IncompatibleImportType(
+                                file!(),
+                                line!(),
+                                column!(),
+                            ));
                         };
                         let c = other
                             .functions
                             .get(*id as usize)
                             .ok_or(RuntimeError::UnknownImport(file!(), line!(), column!()))?;
+                        let ty2 = match c.as_ref() {
+                            Function::WS { ty, .. } | Function::IO { ty, .. } => ty,
+                        };
+
+                        if &ty != ty2 {
+                            return Err(RuntimeError::IncompatibleImportType(
+                                file!(),
+                                line!(),
+                                column!(),
+                            ));
+                        }
+
                         functions.push(c.clone());
                     }
                     Import::IO(IO {

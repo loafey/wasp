@@ -247,10 +247,13 @@ impl Runtime {
                 FuncId::Foreign { module, id } => todo!("foreign call {module}::({id})"),
             };
             let ptr = unwrap!(module.functions.get(function as usize), MissingFunction);
-            let Function::WS { ty, code, .. } = ptr.as_ref() else {
-                todo!("io call in step")
-            };
-            (code, ty, module)
+            match ptr.as_ref() {
+                Function::WS { ty, code, .. } => (code, ty, module),
+                Function::IO { ty, func } => {
+                    todo!();
+                    return Ok(());
+                }
+            }
         };
 
         // Execute

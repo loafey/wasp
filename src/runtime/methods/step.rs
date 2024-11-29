@@ -725,7 +725,7 @@ impl Runtime {
             x4b_i32_gt_u => {
                 let y = pop!(u32);
                 let x = pop!(u32);
-                push!(i32, (y > x) as i32)
+                push!(i32, (x > y) as i32)
             }
             x4c_i32_le_s => {
                 let y = pop!(i32);
@@ -796,9 +796,17 @@ impl Runtime {
                 let x = pop!(f64);
                 push!(i32, (x <= y) as i32)
             }
+            x67_i32_clz => {
+                let x = pop!(i32);
+                push!(u32, x.leading_zeros())
+            }
             x68_i32_ctz => {
                 let x = pop!(i32);
-                push!(i32, x.trailing_zeros() as i32)
+                push!(u32, x.trailing_zeros())
+            }
+            x69_i32_popcnt => {
+                let x = pop!(i32);
+                push!(u32, x.count_ones())
             }
             x6a_i32_add => {
                 let y = pop!(i32);
@@ -1143,6 +1151,14 @@ impl Runtime {
             xbf_f64_reinterpret_i64 => {
                 let x = pop!(u64);
                 push!(f64, f64::from_bits(x));
+            }
+            xc0_i32_extend8_s => {
+                let x = pop!(i32) as i8;
+                push!(i32, x as i32)
+            }
+            xc1_i32_extend16_s => {
+                let x = pop!(i32) as i16;
+                push!(i32, x as i32)
             }
             xd0_ref_null(x) => match x {
                 RefTyp::FuncRef => todo!(),

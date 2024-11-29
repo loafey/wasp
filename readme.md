@@ -5,36 +5,16 @@
 💩: 115
 ## Failed: test-suite/test/core/bulk.wast
 ```bash
-creating spectest
-creating spectest
-creating spectest
-creating spectest
-creating spectest
-creating spectest
-creating spectest
-creating spectest
-creating spectest
  ERROR wasp::testsuite > test 76/117 got error "undefined element", expected error: "uninitialized element 2" (module: 8, function "call")
 ```
 
 ## Failed: test-suite/test/core/data.wast
 ```bash
-creating spectest
-creating spectest
-creating spectest
-creating spectest
-creating spectest
-creating spectest
-creating spectest
-creating spectest
-creating spectest
-creating spectest
  ERROR wasp::testsuite > test 10/61 did not fail invalidating/parsing, expected error: "unknown global" (module: "test-suite/test/core/data.9.wasm")
 ```
 
 ## Failed: test-suite/test/core/elem.wast
 ```bash
-creating spectest
  ERROR wasp::testsuite > oops the test-suite panicked!
 Reason:
 	panicked at src/runtime/clean_model.rs:578:34:
@@ -45,7 +25,6 @@ Last test (0):
 
 ## Failed: test-suite/test/core/endianness.wast
 ```bash
-creating spectest
  ERROR wasp::testsuite > oops the test-suite panicked!
 Reason:
 	panicked at src/runtime/methods/step.rs:1379:17:
@@ -56,18 +35,6 @@ Last test (1):
 
 ## Failed: test-suite/test/core/exports.wast
 ```bash
-creating spectest
-creating spectest
-creating spectest
-creating spectest
-creating spectest
-creating spectest
-creating spectest
-creating spectest
-creating spectest
-creating spectest
-creating spectest
-creating spectest
  ERROR wasp::testsuite > oops the test-suite panicked!
 Reason:
 	panicked at src/testsuite.rs:240:17:
@@ -78,7 +45,6 @@ Last test (13):
 
 ## Failed: test-suite/test/core/f32.wast
 ```bash
-creating spectest
  ERROR wasp::testsuite > oops the test-suite panicked!
 Reason:
 	panicked at src/testsuite.rs:355:32:
@@ -98,7 +64,6 @@ Last test (0):
 
 ## Failed: test-suite/test/core/f32_bitwise.wast
 ```bash
-creating spectest
  ERROR wasp::testsuite > oops the test-suite panicked!
 Reason:
 	panicked at src/testsuite.rs:355:32:
@@ -118,7 +83,6 @@ Last test (0):
 
 ## Failed: test-suite/test/core/f32_cmp.wast
 ```bash
-creating spectest
  ERROR wasp::testsuite > oops the test-suite panicked!
 Reason:
 	panicked at src/testsuite.rs:355:32:
@@ -138,7 +102,6 @@ Last test (0):
 
 ## Failed: test-suite/test/core/f64.wast
 ```bash
-creating spectest
  ERROR wasp::testsuite > oops the test-suite panicked!
 Reason:
 	panicked at src/testsuite.rs:355:32:
@@ -158,7 +121,6 @@ Last test (0):
 
 ## Failed: test-suite/test/core/f64_bitwise.wast
 ```bash
-creating spectest
  ERROR wasp::testsuite > oops the test-suite panicked!
 Reason:
 	panicked at src/testsuite.rs:355:32:
@@ -178,7 +140,6 @@ Last test (0):
 
 ## Failed: test-suite/test/core/f64_cmp.wast
 ```bash
-creating spectest
  ERROR wasp::testsuite > oops the test-suite panicked!
 Reason:
 	panicked at src/testsuite.rs:355:32:
@@ -198,7 +159,6 @@ Last test (0):
 
 ## Failed: test-suite/test/core/fac.wast
 ```bash
-creating spectest
  ERROR wasp::testsuite > oops the test-suite panicked!
 Reason:
 	panicked at src/runtime/methods/step.rs:1379:17:
@@ -209,15 +169,11 @@ Last test (1):
 
 ## Failed: test-suite/test/core/float_exprs.wast
 ```bash
-creating spectest
-creating spectest
-creating spectest
  ERROR wasp::testsuite > test 21/927 failed (module: 2, invoke: "f32.no_fold_add_zero", got [i32(2145386496)], but expected [i32(-738197504)])
 ```
 
 ## Failed: test-suite/test/core/float_misc.wast
 ```bash
-creating spectest
  ERROR wasp::testsuite > oops the test-suite panicked!
 Reason:
 	panicked at src/testsuite.rs:355:32:
@@ -237,21 +193,17 @@ Last test (0):
 
 ## Failed: test-suite/test/core/func.wast
 ```bash
-creating spectest
  ERROR wasp::testsuite > test 9/172 failed (module: 0, invoke: "local-first-i32", error: a local is missing: src/runtime/methods/step.rs:536:51)
 ```
 
 ## Failed: test-suite/test/core/func_ptrs.wast
 ```bash
-creating spectest
 83
-creating spectest
  ERROR wasp::testsuite > test 6/36 did not fail invalidating/parsing, expected error: "unknown table" (module: "test-suite/test/core/func_ptrs.1.wasm")
 ```
 
 ## Failed: test-suite/test/core/global.wast
 ```bash
-creating spectest
  ERROR wasp::testsuite > oops the test-suite panicked!
 Reason:
 	panicked at src/testsuite.rs:355:32:
@@ -262,7 +214,6 @@ Last test (0):
 
 ## Failed: test-suite/test/core/i32.wast
 ```bash
-creating spectest
  ERROR wasp::testsuite > oops the test-suite panicked!
 Reason:
 	panicked at src/testsuite.rs:355:32:
@@ -282,7 +233,6 @@ Last test (0):
 
 ## Failed: test-suite/test/core/i64.wast
 ```bash
-creating spectest
  ERROR wasp::testsuite > oops the test-suite panicked!
 Reason:
 	panicked at src/testsuite.rs:355:32:
@@ -302,13 +252,11 @@ Last test (0):
 
 ## Failed: test-suite/test/core/if.wast
 ```bash
-creating spectest
  ERROR wasp::testsuite > test 98/241 failed (module: 0, invoke: "params", got [i32(1)], but expected [i32(-1)])
 ```
 
 ## Failed: test-suite/test/core/int_exprs.wast
 ```bash
-creating spectest
  ERROR wasp::testsuite > oops the test-suite panicked!
 Reason:
 	panicked at src/runtime/methods/step.rs:1379:17:
@@ -319,13 +267,11 @@ Last test (3):
 
 ## Failed: test-suite/test/core/labels.wast
 ```bash
-creating spectest
  ERROR wasp::testsuite > test 3/29 failed (module: 0, invoke: "loop1", got [i32(1)], but expected [i32(5)])
 ```
 
 ## Failed: test-suite/test/core/left-to-right.wast
 ```bash
-creating spectest
  ERROR wasp::testsuite > oops the test-suite panicked!
 Reason:
 	panicked at src/testsuite.rs:355:32:
@@ -345,7 +291,6 @@ Last test (0):
 
 ## Failed: test-suite/test/core/linking.wast
 ```bash
-creating spectest
  ERROR wasp::testsuite > oops the test-suite panicked!
 Reason:
 	panicked at src/testsuite.rs:564:21:
@@ -356,7 +301,6 @@ Last test (1):
 
 ## Failed: test-suite/test/core/load.wast
 ```bash
-creating spectest
  ERROR wasp::testsuite > oops the test-suite panicked!
 Reason:
 	panicked at src/runtime/methods/step.rs:1379:17:
@@ -367,19 +311,16 @@ Last test (31):
 
 ## Failed: test-suite/test/core/local_get.wast
 ```bash
-creating spectest
  ERROR wasp::testsuite > test 2/36 failed (module: 0, invoke: "type-local-i32", error: a local is missing: src/runtime/methods/step.rs:536:51)
 ```
 
 ## Failed: test-suite/test/core/local_set.wast
 ```bash
-creating spectest
  ERROR wasp::testsuite > test 20/53 failed (module: 0, invoke: "write", error: a local is missing: src/runtime/methods/step.rs:536:51)
 ```
 
 ## Failed: test-suite/test/core/local_tee.wast
 ```bash
-creating spectest
  ERROR wasp::testsuite > oops the test-suite panicked!
 Reason:
 	panicked at src/runtime/methods/step.rs:1379:17:
@@ -390,7 +331,6 @@ Last test (45):
 
 ## Failed: test-suite/test/core/loop.wast
 ```bash
-creating spectest
  ERROR wasp::testsuite > oops the test-suite panicked!
 Reason:
 	panicked at src/testsuite.rs:355:32:
@@ -414,37 +354,11 @@ Last test (0):
 
 ## Failed: test-suite/test/core/memory.wast
 ```bash
-creating spectest
-creating spectest
-creating spectest
-creating spectest
-creating spectest
-creating spectest
-creating spectest
-creating spectest
  ERROR wasp::testsuite > test 8/88 did not fail invalidating/parsing, expected error: "multiple memories" (module: "test-suite/test/core/memory.7.wasm")
 ```
 
 ## Failed: test-suite/test/core/memory_copy.wast
 ```bash
-creating spectest
-creating spectest
-creating spectest
-creating spectest
-creating spectest
-creating spectest
-creating spectest
-creating spectest
-creating spectest
-creating spectest
-creating spectest
-creating spectest
-creating spectest
-creating spectest
-creating spectest
-creating spectest
-creating spectest
-creating spectest
  ERROR wasp::testsuite > oops the test-suite panicked!
 Reason:
 	panicked at src/runtime/memory.rs:146:25:
@@ -455,9 +369,6 @@ Last test (3418):
 
 ## Failed: test-suite/test/core/memory_fill.wast
 ```bash
-creating spectest
-creating spectest
-creating spectest
  ERROR wasp::testsuite > oops the test-suite panicked!
 Reason:
 	panicked at src/runtime/memory.rs:191:27:
@@ -468,7 +379,6 @@ Last test (7):
 
 ## Failed: test-suite/test/core/memory_grow.wast
 ```bash
-creating spectest
  ERROR wasp::testsuite > oops the test-suite panicked!
 Reason:
 	panicked at src/testsuite.rs:355:32:
@@ -488,18 +398,11 @@ Last test (0):
 
 ## Failed: test-suite/test/core/memory_init.wast
 ```bash
-creating spectest
-creating spectest
-creating spectest
-creating spectest
-creating spectest
-creating spectest
  ERROR wasp::testsuite > test 130/240 did not fail invalidating/parsing, expected error: "unknown data segment" (module: "test-suite/test/core/memory_init.5.wasm")
 ```
 
 ## Failed: test-suite/test/core/memory_size.wast
 ```bash
-creating spectest
  ERROR wasp::testsuite > oops the test-suite panicked!
 Reason:
 	panicked at src/testsuite.rs:355:32:
@@ -519,7 +422,6 @@ Last test (0):
 
 ## Failed: test-suite/test/core/memory_trap.wast
 ```bash
-creating spectest
  ERROR wasp::testsuite > oops the test-suite panicked!
 Reason:
 	panicked at src/testsuite.rs:355:32:
@@ -539,8 +441,6 @@ Last test (0):
 
 ## Failed: test-suite/test/core/ref_func.wast
 ```bash
-creating spectest
-creating spectest
  ERROR wasp::testsuite > oops the test-suite panicked!
 Reason:
 	panicked at src/testsuite.rs:355:32:
@@ -580,7 +480,6 @@ Last test (0):
 
 ## Failed: test-suite/test/core/return.wast
 ```bash
-creating spectest
  ERROR wasp::testsuite > test 8/84 failed (module: 0, invoke: "type-f32-value", got [--- BLOCK ---, f32(3)], but expected [i32(1077936128)])
 ```
 
@@ -824,7 +723,6 @@ Last test (0):
 
 ## Failed: test-suite/test/core/stack.wast
 ```bash
-creating spectest
  ERROR wasp::testsuite > oops the test-suite panicked!
 Reason:
 	panicked at src/runtime/methods/step.rs:1379:17:
@@ -835,27 +733,16 @@ Last test (1):
 
 ## Failed: test-suite/test/core/start.wast
 ```bash
-creating spectest
  ERROR wasp::testsuite > test 1/20 did not fail invalidating/parsing, expected error: "unknown function" (module: "test-suite/test/core/start.0.wasm")
 ```
 
 ## Failed: test-suite/test/core/table.wast
 ```bash
-creating spectest
-creating spectest
-creating spectest
-creating spectest
-creating spectest
-creating spectest
-creating spectest
 memory allocation of 77309411344 bytes failed
 ```
 
 ## Failed: test-suite/test/core/table_copy.wast
 ```bash
-creating spectest
-creating spectest
-creating spectest
  ERROR wasp::testsuite > oops the test-suite panicked!
 Reason:
 	panicked at src/ptr.rs:18:19:
@@ -866,7 +753,6 @@ Last test (65):
 
 ## Failed: test-suite/test/core/table_fill.wast
 ```bash
-creating spectest
  ERROR wasp::testsuite > oops the test-suite panicked!
 Reason:
 	panicked at src/testsuite.rs:355:32:
@@ -906,8 +792,6 @@ Last test (0):
 
 ## Failed: test-suite/test/core/table_init.wast
 ```bash
-creating spectest
-creating spectest
  ERROR wasp::testsuite > test 4/780 failed: out of bounds table access (module: 1, invoke: "test")
 ```
 
@@ -923,7 +807,6 @@ Last test (0):
 
 ## Failed: test-suite/test/core/table_size.wast
 ```bash
-creating spectest
  ERROR wasp::testsuite > oops the test-suite panicked!
 Reason:
 	panicked at src/runtime/methods/step.rs:1379:17:
@@ -934,16 +817,6 @@ Last test (1):
 
 ## Failed: test-suite/test/core/token.wast
 ```bash
-creating spectest
-creating spectest
-creating spectest
-creating spectest
-creating spectest
-creating spectest
-creating spectest
-creating spectest
-creating spectest
-creating spectest
  ERROR wasp::testsuite > oops the test-suite panicked!
 Reason:
 	panicked at src/testsuite.rs:355:32:
@@ -954,7 +827,6 @@ Last test (11):
 
 ## Failed: test-suite/test/core/traps.wast
 ```bash
-creating spectest
  ERROR wasp::testsuite > oops the test-suite panicked!
 Reason:
 	panicked at src/runtime/methods/step.rs:1379:17:
@@ -965,19 +837,16 @@ Last test (1):
 
 ## Failed: test-suite/test/core/unreachable.wast
 ```bash
-creating spectest
  ERROR wasp::testsuite > test 2/64 got error "hit an unreachable code segment: src/runtime/methods/step.rs:280:17", expected error: "unreachable" (module: 0, function "type-i32")
 ```
 
 ## Failed: test-suite/test/core/unreached-invalid.wast
 ```bash
-creating spectest
  ERROR wasp::testsuite > test 1/118 did not fail invalidating/parsing, expected error: "unknown local" (module: "test-suite/test/core/unreached-invalid.0.wasm")
 ```
 
 ## Failed: test-suite/test/core/unreached-valid.wast
 ```bash
-creating spectest
  ERROR wasp::testsuite > oops the test-suite panicked!
 Reason:
 	panicked at src/testsuite.rs:355:32:
@@ -997,13 +866,11 @@ Last test (0):
 
 ## Failed: test-suite/test/core/unwind.wast
 ```bash
-creating spectest
  ERROR wasp::testsuite > test 2/50 got error "hit an unreachable code segment: src/runtime/methods/step.rs:280:17", expected error: "unreachable" (module: 0, function "func-unwind-by-unreachable")
 ```
 
 ## Failed: test-suite/test/core/utf8-custom-section-id.wast
 ```bash
-creating spectest
  ERROR wasp::testsuite > test 1/176 did not fail invalidating/parsing, expected error: "malformed UTF-8 encoding" (module: "test-suite/test/core/utf8-custom-section-id.0.wasm")
 ```
 

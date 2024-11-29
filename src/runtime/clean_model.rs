@@ -167,87 +167,93 @@ fn setup_imports(
                     globals.push(g.clone())
                 }
             },
-            ImportDesc::Table(t) => match other.get(&import.module.0).expect("impossible!") {
-                Import::WS(other) => {
-                    let exp = other
-                        .exports
-                        .get(&import.name.0)
-                        .ok_or(RuntimeError::UnknownImport(file!(), line!(), column!()))?;
-                    let ExportDesc::Table(TableIdX(id)) = exp else {
-                        return Err(RuntimeError::IncompatibleImportType(
-                            file!(),
-                            line!(),
-                            column!(),
-                        ));
-                    };
-                    let g = other
-                        .tables
-                        .get(*id as usize)
-                        .ok_or(RuntimeError::UnknownImport(file!(), line!(), column!()))?;
+            ImportDesc::Table(t) => {
+                let (g, tt, l) = match other.get(&import.module.0).expect("impossible!") {
+                    Import::WS(other) => {
+                        let exp = other
+                            .exports
+                            .get(&import.name.0)
+                            .ok_or(RuntimeError::UnknownImport(file!(), line!(), column!()))?;
+                        let ExportDesc::Table(TableIdX(id)) = exp else {
+                            return Err(RuntimeError::IncompatibleImportType(
+                                file!(),
+                                line!(),
+                                column!(),
+                            ));
+                        };
+                        let g = other
+                            .tables
+                            .get(*id as usize)
+                            .ok_or(RuntimeError::UnknownImport(file!(), line!(), column!()))?;
 
-                    let tt = g.read().typ;
-                    if t.et != tt {
-                        return Err(RuntimeError::IncompatibleImportType(
-                            file!(),
-                            line!(),
-                            column!(),
-                        ));
+                        let tt = g.read().typ;
+                        let l = g.read().table_length;
+
+                        (g.clone(), tt, l)
                     }
-                    let l = g.read().table_length;
-                    println!("{t:?}, {l:?}");
-                    if l.0 == l.1 {
-                        match t.lim {
-                            Limits::Min(i) => {
-                                if i > l.0 as u32 {
-                                    return Err(RuntimeError::IncompatibleImportType(
-                                        file!(),
-                                        line!(),
-                                        column!(),
-                                    ));
-                                }
-                            }
-                            Limits::MinMax(_, _) => {
+                    Import::IO(IO { tables: tabs, .. }) => {
+                        let g = tabs
+                            .get(&*import.name.0)
+                            .ok_or(RuntimeError::UnknownImport(file!(), line!(), column!()))?;
+                        let tt = g.read().typ;
+                        let l = g.read().table_length;
+                        (g.clone(), tt, l)
+                    }
+                };
+
+                if t.et != tt {
+                    return Err(RuntimeError::IncompatibleImportType(
+                        file!(),
+                        line!(),
+                        column!(),
+                    ));
+                }
+
+                if l.0 == l.1 {
+                    match t.lim {
+                        Limits::Min(i) => {
+                            if i > l.0 as u32 {
                                 return Err(RuntimeError::IncompatibleImportType(
                                     file!(),
                                     line!(),
                                     column!(),
-                                ))
+                                ));
                             }
                         }
-                    } else {
-                        match t.lim {
-                            Limits::Min(_) => {}
-                            Limits::MinMax(l1, l2) => {
-                                if
-                                /*l.0 as u32 > l1*/
-                                l.1 as u32 != l2 {
-                                    return Err(RuntimeError::IncompatibleImportType(
-                                        file!(),
-                                        line!(),
-                                        column!(),
-                                    ));
-                                }
+                        Limits::MinMax(_, _) => {
+                            return Err(RuntimeError::IncompatibleImportType(
+                                file!(),
+                                line!(),
+                                column!(),
+                            ));
+                        }
+                    }
+                } else {
+                    match t.lim {
+                        Limits::Min(l1) => {
+                            if l1 > (l.1 - l.0) as u32 {
+                                return Err(RuntimeError::IncompatibleImportType(
+                                    file!(),
+                                    line!(),
+                                    column!(),
+                                ));
+                            }
+                        }
+                        Limits::MinMax(l1, l2) => {
+                            let tl_size = l2 - l1;
+                            if tl_size < l.0 as u32 {
+                                return Err(RuntimeError::IncompatibleImportType(
+                                    file!(),
+                                    line!(),
+                                    column!(),
+                                ));
                             }
                         }
                     }
+                }
 
-                    tables.push(g.clone());
-                }
-                Import::IO(IO { tables: tabs, .. }) => {
-                    let g = tabs
-                        .get(&*import.name.0)
-                        .ok_or(RuntimeError::UnknownImport(file!(), line!(), column!()))?;
-                    let tt = g.read().typ;
-                    if t.et != tt {
-                        return Err(RuntimeError::IncompatibleImportType(
-                            file!(),
-                            line!(),
-                            column!(),
-                        ));
-                    }
-                    tables.push(g.clone())
-                }
-            },
+                tables.push(g.clone())
+            }
             _ => (),
         }
     }

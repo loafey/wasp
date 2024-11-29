@@ -1,13 +1,8 @@
 # W.A.S.P
 
 ## Latest spec test (typechecking currently disabled)
-💅: 32\
-💩: 115
-## Failed: test-suite/test/core/bulk.wast
-```bash
- ERROR wasp::testsuite > test 76/117 got error "undefined element", expected error: "uninitialized element 2" (module: 8, function "call")
-```
-
+💅: 33\
+💩: 114
 ## Failed: test-suite/test/core/data.wast
 ```bash
  ERROR wasp::testsuite > test 10/61 did not fail invalidating/parsing, expected error: "unknown global" (module: "test-suite/test/core/data.9.wasm")
@@ -27,7 +22,7 @@ Last test (0):
 ```bash
  ERROR wasp::testsuite > oops the test-suite panicked!
 Reason:
-	panicked at src/runtime/methods/step.rs:1379:17:
+	panicked at src/runtime/methods/step.rs:1377:17:
 	not implemented: instruction not supported : x76_i32_shr_u
 Last test (1):
 	AssertReturn(AssertReturn { _type: MustBe!("assert_return"), action: Invoke { module: None, field: "i32_load16_s", args: [I32 { value: "4294967295" }] }, expected: [I32 { value: "4294967295" }] })
@@ -161,7 +156,7 @@ Last test (0):
 ```bash
  ERROR wasp::testsuite > oops the test-suite panicked!
 Reason:
-	panicked at src/runtime/methods/step.rs:1379:17:
+	panicked at src/runtime/methods/step.rs:1377:17:
 	not implemented: instruction not supported : x51_i64_eq
 Last test (1):
 	AssertReturn(AssertReturn { _type: MustBe!("assert_return"), action: Invoke { module: None, field: "fac-rec", args: [I64 { value: "25" }] }, expected: [I64 { value: "7034535277573963776" }] })
@@ -259,7 +254,7 @@ Last test (0):
 ```bash
  ERROR wasp::testsuite > oops the test-suite panicked!
 Reason:
-	panicked at src/runtime/methods/step.rs:1379:17:
+	panicked at src/runtime/methods/step.rs:1377:17:
 	not implemented: instruction not supported : x53_i64_lt_s
 Last test (3):
 	AssertReturn(AssertReturn { _type: MustBe!("assert_return"), action: Invoke { module: None, field: "i64.no_fold_cmp_s_offset", args: [I64 { value: "9223372036854775807" }, I64 { value: "0" }] }, expected: [I32 { value: "1" }] })
@@ -293,7 +288,7 @@ Last test (0):
 ```bash
  ERROR wasp::testsuite > oops the test-suite panicked!
 Reason:
-	panicked at src/testsuite.rs:564:21:
+	panicked at src/testsuite.rs:566:21:
 	not yet implemented: Register: "Mf" $Mf
 Last test (1):
 	Register(Register { _type: MustBe!("register"), name: Some("$Mf"), _as: "Mf" })
@@ -303,7 +298,7 @@ Last test (1):
 ```bash
  ERROR wasp::testsuite > oops the test-suite panicked!
 Reason:
-	panicked at src/runtime/methods/step.rs:1379:17:
+	panicked at src/runtime/methods/step.rs:1377:17:
 	not implemented: instruction not supported : x67_i32_clz
 Last test (31):
 	AssertReturn(AssertReturn { _type: MustBe!("assert_return"), action: Invoke { module: None, field: "as-unary-operand", args: [] }, expected: [I32 { value: "32" }] })
@@ -323,7 +318,7 @@ Last test (31):
 ```bash
  ERROR wasp::testsuite > oops the test-suite panicked!
 Reason:
-	panicked at src/runtime/methods/step.rs:1379:17:
+	panicked at src/runtime/methods/step.rs:1377:17:
 	not implemented: instruction not supported : x8c_f32_neg
 Last test (45):
 	AssertReturn(AssertReturn { _type: MustBe!("assert_return"), action: Invoke { module: None, field: "as-unary-operand", args: [F32 { value: "0" }] }, expected: [F32 { value: "4286640610" }] })
@@ -725,7 +720,7 @@ Last test (0):
 ```bash
  ERROR wasp::testsuite > oops the test-suite panicked!
 Reason:
-	panicked at src/runtime/methods/step.rs:1379:17:
+	panicked at src/runtime/methods/step.rs:1377:17:
 	not implemented: instruction not supported : x51_i64_eq
 Last test (1):
 	AssertReturn(AssertReturn { _type: MustBe!("assert_return"), action: Invoke { module: None, field: "fac-expr", args: [I64 { value: "25" }] }, expected: [I64 { value: "7034535277573963776" }] })
@@ -743,12 +738,7 @@ memory allocation of 77309411344 bytes failed
 
 ## Failed: test-suite/test/core/table_copy.wast
 ```bash
- ERROR wasp::testsuite > oops the test-suite panicked!
-Reason:
-	panicked at src/ptr.rs:18:19:
-	already borrowed: BorrowMutError
-Last test (65):
-	Action(ActionWrap { _type: MustBe!("action"), action: Invoke { module: None, field: "test", args: [] } })
+ ERROR wasp::testsuite > test 66/1728 failed: out of bounds table access (module: 2, invoke: "test")
 ```
 
 ## Failed: test-suite/test/core/table_fill.wast
@@ -792,7 +782,7 @@ Last test (0):
 
 ## Failed: test-suite/test/core/table_init.wast
 ```bash
- ERROR wasp::testsuite > test 4/780 failed: out of bounds table access (module: 1, invoke: "test")
+ ERROR wasp::testsuite > test 68/780 failed: out of bounds table access (module: 3, invoke: "test")
 ```
 
 ## Failed: test-suite/test/core/table_set.wast
@@ -809,7 +799,7 @@ Last test (0):
 ```bash
  ERROR wasp::testsuite > oops the test-suite panicked!
 Reason:
-	panicked at src/runtime/methods/step.rs:1379:17:
+	panicked at src/runtime/methods/step.rs:1377:17:
 	not implemented: instruction not supported : xfc_16_table_size(TableIdX(0))
 Last test (1):
 	AssertReturn(AssertReturn { _type: MustBe!("assert_return"), action: Invoke { module: None, field: "size-t0", args: [] }, expected: [I32 { value: "0" }] })
@@ -829,7 +819,7 @@ Last test (11):
 ```bash
  ERROR wasp::testsuite > oops the test-suite panicked!
 Reason:
-	panicked at src/runtime/methods/step.rs:1379:17:
+	panicked at src/runtime/methods/step.rs:1377:17:
 	not implemented: instruction not supported : x6d_i32_div_s
 Last test (1):
 	AssertTrap(AssertTrap { _type: MustBe!("assert_trap"), action: Invoke { module: None, field: "no_dce.i32.div_s", args: [I32 { value: "1" }, I32 { value: "0" }] }, text: "integer divide by zero" })

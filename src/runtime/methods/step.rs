@@ -1265,32 +1265,27 @@ impl Runtime {
                 };
                 *r.write() = Expr { instrs: Vec::new() };
             }
-            xfc_14_table_copy(TableIdX(a), TableIdX(b)) => {
+            xfc_14_table_copy(TableIdX(i_a), TableIdX(i_b)) => {
                 let amount = pop!(i32) as u32;
                 let source = pop!(i32) as u32;
                 let destination = pop!(i32) as u32;
-                if a == b {
-                    return Ok(());
-                }
-                let mut a = unwrap!(module.tables.get(*a as usize), MissingTableIndex).write();
-                let a = &mut a.table;
 
-                let check_1 = source + amount > a.len() as u32;
+                let mut a_source =
+                    unwrap!(module.tables.get(*i_a as usize), MissingTableIndex).write();
+                let a_len = a_source.table_length;
+                let a = &mut a_source.table;
+
+                let check_1 = source + amount > a_len.0 as u32;
                 let mut clones = Vec::new();
                 for i in 0..amount {
                     let index = i + source;
-                    let f = unwrap!(a.get(&index), OutOfBoundsTableAccess);
+                    let f = a.get(&index).unwrap_or(&FuncIdx(u32::MAX));
                     clones.push(*f);
                 }
-
-                let mut b = unwrap!(module.tables.get(*b as usize), MissingTableIndex).write();
-                let Table {
-                    table: b,
-                    table_length: b_len,
-                    ..
-                } = &mut *b;
-                let check_2 = destination < b_len.0 as u32;
-                let check_3 = destination + amount > b_len.1 as u32;
+                drop(a_source);
+                let mut b = unwrap!(module.tables.get(*i_b as usize), MissingTableIndex).write();
+                let check_2 = destination > b.table.len() as u32;
+                let check_3 = destination + amount > b.table_length.1 as u32;
 
                 if check_1 || check_2 || check_3 {
                     throw!(OutOfBoundsTableAccess)
@@ -1298,7 +1293,7 @@ impl Runtime {
 
                 for (i, v) in clones.into_iter().enumerate() {
                     let index = i as u32 + destination;
-                    b.insert(index, v);
+                    b.table.insert(index, v);
                 }
             }
             block_start(bt, be, vt) => {

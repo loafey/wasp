@@ -8,8 +8,8 @@ use super::{
 use crate::{
     parser::{
         self, Code, Data, Elem, ExportDesc, Expr, FuncIdx, FuncType, Global as PGlobal, GlobalIdX,
-        ImportDesc, Instr, LabelIdX, Limits, Locals, MemArg, MemIdX, Module, Mutable, RefTyp,
-        TableIdX, TypeIdX, BT,
+        ImportDesc, Instr, LabelIdX, Limits, Locals, MemArg, MemIdX, MemType, Module, Mutable,
+        RefTyp, TableIdX, TypeIdX, BT,
     },
     ptr::{Ptr, PtrRW},
 };
@@ -64,12 +64,14 @@ fn setup_imports(
         Vec<Ptr<Function>>,
         Vec<PtrRW<(Mutable, Value)>>,
         Vec<PtrRW<Table>>,
+        Option<PtrRW<Memory<{ 65536 + 1 }>>>,
     ),
     RuntimeError,
 > {
     let mut functions = Vec::new();
     let mut globals = Vec::new();
     let mut tables = Vec::new();
+    let mut memory = None;
 
     for import in &value.imports.imports {
         match &import.desc {
@@ -254,11 +256,29 @@ fn setup_imports(
 
                 tables.push(g.clone())
             }
+            ImportDesc::Mem(_) => {
+                match other.get(&import.module.0).expect("impossible!") {
+                    Import::WS(model) => match model.exports.get(&import.name.0) {
+                        Some(ExportDesc::Mem(_)) => memory = Some(model.memory.clone()),
+                        _ => return Err(UnknownImport(file!(), line!(), column!())),
+                    },
+                    Import::IO(IO {
+                        memory_name,
+                        memory: mem,
+                        ..
+                    }) => {
+                        if memory_name != &import.name.0 {
+                            return Err(UnknownImport(file!(), line!(), column!()));
+                        }
+                        memory = Some(mem.clone());
+                    }
+                };
+            }
             _ => (),
         }
     }
 
-    Ok((functions, globals, tables))
+    Ok((functions, globals, tables, memory))
 }
 
 fn get_tables(value: &Module, tables: &mut Vec<PtrRW<Table>>) -> Result<(), RuntimeError> {
@@ -747,7 +767,7 @@ impl TryFrom<(&HashMap<String, Import>, Module)> for Model {
     fn try_from((other, value): (&HashMap<String, Import>, Module)) -> Result<Self, Self::Error> {
         let type_len = value.types.function_types.len() as u32;
 
-        let (mut functions, mut globals, mut tables) = setup_imports(other, &value)?;
+        let (mut functions, mut globals, mut tables, memory) = setup_imports(other, &value)?;
         get_tables(&value, &mut tables)?;
         get_functions(
             value.code.code,

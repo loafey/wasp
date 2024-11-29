@@ -84,6 +84,7 @@ pub struct IO {
     pub globals: HashMap<&'static str, PtrRW<(Mutable, Value)>>,
     pub tables: HashMap<&'static str, PtrRW<Table>>,
     pub memory: PtrRW<Memory<{ 65536 + 1 }>>,
+    pub memory_name: String,
 }
 pub enum Import {
     WS(Model),
@@ -190,6 +191,7 @@ impl Import {
             globals,
             memory: Memory::new(1, 1).into(),
             tables,
+            memory_name: "memory".to_string(),
         }
     }
 }

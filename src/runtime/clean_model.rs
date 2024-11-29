@@ -256,10 +256,14 @@ fn setup_imports(
 
                 tables.push(g.clone())
             }
-            ImportDesc::Mem(_) => {
-                match other.get(&import.module.0).expect("impossible!") {
+            ImportDesc::Mem(mt) => {
+                let mtt = match other.get(&import.module.0).expect("impossible!") {
                     Import::WS(model) => match model.exports.get(&import.name.0) {
-                        Some(ExportDesc::Mem(_)) => memory = Some(model.memory.clone()),
+                        Some(ExportDesc::Mem(_)) => {
+                            let mem = model.memory.clone();
+                            memory = Some(mem);
+                            model.memory.read().pages()
+                        }
                         _ => return Err(UnknownImport(file!(), line!(), column!())),
                     },
                     Import::IO(IO {
@@ -271,8 +275,15 @@ fn setup_imports(
                             return Err(UnknownImport(file!(), line!(), column!()));
                         }
                         memory = Some(mem.clone());
+                        mem.read().pages()
                     }
                 };
+                println!("{mt:?} {mtt:?}");
+                match mt.0 {
+                    Limits::Min(_) => todo!(),
+                    Limits::MinMax(_, _) if mtt.1 == usize::MAX => todo!(),
+                    Limits::MinMax(_, _) => todo!(),
+                }
             }
             _ => (),
         }

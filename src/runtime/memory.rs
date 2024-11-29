@@ -29,6 +29,10 @@ impl<const PAGE_SIZE: usize> Memory<PAGE_SIZE> {
         }
     }
 
+    pub fn pages(&self) -> (usize, usize) {
+        (self.current_pages, self.max_pages)
+    }
+
     #[allow(unused)]
     pub fn size(&self) -> usize {
         self.map.len() * PAGE_SIZE

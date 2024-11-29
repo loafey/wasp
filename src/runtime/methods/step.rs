@@ -815,15 +815,47 @@ impl Runtime {
                 let x = pop!(i32);
                 push!(i32, x.wrapping_mul(y))
             }
+            x6d_i32_div_s => {
+                let y = pop!(i32);
+                let x = pop!(i32);
+                if y == 0 {
+                    throw!(IntigerDivideByZero)
+                }
+                match x.checked_div(y) {
+                    Some(res) => push!(i32, res),
+                    None => throw!(IntegerOverflow),
+                }
+            }
             x6e_i32_div_u => {
                 let y = pop!(u32);
                 let x = pop!(u32);
-                push!(u32, x.wrapping_div(y))
+                if y == 0 {
+                    throw!(IntigerDivideByZero)
+                }
+                match x.checked_div(y) {
+                    Some(res) => push!(u32, res),
+                    None => throw!(IntegerOverflow),
+                }
+            }
+            x6f_i32_rem_s => {
+                let y = pop!(i32);
+                let x = pop!(i32);
+                if y == 0 {
+                    throw!(IntigerDivideByZero)
+                }
+                push!(i32, x.wrapping_rem(y))
+                // match x.checked_rem_euclid(y) {
+                // Some(res) => push!(i32, res),
+                // None => throw!(IntegerOverflow),
+                // }
             }
             x70_i32_rem_u => {
                 let y = pop!(u32);
                 let x = pop!(u32);
-                push!(u32, x.rem_euclid(y))
+                if y == 0 {
+                    throw!(IntigerDivideByZero)
+                }
+                push!(u32, x.wrapping_rem(y))
             }
             x71_i32_and => {
                 let y = pop!(i32);
@@ -843,7 +875,27 @@ impl Runtime {
             x74_i32_shl => {
                 let y = pop!(i32);
                 let x = pop!(i32);
-                push!(i32, x << y)
+                push!(i32, x.wrapping_shl(y as u32))
+            }
+            x75_i32_shr_s => {
+                let y = pop!(i32);
+                let x = pop!(i32);
+                push!(i32, x.wrapping_shr(y as u32))
+            }
+            x76_i32_shr_u => {
+                let y = pop!(u32);
+                let x = pop!(u32);
+                push!(u32, x.wrapping_shr(y))
+            }
+            x77_i32_rotl => {
+                let y = pop!(u32);
+                let x = pop!(u32);
+                push!(u32, x.rotate_left(y))
+            }
+            x78_i32_rotr => {
+                let y = pop!(u32);
+                let x = pop!(u32);
+                push!(u32, x.rotate_right(y))
             }
             x7c_i64_add => {
                 let y = pop!(i64);

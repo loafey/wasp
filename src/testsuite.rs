@@ -457,6 +457,7 @@ pub fn test(mut path: String) {
                         }
                         Err(e)
                             if text.contains(&format!("{e:?}"))
+                                || format!("{e:?}").contains(&text)
                                 || matches!(
                                     (&*text, &*format!("{e:?}")),
                                     ("undefined element", "uninitialized element")

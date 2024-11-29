@@ -33,6 +33,7 @@ pub enum RuntimeError {
     IndirectCallTypeMismatch(&'static str, u32, u32),
     IntegerOverflow(&'static str, u32, u32),
     InvalidConversionToInteger(&'static str, u32, u32),
+    IntigerDivideByZero(&'static str, u32, u32),
     MultipleMemories(&'static str, u32, u32),
     UnknownLabel,
     UnknownGlobal,
@@ -57,6 +58,12 @@ impl std::fmt::Debug for RuntimeError {
                     f,
                     "tried to use unloaded module \"{module}\": {arg0}:{arg1}:{arg2}"
                 )
+            }
+            Self::IntegerOverflow(arg0, arg1, arg2) => {
+                write!(f, "integer overflow: {arg0}:{arg1}:{arg2}")
+            }
+            Self::IntigerDivideByZero(arg0, arg1, arg2) => {
+                write!(f, "integer divide by zero: {arg0}:{arg1}:{arg2}")
             }
             Self::MultipleMemories(arg0, arg1, arg2) => {
                 write!(f, "multiple memories: {arg0}:{arg1}:{arg2}")

@@ -461,6 +461,8 @@ pub fn test(mut path: String) {
                                     (&*text, &*format!("{e:?}")),
                                     ("undefined element", "uninitialized element")
                                         | ("uninitialized element", "undefined element")
+                                        | ("undefined element", "uninitialized element 2")
+                                        | ("uninitialized element 2", "undefined element")
                                 ) =>
                         {
                             break;

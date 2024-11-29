@@ -248,7 +248,7 @@ impl Runtime {
                 Function::WS { ty, code, .. } => (code, ty, module),
                 Function::IO { func, .. } => {
                     let Frame { locals, .. } = unwrap!(self.stack.pop(), NoFrame);
-                    let res = func(&locals, &mut *module.memory.write())?;
+                    let res = func(&locals, &mut module.memory.write())?;
                     let frame = unwrap!(self.stack.last_mut(), NoFrame);
                     for v in res {
                         frame.stack.push(v);

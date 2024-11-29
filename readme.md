@@ -1,23 +1,43 @@
 # W.A.S.P
 
 ## Latest spec test (typechecking currently disabled)
-💅: 30\
-💩: 117
+💅: 32\
+💩: 115
 ## Failed: test-suite/test/core/bulk.wast
 ```bash
+creating spectest
+creating spectest
+creating spectest
+creating spectest
+creating spectest
+creating spectest
+creating spectest
+creating spectest
+creating spectest
  ERROR wasp::testsuite > test 76/117 got error "undefined element", expected error: "uninitialized element 2" (module: 8, function "call")
 ```
 
 ## Failed: test-suite/test/core/data.wast
 ```bash
+creating spectest
+creating spectest
+creating spectest
+creating spectest
+creating spectest
+creating spectest
+creating spectest
+creating spectest
+creating spectest
+creating spectest
  ERROR wasp::testsuite > test 10/61 did not fail invalidating/parsing, expected error: "unknown global" (module: "test-suite/test/core/data.9.wasm")
 ```
 
 ## Failed: test-suite/test/core/elem.wast
 ```bash
+creating spectest
  ERROR wasp::testsuite > oops the test-suite panicked!
 Reason:
-	panicked at src/runtime/clean_model.rs:527:34:
+	panicked at src/runtime/clean_model.rs:578:34:
 	not yet implemented: xd2_ref_func(FuncIdx(0))
 Last test (0):
 	Module(Module { _type: MustBe!("module"), _name: None, filename: "elem.0.wasm" })
@@ -25,9 +45,10 @@ Last test (0):
 
 ## Failed: test-suite/test/core/endianness.wast
 ```bash
+creating spectest
  ERROR wasp::testsuite > oops the test-suite panicked!
 Reason:
-	panicked at src/runtime/methods/step.rs:1374:17:
+	panicked at src/runtime/methods/step.rs:1379:17:
 	not implemented: instruction not supported : x76_i32_shr_u
 Last test (1):
 	AssertReturn(AssertReturn { _type: MustBe!("assert_return"), action: Invoke { module: None, field: "i32_load16_s", args: [I32 { value: "4294967295" }] }, expected: [I32 { value: "4294967295" }] })
@@ -35,6 +56,18 @@ Last test (1):
 
 ## Failed: test-suite/test/core/exports.wast
 ```bash
+creating spectest
+creating spectest
+creating spectest
+creating spectest
+creating spectest
+creating spectest
+creating spectest
+creating spectest
+creating spectest
+creating spectest
+creating spectest
+creating spectest
  ERROR wasp::testsuite > oops the test-suite panicked!
 Reason:
 	panicked at src/testsuite.rs:240:17:
@@ -45,6 +78,7 @@ Last test (13):
 
 ## Failed: test-suite/test/core/f32.wast
 ```bash
+creating spectest
  ERROR wasp::testsuite > oops the test-suite panicked!
 Reason:
 	panicked at src/testsuite.rs:355:32:
@@ -64,6 +98,7 @@ Last test (0):
 
 ## Failed: test-suite/test/core/f32_bitwise.wast
 ```bash
+creating spectest
  ERROR wasp::testsuite > oops the test-suite panicked!
 Reason:
 	panicked at src/testsuite.rs:355:32:
@@ -83,6 +118,7 @@ Last test (0):
 
 ## Failed: test-suite/test/core/f32_cmp.wast
 ```bash
+creating spectest
  ERROR wasp::testsuite > oops the test-suite panicked!
 Reason:
 	panicked at src/testsuite.rs:355:32:
@@ -102,6 +138,7 @@ Last test (0):
 
 ## Failed: test-suite/test/core/f64.wast
 ```bash
+creating spectest
  ERROR wasp::testsuite > oops the test-suite panicked!
 Reason:
 	panicked at src/testsuite.rs:355:32:
@@ -121,6 +158,7 @@ Last test (0):
 
 ## Failed: test-suite/test/core/f64_bitwise.wast
 ```bash
+creating spectest
  ERROR wasp::testsuite > oops the test-suite panicked!
 Reason:
 	panicked at src/testsuite.rs:355:32:
@@ -140,6 +178,7 @@ Last test (0):
 
 ## Failed: test-suite/test/core/f64_cmp.wast
 ```bash
+creating spectest
  ERROR wasp::testsuite > oops the test-suite panicked!
 Reason:
 	panicked at src/testsuite.rs:355:32:
@@ -159,9 +198,10 @@ Last test (0):
 
 ## Failed: test-suite/test/core/fac.wast
 ```bash
+creating spectest
  ERROR wasp::testsuite > oops the test-suite panicked!
 Reason:
-	panicked at src/runtime/methods/step.rs:1374:17:
+	panicked at src/runtime/methods/step.rs:1379:17:
 	not implemented: instruction not supported : x51_i64_eq
 Last test (1):
 	AssertReturn(AssertReturn { _type: MustBe!("assert_return"), action: Invoke { module: None, field: "fac-rec", args: [I64 { value: "25" }] }, expected: [I64 { value: "7034535277573963776" }] })
@@ -169,11 +209,15 @@ Last test (1):
 
 ## Failed: test-suite/test/core/float_exprs.wast
 ```bash
+creating spectest
+creating spectest
+creating spectest
  ERROR wasp::testsuite > test 21/927 failed (module: 2, invoke: "f32.no_fold_add_zero", got [i32(2145386496)], but expected [i32(-738197504)])
 ```
 
 ## Failed: test-suite/test/core/float_misc.wast
 ```bash
+creating spectest
  ERROR wasp::testsuite > oops the test-suite panicked!
 Reason:
 	panicked at src/testsuite.rs:355:32:
@@ -193,16 +237,21 @@ Last test (0):
 
 ## Failed: test-suite/test/core/func.wast
 ```bash
- ERROR wasp::testsuite > test 9/172 failed (module: 0, invoke: "local-first-i32", error: a local is missing: src/runtime/methods/step.rs:531:51)
+creating spectest
+ ERROR wasp::testsuite > test 9/172 failed (module: 0, invoke: "local-first-i32", error: a local is missing: src/runtime/methods/step.rs:536:51)
 ```
 
 ## Failed: test-suite/test/core/func_ptrs.wast
 ```bash
+creating spectest
+83
+creating spectest
  ERROR wasp::testsuite > test 6/36 did not fail invalidating/parsing, expected error: "unknown table" (module: "test-suite/test/core/func_ptrs.1.wasm")
 ```
 
 ## Failed: test-suite/test/core/global.wast
 ```bash
+creating spectest
  ERROR wasp::testsuite > oops the test-suite panicked!
 Reason:
 	panicked at src/testsuite.rs:355:32:
@@ -213,6 +262,7 @@ Last test (0):
 
 ## Failed: test-suite/test/core/i32.wast
 ```bash
+creating spectest
  ERROR wasp::testsuite > oops the test-suite panicked!
 Reason:
 	panicked at src/testsuite.rs:355:32:
@@ -232,6 +282,7 @@ Last test (0):
 
 ## Failed: test-suite/test/core/i64.wast
 ```bash
+creating spectest
  ERROR wasp::testsuite > oops the test-suite panicked!
 Reason:
 	panicked at src/testsuite.rs:355:32:
@@ -251,41 +302,16 @@ Last test (0):
 
 ## Failed: test-suite/test/core/if.wast
 ```bash
+creating spectest
  ERROR wasp::testsuite > test 98/241 failed (module: 0, invoke: "params", got [i32(1)], but expected [i32(-1)])
-```
-
-## Failed: test-suite/test/core/imports.wast
-```bash
-TableType { et: FuncRef, lim: Min(10) }, (10, 10)
-TableType { et: FuncRef, lim: Min(5) }, (10, 10)
-TableType { et: FuncRef, lim: Min(0) }, (10, 10)
-TableType { et: FuncRef, lim: Min(10) }, (10, 20)
-TableType { et: FuncRef, lim: Min(5) }, (10, 20)
-TableType { et: FuncRef, lim: Min(0) }, (10, 20)
-TableType { et: FuncRef, lim: MinMax(10, 20) }, (10, 20)
-stuck here
-TableType { et: FuncRef, lim: MinMax(5, 20) }, (10, 20)
-stuck here
-TableType { et: FuncRef, lim: MinMax(0, 20) }, (10, 20)
-stuck here
-TableType { et: FuncRef, lim: MinMax(10, 25) }, (10, 20)
-stuck here
-TableType { et: FuncRef, lim: MinMax(5, 25) }, (10, 20)
-stuck here
-TableType { et: FuncRef, lim: MinMax(0, 25) }, (10, 20)
-stuck here
-TableType { et: FuncRef, lim: Min(12) }, (10, 10)
-TableType { et: FuncRef, lim: MinMax(10, 20) }, (10, 10)
-TableType { et: FuncRef, lim: MinMax(12, 20) }, (10, 20)
-stuck here
- ERROR wasp::testsuite > test 110/178 did not fail linking, expected error: "incompatible import type" (module: "test-suite/test/core/imports.87.wasm")
 ```
 
 ## Failed: test-suite/test/core/int_exprs.wast
 ```bash
+creating spectest
  ERROR wasp::testsuite > oops the test-suite panicked!
 Reason:
-	panicked at src/runtime/methods/step.rs:1374:17:
+	panicked at src/runtime/methods/step.rs:1379:17:
 	not implemented: instruction not supported : x53_i64_lt_s
 Last test (3):
 	AssertReturn(AssertReturn { _type: MustBe!("assert_return"), action: Invoke { module: None, field: "i64.no_fold_cmp_s_offset", args: [I64 { value: "9223372036854775807" }, I64 { value: "0" }] }, expected: [I32 { value: "1" }] })
@@ -293,11 +319,13 @@ Last test (3):
 
 ## Failed: test-suite/test/core/labels.wast
 ```bash
+creating spectest
  ERROR wasp::testsuite > test 3/29 failed (module: 0, invoke: "loop1", got [i32(1)], but expected [i32(5)])
 ```
 
 ## Failed: test-suite/test/core/left-to-right.wast
 ```bash
+creating spectest
  ERROR wasp::testsuite > oops the test-suite panicked!
 Reason:
 	panicked at src/testsuite.rs:355:32:
@@ -317,6 +345,7 @@ Last test (0):
 
 ## Failed: test-suite/test/core/linking.wast
 ```bash
+creating spectest
  ERROR wasp::testsuite > oops the test-suite panicked!
 Reason:
 	panicked at src/testsuite.rs:564:21:
@@ -327,9 +356,10 @@ Last test (1):
 
 ## Failed: test-suite/test/core/load.wast
 ```bash
+creating spectest
  ERROR wasp::testsuite > oops the test-suite panicked!
 Reason:
-	panicked at src/runtime/methods/step.rs:1374:17:
+	panicked at src/runtime/methods/step.rs:1379:17:
 	not implemented: instruction not supported : x67_i32_clz
 Last test (31):
 	AssertReturn(AssertReturn { _type: MustBe!("assert_return"), action: Invoke { module: None, field: "as-unary-operand", args: [] }, expected: [I32 { value: "32" }] })
@@ -337,19 +367,22 @@ Last test (31):
 
 ## Failed: test-suite/test/core/local_get.wast
 ```bash
- ERROR wasp::testsuite > test 2/36 failed (module: 0, invoke: "type-local-i32", error: a local is missing: src/runtime/methods/step.rs:531:51)
+creating spectest
+ ERROR wasp::testsuite > test 2/36 failed (module: 0, invoke: "type-local-i32", error: a local is missing: src/runtime/methods/step.rs:536:51)
 ```
 
 ## Failed: test-suite/test/core/local_set.wast
 ```bash
- ERROR wasp::testsuite > test 20/53 failed (module: 0, invoke: "write", error: a local is missing: src/runtime/methods/step.rs:531:51)
+creating spectest
+ ERROR wasp::testsuite > test 20/53 failed (module: 0, invoke: "write", error: a local is missing: src/runtime/methods/step.rs:536:51)
 ```
 
 ## Failed: test-suite/test/core/local_tee.wast
 ```bash
+creating spectest
  ERROR wasp::testsuite > oops the test-suite panicked!
 Reason:
-	panicked at src/runtime/methods/step.rs:1374:17:
+	panicked at src/runtime/methods/step.rs:1379:17:
 	not implemented: instruction not supported : x8c_f32_neg
 Last test (45):
 	AssertReturn(AssertReturn { _type: MustBe!("assert_return"), action: Invoke { module: None, field: "as-unary-operand", args: [F32 { value: "0" }] }, expected: [F32 { value: "4286640610" }] })
@@ -357,6 +390,7 @@ Last test (45):
 
 ## Failed: test-suite/test/core/loop.wast
 ```bash
+creating spectest
  ERROR wasp::testsuite > oops the test-suite panicked!
 Reason:
 	panicked at src/testsuite.rs:355:32:
@@ -380,14 +414,40 @@ Last test (0):
 
 ## Failed: test-suite/test/core/memory.wast
 ```bash
- ERROR wasp::testsuite > test 7/88 did not fail invalidating/parsing, expected error: "multiple memories" (module: "test-suite/test/core/memory.6.wasm")
+creating spectest
+creating spectest
+creating spectest
+creating spectest
+creating spectest
+creating spectest
+creating spectest
+creating spectest
+ ERROR wasp::testsuite > test 8/88 did not fail invalidating/parsing, expected error: "multiple memories" (module: "test-suite/test/core/memory.7.wasm")
 ```
 
 ## Failed: test-suite/test/core/memory_copy.wast
 ```bash
+creating spectest
+creating spectest
+creating spectest
+creating spectest
+creating spectest
+creating spectest
+creating spectest
+creating spectest
+creating spectest
+creating spectest
+creating spectest
+creating spectest
+creating spectest
+creating spectest
+creating spectest
+creating spectest
+creating spectest
+creating spectest
  ERROR wasp::testsuite > oops the test-suite panicked!
 Reason:
-	panicked at src/runtime/memory.rs:142:25:
+	panicked at src/runtime/memory.rs:146:25:
 	attempt to add with overflow
 Last test (3418):
 	AssertTrap(AssertTrap { _type: MustBe!("assert_trap"), action: Invoke { module: None, field: "run", args: [I32 { value: "0" }, I32 { value: "65516" }, I32 { value: "4294963200" }] }, text: "out of bounds memory access" })
@@ -395,9 +455,12 @@ Last test (3418):
 
 ## Failed: test-suite/test/core/memory_fill.wast
 ```bash
+creating spectest
+creating spectest
+creating spectest
  ERROR wasp::testsuite > oops the test-suite panicked!
 Reason:
-	panicked at src/runtime/memory.rs:187:27:
+	panicked at src/runtime/memory.rs:191:27:
 	attempt to add with overflow
 Last test (7):
 	AssertTrap(AssertTrap { _type: MustBe!("assert_trap"), action: Invoke { module: None, field: "test", args: [] }, text: "out of bounds memory access" })
@@ -405,6 +468,7 @@ Last test (7):
 
 ## Failed: test-suite/test/core/memory_grow.wast
 ```bash
+creating spectest
  ERROR wasp::testsuite > oops the test-suite panicked!
 Reason:
 	panicked at src/testsuite.rs:355:32:
@@ -424,11 +488,18 @@ Last test (0):
 
 ## Failed: test-suite/test/core/memory_init.wast
 ```bash
+creating spectest
+creating spectest
+creating spectest
+creating spectest
+creating spectest
+creating spectest
  ERROR wasp::testsuite > test 130/240 did not fail invalidating/parsing, expected error: "unknown data segment" (module: "test-suite/test/core/memory_init.5.wasm")
 ```
 
 ## Failed: test-suite/test/core/memory_size.wast
 ```bash
+creating spectest
  ERROR wasp::testsuite > oops the test-suite panicked!
 Reason:
 	panicked at src/testsuite.rs:355:32:
@@ -448,6 +519,7 @@ Last test (0):
 
 ## Failed: test-suite/test/core/memory_trap.wast
 ```bash
+creating spectest
  ERROR wasp::testsuite > oops the test-suite panicked!
 Reason:
 	panicked at src/testsuite.rs:355:32:
@@ -465,13 +537,10 @@ Last test (0):
 	Module(Module { _type: MustBe!("module"), _name: None, filename: "memory_trap.0.wasm" })
 ```
 
-## Failed: test-suite/test/core/nop.wast
-```bash
- ERROR wasp::testsuite > test 63/88 failed (module: 0, invoke: "as-memory.grow-everywhere", got [i32(1)], but expected [i32(3)])
-```
-
 ## Failed: test-suite/test/core/ref_func.wast
 ```bash
+creating spectest
+creating spectest
  ERROR wasp::testsuite > oops the test-suite panicked!
 Reason:
 	panicked at src/testsuite.rs:355:32:
@@ -511,6 +580,7 @@ Last test (0):
 
 ## Failed: test-suite/test/core/return.wast
 ```bash
+creating spectest
  ERROR wasp::testsuite > test 8/84 failed (module: 0, invoke: "type-f32-value", got [--- BLOCK ---, f32(3)], but expected [i32(1077936128)])
 ```
 
@@ -754,9 +824,10 @@ Last test (0):
 
 ## Failed: test-suite/test/core/stack.wast
 ```bash
+creating spectest
  ERROR wasp::testsuite > oops the test-suite panicked!
 Reason:
-	panicked at src/runtime/methods/step.rs:1374:17:
+	panicked at src/runtime/methods/step.rs:1379:17:
 	not implemented: instruction not supported : x51_i64_eq
 Last test (1):
 	AssertReturn(AssertReturn { _type: MustBe!("assert_return"), action: Invoke { module: None, field: "fac-expr", args: [I64 { value: "25" }] }, expected: [I64 { value: "7034535277573963776" }] })
@@ -764,16 +835,27 @@ Last test (1):
 
 ## Failed: test-suite/test/core/start.wast
 ```bash
+creating spectest
  ERROR wasp::testsuite > test 1/20 did not fail invalidating/parsing, expected error: "unknown function" (module: "test-suite/test/core/start.0.wasm")
 ```
 
 ## Failed: test-suite/test/core/table.wast
 ```bash
+creating spectest
+creating spectest
+creating spectest
+creating spectest
+creating spectest
+creating spectest
+creating spectest
 memory allocation of 77309411344 bytes failed
 ```
 
 ## Failed: test-suite/test/core/table_copy.wast
 ```bash
+creating spectest
+creating spectest
+creating spectest
  ERROR wasp::testsuite > oops the test-suite panicked!
 Reason:
 	panicked at src/ptr.rs:18:19:
@@ -784,6 +866,7 @@ Last test (65):
 
 ## Failed: test-suite/test/core/table_fill.wast
 ```bash
+creating spectest
  ERROR wasp::testsuite > oops the test-suite panicked!
 Reason:
 	panicked at src/testsuite.rs:355:32:
@@ -823,6 +906,8 @@ Last test (0):
 
 ## Failed: test-suite/test/core/table_init.wast
 ```bash
+creating spectest
+creating spectest
  ERROR wasp::testsuite > test 4/780 failed: out of bounds table access (module: 1, invoke: "test")
 ```
 
@@ -838,9 +923,10 @@ Last test (0):
 
 ## Failed: test-suite/test/core/table_size.wast
 ```bash
+creating spectest
  ERROR wasp::testsuite > oops the test-suite panicked!
 Reason:
-	panicked at src/runtime/methods/step.rs:1374:17:
+	panicked at src/runtime/methods/step.rs:1379:17:
 	not implemented: instruction not supported : xfc_16_table_size(TableIdX(0))
 Last test (1):
 	AssertReturn(AssertReturn { _type: MustBe!("assert_return"), action: Invoke { module: None, field: "size-t0", args: [] }, expected: [I32 { value: "0" }] })
@@ -848,19 +934,30 @@ Last test (1):
 
 ## Failed: test-suite/test/core/token.wast
 ```bash
+creating spectest
+creating spectest
+creating spectest
+creating spectest
+creating spectest
+creating spectest
+creating spectest
+creating spectest
+creating spectest
+creating spectest
  ERROR wasp::testsuite > oops the test-suite panicked!
 Reason:
 	panicked at src/testsuite.rs:355:32:
-	failed to load module: unknown import: src/runtime/clean_model.rs:120:82
+	failed to load module: unknown import: src/runtime/clean_model.rs:122:82
 Last test (11):
 	Module(Module { _type: MustBe!("module"), _name: None, filename: "token.11.wasm" })
 ```
 
 ## Failed: test-suite/test/core/traps.wast
 ```bash
+creating spectest
  ERROR wasp::testsuite > oops the test-suite panicked!
 Reason:
-	panicked at src/runtime/methods/step.rs:1374:17:
+	panicked at src/runtime/methods/step.rs:1379:17:
 	not implemented: instruction not supported : x6d_i32_div_s
 Last test (1):
 	AssertTrap(AssertTrap { _type: MustBe!("assert_trap"), action: Invoke { module: None, field: "no_dce.i32.div_s", args: [I32 { value: "1" }, I32 { value: "0" }] }, text: "integer divide by zero" })
@@ -868,16 +965,19 @@ Last test (1):
 
 ## Failed: test-suite/test/core/unreachable.wast
 ```bash
- ERROR wasp::testsuite > test 2/64 got error "hit an unreachable code segment: src/runtime/methods/step.rs:275:17", expected error: "unreachable" (module: 0, function "type-i32")
+creating spectest
+ ERROR wasp::testsuite > test 2/64 got error "hit an unreachable code segment: src/runtime/methods/step.rs:280:17", expected error: "unreachable" (module: 0, function "type-i32")
 ```
 
 ## Failed: test-suite/test/core/unreached-invalid.wast
 ```bash
+creating spectest
  ERROR wasp::testsuite > test 1/118 did not fail invalidating/parsing, expected error: "unknown local" (module: "test-suite/test/core/unreached-invalid.0.wasm")
 ```
 
 ## Failed: test-suite/test/core/unreached-valid.wast
 ```bash
+creating spectest
  ERROR wasp::testsuite > oops the test-suite panicked!
 Reason:
 	panicked at src/testsuite.rs:355:32:
@@ -897,11 +997,13 @@ Last test (0):
 
 ## Failed: test-suite/test/core/unwind.wast
 ```bash
- ERROR wasp::testsuite > test 2/50 got error "hit an unreachable code segment: src/runtime/methods/step.rs:275:17", expected error: "unreachable" (module: 0, function "func-unwind-by-unreachable")
+creating spectest
+ ERROR wasp::testsuite > test 2/50 got error "hit an unreachable code segment: src/runtime/methods/step.rs:280:17", expected error: "unreachable" (module: 0, function "func-unwind-by-unreachable")
 ```
 
 ## Failed: test-suite/test/core/utf8-custom-section-id.wast
 ```bash
+creating spectest
  ERROR wasp::testsuite > test 1/176 did not fail invalidating/parsing, expected error: "malformed UTF-8 encoding" (module: "test-suite/test/core/utf8-custom-section-id.0.wasm")
 ```
 

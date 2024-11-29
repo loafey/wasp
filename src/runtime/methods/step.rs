@@ -1246,7 +1246,7 @@ impl Runtime {
                 let check_1 = source + amount > elems.read().instrs.len() as u32;
                 // let check_2 = destination < table_length.0 as u32;
                 let check_3 = destination + amount > table_length.1 as u32;
-                if dbg!(check_1) /*|| dbg!(check_2)*/ || dbg!(check_3) {
+                if check_1 /*|| dbg!(check_2)*/ || check_3 {
                     throw!(OutOfBoundsTableAccess)
                 }
 

@@ -278,11 +278,26 @@ fn setup_imports(
                         mem.read().pages()
                     }
                 };
-                println!("{mt:?} {mtt:?}");
+                println!("{mt:?}, {mtt:?}");
                 match mt.0 {
-                    Limits::Min(_) => todo!(),
-                    Limits::MinMax(_, _) if mtt.1 == usize::MAX => todo!(),
-                    Limits::MinMax(_, _) => todo!(),
+                    Limits::Min(m) if mtt.1 == usize::MAX => {
+                        if mtt.0 < m as usize {
+                            return Err(IncompatibleImportType(file!(), line!(), column!()));
+                        }
+                    }
+                    Limits::Min(m) => {
+                        if mtt.0 < m as usize {
+                            return Err(IncompatibleImportType(file!(), line!(), column!()));
+                        }
+                    }
+                    Limits::MinMax(_, _) if mtt.1 == usize::MAX => {
+                        return Err(IncompatibleImportType(file!(), line!(), column!()))
+                    }
+                    Limits::MinMax(m, _) => {
+                        if mtt.1 < m as usize {
+                            return Err(IncompatibleImportType(file!(), line!(), column!()));
+                        }
+                    }
                 }
             }
             _ => (),

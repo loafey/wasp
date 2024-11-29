@@ -189,7 +189,7 @@ impl Import {
         IO {
             functions: res,
             globals,
-            memory: Memory::new(1, 1).into(),
+            memory: Memory::new(1, 2).into(),
             tables,
             memory_name: "memory".to_string(),
         }

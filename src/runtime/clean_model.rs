@@ -9,7 +9,7 @@ use crate::{
     parser::{
         self, Code, Data, Elem, ExportDesc, Expr, FuncIdx, FuncType, Global as PGlobal, GlobalIdX,
         ImportDesc, Instr, LabelIdX, Limits, Locals, MemArg, MemIdX, Module, Mutable, RefTyp,
-        TableIdX, TableType, TypeIdX, BT,
+        TableIdX, TypeIdX, BT,
     },
     ptr::{Ptr, PtrRW},
 };
@@ -640,6 +640,9 @@ fn get_globals(
 }
 
 fn setup_memory<const N: usize>(mems: Vec<parser::Mem>) -> Result<Memory<N>, RuntimeError> {
+    if mems.len() > 1 {
+        return Err(MultipleMemories(file!(), line!(), column!()));
+    }
     let (mem_cur, mem_max) = mems
         .first()
         .map(|m| match m.limits {

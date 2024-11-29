@@ -33,6 +33,7 @@ pub enum RuntimeError {
     IndirectCallTypeMismatch(&'static str, u32, u32),
     IntegerOverflow(&'static str, u32, u32),
     InvalidConversionToInteger(&'static str, u32, u32),
+    MultipleMemories(&'static str, u32, u32),
     UnknownLabel,
     UnknownGlobal,
     OutOfBoundsMemoryAccess,
@@ -56,6 +57,9 @@ impl std::fmt::Debug for RuntimeError {
                     f,
                     "tried to use unloaded module \"{module}\": {arg0}:{arg1}:{arg2}"
                 )
+            }
+            Self::MultipleMemories(arg0, arg1, arg2) => {
+                write!(f, "multiple memories: {arg0}:{arg1}:{arg2}")
             }
             Self::IncompatibleImportType(arg0, arg1, arg2) => {
                 write!(f, "incompatible import type: {arg0}:{arg1}:{arg2}")

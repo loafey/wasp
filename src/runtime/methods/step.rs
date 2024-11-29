@@ -246,8 +246,13 @@ impl Runtime {
             let ptr = unwrap!(module.functions.get(function as usize), MissingFunction);
             match ptr.as_ref() {
                 Function::WS { ty, code, .. } => (code, ty, module),
-                Function::IO { ty, func } => {
+                Function::IO { func, .. } => {
                     let Frame { locals, .. } = unwrap!(self.stack.pop(), NoFrame);
+                    let res = func(&locals, &mut *module.memory.write())?;
+                    let frame = unwrap!(self.stack.last_mut(), NoFrame);
+                    for v in res {
+                        frame.stack.push(v);
+                    }
                     return Ok(());
                 }
             }

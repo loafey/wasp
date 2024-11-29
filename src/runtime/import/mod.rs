@@ -186,6 +186,7 @@ impl Import {
             .into(),
         );
 
+        println!("creating spectest");
         IO {
             functions: res,
             globals,

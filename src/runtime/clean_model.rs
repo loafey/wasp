@@ -8,8 +8,8 @@ use super::{
 use crate::{
     parser::{
         self, Code, Data, Elem, ExportDesc, Expr, FuncIdx, FuncType, Global as PGlobal, GlobalIdX,
-        ImportDesc, Instr, LabelIdX, Limits, Locals, MemArg, MemIdX, MemType, Module, Mutable,
-        RefTyp, TableIdX, TypeIdX, BT,
+        ImportDesc, Instr, LabelIdX, Limits, Locals, MemArg, MemIdX, Module, Mutable, RefTyp,
+        TableIdX, TypeIdX, BT,
     },
     ptr::{Ptr, PtrRW},
 };
@@ -299,7 +299,6 @@ fn setup_imports(
                     }
                 }
             }
-            _ => (),
         }
     }
 
@@ -804,8 +803,12 @@ impl TryFrom<(&HashMap<String, Import>, Module)> for Model {
         validate_elems(&value.elems.elems, &functions)?;
         let elems = setup_elems(value.elems.elems, &mut tables)?;
         get_globals(&mut globals, value.globals.globals)?;
-        let mut memory = setup_memory(value.mems.mems)?;
-        let datas = setup_data(value.datas.data, &mut memory, &globals)?;
+        let memory = if let Some(mem) = memory {
+            mem
+        } else {
+            setup_memory(value.mems.mems)?.into()
+        };
+        let datas = setup_data(value.datas.data, &mut memory.write(), &globals)?;
         validate_label_depth(&functions)?;
 
         Ok(Self {
@@ -821,7 +824,7 @@ impl TryFrom<(&HashMap<String, Import>, Module)> for Model {
             globals,
             exports: value.exports.exports.into_iter().collect::<HashMap<_, _>>(),
             datas,
-            memory: memory.into(),
+            memory,
         })
     }
 }

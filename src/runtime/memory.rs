@@ -25,7 +25,7 @@ impl<const PAGE_SIZE: usize> Memory<PAGE_SIZE> {
             -1
         } else {
             self.current_pages += m;
-            1
+            (self.current_pages - m) as i32
         }
     }
 

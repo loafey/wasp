@@ -1269,6 +1269,9 @@ impl Runtime {
                 let amount = pop!(i32) as u32;
                 let source = pop!(i32) as u32;
                 let destination = pop!(i32) as u32;
+                if a == b {
+                    return Ok(());
+                }
                 let mut a = unwrap!(module.tables.get(*a as usize), MissingTableIndex).write();
                 let a = &mut a.table;
 

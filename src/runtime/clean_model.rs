@@ -218,14 +218,15 @@ fn setup_imports(
                         match t.lim {
                             Limits::Min(_) => {}
                             Limits::MinMax(l1, l2) => {
-                                println!("stuck here");
-                                // if l.0 as u32 > l1 && l.1 as u32 != l2 {
-                                //     return Err(RuntimeError::IncompatibleImportType(
-                                //         file!(),
-                                //         line!(),
-                                //         column!(),
-                                //     ));
-                                // }
+                                if
+                                /*l.0 as u32 > l1*/
+                                l.1 as u32 != l2 {
+                                    return Err(RuntimeError::IncompatibleImportType(
+                                        file!(),
+                                        line!(),
+                                        column!(),
+                                    ));
+                                }
                             }
                         }
                     }

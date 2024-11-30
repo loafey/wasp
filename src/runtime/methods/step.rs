@@ -852,10 +852,6 @@ impl Runtime {
                     throw!(IntigerDivideByZero)
                 }
                 push!(i32, x.wrapping_rem(y))
-                // match x.checked_rem_euclid(y) {
-                // Some(res) => push!(i32, res),
-                // None => throw!(IntegerOverflow),
-                // }
             }
             x70_i32_rem_u => {
                 let y = pop!(u32);
@@ -919,6 +915,74 @@ impl Runtime {
                 let y = pop!(i64);
                 let x = pop!(i64);
                 push!(i64, x.wrapping_mul(y))
+            }
+            x7f_i64_div_s => {
+                let y = pop!(i64);
+                let x = pop!(i64);
+                if y == 0 {
+                    throw!(IntigerDivideByZero)
+                }
+                match x.checked_div(y) {
+                    Some(res) => push!(i64, res),
+                    None => throw!(IntegerOverflow),
+                }
+            }
+            x80_i64_div_u => {
+                let y = pop!(u64);
+                let x = pop!(u64);
+                if y == 0 {
+                    throw!(IntigerDivideByZero)
+                }
+                match x.checked_div(y) {
+                    Some(res) => push!(u64, res),
+                    None => throw!(IntegerOverflow),
+                }
+            }
+            x81_i64_rem_s => {
+                let y = pop!(i64);
+                let x = pop!(i64);
+                if y == 0 {
+                    throw!(IntigerDivideByZero)
+                }
+                push!(i64, x.wrapping_rem(y))
+            }
+            x82_i64_rem_u => {
+                let y = pop!(u64);
+                let x = pop!(u64);
+                if y == 0 {
+                    throw!(IntigerDivideByZero)
+                }
+                push!(u64, x.wrapping_rem(y))
+            }
+            x83_i64_and => {
+                let y = pop!(i64);
+                let x = pop!(i64);
+                push!(i64, x & y)
+            }
+            x84_i64_or => {
+                let y = pop!(i64);
+                let x = pop!(i64);
+                push!(i64, x | y)
+            }
+            x85_i64_xor => {
+                let y = pop!(i64);
+                let x = pop!(i64);
+                push!(i64, x ^ y)
+            }
+            x86_i64_shl => {
+                let y = pop!(i64);
+                let x = pop!(i64);
+                push!(i64, x.wrapping_shl(y as u32))
+            }
+            x87_i64_shr_s => {
+                let y = pop!(i64);
+                let x = pop!(i64);
+                push!(i64, x.wrapping_shr(y as u32))
+            }
+            x88_i64_shr_u => {
+                let y = pop!(u64);
+                let x = pop!(u64);
+                push!(u64, x.wrapping_shr(y as u32))
             }
             x91_f32_sqrt => {
                 let x = pop!(f32);

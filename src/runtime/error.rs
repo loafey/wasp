@@ -144,9 +144,6 @@ impl std::fmt::Debug for RuntimeError {
             Self::UninitializedElement(_arg0, _arg1, _arg2) => {
                 write!(f, "uninitialized element")
             }
-            Self::IntegerOverflow(_arg0, _arg1, _arg2) => {
-                write!(f, "integer overflow")
-            }
             Self::InvalidConversionToInteger(_arg0, _arg1, _arg2) => {
                 write!(f, "invalid conversion to integer")
             }

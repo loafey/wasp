@@ -1043,6 +1043,7 @@ impl Runtime {
             x92_f32_add => {
                 let y = pop!(f32);
                 let x = pop!(f32);
+                // println!("{x} + {y} = {}", x + y);
                 push!(f32, x + y)
             }
             x93_f32_sub => {

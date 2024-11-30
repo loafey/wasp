@@ -857,7 +857,7 @@ impl Runtime {
                 let y = pop!(i32);
                 let x = pop!(i32);
                 if y == 0 {
-                    throw!(IntigerDivideByZero)
+                    throw!(IntegerDivideByZero)
                 }
                 match x.checked_div(y) {
                     Some(res) => push!(i32, res),
@@ -868,7 +868,7 @@ impl Runtime {
                 let y = pop!(u32);
                 let x = pop!(u32);
                 if y == 0 {
-                    throw!(IntigerDivideByZero)
+                    throw!(IntegerDivideByZero)
                 }
                 match x.checked_div(y) {
                     Some(res) => push!(u32, res),
@@ -879,7 +879,7 @@ impl Runtime {
                 let y = pop!(i32);
                 let x = pop!(i32);
                 if y == 0 {
-                    throw!(IntigerDivideByZero)
+                    throw!(IntegerDivideByZero)
                 }
                 push!(i32, x.wrapping_rem(y))
             }
@@ -887,7 +887,7 @@ impl Runtime {
                 let y = pop!(u32);
                 let x = pop!(u32);
                 if y == 0 {
-                    throw!(IntigerDivideByZero)
+                    throw!(IntegerDivideByZero)
                 }
                 push!(u32, x.wrapping_rem(y))
             }
@@ -962,7 +962,7 @@ impl Runtime {
                 let y = pop!(i64);
                 let x = pop!(i64);
                 if y == 0 {
-                    throw!(IntigerDivideByZero)
+                    throw!(IntegerDivideByZero)
                 }
                 match x.checked_div(y) {
                     Some(res) => push!(i64, res),
@@ -973,7 +973,7 @@ impl Runtime {
                 let y = pop!(u64);
                 let x = pop!(u64);
                 if y == 0 {
-                    throw!(IntigerDivideByZero)
+                    throw!(IntegerDivideByZero)
                 }
                 match x.checked_div(y) {
                     Some(res) => push!(u64, res),
@@ -984,7 +984,7 @@ impl Runtime {
                 let y = pop!(i64);
                 let x = pop!(i64);
                 if y == 0 {
-                    throw!(IntigerDivideByZero)
+                    throw!(IntegerDivideByZero)
                 }
                 push!(i64, x.wrapping_rem(y))
             }
@@ -992,7 +992,7 @@ impl Runtime {
                 let y = pop!(u64);
                 let x = pop!(u64);
                 if y == 0 {
-                    throw!(IntigerDivideByZero)
+                    throw!(IntegerDivideByZero)
                 }
                 push!(u64, x.wrapping_rem(y))
             }

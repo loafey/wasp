@@ -751,25 +751,55 @@ impl Runtime {
                 let val = pop!(i64);
                 push!(i32, (val == 0) as i32);
             }
+            x51_i64_eq => {
+                let y = pop!(i64);
+                let x = pop!(i64);
+                push!(i32, (x == y) as i32)
+            }
             x52_i64_ne => {
                 let y = pop!(i64);
                 let x = pop!(i64);
                 push!(i32, (x != y) as i32)
+            }
+            x53_i64_lt_s => {
+                let y = pop!(i64);
+                let x = pop!(i64);
+                push!(i32, (x < y) as i32)
+            }
+            x54_i64_lt_u => {
+                let y = pop!(u64);
+                let x = pop!(u64);
+                push!(i32, (x < y) as i32)
             }
             x55_i64_gt_s => {
                 let y = pop!(i64);
                 let x = pop!(i64);
                 push!(i32, (x > y) as i32)
             }
-            x58_i64_le_u => {
+            x56_i64_gt_u => {
+                let y = pop!(u64);
+                let x = pop!(u64);
+                push!(i32, (x > y) as i32)
+            }
+            x57_i64_le_s => {
                 let y = pop!(i64);
                 let x = pop!(i64);
                 push!(i32, (x <= y) as i32)
             }
+            x58_i64_le_u => {
+                let y = pop!(u64);
+                let x = pop!(u64);
+                push!(i32, (x <= y) as i32)
+            }
+            x59_i64_ge_s => {
+                let y = pop!(i64);
+                let x = pop!(i64);
+                push!(i32, (x >= y) as i32)
+            }
             x5a_i64_ge_u => {
                 let y = pop!(u64);
                 let x = pop!(u64);
-                push!(i32, (x > y) as i32)
+                push!(i32, (x >= y) as i32)
             }
             x5b_f32_eq => {
                 let y = pop!(f32);
@@ -901,6 +931,18 @@ impl Runtime {
                 let x = pop!(u32);
                 push!(u32, x.rotate_right(y))
             }
+            x79_i64_clz => {
+                let x = pop!(i64);
+                push!(u64, x.leading_zeros() as u64)
+            }
+            x7a_i64_ctz => {
+                let x = pop!(i64);
+                push!(u64, x.trailing_zeros() as u64)
+            }
+            x7b_i64_popcnt => {
+                let x = pop!(i64);
+                push!(u64, x.count_ones() as u64)
+            }
             x7c_i64_add => {
                 let y = pop!(i64);
                 let x = pop!(i64);
@@ -983,6 +1025,16 @@ impl Runtime {
                 let y = pop!(u64);
                 let x = pop!(u64);
                 push!(u64, x.wrapping_shr(y as u32))
+            }
+            x89_i64_rotl => {
+                let y = pop!(u64);
+                let x = pop!(u64);
+                push!(u64, x.rotate_left(y as u32))
+            }
+            x8a_i64_rotr => {
+                let y = pop!(u64);
+                let x = pop!(u64);
+                push!(u64, x.rotate_right(y as u32))
             }
             x91_f32_sqrt => {
                 let x = pop!(f32);
@@ -1223,6 +1275,18 @@ impl Runtime {
             xc1_i32_extend16_s => {
                 let x = pop!(i32) as i16;
                 push!(i32, x as i32)
+            }
+            xc2_i64_extend8_s => {
+                let x = pop!(i64) as i8;
+                push!(i64, x as i64)
+            }
+            xc3_i64_extend16_s => {
+                let x = pop!(i64) as i16;
+                push!(i64, x as i64)
+            }
+            xc4_i64_extend32_s => {
+                let x = pop!(i64) as i32;
+                push!(i64, x as i64)
             }
             xd0_ref_null(x) => match x {
                 RefTyp::FuncRef => todo!(),

@@ -6,6 +6,8 @@ mod error;
 mod memory;
 use crate::parser::{BlockType, NumType, RefTyp, ValType, BT};
 pub use error::RuntimeError;
+mod float_exp;
+pub use float_exp::*;
 
 mod import;
 mod methods;

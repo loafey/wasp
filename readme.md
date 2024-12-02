@@ -1,8 +1,13 @@
 # W.A.S.P
 
 ## Latest spec test (typechecking currently disabled)
-💅: 39\
-💩: 108
+💅: 38\
+💩: 109
+## Failed: test-suite/test/core/conversions.wast
+```bash
+ ERROR wasp::testsuite > test 485/619 failed (module: 0, invoke: "f64.promote_f32", got [i64(4611686018427387904)], but expected [i64(-9223372036854775808)])
+```
+
 ## Failed: test-suite/test/core/data.wast
 ```bash
  ERROR wasp::testsuite > test 10/61 did not fail invalidating/parsing, expected error: "unknown global" (module: "test-suite/test/core/data.9.wasm")
@@ -27,7 +32,7 @@ Last test (0):
 ```bash
  ERROR wasp::testsuite > oops the test-suite panicked!
 Reason:
-	panicked at src/testsuite.rs:240:17:
+	panicked at src/testsuite.rs:236:17:
 	not yet implemented
 Last test (13):
 	AssertReturn(AssertReturn { _type: MustBe!("assert_return"), action: Invoke { module: Some("$Func"), field: "e", args: [I32 { value: "42" }] }, expected: [I32 { value: "43" }] })
@@ -35,47 +40,57 @@ Last test (13):
 
 ## Failed: test-suite/test/core/f32.wast
 ```bash
- ERROR wasp::testsuite > oops the test-suite panicked!
-Reason:
-	panicked at src/testsuite.rs:355:32:
-	failed to load module: ParseError(File: "test-suite/test/core/f32.0.wasm"
-	UnknownInstruction(<95>), bin pos: 149, stack: [
-	    "wasp::parser::instr::Instr",
-	    "wasp::parser::expr::Expr",
-	    "wasp::parser::func::Func",
-	    "wasp::parser::code::Code",
-	    "alloc::vec::Vec<wasp::parser::code::Code>",
-	    "wasp::parser::codesec::CodeSection",
-	    "wasp::parser::module::Module",
-	])
-Last test (0):
-	Module(Module { _type: MustBe!("module"), _name: None, filename: "f32.0.wasm" })
+10000000000000000000000000000000 + 10000000000000000000000000000000 = 10000000000000000000000000000000
+10000000000000000000000000000000 + 00000000000000000000000000000000 = 00000000000000000000000000000000
+00000000000000000000000000000000 + 10000000000000000000000000000000 = 00000000000000000000000000000000
+00000000000000000000000000000000 + 00000000000000000000000000000000 = 00000000000000000000000000000000
+10000000000000000000000000000000 + 10000000000000000000000000000001 = 10000000000000000000000000000001
+10000000000000000000000000000000 + 00000000000000000000000000000001 = 00000000000000000000000000000001
+00000000000000000000000000000000 + 10000000000000000000000000000001 = 10000000000000000000000000000001
+00000000000000000000000000000000 + 00000000000000000000000000000001 = 00000000000000000000000000000001
+10000000000000000000000000000000 + 10000000100000000000000000000000 = 10000000100000000000000000000000
+10000000000000000000000000000000 + 00000000100000000000000000000000 = 00000000100000000000000000000000
+00000000000000000000000000000000 + 10000000100000000000000000000000 = 10000000100000000000000000000000
+00000000000000000000000000000000 + 00000000100000000000000000000000 = 00000000100000000000000000000000
+10000000000000000000000000000000 + 10111111000000000000000000000000 = 10111111000000000000000000000000
+10000000000000000000000000000000 + 00111111000000000000000000000000 = 00111111000000000000000000000000
+00000000000000000000000000000000 + 10111111000000000000000000000000 = 10111111000000000000000000000000
+00000000000000000000000000000000 + 00111111000000000000000000000000 = 00111111000000000000000000000000
+10000000000000000000000000000000 + 10111111100000000000000000000000 = 10111111100000000000000000000000
+10000000000000000000000000000000 + 00111111100000000000000000000000 = 00111111100000000000000000000000
+00000000000000000000000000000000 + 10111111100000000000000000000000 = 10111111100000000000000000000000
+00000000000000000000000000000000 + 00111111100000000000000000000000 = 00111111100000000000000000000000
+10000000000000000000000000000000 + 11000000110010010000111111011011 = 11000000110010010000111111011011
+10000000000000000000000000000000 + 01000000110010010000111111011011 = 01000000110010010000111111011011
+00000000000000000000000000000000 + 11000000110010010000111111011011 = 11000000110010010000111111011011
+00000000000000000000000000000000 + 01000000110010010000111111011011 = 01000000110010010000111111011011
+10000000000000000000000000000000 + 11111111011111111111111111111111 = 11111111011111111111111111111111
+10000000000000000000000000000000 + 01111111011111111111111111111111 = 01111111011111111111111111111111
+00000000000000000000000000000000 + 11111111011111111111111111111111 = 11111111011111111111111111111111
+00000000000000000000000000000000 + 01111111011111111111111111111111 = 01111111011111111111111111111111
+10000000000000000000000000000000 + 11111111100000000000000000000000 = 11111111100000000000000000000000
+10000000000000000000000000000000 + 01111111100000000000000000000000 = 01111111100000000000000000000000
+00000000000000000000000000000000 + 11111111100000000000000000000000 = 11111111100000000000000000000000
+00000000000000000000000000000000 + 01111111100000000000000000000000 = 01111111100000000000000000000000
+10000000000000000000000000000000 + 11111111110000000000000000000000 = 11111111110000000000000000000000
+ ERROR wasp::testsuite > test 34/2514 failed (module: 0, invoke: "add", got [i32(-4194304)], but expected [i32(1073741824)])
 ```
 
 ## Failed: test-suite/test/core/f32_bitwise.wast
 ```bash
  ERROR wasp::testsuite > oops the test-suite panicked!
 Reason:
-	panicked at src/testsuite.rs:355:32:
-	failed to load module: ParseError(File: "test-suite/test/core/f32_bitwise.0.wasm"
-	UnknownInstruction(<8b>), bin pos: 62, stack: [
-	    "wasp::parser::instr::Instr",
-	    "wasp::parser::expr::Expr",
-	    "wasp::parser::func::Func",
-	    "wasp::parser::code::Code",
-	    "alloc::vec::Vec<wasp::parser::code::Code>",
-	    "wasp::parser::codesec::CodeSection",
-	    "wasp::parser::module::Module",
-	])
-Last test (0):
-	Module(Module { _type: MustBe!("module"), _name: None, filename: "f32_bitwise.0.wasm" })
+	panicked at src/runtime/methods/step.rs:1580:17:
+	not implemented: instruction not supported : x98_f32_copysign
+Last test (1):
+	AssertReturn(AssertReturn { _type: MustBe!("assert_return"), action: Invoke { module: None, field: "copysign", args: [F32 { value: "2147483648" }, F32 { value: "2147483648" }] }, expected: [F32 { value: "2147483648" }] })
 ```
 
 ## Failed: test-suite/test/core/f32_cmp.wast
 ```bash
  ERROR wasp::testsuite > oops the test-suite panicked!
 Reason:
-	panicked at src/testsuite.rs:355:32:
+	panicked at src/testsuite.rs:351:32:
 	failed to load module: ParseError(File: "test-suite/test/core/f32_cmp.0.wasm"
 	UnknownInstruction(<5d>), bin pos: 85, stack: [
 	    "wasp::parser::instr::Instr",
@@ -94,7 +109,7 @@ Last test (0):
 ```bash
  ERROR wasp::testsuite > oops the test-suite panicked!
 Reason:
-	panicked at src/testsuite.rs:355:32:
+	panicked at src/testsuite.rs:351:32:
 	failed to load module: ParseError(File: "test-suite/test/core/f64.0.wasm"
 	UnknownInstruction(<a3>), bin pos: 149, stack: [
 	    "wasp::parser::instr::Instr",
@@ -113,7 +128,7 @@ Last test (0):
 ```bash
  ERROR wasp::testsuite > oops the test-suite panicked!
 Reason:
-	panicked at src/testsuite.rs:355:32:
+	panicked at src/testsuite.rs:351:32:
 	failed to load module: ParseError(File: "test-suite/test/core/f64_bitwise.0.wasm"
 	UnknownInstruction(<a6>), bin pos: 76, stack: [
 	    "wasp::parser::instr::Instr",
@@ -132,7 +147,7 @@ Last test (0):
 ```bash
  ERROR wasp::testsuite > oops the test-suite panicked!
 Reason:
-	panicked at src/testsuite.rs:355:32:
+	panicked at src/testsuite.rs:351:32:
 	failed to load module: ParseError(File: "test-suite/test/core/f64_cmp.0.wasm"
 	UnknownInstruction(<64>), bin pos: 101, stack: [
 	    "wasp::parser::instr::Instr",
@@ -154,16 +169,23 @@ Last test (0):
 
 ## Failed: test-suite/test/core/float_exprs.wast
 ```bash
- ERROR wasp::testsuite > test 21/927 failed (module: 2, invoke: "f32.no_fold_add_zero", got [i32(2145386496)], but expected [i32(-738197504)])
+01110010101111111011010100010000 + 01110101010011001001010101101101 = 01110101010100101001001100010110
+10011001001010100001011111010001 + 00010011101000111010101111011000 = 10011001001010100000001101011100
+01001100001101110001101001101101 + 01000100111000001011010010001100 = 01001100001101110001110000101110
+11000111000000010100000100000101 + 11000000000110010101111100010101 = 11000111000000010100001101101010
+11011011100101101000101011100000 + 11010000101000001100011011110011 = 11011011100101101000101011100011
+10000000000000000000000000000000 + 00000000000000000000000000000000 = 00000000000000000000000000000000
+01111111101000000000000000000000 + 00000000000000000000000000000000 = 01111111111000000000000000000000
+ ERROR wasp::testsuite > test 21/927 failed (module: 2, invoke: "f32.no_fold_add_zero", got [i32(2145386496)], but expected [i32(1879048192)])
 ```
 
 ## Failed: test-suite/test/core/float_misc.wast
 ```bash
  ERROR wasp::testsuite > oops the test-suite panicked!
 Reason:
-	panicked at src/testsuite.rs:355:32:
+	panicked at src/testsuite.rs:351:32:
 	failed to load module: ParseError(File: "test-suite/test/core/float_misc.0.wasm"
-	UnknownInstruction(<95>), bin pos: 413, stack: [
+	UnknownInstruction(<a3>), bin pos: 511, stack: [
 	    "wasp::parser::instr::Instr",
 	    "wasp::parser::expr::Expr",
 	    "wasp::parser::func::Func",
@@ -191,7 +213,7 @@ Last test (0):
 ```bash
  ERROR wasp::testsuite > oops the test-suite panicked!
 Reason:
-	panicked at src/testsuite.rs:355:32:
+	panicked at src/testsuite.rs:351:32:
 	failed to load module: GlobalWithoutOffset
 Last test (0):
 	Module(Module { _type: MustBe!("module"), _name: None, filename: "global.0.wasm" })
@@ -211,9 +233,9 @@ Last test (0):
 ```bash
  ERROR wasp::testsuite > oops the test-suite panicked!
 Reason:
-	panicked at src/testsuite.rs:355:32:
+	panicked at src/testsuite.rs:351:32:
 	failed to load module: ParseError(File: "test-suite/test/core/left-to-right.0.wasm"
-	UnknownInstruction(<95>), bin pos: 2565, stack: [
+	UnknownInstruction(<5d>), bin pos: 2617, stack: [
 	    "wasp::parser::instr::Instr",
 	    "wasp::parser::expr::Expr",
 	    "wasp::parser::func::Func",
@@ -230,7 +252,7 @@ Last test (0):
 ```bash
  ERROR wasp::testsuite > oops the test-suite panicked!
 Reason:
-	panicked at src/testsuite.rs:567:21:
+	panicked at src/testsuite.rs:563:21:
 	not yet implemented: Register: "Mf" $Mf
 Last test (1):
 	Register(Register { _type: MustBe!("register"), name: Some("$Mf"), _as: "Mf" })
@@ -250,7 +272,7 @@ Last test (1):
 ```bash
  ERROR wasp::testsuite > oops the test-suite panicked!
 Reason:
-	panicked at src/runtime/methods/step.rs:1573:17:
+	panicked at src/runtime/methods/step.rs:1580:17:
 	not implemented: instruction not supported : x8c_f32_neg
 Last test (45):
 	AssertReturn(AssertReturn { _type: MustBe!("assert_return"), action: Invoke { module: None, field: "as-unary-operand", args: [F32 { value: "0" }] }, expected: [F32 { value: "4286640610" }] })
@@ -260,7 +282,7 @@ Last test (45):
 ```bash
  ERROR wasp::testsuite > oops the test-suite panicked!
 Reason:
-	panicked at src/testsuite.rs:355:32:
+	panicked at src/testsuite.rs:351:32:
 	failed to load module: ParseError(File: "test-suite/test/core/loop.0.wasm"
 	UnknownInstruction(<5d>), bin pos: 2324, stack: [
 	    "wasp::parser::instr::Instr",
@@ -308,7 +330,7 @@ Last test (7):
 ```bash
  ERROR wasp::testsuite > oops the test-suite panicked!
 Reason:
-	panicked at src/testsuite.rs:355:32:
+	panicked at src/testsuite.rs:351:32:
 	failed to load module: ParseError(File: "test-suite/test/core/memory_grow.0.wasm"
 	UnknownInstruction(<3f>), bin pos: 179, stack: [
 	    "wasp::parser::instr::Instr",
@@ -332,7 +354,7 @@ Last test (0):
 ```bash
  ERROR wasp::testsuite > oops the test-suite panicked!
 Reason:
-	panicked at src/testsuite.rs:355:32:
+	panicked at src/testsuite.rs:351:32:
 	failed to load module: ParseError(File: "test-suite/test/core/memory_size.0.wasm"
 	UnknownInstruction(<3f>), bin pos: 52, stack: [
 	    "wasp::parser::instr::Instr",
@@ -351,7 +373,7 @@ Last test (0):
 ```bash
  ERROR wasp::testsuite > oops the test-suite panicked!
 Reason:
-	panicked at src/testsuite.rs:355:32:
+	panicked at src/testsuite.rs:351:32:
 	failed to load module: ParseError(File: "test-suite/test/core/memory_trap.0.wasm"
 	UnknownInstruction(<3f>), bin pos: 75, stack: [
 	    "wasp::parser::instr::Instr",
@@ -370,7 +392,7 @@ Last test (0):
 ```bash
  ERROR wasp::testsuite > oops the test-suite panicked!
 Reason:
-	panicked at src/testsuite.rs:355:32:
+	panicked at src/testsuite.rs:351:32:
 	failed to load module: ParseError(File: "test-suite/test/core/ref_func.1.wasm"
 	UnknownInstruction(<d1>), bin pos: 220, stack: [
 	    "wasp::parser::instr::Instr",
@@ -389,7 +411,7 @@ Last test (2):
 ```bash
  ERROR wasp::testsuite > oops the test-suite panicked!
 Reason:
-	panicked at src/testsuite.rs:314:6:
+	panicked at src/testsuite.rs:310:6:
 	failed to parse test data: Error("data did not match any variant of untagged enum Case", line: 5, column: 2)
 Last test (0):
 	Default
@@ -399,7 +421,7 @@ Last test (0):
 ```bash
  ERROR wasp::testsuite > oops the test-suite panicked!
 Reason:
-	panicked at src/testsuite.rs:314:6:
+	panicked at src/testsuite.rs:310:6:
 	failed to parse test data: Error("data did not match any variant of untagged enum Case", line: 5, column: 154)
 Last test (0):
 	Default
@@ -414,7 +436,7 @@ Last test (0):
 ```bash
  ERROR wasp::testsuite > oops the test-suite panicked!
 Reason:
-	panicked at src/testsuite.rs:314:6:
+	panicked at src/testsuite.rs:310:6:
 	failed to parse test data: Error("data did not match any variant of untagged enum Case", line: 33, column: 2)
 Last test (0):
 	Default
@@ -667,7 +689,7 @@ memory allocation of 77309411344 bytes failed
 ```bash
  ERROR wasp::testsuite > oops the test-suite panicked!
 Reason:
-	panicked at src/testsuite.rs:355:32:
+	panicked at src/testsuite.rs:351:32:
 	failed to load module: ParseError(File: "test-suite/test/core/table_fill.0.wasm"
 	UnknownInstruction(<25>), bin pos: 96, stack: [
 	    "wasp::parser::instr::Instr",
@@ -686,7 +708,7 @@ Last test (0):
 ```bash
  ERROR wasp::testsuite > oops the test-suite panicked!
 Reason:
-	panicked at src/testsuite.rs:314:6:
+	panicked at src/testsuite.rs:310:6:
 	failed to parse test data: Error("data did not match any variant of untagged enum Case", line: 8, column: 2)
 Last test (0):
 	Default
@@ -696,7 +718,7 @@ Last test (0):
 ```bash
  ERROR wasp::testsuite > oops the test-suite panicked!
 Reason:
-	panicked at src/testsuite.rs:314:6:
+	panicked at src/testsuite.rs:310:6:
 	failed to parse test data: Error("data did not match any variant of untagged enum Case", line: 44, column: 2)
 Last test (0):
 	Default
@@ -711,7 +733,7 @@ Last test (0):
 ```bash
  ERROR wasp::testsuite > oops the test-suite panicked!
 Reason:
-	panicked at src/testsuite.rs:314:6:
+	panicked at src/testsuite.rs:310:6:
 	failed to parse test data: Error("data did not match any variant of untagged enum Case", line: 10, column: 2)
 Last test (0):
 	Default
@@ -721,7 +743,7 @@ Last test (0):
 ```bash
  ERROR wasp::testsuite > oops the test-suite panicked!
 Reason:
-	panicked at src/runtime/methods/step.rs:1573:17:
+	panicked at src/runtime/methods/step.rs:1580:17:
 	not implemented: instruction not supported : xfc_16_table_size(TableIdX(0))
 Last test (1):
 	AssertReturn(AssertReturn { _type: MustBe!("assert_return"), action: Invoke { module: None, field: "size-t0", args: [] }, expected: [I32 { value: "0" }] })
@@ -731,7 +753,7 @@ Last test (1):
 ```bash
  ERROR wasp::testsuite > oops the test-suite panicked!
 Reason:
-	panicked at src/testsuite.rs:355:32:
+	panicked at src/testsuite.rs:351:32:
 	failed to load module: unknown import: src/runtime/clean_model.rs:122:82
 Last test (11):
 	Module(Module { _type: MustBe!("module"), _name: None, filename: "token.11.wasm" })
@@ -751,7 +773,7 @@ Last test (11):
 ```bash
  ERROR wasp::testsuite > oops the test-suite panicked!
 Reason:
-	panicked at src/testsuite.rs:355:32:
+	panicked at src/testsuite.rs:351:32:
 	failed to load module: ParseError(File: "test-suite/test/core/unreached-valid.0.wasm"
 	UnknownInstruction(<d1>), bin pos: 273, stack: [
 	    "wasp::parser::instr::Instr",

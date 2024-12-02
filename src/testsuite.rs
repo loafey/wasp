@@ -4,7 +4,7 @@ use std::{collections::HashMap, fs, path::PathBuf};
 
 use crate::{
     parser::{ExportDesc, FuncIdx},
-    runtime::{Frame, FuncId, Import, Runtime, RuntimeError, Value},
+    runtime::{FloatExp, Frame, FuncId, Import, Runtime, RuntimeError, Value},
 };
 
 #[derive(Debug, Deserialize, Clone)]
@@ -183,8 +183,8 @@ fn const_to_val(consts: Vec<ConstValue>) -> Vec<Value> {
                     .expect("failed to parse"),
             ),
             ConstValue::F32 { value } => Value::F32(match &value[..] {
-                "nan:canonical" => f32::from_bits(0b010000000000000000000000000000000),
-                "nan:arithmetic" => f32::from_bits(0b011010100000000000000000000000000),
+                "nan:canonical" => f32::NAN_CANONICAL,
+                "nan:arithmetic" => f32::NAN_ARITHMETIC,
                 _ => unsafe {
                     f32::from_bits(
                         value
@@ -195,12 +195,8 @@ fn const_to_val(consts: Vec<ConstValue>) -> Vec<Value> {
                 },
             }),
             ConstValue::F64 { value } => Value::F64(match &value[..] {
-                "nan:canonical" => f64::from_bits(
-                    0b0100000000000000000000000000000000000000000000000000000000000000,
-                ),
-                "nan:arithmetic" => f64::from_bits(
-                    0b0110101000000000000000000000000000000000000000000000000000000000,
-                ),
+                "nan:canonical" => f64::NAN_CANONICAL,
+                "nan:arithmetic" => f64::NAN_ARITHMETIC,
                 _ => unsafe {
                     // println!("{value}");
                     f64::from_bits(

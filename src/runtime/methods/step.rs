@@ -8,7 +8,7 @@ use crate::{
         BlockType, DataIdx, ElemIdx, Expr, FuncIdx, GlobalIdX, Instr::*, LabelIdX, LocalIdX,
         RefTyp, TableIdX, TypeIdX, BT,
     },
-    runtime::{clean_model::Table, FuncId},
+    runtime::{clean_model::Table, FloatExp, FuncId},
 };
 use core::f64;
 use std::collections::HashMap;
@@ -1043,7 +1043,13 @@ impl Runtime {
             x92_f32_add => {
                 let y = pop!(f32);
                 let x = pop!(f32);
-                // println!("{x} + {y} = {}", x + y);
+                let r = x + y;
+                // println!(
+                //     "{:032b} + {:032b} = {:032b}",
+                //     x.to_bits(),
+                //     y.to_bits(),
+                //     r.to_bits()
+                // );
                 push!(f32, x + y)
             }
             x93_f32_sub => {
@@ -1229,25 +1235,16 @@ impl Runtime {
             }
             xbb_f64_promote_f32 => {
                 let x = pop!(f32);
-                if x.is_nan() {
-                    // very ugly
-                    if x.to_bits() & 0b01111111110000000000000000000000
-                        == 0b01111111110000000000000000000000
-                    {
-                        push!(
-                            f64,
-                            f64::from_bits(
-                                0b0100000000000000000000000000000000000000000000000000000000000000
-                            )
-                        )
-                    } else {
-                        push!(
-                            f64,
-                            f64::from_bits(
-                                0b0110101000000000000000000000000000000000000000000000000000000000
-                            )
-                        )
-                    }
+                println!(
+                    "{} {} {}",
+                    x.is_nan(),
+                    x.is_nan_canonical(),
+                    x.is_nan_arithmetic()
+                );
+                if x.is_nan_canonical() {
+                    push!(f64, f64::NAN_CANONICAL)
+                } else if x.is_nan_arithmetic() {
+                    push!(f64, f64::NAN_ARITHMETIC)
                 } else {
                     let y = x as f64;
                     push!(f64, y)

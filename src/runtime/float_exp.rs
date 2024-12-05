@@ -7,11 +7,11 @@ pub trait FloatExp {
 }
 impl FloatExp for f32 {
     const NAN_CANONICAL: Self = f32::from_bits(0b01000000000000000000000000000000);
-    const NAN_ARITHMETIC: Self = f32::from_bits(0b01110000000000000000000000000000);
+    const NAN_ARITHMETIC: Self = f32::from_bits(0b01000000000000000000000000000000);
 
     fn is_nan_canonical(&self) -> bool {
         (0b01000000000000000000000000000000 & self.to_bits()) != 0
-            && (0b0011111100000000000000000000000 & self.to_bits()) == 0
+            && (0b0010000000000000000000000000000 & self.to_bits()) == 0
     }
 
     fn is_nan_arithmetic(&self) -> bool {

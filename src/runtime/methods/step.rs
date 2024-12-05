@@ -1044,12 +1044,12 @@ impl Runtime {
                 let y = pop!(f32);
                 let x = pop!(f32);
                 let r = x + y;
-                // println!(
-                //     "{:032b} + {:032b} = {:032b}",
-                //     x.to_bits(),
-                //     y.to_bits(),
-                //     r.to_bits()
-                // );
+                println!(
+                    "{:032b} + {:032b} = {:032b}",
+                    x.to_bits(),
+                    y.to_bits(),
+                    r.to_bits()
+                );
                 push!(f32, x + y)
             }
             x93_f32_sub => {
@@ -1235,12 +1235,6 @@ impl Runtime {
             }
             xbb_f64_promote_f32 => {
                 let x = pop!(f32);
-                println!(
-                    "{} {} {}",
-                    x.is_nan(),
-                    x.is_nan_canonical(),
-                    x.is_nan_arithmetic()
-                );
                 if x.is_nan_canonical() {
                     push!(f64, f64::NAN_CANONICAL)
                 } else if x.is_nan_arithmetic() {

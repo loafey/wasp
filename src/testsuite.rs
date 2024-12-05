@@ -214,7 +214,19 @@ fn const_to_val(consts: Vec<ConstValue>) -> Vec<Value> {
 fn remove_floats(vals: Vec<Value>) -> Vec<Value> {
     vals.into_iter()
         .map(|v| match v {
-            Value::F32(x) => Value::I32(unsafe { std::mem::transmute::<u32, i32>(x.to_bits()) }),
+            Value::F32(x) => {
+                if x.is_nan_canonical() {
+                    Value::I32(unsafe {
+                        std::mem::transmute::<u32, i32>(f32::NAN_CANONICAL.to_bits())
+                    })
+                } else if x.is_nan_arithmetic() {
+                    Value::I32(unsafe {
+                        std::mem::transmute::<u32, i32>(f32::NAN_ARITHMETIC.to_bits())
+                    })
+                } else {
+                    Value::I32(unsafe { std::mem::transmute::<u32, i32>(x.to_bits()) })
+                }
+            }
             Value::F64(x) => Value::I64(unsafe { std::mem::transmute::<u64, i64>(x.to_bits()) }),
             x => x,
         })

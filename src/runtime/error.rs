@@ -37,6 +37,7 @@ pub enum RuntimeError {
     MultipleMemories(&'static str, u32, u32),
     UnknownLabel,
     UnknownGlobal,
+    UnknownMemory,
     OutOfBoundsMemoryAccess,
     StackExhaustion(usize, usize),
 }
@@ -51,6 +52,7 @@ impl std::fmt::Debug for RuntimeError {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
             Self::UnknownGlobal => write!(f, "unknown global"),
+            Self::UnknownMemory => write!(f, "unknown memory"),
             Self::StackExhaustion(cur, max) => write!(f, "stack overflow ({cur}/{max})"),
             Self::IndirectCallTypeMismatch(..) => write!(f, "indirect call type mismatch"),
             Self::NoModule(module, arg0, arg1, arg2) => {

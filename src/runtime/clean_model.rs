@@ -683,7 +683,7 @@ fn get_globals(
     Ok(())
 }
 
-fn setup_memory<const N: usize>(mems: Vec<parser::Mem>) -> Result<Memory<N>, RuntimeError> {
+fn setup_memory<const N: usize>(mems: Vec<parser::Mem>) -> Result<(Memory<N>, bool), RuntimeError> {
     if mems.len() > 1 {
         return Err(MultipleMemories(file!(), line!(), column!()));
     }
@@ -693,14 +693,15 @@ fn setup_memory<const N: usize>(mems: Vec<parser::Mem>) -> Result<Memory<N>, Run
             Limits::Min(i) => (i as usize, usize::MAX),
             Limits::MinMax(i, m) => (i as usize, m as usize),
         })
-        .unwrap_or((1, usize::MAX));
-    Ok(Memory::new(mem_cur, mem_max))
+        .unwrap_or((0, 0));
+    Ok((Memory::new(mem_cur, mem_max), !mems.is_empty()))
 }
 
 fn setup_data<const N: usize>(
     data: Vec<parser::Data>,
     memory: &mut Memory<N>,
     globals: &[PtrRW<(Mutable, Value)>],
+    mem_exists: bool,
 ) -> Result<Vec<PtrRW<Vec<u8>>>, RuntimeError> {
     let mut datas = Vec::new();
     for d in data {
@@ -729,6 +730,9 @@ fn setup_data<const N: usize>(
                 };
                 if vec.is_empty() && p == 1 {
                     memory.get::<u8>(p as usize, MemArg::default())?;
+                }
+                if !mem_exists {
+                    return Err(UnknownMemory);
                 }
                 for (i, v) in vec.iter().enumerate() {
                     memory.set(
@@ -809,12 +813,13 @@ impl TryFrom<(&HashMap<String, Import>, Module)> for Model {
         validate_elems(&value.elems.elems, &functions)?;
         let elems = setup_elems(value.elems.elems, &mut tables)?;
         get_globals(&mut globals, value.globals.globals)?;
-        let memory = if let Some(mem) = memory {
-            mem
+        let (memory, mem_exists) = if let Some(mem) = memory {
+            (mem, true)
         } else {
-            setup_memory(value.mems.mems)?.into()
+            let (mem, mem_exists) = setup_memory(value.mems.mems)?;
+            (mem.into(), mem_exists)
         };
-        let datas = setup_data(value.datas.data, &mut memory.write(), &globals)?;
+        let datas = setup_data(value.datas.data, &mut memory.write(), &globals, mem_exists)?;
         validate_label_depth(&functions)?;
 
         Ok(Self {

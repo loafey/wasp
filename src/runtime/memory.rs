@@ -69,7 +69,7 @@ impl<const PAGE_SIZE: usize> Memory<PAGE_SIZE> {
     }
 
     pub fn set<T>(&mut self, address: usize, mem_arg: MemArg, val: T) -> Result<(), RuntimeError> {
-        if self.current_pages == 0 {
+        if self.current_pages == 0 || address >= 2usize.pow(32) {
             return Err(RuntimeError::OutOfBoundsMemoryAccess);
         }
         // println!("setting {}", address + mem_arg.offset as usize);

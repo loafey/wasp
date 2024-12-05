@@ -533,12 +533,50 @@ pub fn test(mut path: String) {
                     Err(_) => continue,
                 }
             }
-            Case::AssertUninstantiable(_) => {
-                if skip {
+            Case::AssertUninstantiable(AssertUninstantiable {
+                _type,
+                filename,
+                text,
+                module_type,
+            }) => {
+                if skip || matches!(module_type, ModuleType::Text) {
                     continue;
                 }
-                let _rt = runtime.as_ref().expect("no rt set");
-                todo!("AssertUninstantiable")
+                let mut p = p.clone();
+                p.pop();
+                p.push(&filename);
+                let mut rt = Runtime::build(&p);
+                rt = rt.add_io("spectest", Import::spectest());
+                for (k, v) in &registers {
+                    rt = rt.add_ws(&k.clone(), v.clone());
+                }
+                let mut rt = rt.build().expect("failed to build");
+                loop {
+                    match rt.step() {
+                        Err(RuntimeError::NoFrame(_, _, _)) => {
+                            error!("test {test_i}/{total_tests} did not fail, expected error: {text:?} (module: {module_index})");
+                            std::process::exit(1);
+                        }
+                        Err(e)
+                            if text.contains(&format!("{e:?}"))
+                                || format!("{e:?}").contains(&text)
+                                || matches!(
+                                    (&*text, &*format!("{e:?}")),
+                                    ("undefined element", "uninitialized element")
+                                        | ("uninitialized element", "undefined element")
+                                        | ("undefined element", "uninitialized element 2")
+                                        | ("uninitialized element 2", "undefined element")
+                                ) =>
+                        {
+                            break;
+                        }
+                        Err(e) => {
+                            error!("test {test_i}/{total_tests} got error \"{e:?}\", expected error: {text:?} (module: {module_index})");
+                            std::process::exit(1);
+                        }
+                        Ok(()) => (),
+                    }
+                }
             }
             Case::AssertUnlinkable(AssertUnlinkable {
                 filename,

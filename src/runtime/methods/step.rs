@@ -1036,6 +1036,22 @@ impl Runtime {
                 let x = pop!(u64);
                 push!(u64, x.rotate_right(y as u32))
             }
+            x8d_f32_ceil => {
+                let x = pop!(f32);
+                push!(f32, x.ceil())
+            }
+            x8e_f32_floor => {
+                let x = pop!(f32);
+                push!(f32, x.floor())
+            }
+            x8f_f32_trunc => {
+                let x = pop!(f32);
+                push!(f32, x.trunc())
+            }
+            x90_f32_nearest => {
+                let x = pop!(f32);
+                push!(f32, x.round_ties_even())
+            }
             x91_f32_sqrt => {
                 let x = pop!(f32);
                 push!(f32, x.sqrt())
@@ -1054,6 +1070,59 @@ impl Runtime {
                 let y = pop!(f32);
                 let x = pop!(f32);
                 push!(f32, x * y)
+            }
+            x95_f32_div => {
+                let y = pop!(f32);
+                let x = pop!(f32);
+                push!(f32, x / y)
+            }
+            x96_f32_min => {
+                let y = pop!(f32);
+                let x = pop!(f32);
+
+                if (y.to_bits() == 0b10000000000000000000000000000000 && x == 0.0)
+                    || (x.to_bits() == 0b10000000000000000000000000000000 && y == 0.0)
+                {
+                    push!(f32, f32::from_bits(0b10000000000000000000000000000000));
+                } else if y.is_nan() || x.is_nan() {
+                    push!(f32, f32::NAN_ARITHMETIC);
+                } else if y.is_infinite() && y.is_sign_positive() {
+                    push!(f32, x)
+                } else if x.is_infinite() && x.is_sign_positive() {
+                    push!(f32, y)
+                } else if (y.is_infinite() && y.is_sign_negative())
+                    || (x.is_infinite() && x.is_sign_negative())
+                {
+                    push!(f32, f32::NEG_INFINITY)
+                } else {
+                    push!(f32, x.min(y))
+                }
+            }
+            x97_f32_max => {
+                let y = pop!(f32);
+                let x = pop!(f32);
+
+                if (y.to_bits() == 0b10000000000000000000000000000000)
+                    && (x.to_bits() == 0b10000000000000000000000000000000)
+                {
+                    push!(f32, f32::from_bits(0b10000000000000000000000000000000));
+                } else if (y.to_bits() == 0b10000000000000000000000000000000 && x == 0.0)
+                    || (x.to_bits() == 0b10000000000000000000000000000000 && y == 0.0)
+                {
+                    push!(f32, 0.0);
+                } else if y.is_nan() || x.is_nan() {
+                    push!(f32, f32::NAN_ARITHMETIC);
+                } else if y.is_infinite() && y.is_sign_negative() {
+                    push!(f32, x)
+                } else if x.is_infinite() && x.is_sign_negative() {
+                    push!(f32, y)
+                } else if (y.is_infinite() && y.is_sign_positive())
+                    || (x.is_infinite() && x.is_sign_positive())
+                {
+                    push!(f32, f32::INFINITY)
+                } else {
+                    push!(f32, x.max(y))
+                }
             }
             xa0_f64_add => {
                 let y = pop!(f64);

@@ -1,13 +1,8 @@
 # W.A.S.P
 
 ## Latest spec test (typechecking currently disabled)
-💅: 46\
-💩: 101
-## Failed: test-suite/test/core/conversions.wast
-```bash
- ERROR wasp::testsuite > test 531/619 failed (module: 0, invoke: "f32.demote_f64", got [i32(-2147483648)], but expected [i32(1073741824)])
-```
-
+💅: 47\
+💩: 100
 ## Failed: test-suite/test/core/data.wast
 ```bash
  ERROR wasp::testsuite > test 10/61 did not fail invalidating/parsing, expected error: "unknown global" (module: "test-suite/test/core/data.9.wasm")
@@ -551,7 +546,7 @@ Last test (0):
 ```bash
  ERROR wasp::testsuite > oops the test-suite panicked!
 Reason:
-	panicked at src/runtime/methods/step.rs:1761:17:
+	panicked at src/runtime/methods/step.rs:1747:17:
 	not implemented: instruction not supported : xfc_16_table_size(TableIdX(0))
 Last test (1):
 	AssertReturn(AssertReturn { _type: MustBe!("assert_return"), action: Invoke { module: None, field: "size-t0", args: [] }, expected: [I32 { value: "0" }] })

@@ -1,8 +1,8 @@
 # W.A.S.P
 
 ## Latest spec test (typechecking currently disabled)
-💅: 42\
-💩: 105
+💅: 46\
+💩: 101
 ## Failed: test-suite/test/core/conversions.wast
 ```bash
  ERROR wasp::testsuite > test 531/619 failed (module: 0, invoke: "f32.demote_f64", got [i32(-2147483648)], but expected [i32(1073741824)])
@@ -38,49 +38,14 @@ Last test (13):
 	AssertReturn(AssertReturn { _type: MustBe!("assert_return"), action: Invoke { module: Some("$Func"), field: "e", args: [I32 { value: "42" }] }, expected: [I32 { value: "43" }] })
 ```
 
-## Failed: test-suite/test/core/f64_bitwise.wast
-```bash
- ERROR wasp::testsuite > oops the test-suite panicked!
-Reason:
-	panicked at src/runtime/methods/step.rs:1724:17:
-	not implemented: instruction not supported : xa6_f64_copysign
-Last test (1):
-	AssertReturn(AssertReturn { _type: MustBe!("assert_return"), action: Invoke { module: None, field: "copysign", args: [F64 { value: "9223372036854775808" }, F64 { value: "9223372036854775808" }] }, expected: [F64 { value: "9223372036854775808" }] })
-```
-
-## Failed: test-suite/test/core/f64_cmp.wast
-```bash
- ERROR wasp::testsuite > oops the test-suite panicked!
-Reason:
-	panicked at src/runtime/methods/step.rs:1724:17:
-	not implemented: instruction not supported : x62_f64_ne
-Last test (401):
-	AssertReturn(AssertReturn { _type: MustBe!("assert_return"), action: Invoke { module: None, field: "ne", args: [F64 { value: "9223372036854775808" }, F64 { value: "9223372036854775808" }] }, expected: [I32 { value: "0" }] })
-```
-
 ## Failed: test-suite/test/core/fac.wast
 ```bash
- ERROR wasp::testsuite > test 7/8 failed (module: 0, invoke: "fac-ssa", error: wrong type popped from stack (got BlockLock, expected i64): src/runtime/methods/step.rs:972:25)
+ ERROR wasp::testsuite > test 7/8 failed (module: 0, invoke: "fac-ssa", error: wrong type popped from stack (got BlockLock, expected i64): src/runtime/methods/step.rs:992:25)
 ```
 
 ## Failed: test-suite/test/core/float_exprs.wast
 ```bash
- ERROR wasp::testsuite > oops the test-suite panicked!
-Reason:
-	panicked at src/runtime/methods/step.rs:1724:17:
-	not implemented: instruction not supported : x62_f64_ne
-Last test (68):
-	AssertReturn(AssertReturn { _type: MustBe!("assert_return"), action: Invoke { module: None, field: "f64.no_fold_ne_self", args: [F64 { value: "9221120237041090560" }] }, expected: [I32 { value: "1" }] })
-```
-
-## Failed: test-suite/test/core/float_misc.wast
-```bash
- ERROR wasp::testsuite > oops the test-suite panicked!
-Reason:
-	panicked at src/runtime/methods/step.rs:1724:17:
-	not implemented: instruction not supported : x99_f64_abs
-Last test (413):
-	AssertReturn(AssertReturn { _type: MustBe!("assert_return"), action: Invoke { module: None, field: "f64.abs", args: [F64 { value: "9218868441285556843" }] }, expected: [F64 { value: "9218868441285556843" }] })
+ ERROR wasp::testsuite > test 332/927 failed (module: 39, invoke: "no_demote_mixed_mul", got [i32(0)], but expected [i32(329178166)])
 ```
 
 ## Failed: test-suite/test/core/func.wast
@@ -114,16 +79,6 @@ Last test (0):
  ERROR wasp::testsuite > test 3/29 failed (module: 0, invoke: "loop1", got [i32(1)], but expected [i32(5)])
 ```
 
-## Failed: test-suite/test/core/left-to-right.wast
-```bash
- ERROR wasp::testsuite > oops the test-suite panicked!
-Reason:
-	panicked at src/runtime/methods/step.rs:1724:17:
-	not implemented: instruction not supported : xa6_f64_copysign
-Last test (69):
-	AssertReturn(AssertReturn { _type: MustBe!("assert_return"), action: Invoke { module: None, field: "f64_copysign", args: [] }, expected: [I32 { value: "258" }] })
-```
-
 ## Failed: test-suite/test/core/linking.wast
 ```bash
  ERROR wasp::testsuite > oops the test-suite panicked!
@@ -146,12 +101,7 @@ Last test (1):
 
 ## Failed: test-suite/test/core/local_tee.wast
 ```bash
- ERROR wasp::testsuite > oops the test-suite panicked!
-Reason:
-	panicked at src/runtime/methods/step.rs:1724:17:
-	not implemented: instruction not supported : x9a_f64_neg
-Last test (53):
-	AssertReturn(AssertReturn { _type: MustBe!("assert_return"), action: Invoke { module: None, field: "type-mixed", args: [I64 { value: "1" }, F32 { value: "1074580685" }, F64 { value: "4614613358185178726" }, I32 { value: "4" }, I32 { value: "5" }] }, expected: [] })
+ ERROR wasp::testsuite > test 55/97 failed (module: 0, invoke: "write", error: a local is missing: src/runtime/methods/step.rs:536:51)
 ```
 
 ## Failed: test-suite/test/core/loop.wast
@@ -601,7 +551,7 @@ Last test (0):
 ```bash
  ERROR wasp::testsuite > oops the test-suite panicked!
 Reason:
-	panicked at src/runtime/methods/step.rs:1724:17:
+	panicked at src/runtime/methods/step.rs:1761:17:
 	not implemented: instruction not supported : xfc_16_table_size(TableIdX(0))
 Last test (1):
 	AssertReturn(AssertReturn { _type: MustBe!("assert_return"), action: Invoke { module: None, field: "size-t0", args: [] }, expected: [I32 { value: "0" }] })

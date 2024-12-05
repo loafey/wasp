@@ -1172,6 +1172,14 @@ impl Runtime {
                     push!(f32, f32::from_bits(x.to_bits() ^ (1 << 31)))
                 }
             }
+            x99_f64_abs => {
+                let x = pop!(f64);
+                push!(f64, x.abs())
+            }
+            x9a_f64_neg => {
+                let x = pop!(f64);
+                push!(f64, -x)
+            }
             x9b_f64_ceil => {
                 let x = pop!(f64);
                 push!(f64, x.ceil())
@@ -1254,6 +1262,15 @@ impl Runtime {
                     push!(f64, f64::INFINITY)
                 } else {
                     push!(f64, x.max(y))
+                }
+            }
+            xa6_f64_copysign => {
+                let y = pop!(f64);
+                let x = pop!(f64);
+                if x.nan_sign() == y.nan_sign() {
+                    push!(f64, x);
+                } else {
+                    push!(f64, f64::from_bits(x.to_bits() ^ (1 << 63)))
                 }
             }
             xa7_i32_wrap_i64 => {

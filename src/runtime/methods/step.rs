@@ -1051,6 +1051,14 @@ impl Runtime {
                 let x = pop!(u64);
                 push!(u64, x.rotate_right(y as u32))
             }
+            x8b_f32_abs => {
+                let x = pop!(f32);
+                push!(f32, x.abs())
+            }
+            x8c_f32_neg => {
+                let x = pop!(f32);
+                push!(f32, -x)
+            }
             x8d_f32_ceil => {
                 let x = pop!(f32);
                 push!(f32, x.ceil())
@@ -1095,10 +1103,8 @@ impl Runtime {
                 let y = pop!(f32);
                 let x = pop!(f32);
 
-                if (y.to_bits() == 0b10000000000000000000000000000000 && x == 0.0)
-                    || (x.to_bits() == 0b10000000000000000000000000000000 && y == 0.0)
-                {
-                    push!(f32, f32::from_bits(0b10000000000000000000000000000000));
+                if (y.to_bits() == 1 << 31 && x == 0.0) || (x.to_bits() == 1 << 31 && y == 0.0) {
+                    push!(f32, f32::from_bits(1 << 31));
                 } else if y.is_nan() || x.is_nan() {
                     push!(f32, f32::NAN_ARITHMETIC);
                 } else if y.is_infinite() && y.is_sign_positive() {
@@ -1117,12 +1123,10 @@ impl Runtime {
                 let y = pop!(f32);
                 let x = pop!(f32);
 
-                if (y.to_bits() == 0b10000000000000000000000000000000)
-                    && (x.to_bits() == 0b10000000000000000000000000000000)
-                {
-                    push!(f32, f32::from_bits(0b10000000000000000000000000000000));
-                } else if (y.to_bits() == 0b10000000000000000000000000000000 && x == 0.0)
-                    || (x.to_bits() == 0b10000000000000000000000000000000 && y == 0.0)
+                if (y.to_bits() == (1 << 31)) && (x.to_bits() == (1 << 31)) {
+                    push!(f32, f32::from_bits(1 << 31));
+                } else if (y.to_bits() == (1 << 31) && x == 0.0)
+                    || (x.to_bits() == (1 << 31) && y == 0.0)
                 {
                     push!(f32, 0.0);
                 } else if y.is_nan() || x.is_nan() {
@@ -1137,6 +1141,15 @@ impl Runtime {
                     push!(f32, f32::INFINITY)
                 } else {
                     push!(f32, x.max(y))
+                }
+            }
+            x98_f32_copysign => {
+                let y = pop!(f32);
+                let x = pop!(f32);
+                if x.nan_sign() == y.nan_sign() {
+                    push!(f32, x);
+                } else {
+                    push!(f32, f32::from_bits(x.to_bits() ^ (1 << 31)))
                 }
             }
             xa0_f64_add => {

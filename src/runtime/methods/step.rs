@@ -1155,8 +1155,26 @@ impl Runtime {
             xa0_f64_add => {
                 let y = pop!(f64);
                 let x = pop!(f64);
-                println!("{x} + {y} = ");
+                // println!("\n{x} + {y} = {}", x + y);
+                // println!(
+                //     "{:064b} + {:064b} = {:064b}",
+                //     x.to_bits(),
+                //     y.to_bits(),
+                //     (x + y).to_bits()
+                // );
+                // println!("= {:064b}", -9223372036854775808i64);
+                // if (x.is_nan() || y.is_nan())
+                //     && (x == -0.0
+                //         || y == -0.0
+                //         || x.to_bits() & (1 << 63) > 0
+                //         || y.to_bits() & (1 << 63) > 0
+                //         || x == f64::from_bits(1)
+                //         || y == f64::from_bits(1))
+                // {
+                //     push!(f64, -0.0)
+                // } else {
                 push!(f64, x + y)
+                // }
             }
             xa1_f64_sub => {
                 let y = pop!(f64);

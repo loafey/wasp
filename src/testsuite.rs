@@ -198,7 +198,6 @@ fn const_to_val(consts: Vec<ConstValue>) -> Vec<Value> {
                 "nan:canonical" => f64::NAN_CANONICAL,
                 "nan:arithmetic" => f64::NAN_ARITHMETIC,
                 _ => unsafe {
-                    // println!("{value}");
                     f64::from_bits(
                         value
                             .parse::<i64>()

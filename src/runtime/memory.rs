@@ -39,6 +39,7 @@ impl<const PAGE_SIZE: usize> Memory<PAGE_SIZE> {
     }
 
     pub fn new(current_pages: usize, max_pages: usize) -> Self {
+        println!("{current_pages} {max_pages}");
         Self {
             current_pages,
             max_pages,
@@ -69,6 +70,9 @@ impl<const PAGE_SIZE: usize> Memory<PAGE_SIZE> {
     }
 
     pub fn set<T>(&mut self, address: usize, mem_arg: MemArg, val: T) -> Result<(), RuntimeError> {
+        if self.current_pages == 0 {
+            return Err(RuntimeError::OutOfBoundsMemoryAccess);
+        }
         // println!("setting {}", address + mem_arg.offset as usize);
         // let align = 2usize.pow(align);
 
@@ -77,8 +81,10 @@ impl<const PAGE_SIZE: usize> Memory<PAGE_SIZE> {
             let start_block = start_address / PAGE_SIZE;
             let end_address = address + mem_arg.offset as usize + mem::size_of::<T>();
             let end_block = end_address / PAGE_SIZE;
-
-            if start_block >= self.current_pages || end_block >= self.current_pages {
+            if start_block > self.current_pages
+                || end_block > self.current_pages
+                || end_block > self.max_pages
+            {
                 return Err(RuntimeError::OutOfBoundsMemoryAccess);
             }
         }
@@ -110,6 +116,9 @@ impl<const PAGE_SIZE: usize> Memory<PAGE_SIZE> {
         address: usize,
         mem_arg: MemArg,
     ) -> Result<T, RuntimeError> {
+        if self.current_pages == 0 {
+            return Err(RuntimeError::OutOfBoundsMemoryAccess);
+        }
         // println!("getting {}", address + mem_arg.offset as usize);
 
         let mut val = unsafe { mem::zeroed::<T>() };
@@ -121,7 +130,7 @@ impl<const PAGE_SIZE: usize> Memory<PAGE_SIZE> {
             let end_address = address + mem_arg.offset as usize + mem::size_of::<T>();
             let end_block = end_address / PAGE_SIZE;
 
-            if start_block >= self.current_pages || end_block >= self.current_pages {
+            if start_block > self.current_pages || end_block > self.current_pages {
                 return Err(RuntimeError::OutOfBoundsMemoryAccess);
             }
         }
@@ -142,16 +151,19 @@ impl<const PAGE_SIZE: usize> Memory<PAGE_SIZE> {
         amount: usize,
         destination: usize,
     ) -> Result<(), RuntimeError> {
+        if self.current_pages == 0 {
+            return Err(RuntimeError::OutOfBoundsMemoryAccess);
+        }
         let start_block = source / PAGE_SIZE;
         let end_block = (source + amount) / PAGE_SIZE;
 
         let destination_block = destination / PAGE_SIZE;
         let destination_block_end = (destination + amount) / PAGE_SIZE;
 
-        if start_block >= self.current_pages
-            || end_block >= self.current_pages
-            || destination_block >= self.current_pages
-            || destination_block_end >= self.current_pages
+        if start_block > self.current_pages
+            || end_block > self.current_pages
+            || destination_block > self.current_pages
+            || destination_block_end > self.current_pages
         {
             return Err(RuntimeError::OutOfBoundsMemoryAccess);
         }
@@ -169,12 +181,15 @@ impl<const PAGE_SIZE: usize> Memory<PAGE_SIZE> {
     }
 
     pub fn slice_write(&mut self, address: usize, slice: &[u8]) -> Result<(), RuntimeError> {
+        if self.current_pages == 0 {
+            return Err(RuntimeError::OutOfBoundsMemoryAccess);
+        }
         let start_address = address;
         let start_block = start_address / PAGE_SIZE;
         let end_address = address + slice.len();
         let end_block = end_address / PAGE_SIZE;
 
-        if start_block >= self.current_pages || end_block >= self.current_pages {
+        if start_block > self.current_pages || end_block > self.current_pages {
             return Err(RuntimeError::OutOfBoundsMemoryAccess);
         }
 
@@ -186,12 +201,15 @@ impl<const PAGE_SIZE: usize> Memory<PAGE_SIZE> {
     }
 
     pub fn bulk_write(&mut self, address: usize, end: usize, val: u8) -> Result<(), RuntimeError> {
+        if self.current_pages == 0 {
+            return Err(RuntimeError::OutOfBoundsMemoryAccess);
+        }
         let start_address = address;
         let start_block = start_address / PAGE_SIZE;
         let end_address = address + end;
         let end_block = end_address / PAGE_SIZE;
 
-        if start_block >= self.current_pages || end_block >= self.current_pages {
+        if start_block > self.current_pages || end_block > self.current_pages {
             return Err(RuntimeError::OutOfBoundsMemoryAccess);
         }
 

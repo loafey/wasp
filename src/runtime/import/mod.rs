@@ -13,7 +13,7 @@ use super::{
 };
 
 pub type Locals<'t> = &'t HashMap<u32, Value>;
-pub type Mem<'t> = &'t mut Memory<{ 65536 + 1 }>;
+pub type Mem<'t> = &'t mut Memory<65536>;
 pub type Stack = Vec<Value>;
 
 pub type IOFunction = &'static dyn Fn(Locals, Mem) -> Result<Stack, RuntimeError>;
@@ -83,7 +83,7 @@ pub struct IO {
     pub functions: HashMap<&'static str, IOFunction>,
     pub globals: HashMap<&'static str, PtrRW<(Mutable, Value)>>,
     pub tables: HashMap<&'static str, PtrRW<Table>>,
-    pub memory: PtrRW<Memory<{ 65536 + 1 }>>,
+    pub memory: PtrRW<Memory<65536>>,
     pub memory_name: String,
 }
 pub enum Import {

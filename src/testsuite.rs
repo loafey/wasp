@@ -345,7 +345,7 @@ pub fn test(mut path: String) {
             LAST_CASE = (test_i, test.clone());
         }
         let test_i = test_i + 1;
-        // println!("\n{}/{total_tests}", test_i);
+        println!("\n{}/{total_tests}", test_i);
         if let Some(rt) = &mut runtime {
             rt.stack = Vec::new();
         }
@@ -542,6 +542,7 @@ pub fn test(mut path: String) {
                 if skip || matches!(module_type, ModuleType::Text) {
                     continue;
                 }
+
                 let mut p = p.clone();
                 p.pop();
                 p.push(&filename);
@@ -550,31 +551,21 @@ pub fn test(mut path: String) {
                 for (k, v) in &registers {
                     rt = rt.add_ws(&k.clone(), v.clone());
                 }
-                let mut rt = rt.build().expect("failed to build");
-                loop {
-                    match rt.step() {
-                        Err(RuntimeError::NoFrame(_, _, _)) => {
-                            error!("test {test_i}/{total_tests} did not fail, expected error: {text:?} (module: {module_index})");
-                            std::process::exit(1);
-                        }
-                        Err(e)
-                            if text.contains(&format!("{e:?}"))
-                                || format!("{e:?}").contains(&text)
-                                || matches!(
-                                    (&*text, &*format!("{e:?}")),
-                                    ("undefined element", "uninitialized element")
-                                        | ("uninitialized element", "undefined element")
-                                        | ("undefined element", "uninitialized element 2")
-                                        | ("uninitialized element 2", "undefined element")
-                                ) =>
-                        {
-                            break;
-                        }
-                        Err(e) => {
-                            error!("test {test_i}/{total_tests} got error \"{e:?}\", expected error: {text:?} (module: {module_index})");
-                            std::process::exit(1);
-                        }
-                        Ok(()) => (),
+                match rt.build() {
+                    Ok(_) => {
+                        error!("test {test_i}/{total_tests} did not fail linking, expected error: {text:?} (module: {p:?})");
+                        std::process::exit(1);
+                    }
+                    Err(e)
+                        if text == "incompatible import type"
+                            || format!("{e:?}").contains("unknown import") =>
+                    {
+                        continue
+                    }
+                    Err(e) if format!("{e:?}").contains(&text) => continue,
+                    Err(e) => {
+                        error!("test {test_i}/{total_tests} got wrong error, expected error: {text:?}, got {e:?} (module: {p:?})");
+                        std::process::exit(1);
                     }
                 }
             }

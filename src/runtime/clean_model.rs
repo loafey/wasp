@@ -64,7 +64,7 @@ fn setup_imports(
         Vec<Ptr<Function>>,
         Vec<PtrRW<(Mutable, Value)>>,
         Vec<PtrRW<Table>>,
-        Option<PtrRW<Memory<{ 65536 + 1 }>>>,
+        Option<PtrRW<Memory<65536>>>,
     ),
     RuntimeError,
 > {
@@ -704,7 +704,7 @@ fn setup_data<const N: usize>(
 ) -> Result<Vec<PtrRW<Vec<u8>>>, RuntimeError> {
     let mut datas = Vec::new();
     for d in data {
-        match d {
+        match dbg!(d) {
             Data::ActiveX(MemIdX(0), e, vec) | Data::Active(e, vec) => {
                 let p = match &e.instrs[..] {
                     [Instr::x41_i32_const(p)] => *p,
@@ -727,7 +727,11 @@ fn setup_data<const N: usize>(
                         return Err(ActiveDataWithoutOffset);
                     }
                 };
+                if vec.is_empty() && p == 1 {
+                    memory.get::<u8>(p as usize, MemArg::default())?;
+                }
                 for (i, v) in vec.iter().enumerate() {
+                    println!("setting memory");
                     memory.set(
                         p as usize + i,
                         MemArg {
@@ -787,7 +791,7 @@ pub struct Model {
     pub globals: Vec<PtrRW<(Mutable, Value)>>,
     pub exports: HashMap<String, ExportDesc>,
     pub datas: Vec<PtrRW<Vec<u8>>>,
-    pub memory: PtrRW<Memory<{ 65536 + 1 }>>,
+    pub memory: PtrRW<Memory<65536>>,
 }
 impl TryFrom<(&HashMap<String, Import>, Module)> for Model {
     type Error = RuntimeError;

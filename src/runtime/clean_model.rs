@@ -704,7 +704,7 @@ fn setup_data<const N: usize>(
 ) -> Result<Vec<PtrRW<Vec<u8>>>, RuntimeError> {
     let mut datas = Vec::new();
     for d in data {
-        match dbg!(d) {
+        match d {
             Data::ActiveX(MemIdX(0), e, vec) | Data::Active(e, vec) => {
                 let p = match &e.instrs[..] {
                     [Instr::x41_i32_const(p)] => *p,
@@ -731,7 +731,6 @@ fn setup_data<const N: usize>(
                     memory.get::<u8>(p as usize, MemArg::default())?;
                 }
                 for (i, v) in vec.iter().enumerate() {
-                    println!("setting memory");
                     memory.set(
                         p as usize + i,
                         MemArg {

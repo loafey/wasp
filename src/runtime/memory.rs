@@ -39,7 +39,6 @@ impl<const PAGE_SIZE: usize> Memory<PAGE_SIZE> {
     }
 
     pub fn new(current_pages: usize, max_pages: usize) -> Self {
-        println!("{current_pages} {max_pages}");
         Self {
             current_pages,
             max_pages,
@@ -79,7 +78,7 @@ impl<const PAGE_SIZE: usize> Memory<PAGE_SIZE> {
         {
             let start_address = address + mem_arg.offset as usize;
             let start_block = start_address / PAGE_SIZE;
-            let end_address = address + mem_arg.offset as usize + mem::size_of::<T>();
+            let end_address = address + mem_arg.offset as usize + mem::size_of::<T>() - 1;
             let end_block = end_address / PAGE_SIZE;
             if start_block > self.current_pages
                 || end_block >= self.current_pages
@@ -127,13 +126,9 @@ impl<const PAGE_SIZE: usize> Memory<PAGE_SIZE> {
         {
             let start_address = address + mem_arg.offset as usize;
             let start_block = start_address / PAGE_SIZE;
-            let end_address = address + mem_arg.offset as usize + mem::size_of::<T>();
+            let end_address = address + mem_arg.offset as usize + mem::size_of::<T>() - 1;
             let end_block = end_address / PAGE_SIZE;
-            println!(
-                "{start_block} > {end_block}, {} {}",
-                self.current_pages, self.max_pages
-            );
-            println!("{start_address} {end_address}");
+
             if start_block > self.current_pages
                 || end_block >= self.current_pages
                 || end_block >= self.max_pages
@@ -166,6 +161,11 @@ impl<const PAGE_SIZE: usize> Memory<PAGE_SIZE> {
 
         let destination_block = destination / PAGE_SIZE;
         let destination_block_end = (destination + amount) / PAGE_SIZE;
+
+        println!(
+            "{source}|{} {destination}|{} : {start_block}|{end_block} {destination_block}|{destination_block_end} {}|{}",
+            source + amount, destination + amount, self.current_pages, self.max_pages
+        );
 
         if start_block > self.current_pages
             || end_block > self.current_pages
@@ -213,7 +213,7 @@ impl<const PAGE_SIZE: usize> Memory<PAGE_SIZE> {
         }
         let start_address = address;
         let start_block = start_address / PAGE_SIZE;
-        let end_address = address + end;
+        let end_address = address + end - 1;
         let end_block = end_address / PAGE_SIZE;
 
         if start_block > self.current_pages || end_block >= self.current_pages {

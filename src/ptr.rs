@@ -38,6 +38,14 @@ pub enum Ptr<T> {
     Strong { inner: STDPtr<T> },
     Weak { inner: WeakArc<T> },
 }
+impl<T> Ptr<T> {
+    pub fn is_weak(op: &Self) -> bool {
+        match op {
+            Ptr::Strong { .. } => false,
+            Ptr::Weak { .. } => true,
+        }
+    }
+}
 impl<T> Clone for Ptr<T> {
     fn clone(&self) -> Self {
         match self {
@@ -89,6 +97,11 @@ impl<T: Display> Display for Ptr<T> {
 
 pub struct PtrRW<T> {
     inner: Ptr<RwLock<T>>,
+}
+impl<T> PtrRW<T> {
+    pub fn is_weak(&self) -> bool {
+        Ptr::is_weak(&self.inner)
+    }
 }
 impl<T> Clone for PtrRW<T> {
     fn clone(&self) -> Self {

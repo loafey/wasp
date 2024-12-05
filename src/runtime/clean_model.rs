@@ -158,7 +158,7 @@ fn setup_imports(
                         .get(&*import.name.0)
                         .ok_or(RuntimeError::UnknownImport(file!(), line!(), column!()))?;
 
-                    if !g.read().1.is_type(&gt.t) || g.read().0 != gt.mutable {
+                    if !g.read().1.is_type(&gt.t) || Mutable::Const != gt.mutable {
                         return Err(RuntimeError::IncompatibleImportType(
                             file!(),
                             line!(),
@@ -709,8 +709,11 @@ fn setup_data<const N: usize>(
                 let p = match &e.instrs[..] {
                     [Instr::x41_i32_const(p)] => *p,
                     [Instr::x23_global_get(GlobalIdX(i))] => {
-                        if let Some(k) = globals.get(*i as usize) {
-                            let k = k.read();
+                        if let Some(ko) = globals.get(*i as usize) {
+                            let k = ko.read();
+                            if k.0 != Mutable::Const || !PtrRW::is_weak(ko) {
+                                return Err(UnknownGlobal);
+                            }
                             match k.1 {
                                 Value::I32(p) => p,
                                 _ => todo!(),

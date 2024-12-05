@@ -13,9 +13,8 @@ impl Parsable for GlobalType {
     where
         Self: std::marker::Sized,
     {
-        Ok(Self {
-            t: ValType::parse(data, stack)?,
-            mutable: Mutable::parse(data, stack)?,
-        })
+        let t = ValType::parse(data, stack)?;
+        let mutable = Mutable::parse(data, stack)?;
+        Ok(Self { t, mutable })
     }
 }

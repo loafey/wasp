@@ -1152,29 +1152,30 @@ impl Runtime {
                     push!(f32, f32::from_bits(x.to_bits() ^ (1 << 31)))
                 }
             }
+            x9b_f64_ceil => {
+                let x = pop!(f64);
+                push!(f64, x.ceil())
+            }
+            x9c_f64_floor => {
+                let x = pop!(f64);
+                push!(f64, x.floor())
+            }
+            x9d_f64_trunc => {
+                let x = pop!(f64);
+                push!(f64, x.trunc())
+            }
+            x9e_f64_nearest => {
+                let x = pop!(f64);
+                push!(f64, x.round_ties_even())
+            }
+            x9f_f64_sqrt => {
+                let x = pop!(f64);
+                push!(f64, x.sqrt())
+            }
             xa0_f64_add => {
                 let y = pop!(f64);
                 let x = pop!(f64);
-                // println!("\n{x} + {y} = {}", x + y);
-                // println!(
-                //     "{:064b} + {:064b} = {:064b}",
-                //     x.to_bits(),
-                //     y.to_bits(),
-                //     (x + y).to_bits()
-                // );
-                // println!("= {:064b}", -9223372036854775808i64);
-                // if (x.is_nan() || y.is_nan())
-                //     && (x == -0.0
-                //         || y == -0.0
-                //         || x.to_bits() & (1 << 63) > 0
-                //         || y.to_bits() & (1 << 63) > 0
-                //         || x == f64::from_bits(1)
-                //         || y == f64::from_bits(1))
-                // {
-                //     push!(f64, -0.0)
-                // } else {
                 push!(f64, x + y)
-                // }
             }
             xa1_f64_sub => {
                 let y = pop!(f64);
@@ -1185,6 +1186,55 @@ impl Runtime {
                 let y = pop!(f64);
                 let x = pop!(f64);
                 push!(f64, x * y)
+            }
+            xa3_f64_div => {
+                let y = pop!(f64);
+                let x = pop!(f64);
+                push!(f64, x / y)
+            }
+            xa4_f64_min => {
+                let y = pop!(f64);
+                let x = pop!(f64);
+
+                if (y.to_bits() == 1 << 63 && x == 0.0) || (x.to_bits() == 1 << 63 && y == 0.0) {
+                    push!(f64, f64::from_bits(1 << 63));
+                } else if y.is_nan() || x.is_nan() {
+                    push!(f64, f64::NAN_ARITHMETIC);
+                } else if y.is_infinite() && y.is_sign_positive() {
+                    push!(f64, x)
+                } else if x.is_infinite() && x.is_sign_positive() {
+                    push!(f64, y)
+                } else if (y.is_infinite() && y.is_sign_negative())
+                    || (x.is_infinite() && x.is_sign_negative())
+                {
+                    push!(f64, f64::NEG_INFINITY)
+                } else {
+                    push!(f64, x.min(y))
+                }
+            }
+            xa5_f64_max => {
+                let y = pop!(f64);
+                let x = pop!(f64);
+
+                if (y.to_bits() == (1 << 63)) && (x.to_bits() == (1 << 63)) {
+                    push!(f64, f64::from_bits(1 << 63));
+                } else if (y.to_bits() == (1 << 63) && x == 0.0)
+                    || (x.to_bits() == (1 << 63) && y == 0.0)
+                {
+                    push!(f64, 0.0);
+                } else if y.is_nan() || x.is_nan() {
+                    push!(f64, f64::NAN_ARITHMETIC);
+                } else if y.is_infinite() && y.is_sign_negative() {
+                    push!(f64, x)
+                } else if x.is_infinite() && x.is_sign_negative() {
+                    push!(f64, y)
+                } else if (y.is_infinite() && y.is_sign_positive())
+                    || (x.is_infinite() && x.is_sign_positive())
+                {
+                    push!(f64, f64::INFINITY)
+                } else {
+                    push!(f64, x.max(y))
+                }
             }
             xa7_i32_wrap_i64 => {
                 let x = pop!(i64);

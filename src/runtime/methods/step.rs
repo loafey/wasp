@@ -806,6 +806,16 @@ impl Runtime {
                 let x = pop!(f32);
                 push!(i32, (x == y) as i32)
             }
+            x5c_f32_ne => {
+                let y = pop!(f32);
+                let x = pop!(f32);
+                push!(i32, (x != y) as i32)
+            }
+            x5d_f32_lt => {
+                let y = pop!(f32);
+                let x = pop!(f32);
+                push!(i32, (x < y) as i32)
+            }
             x5e_f32_gt => {
                 let y = pop!(f32);
                 let x = pop!(f32);
@@ -815,6 +825,11 @@ impl Runtime {
                 let y = pop!(f32);
                 let x = pop!(f32);
                 push!(i32, (x <= y) as i32)
+            }
+            x60_f32_ge => {
+                let y = pop!(f32);
+                let x = pop!(f32);
+                push!(i32, (x >= y) as i32)
             }
             x61_f64_eq => {
                 let y = pop!(f64);

@@ -1155,6 +1155,7 @@ impl Runtime {
             xa0_f64_add => {
                 let y = pop!(f64);
                 let x = pop!(f64);
+                println!("{x} + {y} = ");
                 push!(f64, x + y)
             }
             xa1_f64_sub => {

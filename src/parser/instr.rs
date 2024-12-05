@@ -487,7 +487,7 @@ impl Parsable for Instr {
             0x61 => x61_f64_eq,
             0x62 => x62_f64_ne,
             0x63 => x63_f64_lt,
-            0x64 => x60_f32_ge,
+            0x64 => x64_f64_gt,
             0x65 => x65_f64_le,
             0x66 => x66_f64_ge,
             0x67 => x67_i32_clz,

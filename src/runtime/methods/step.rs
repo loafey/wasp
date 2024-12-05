@@ -836,10 +836,30 @@ impl Runtime {
                 let x = pop!(f64);
                 push!(i32, (x == y) as i32)
             }
+            x62_f64_ne => {
+                let y = pop!(f64);
+                let x = pop!(f64);
+                push!(i32, (x != y) as i32)
+            }
+            x63_f64_lt => {
+                let y = pop!(f64);
+                let x = pop!(f64);
+                push!(i32, (x < y) as i32)
+            }
+            x64_f64_gt => {
+                let y = pop!(f64);
+                let x = pop!(f64);
+                push!(i32, (x > y) as i32)
+            }
             x65_f64_le => {
                 let y = pop!(f64);
                 let x = pop!(f64);
                 push!(i32, (x <= y) as i32)
+            }
+            x66_f64_ge => {
+                let y = pop!(f64);
+                let x = pop!(f64);
+                push!(i32, (x >= y) as i32)
             }
             x67_i32_clz => {
                 let x = pop!(i32);

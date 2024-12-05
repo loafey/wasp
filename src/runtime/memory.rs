@@ -153,22 +153,20 @@ impl<const PAGE_SIZE: usize> Memory<PAGE_SIZE> {
         amount: usize,
         destination: usize,
     ) -> Result<(), RuntimeError> {
-        if self.current_pages == 0 {
-            return Err(RuntimeError::OutOfBoundsMemoryAccess);
-        }
         let start_block = source / PAGE_SIZE;
-        let end_block = (source + amount) / PAGE_SIZE;
+        let end_block = (source + amount).checked_sub(1).unwrap_or_default() / PAGE_SIZE;
 
         let destination_block = destination / PAGE_SIZE;
-        let destination_block_end = (destination + amount) / PAGE_SIZE;
+        let destination_block_end =
+            (destination + amount).checked_sub(1).unwrap_or_default() / PAGE_SIZE;
 
-        println!(
-            "{source}|{} {destination}|{} : {start_block}|{end_block} {destination_block}|{destination_block_end} {}|{}",
-            source + amount, destination + amount, self.current_pages, self.max_pages
-        );
+        if destination_block_end < destination_block || end_block < start_block {
+            return Ok(());
+        }
 
-        if start_block > self.current_pages
-            || end_block > self.current_pages
+        if self.current_pages == 0
+            || start_block >= self.current_pages
+            || end_block >= self.current_pages
             || destination_block >= self.current_pages
             || destination_block_end >= self.current_pages
         {
@@ -192,9 +190,9 @@ impl<const PAGE_SIZE: usize> Memory<PAGE_SIZE> {
             return Err(RuntimeError::OutOfBoundsMemoryAccess);
         }
         let start_address = address;
-        let start_block = start_address / PAGE_SIZE;
+        let start_block = start_address.checked_sub(1).unwrap_or_default() / PAGE_SIZE;
         let end_address = address + slice.len();
-        let end_block = end_address / PAGE_SIZE;
+        let end_block = end_address.checked_sub(1).unwrap_or_default() / PAGE_SIZE;
 
         if start_block > self.current_pages || end_block >= self.current_pages {
             return Err(RuntimeError::OutOfBoundsMemoryAccess);

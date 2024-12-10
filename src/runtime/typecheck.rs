@@ -274,7 +274,7 @@ pub fn check(
                 x3d_i64_store16(_) => t!(i64, i32 -> ()),
                 x3e_i64_store32(_) => t!(i64, i32 -> ()),
                 x3f_memory_size(_) => todo!(),
-                x40_grow => t!(i32 -> i32),
+                x40_memory_grow => t!(i32 -> i32),
                 x41_i32_const(_) => t!(() -> i32),
                 x42_i64_const(_) => t!(() -> i64),
                 x43_f32_const(_) => t!(() -> f32),

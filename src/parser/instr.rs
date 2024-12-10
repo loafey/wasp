@@ -80,7 +80,7 @@ pub enum Instr {
     x3d_i64_store16(MemArg) = 0x3d,
     x3e_i64_store32(MemArg) = 0x3e,
     x3f_memory_size(MemIdX) = 0x3f,
-    x40_grow = 0x40,
+    x40_memory_grow = 0x40,
     x41_i32_const(i32) = 0x10,
     x42_i64_const(i64) = 0x42,
     x43_f32_const(f32) = 0x43,
@@ -450,7 +450,7 @@ impl Parsable for Instr {
                 if 0x00 != parse {
                     Err(ParseError::Unknown0x40(Hex([parse])))?;
                 }
-                x40_grow
+                x40_memory_grow
             }
             0x41 => x41_i32_const(p!()),
             0x42 => x42_i64_const(p!()),

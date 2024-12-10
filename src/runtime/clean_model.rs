@@ -489,10 +489,11 @@ fn get_functions(
     Ok(())
 }
 
-fn validate_calls(
+fn validate_instrs(
     functions: &[Ptr<Function>],
     tables: &[PtrRW<Table>],
     type_len: u32,
+    has_memory: bool,
 ) -> Result<(), RuntimeError> {
     for code in functions {
         let Function::WS { code, .. } = code.as_ref() else {
@@ -506,20 +507,54 @@ fn validate_calls(
             Table,
             Function,
             Type,
+            Memory,
         }
         fn valid_calls(
             instrs: &[Instr],
             code_len: u32,
             table_len: u32,
             type_len: u32,
+            has_memory: bool,
         ) -> Result<(), Unknown> {
             macro_rules! valid_calls {
                 ($p:expr) => {
-                    valid_calls($p, code_len, table_len, type_len)
+                    valid_calls($p, code_len, table_len, type_len, has_memory)
                 };
             }
             for i in instrs {
                 match i {
+                    Instr::x28_i32_load(..)
+                    | Instr::x29_i64_load(..)
+                    | Instr::x2a_f32_load(..)
+                    | Instr::x2b_f64_load(..)
+                    | Instr::x2c_i32_load8_s(..)
+                    | Instr::x2d_i32_load8_u(..)
+                    | Instr::x2e_i32_load16_s(..)
+                    | Instr::x2f_i32_load16_u(..)
+                    | Instr::x30_i64_load8_s(..)
+                    | Instr::x31_i64_load8_u(..)
+                    | Instr::x32_i64_load16_s(..)
+                    | Instr::x33_i64_load16_u(..)
+                    | Instr::x34_i64_load32_s(..)
+                    | Instr::x35_i64_load32_u(..)
+                    | Instr::x36_i32_store(..)
+                    | Instr::x37_i64_store(..)
+                    | Instr::x38_f32_store(..)
+                    | Instr::x39_f64_store(..)
+                    | Instr::x3a_i32_store8(..)
+                    | Instr::x3b_i32_store16(..)
+                    | Instr::x3c_i64_store8(..)
+                    | Instr::x3d_i64_store16(..)
+                    | Instr::x3e_i64_store32(..)
+                    | Instr::x3f_memory_size(..)
+                    | Instr::xfc_8_memory_init(..)
+                    | Instr::x40_memory_grow
+                    | Instr::xfc_10_memory_copy(..)
+                    | Instr::xfc_11_memory_fill(..)
+                        if !has_memory =>
+                    {
+                        return Err(Unknown::Memory)
+                    }
                     Instr::x02_block(_, instrs) => valid_calls!(instrs)?,
                     Instr::x03_loop(_, instrs) => valid_calls!(instrs)?,
                     Instr::x04_if_else(_, instrs, maybe_instrs) => {
@@ -542,7 +577,13 @@ fn validate_calls(
             }
             Ok(())
         }
-        match valid_calls(code, functions.len() as u32, tables.len() as u32, type_len) {
+        match valid_calls(
+            code,
+            functions.len() as u32,
+            tables.len() as u32,
+            type_len,
+            has_memory,
+        ) {
             Ok(_) => {}
             Err(Unknown::Function) => {
                 return Err(RuntimeError::TypeError(TypeCheckError::UnknownFunction));
@@ -550,6 +591,7 @@ fn validate_calls(
             Err(Unknown::Table) => {
                 return Err(RuntimeError::TypeError(TypeCheckError::UnknownTable))
             }
+            Err(Unknown::Memory) => return Err(RuntimeError::UnknownMemory),
             Err(Unknown::Type) => return Err(RuntimeError::TypeError(TypeCheckError::UnknownType)),
         }
     }
@@ -814,7 +856,6 @@ impl TryFrom<(&HashMap<String, Import>, Module)> for Model {
             &value.funcs.functions,
             &mut functions,
         )?;
-        validate_calls(&functions, &tables, type_len)?;
         validate_elems(&value.elems.elems, &functions)?;
         let elems = setup_elems(value.elems.elems, &mut tables)?;
         get_globals(&mut globals, value.globals.globals)?;
@@ -829,6 +870,7 @@ impl TryFrom<(&HashMap<String, Import>, Module)> for Model {
         };
         let datas = setup_data(value.datas.data, &mut memory.write(), &globals, mem_exists)?;
         validate_label_depth(&functions)?;
+        validate_instrs(&functions, &tables, type_len, mem_exists)?;
 
         Ok(Self {
             functions,

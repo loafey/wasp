@@ -685,6 +685,7 @@ impl Runtime {
                 let addr = pop!(u32);
                 module.memory.write().set(addr as usize, *mem, v as i32)?;
             }
+            x3f_memory_size(_) => push!(i32, module.memory.read().pages().1 as i32),
             x40_grow => {
                 let amount = pop!(i32);
                 push!(i32, module.memory.write().grow(amount as usize))

@@ -1,6 +1,6 @@
 use super::{
     error::ParseError, BlockType, DataIdx as DataIdX, ElemIdx, FuncIdx, GlobalIdX, LabelIdX,
-    LocalIdX, MemArg, Parsable, RefTyp, TableIdX, TypeIdX,
+    LocalIdX, MemArg, MemIdX, Parsable, RefTyp, TableIdX, TypeIdX,
 };
 use crate::hex::Hex;
 use std::io::Read;
@@ -79,7 +79,7 @@ pub enum Instr {
     x3c_i64_store8(MemArg) = 0x3c,
     x3d_i64_store16(MemArg) = 0x3d,
     x3e_i64_store32(MemArg) = 0x3e,
-    x3f = 0x3f,
+    x3f_memory_size(MemIdX) = 0x3f,
     x40_grow = 0x40,
     x41_i32_const(i32) = 0x10,
     x42_i64_const(i64) = 0x42,
@@ -444,7 +444,7 @@ impl Parsable for Instr {
             0x3c => val!(x3c_i64_store8, 1),
             0x3d => val!(x3d_i64_store16, 2),
             0x3e => val!(x3e_i64_store32, 4),
-            0x3f => Err(ParseError::UnknownInstruction(Hex(typ)))?,
+            0x3f => x3f_memory_size(p!()),
             0x40 => {
                 let parse = u8::parse(data, stack)?;
                 if 0x00 != parse {

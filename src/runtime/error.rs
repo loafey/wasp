@@ -6,6 +6,8 @@ pub enum RuntimeError {
     Exit(i32),
     GlobalWithoutValue,
     ActiveDataWithoutOffset,
+    MemMinLargerMemMax,
+    MemorySizeLargerThanMax,
     UnknownFunction(String, String),
     ReturnedToNoFrame(Vec<Value>, &'static str, u32, u32),
     UnknownImport(&'static str, u32, u32),
@@ -51,6 +53,10 @@ impl From<TypeCheckError> for RuntimeError {
 impl std::fmt::Debug for RuntimeError {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
+            Self::MemorySizeLargerThanMax => {
+                write!(f, "memory size must be at most 65536 pages (4GiB)")
+            }
+            Self::MemMinLargerMemMax => write!(f, "size minimum must not be greater than maximum"),
             Self::UnknownGlobal => write!(f, "unknown global"),
             Self::UnknownMemory => write!(f, "unknown memory"),
             Self::StackExhaustion(cur, max) => write!(f, "stack overflow ({cur}/{max})"),

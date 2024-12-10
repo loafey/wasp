@@ -732,10 +732,16 @@ fn setup_memory<const N: usize>(mems: Vec<parser::Mem>) -> Result<(Memory<N>, bo
     let (mem_cur, mem_max) = mems
         .first()
         .map(|m| match m.limits {
-            Limits::Min(i) => (i as usize, usize::MAX),
+            Limits::Min(i) => (i as usize, 1 + u16::MAX as usize),
             Limits::MinMax(i, m) => (i as usize, m as usize),
         })
         .unwrap_or((0, 0));
+    if mem_cur > 1 + u16::MAX as usize || mem_max > 1 + u16::MAX as usize {
+        return Err(MemorySizeLargerThanMax);
+    }
+    if mem_cur > mem_max {
+        return Err(MemMinLargerMemMax);
+    }
     Ok((Memory::new(mem_cur, mem_max), !mems.is_empty()))
 }
 

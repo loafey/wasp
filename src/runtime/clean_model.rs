@@ -819,6 +819,9 @@ impl TryFrom<(&HashMap<String, Import>, Module)> for Model {
         let elems = setup_elems(value.elems.elems, &mut tables)?;
         get_globals(&mut globals, value.globals.globals)?;
         let (memory, mem_exists) = if let Some(mem) = memory {
+            if !value.mems.mems.is_empty() {
+                return Err(RuntimeError::UnknownMemory);
+            }
             (mem, true)
         } else {
             let (mem, mem_exists) = setup_memory(value.mems.mems)?;

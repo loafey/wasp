@@ -1730,7 +1730,6 @@ impl Runtime {
             }
             if_then_else(jump_index) => {
                 let val = pop!(i32);
-
                 if val != 0 {
                     set!(pc) = *jump_index;
                 }

@@ -33,6 +33,7 @@ pub enum ParseError {
     DuplicateSection(u32),
     OutOfOrderSection,
     TypeMismatch,
+    ExpectedZero,
 }
 impl From<io::Error> for ParseError {
     fn from(value: io::Error) -> Self {

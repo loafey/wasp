@@ -7,7 +7,7 @@
 ```bash
  ERROR wasp::testsuite > oops the test-suite panicked!
 Reason:
-	panicked at src/runtime/clean_model.rs:578:34:
+	panicked at src/runtime/clean_model.rs:620:34:
 	not yet implemented: xd2_ref_func(FuncIdx(0))
 Last test (0):
 	Module(Module { _type: MustBe!("module"), _name: None, filename: "elem.0.wasm" })
@@ -30,7 +30,7 @@ Last test (13):
 
 ## Failed: test-suite/test/core/fac.wast
 ```bash
- ERROR wasp::testsuite > test 7/8 failed (module: 0, invoke: "fac-ssa", error: wrong type popped from stack (got BlockLock, expected i64): src/runtime/methods/step.rs:992:25)
+ ERROR wasp::testsuite > test 7/8 failed (module: 0, invoke: "fac-ssa", error: wrong type popped from stack (got BlockLock, expected i64): src/runtime/methods/step.rs:993:25)
 ```
 
 ## Failed: test-suite/test/core/float_exprs.wast
@@ -101,7 +101,7 @@ Last test (1):
 
 ## Failed: test-suite/test/core/memory.wast
 ```bash
- ERROR wasp::testsuite > test 8/88 did not fail invalidating/parsing, expected error: "multiple memories" (module: "test-suite/test/core/memory.7.wasm")
+ ERROR wasp::testsuite > test 36/88 failed (module: 9, invoke: "cast", got [--- BLOCK ---, f64(0)], but expected [i64(4611686018427387904)])
 ```
 
 ## Failed: test-suite/test/core/memory_copy.wast
@@ -126,21 +126,7 @@ Last test (7):
 
 ## Failed: test-suite/test/core/memory_grow.wast
 ```bash
- ERROR wasp::testsuite > oops the test-suite panicked!
-Reason:
-	panicked at src/testsuite.rs:374:32:
-	failed to load module: ParseError(File: "test-suite/test/core/memory_grow.0.wasm"
-	UnknownInstruction(<3f>), bin pos: 179, stack: [
-	    "wasp::parser::instr::Instr",
-	    "wasp::parser::expr::Expr",
-	    "wasp::parser::func::Func",
-	    "wasp::parser::code::Code",
-	    "alloc::vec::Vec<wasp::parser::code::Code>",
-	    "wasp::parser::codesec::CodeSection",
-	    "wasp::parser::module::Module",
-	])
-Last test (0):
-	Module(Module { _type: MustBe!("module"), _name: None, filename: "memory_grow.0.wasm" })
+ ERROR wasp::testsuite > test 2/104 failed (module: 0, invoke: "size", got [i32(65535)], but expected [i32(0)])
 ```
 
 ## Failed: test-suite/test/core/memory_init.wast
@@ -150,40 +136,12 @@ Last test (0):
 
 ## Failed: test-suite/test/core/memory_size.wast
 ```bash
- ERROR wasp::testsuite > oops the test-suite panicked!
-Reason:
-	panicked at src/testsuite.rs:374:32:
-	failed to load module: ParseError(File: "test-suite/test/core/memory_size.0.wasm"
-	UnknownInstruction(<3f>), bin pos: 52, stack: [
-	    "wasp::parser::instr::Instr",
-	    "wasp::parser::expr::Expr",
-	    "wasp::parser::func::Func",
-	    "wasp::parser::code::Code",
-	    "alloc::vec::Vec<wasp::parser::code::Code>",
-	    "wasp::parser::codesec::CodeSection",
-	    "wasp::parser::module::Module",
-	])
-Last test (0):
-	Module(Module { _type: MustBe!("module"), _name: None, filename: "memory_size.0.wasm" })
+ ERROR wasp::testsuite > test 2/42 failed (module: 0, invoke: "size", got [i32(65535)], but expected [i32(0)])
 ```
 
 ## Failed: test-suite/test/core/memory_trap.wast
 ```bash
- ERROR wasp::testsuite > oops the test-suite panicked!
-Reason:
-	panicked at src/testsuite.rs:374:32:
-	failed to load module: ParseError(File: "test-suite/test/core/memory_trap.0.wasm"
-	UnknownInstruction(<3f>), bin pos: 75, stack: [
-	    "wasp::parser::instr::Instr",
-	    "wasp::parser::expr::Expr",
-	    "wasp::parser::func::Func",
-	    "wasp::parser::code::Code",
-	    "alloc::vec::Vec<wasp::parser::code::Code>",
-	    "wasp::parser::codesec::CodeSection",
-	    "wasp::parser::module::Module",
-	])
-Last test (0):
-	Module(Module { _type: MustBe!("module"), _name: None, filename: "memory_trap.0.wasm" })
+ ERROR wasp::testsuite > test 2/182 failed (module: 0, invoke: "store", error: out of bounds memory access)
 ```
 
 ## Failed: test-suite/test/core/ref_func.wast

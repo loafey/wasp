@@ -444,7 +444,13 @@ impl Parsable for Instr {
             0x3c => val!(x3c_i64_store8, 1),
             0x3d => val!(x3d_i64_store16, 2),
             0x3e => val!(x3e_i64_store32, 4),
-            0x3f => x3f_memory_size(p!()),
+            0x3f => {
+                let parse = u8::parse(data, stack)?;
+                if parse != 0 {
+                    return Err(ParseError::ExpectedZero);
+                }
+                x3f_memory_size(MemIdX(0))
+            }
             0x40 => {
                 let parse = u8::parse(data, stack)?;
                 if 0x00 != parse {

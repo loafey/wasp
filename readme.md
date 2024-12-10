@@ -1,18 +1,8 @@
 # W.A.S.P
 
 ## Latest spec test (typechecking currently disabled)
-💅: 47\
-💩: 100
-## Failed: test-suite/test/core/data.wast
-```bash
- ERROR wasp::testsuite > oops the test-suite panicked!
-Reason:
-	panicked at src/runtime/memory.rs:81:31:
-	attempt to add with overflow
-Last test (37):
-	AssertUninstantiable(AssertUninstantiable { _type: MustBe!("assert_uninstantiable"), filename: "data.37.wasm", text: "out of bounds memory access", module_type: Binary })
-```
-
+💅: 48\
+💩: 99
 ## Failed: test-suite/test/core/elem.wast
 ```bash
  ERROR wasp::testsuite > oops the test-suite panicked!

@@ -724,7 +724,6 @@ fn setup_data<const N: usize>(
                         }
                     }
                     _ => {
-                        error!("{:?}", e.instrs);
                         return Err(ActiveDataWithoutOffset);
                     }
                 };
@@ -747,7 +746,13 @@ fn setup_data<const N: usize>(
                 datas.push(vec.clone().into());
             }
             Data::Passive(v) => datas.push(v.clone().into()),
-            Data::ActiveX(_, _, _) => todo!(""),
+            Data::ActiveX(MemIdX(m), _, _) => {
+                if m != 0 {
+                    return Err(RuntimeError::UnknownMemory);
+                } else {
+                    todo!()
+                }
+            }
         }
     }
     Ok(datas)

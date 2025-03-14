@@ -375,7 +375,9 @@ pub fn test(mut path: String) {
 
                     if let Some(module) = rt.modules.get("_$_main_$_") {
                         let ws = unsafe { module.as_ws() };
+                        // If a start function exists, run it
                         if let Some(start) = ws.start {
+                            println!("{start:?}");
                             rt.stack.push(Frame {
                                 func_id: FuncId::Id(*start),
                                 pc: 0,

@@ -144,6 +144,10 @@ impl Import {
                 println!("{a}");
                 Ok(Vec::new())
             }),
+            ("print", &|_, _| {
+                println!("hello");
+                Ok(Vec::new())
+            }),
         ];
         let mut res = HashMap::new();
         for (k, v) in map {

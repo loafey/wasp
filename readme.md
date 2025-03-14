@@ -9,8 +9,8 @@
 1/98
  ERROR wasp::testsuite > oops the test-suite panicked!
 Reason:
-	panicked at src/runtime/clean_model.rs:620:34:
-	not yet implemented: xd2_ref_func(FuncIdx(0))
+	panicked at src/runtime/clean_model.rs:699:31:
+	not yet implemented
 Last test (0):
 	Module(Module { _type: MustBe!("module"), _name: None, filename: "elem.0.wasm" })
 ```
@@ -78,7 +78,7 @@ Last test (13):
 6/8
 
 7/8
- ERROR wasp::testsuite > test 7/8 failed (module: 0, invoke: "fac-ssa", error: wrong type popped from stack (got BlockLock, expected i64): src/runtime/methods/step.rs:993:25)
+ ERROR wasp::testsuite > test 7/8 failed (module: 0, invoke: "fac-ssa", error: wrong type popped from stack (got BlockLock, expected i64): src/runtime/methods/step.rs:996:25)
 ```
 
 ## Failed: test-suite/test/core/float_exprs.wast
@@ -770,7 +770,7 @@ Last test (13):
 8/172
 
 9/172
- ERROR wasp::testsuite > test 9/172 failed (module: 0, invoke: "local-first-i32", error: a local is missing: src/runtime/methods/step.rs:536:51)
+ ERROR wasp::testsuite > test 9/172 failed (module: 0, invoke: "local-first-i32", error: a local is missing: src/runtime/methods/step.rs:539:51)
 ```
 
 ## Failed: test-suite/test/core/func_ptrs.wast
@@ -1035,7 +1035,7 @@ Last test (1):
 1/36
 
 2/36
- ERROR wasp::testsuite > test 2/36 failed (module: 0, invoke: "type-local-i32", error: a local is missing: src/runtime/methods/step.rs:536:51)
+ ERROR wasp::testsuite > test 2/36 failed (module: 0, invoke: "type-local-i32", error: a local is missing: src/runtime/methods/step.rs:539:51)
 ```
 
 ## Failed: test-suite/test/core/local_set.wast
@@ -1080,7 +1080,7 @@ Last test (1):
 19/53
 
 20/53
- ERROR wasp::testsuite > test 20/53 failed (module: 0, invoke: "write", error: a local is missing: src/runtime/methods/step.rs:536:51)
+ ERROR wasp::testsuite > test 20/53 failed (module: 0, invoke: "write", error: a local is missing: src/runtime/methods/step.rs:539:51)
 ```
 
 ## Failed: test-suite/test/core/local_tee.wast
@@ -1195,7 +1195,7 @@ Last test (1):
 54/97
 
 55/97
- ERROR wasp::testsuite > test 55/97 failed (module: 0, invoke: "write", error: a local is missing: src/runtime/methods/step.rs:536:51)
+ ERROR wasp::testsuite > test 55/97 failed (module: 0, invoke: "write", error: a local is missing: src/runtime/methods/step.rs:539:51)
 ```
 
 ## Failed: test-suite/test/core/loop.wast
@@ -9193,7 +9193,7 @@ Last test (0):
 2/39
  ERROR wasp::testsuite > oops the test-suite panicked!
 Reason:
-	panicked at src/runtime/methods/step.rs:1747:17:
+	panicked at src/runtime/methods/step.rs:1751:17:
 	not implemented: instruction not supported : xfc_16_table_size(TableIdX(0))
 Last test (1):
 	AssertReturn(AssertReturn { _type: MustBe!("assert_return"), action: Invoke { module: None, field: "size-t0", args: [] }, expected: [I32 { value: "0" }] })
@@ -9342,7 +9342,7 @@ Last test (0):
 2/50
 
 3/50
- ERROR wasp::testsuite > test 3/50 failed (module: 0, invoke: "func-unwind-by-br", error: missing jump label: src/runtime/methods/step.rs:292:26)
+ ERROR wasp::testsuite > test 3/50 failed (module: 0, invoke: "func-unwind-by-br", error: missing jump label: src/runtime/methods/step.rs:295:26)
 ```
 
 ## Failed: test-suite/test/core/utf8-custom-section-id.wast

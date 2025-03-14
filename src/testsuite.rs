@@ -345,7 +345,7 @@ pub fn test(mut path: String) {
             LAST_CASE = (test_i, test.clone());
         }
         let test_i = test_i + 1;
-        println!("\n{}/{total_tests}", test_i);
+        println!("{}/{total_tests}", test_i);
         if let Some(rt) = &mut runtime {
             rt.stack = Vec::new();
         }

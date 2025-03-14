@@ -76,6 +76,12 @@ macro_rules! gen_macros {
             };
         }
 
+        macro_rules! stringify_stack {
+            () => {
+                format!("{:?}", f.stack)
+            };
+        }
+
         macro_rules! pop {
             (i32) => {{
                 let val = match unwrap!(f.stack.pop(), EmptyStack) {
@@ -276,8 +282,8 @@ impl Runtime {
         let mut instr = &code[*get!(pc)];
         instr = if let comment(_, r) = instr { r } else { instr };
         let instr = instr;
-        // println!("{instr:?}");
         set!(pc) += 1;
+        // println!("{instr:?} {}", stringify_stack!());
         match instr {
             x00_unreachable => {
                 throw!(Unreachable)

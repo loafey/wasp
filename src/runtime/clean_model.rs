@@ -855,7 +855,11 @@ fn validate_start(start: Option<FuncIdx>, functions: &[Ptr<Function>]) -> Result
                     ));
                 }
             }
-            Function::IO { .. } => todo!(),
+            Function::IO { .. } => {
+                return Err(RuntimeError::TypeError(
+                    TypeCheckError::InvalidStartFunction,
+                ))
+            }
         }
     }
 

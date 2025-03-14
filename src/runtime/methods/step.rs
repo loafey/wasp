@@ -193,6 +193,9 @@ macro_rules! gen_macros {
             (f64,$v:expr) => {
                 f.stack.push(Value::F64($v))
             };
+            (FuncRef, $v:expr) => {{
+                f.stack.push(Value::FuncRef($v))
+            }};
         }
 
         macro_rules! pop_depth {
@@ -1467,6 +1470,7 @@ impl Runtime {
                 RefTyp::FuncRef => todo!(),
                 RefTyp::ExternRef => todo!(),
             },
+            xd2_ref_func(FuncIdx(x)) => push!(FuncRef, *x),
             xfc_0_i32_trunc_sat_f32_s => {
                 let x = pop!(f32);
                 if x.is_nan() {

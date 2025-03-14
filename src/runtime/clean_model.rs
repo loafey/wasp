@@ -617,6 +617,8 @@ fn validate_elems(elems: &[Elem], functions: &[Ptr<Function>]) -> Result<(), Run
                     .flat_map(|e| {
                         e.instrs.iter().map(|e| match e {
                             Instr::x41_i32_const(offset) => FuncIdx(*offset as u32),
+                            Instr::xd0_ref_null(_) => FuncIdx(0),
+                            Instr::xd2_ref_func(FuncIdx(offset)) => FuncIdx(*offset),
                             e => todo!("{e:?}"),
                         })
                     })

@@ -82,6 +82,7 @@ pub enum TypeCheckError {
     UnknownFunction,
     UnknownTable,
     UnknownType,
+    InvalidStartFunction,
 }
 
 #[allow(unused)]

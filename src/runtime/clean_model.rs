@@ -845,6 +845,18 @@ fn validate_start(start: Option<FuncIdx>, functions: &[Ptr<Function>]) -> Result
         if x as usize >= functions.len() {
             return Err(RuntimeError::TypeError(TypeCheckError::UnknownFunction));
         }
+
+        let func = &functions[x as usize];
+        match func.as_ref() {
+            Function::WS { ty, .. } => {
+                if !ty.input.types.is_empty() || !ty.output.types.is_empty() {
+                    return Err(RuntimeError::TypeError(
+                        TypeCheckError::InvalidStartFunction,
+                    ));
+                }
+            }
+            Function::IO { .. } => todo!(),
+        }
     }
 
     Ok(())

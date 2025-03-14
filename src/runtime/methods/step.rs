@@ -433,7 +433,6 @@ impl Runtime {
                 }
             }
             x0f_return => {
-                println!("return!");
                 let mut last_f = unwrap!(self.stack.pop(), NoFrame);
                 let func_id = match &last_f.func_id {
                     FuncId::Id(id) => id,

@@ -52,7 +52,6 @@ Last test (0):
 12/96
 
 13/96
-return!
 
 14/96
  ERROR wasp::testsuite > oops the test-suite panicked!
@@ -79,7 +78,7 @@ Last test (13):
 6/8
 
 7/8
- ERROR wasp::testsuite > test 7/8 failed (module: 0, invoke: "fac-ssa", error: wrong type popped from stack (got BlockLock, expected i64): src/runtime/methods/step.rs:994:25)
+ ERROR wasp::testsuite > test 7/8 failed (module: 0, invoke: "fac-ssa", error: wrong type popped from stack (got BlockLock, expected i64): src/runtime/methods/step.rs:993:25)
 ```
 
 ## Failed: test-suite/test/core/float_exprs.wast
@@ -771,7 +770,7 @@ Last test (13):
 8/172
 
 9/172
- ERROR wasp::testsuite > test 9/172 failed (module: 0, invoke: "local-first-i32", error: a local is missing: src/runtime/methods/step.rs:537:51)
+ ERROR wasp::testsuite > test 9/172 failed (module: 0, invoke: "local-first-i32", error: a local is missing: src/runtime/methods/step.rs:536:51)
 ```
 
 ## Failed: test-suite/test/core/func_ptrs.wast
@@ -882,7 +881,6 @@ Last test (0):
 37/241
 
 38/241
-return!
 
 39/241
 
@@ -923,10 +921,8 @@ return!
 57/241
 
 58/241
-return!
 
 59/241
-return!
 
 60/241
 
@@ -1039,7 +1035,7 @@ Last test (1):
 1/36
 
 2/36
- ERROR wasp::testsuite > test 2/36 failed (module: 0, invoke: "type-local-i32", error: a local is missing: src/runtime/methods/step.rs:537:51)
+ ERROR wasp::testsuite > test 2/36 failed (module: 0, invoke: "type-local-i32", error: a local is missing: src/runtime/methods/step.rs:536:51)
 ```
 
 ## Failed: test-suite/test/core/local_set.wast
@@ -1076,7 +1072,6 @@ Last test (1):
 15/53
 
 16/53
-return!
 
 17/53
 
@@ -1085,7 +1080,7 @@ return!
 19/53
 
 20/53
- ERROR wasp::testsuite > test 20/53 failed (module: 0, invoke: "write", error: a local is missing: src/runtime/methods/step.rs:537:51)
+ ERROR wasp::testsuite > test 20/53 failed (module: 0, invoke: "write", error: a local is missing: src/runtime/methods/step.rs:536:51)
 ```
 
 ## Failed: test-suite/test/core/local_tee.wast
@@ -1136,7 +1131,6 @@ return!
 22/97
 
 23/97
-return!
 
 24/97
 
@@ -1201,7 +1195,7 @@ return!
 54/97
 
 55/97
- ERROR wasp::testsuite > test 55/97 failed (module: 0, invoke: "write", error: a local is missing: src/runtime/methods/step.rs:537:51)
+ ERROR wasp::testsuite > test 55/97 failed (module: 0, invoke: "write", error: a local is missing: src/runtime/methods/step.rs:536:51)
 ```
 
 ## Failed: test-suite/test/core/loop.wast
@@ -1254,7 +1248,6 @@ return!
 23/120
 
 24/120
-return!
 
 25/120
 
@@ -1364,7 +1357,6 @@ return!
 35/88
 
 36/88
-return!
  ERROR wasp::testsuite > test 36/88 failed (module: 9, invoke: "cast", got [--- BLOCK ---, f64(0)], but expected [i64(4611686018427387904)])
 ```
 
@@ -8224,10 +8216,8 @@ Last test (3418):
 2/100
 
 3/100
-return!
 
 4/100
-return!
 
 5/100
 
@@ -8587,25 +8577,18 @@ Last test (0):
 1/84
 
 2/84
-return!
 
 3/84
-return!
 
 4/84
-return!
 
 5/84
-return!
 
 6/84
-return!
 
 7/84
-return!
 
 8/84
-return!
  ERROR wasp::testsuite > test 8/84 failed (module: 0, invoke: "type-f32-value", got [--- BLOCK ---, f32(3)], but expected [i32(1073741824)])
 ```
 
@@ -9210,7 +9193,7 @@ Last test (0):
 2/39
  ERROR wasp::testsuite > oops the test-suite panicked!
 Reason:
-	panicked at src/runtime/methods/step.rs:1748:17:
+	panicked at src/runtime/methods/step.rs:1747:17:
 	not implemented: instruction not supported : xfc_16_table_size(TableIdX(0))
 Last test (1):
 	AssertReturn(AssertReturn { _type: MustBe!("assert_return"), action: Invoke { module: None, field: "size-t0", args: [] }, expected: [I32 { value: "0" }] })

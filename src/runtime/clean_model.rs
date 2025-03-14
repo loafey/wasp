@@ -840,6 +840,16 @@ fn validate_label_depth(functions: &[Ptr<Function>]) -> Result<(), RuntimeError>
     Ok(())
 }
 
+fn validate_start(start: Option<FuncIdx>, functions: &[Ptr<Function>]) -> Result<(), RuntimeError> {
+    if let Some(FuncIdx(x)) = start {
+        if x as usize >= functions.len() {
+            return Err(RuntimeError::TypeError(TypeCheckError::UnknownFunction));
+        }
+    }
+
+    Ok(())
+}
+
 #[derive(Debug, Clone)]
 pub struct Model {
     pub functions: Vec<Ptr<Function>>,
@@ -850,6 +860,7 @@ pub struct Model {
     pub exports: HashMap<String, ExportDesc>,
     pub datas: Vec<PtrRW<Vec<u8>>>,
     pub memory: PtrRW<Memory<65536>>,
+    pub start: Option<FuncIdx>,
 }
 impl TryFrom<(&HashMap<String, Import>, Module)> for Model {
     type Error = RuntimeError;
@@ -880,6 +891,9 @@ impl TryFrom<(&HashMap<String, Import>, Module)> for Model {
         validate_label_depth(&functions)?;
         validate_instrs(&functions, &tables, type_len, mem_exists)?;
 
+        let start = value.start.map(FuncIdx);
+        validate_start(start, &functions)?;
+
         Ok(Self {
             functions,
             tables,
@@ -894,6 +908,7 @@ impl TryFrom<(&HashMap<String, Import>, Module)> for Model {
             exports: value.exports.exports.into_iter().collect::<HashMap<_, _>>(),
             datas,
             memory,
+            start,
         })
     }
 }

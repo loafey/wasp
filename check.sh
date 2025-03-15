@@ -20,3 +20,16 @@ while IFS= read -r line; do
 done
 f=$(cat readme.md | sed -r "s/\x1B\[([0-9]{1,3}(;[0-9]{1,2};?)?)?[mGK]//g" | grep -v "  INFO ") 
 echo $f > readme.md
+
+echo "\n# Opinionated order of tests" >> readme.md
+num=1
+cat test-order.txt |
+while IFS= read -r line; do
+    if  grep -q "/$line.wast" "readme.md"
+    then
+        echo "$num. ❌ $line" >> readme.md
+    else
+        echo "$num. ✅ $line" >> readme.md
+    fi
+    num=$((num+1))
+done

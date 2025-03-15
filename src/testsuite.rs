@@ -575,7 +575,7 @@ pub fn test(mut path: String) {
                 for (k, v) in &registers {
                     rt = rt.add_ws(&k.clone(), v.clone());
                 }
-                match rt.build() {
+                match rt.build().and_then(|mut rt| rt.execute_start()) {
                     Ok(_) => {
                         error!("test {test_i}/{total_tests} did not fail linking, expected error: {text:?} (module: {p:?})");
                         std::process::exit(1);

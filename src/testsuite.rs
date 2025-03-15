@@ -372,33 +372,7 @@ pub fn test(mut path: String) {
                         rt = rt.add_ws(&k.clone(), v.clone());
                     }
                     let mut rt = rt.build().expect("failed to load module");
-
-                    if let Some(module) = rt.modules.get("_$_main_$_") {
-                        let ws = unsafe { module.as_ws() };
-                        // If a start function exists, run it
-                        if let Some(start) = ws.start {
-                            println!("{start:?}");
-                            rt.stack.push(Frame {
-                                func_id: FuncId::Id(*start),
-                                pc: 0,
-                                module: "_$_main_$_".to_string(),
-                                stack: Vec::new(),
-                                locals: HashMap::new(),
-                                depth_stack: Vec::new(),
-                            });
-                            loop {
-                                match rt.step() {
-                                    Ok(_) => (),
-                                    Err(RuntimeError::NoFrame(_, _, _)) => break,
-                                    Err(e) => {
-                                        error!("{e:?}");
-                                        std::process::exit(1);
-                                    }
-                                }
-                            }
-                        }
-                    }
-
+                    rt.execute_start().expect("start function crashed");
                     rt
                 });
                 current_path = p.clone();

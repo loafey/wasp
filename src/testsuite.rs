@@ -146,6 +146,24 @@ enum Case {
     Register(Register),
     Default,
 }
+impl Case {
+    fn case_type(&self) -> String {
+        match self {
+            Self::Module(..) => "module",
+            Self::AssertReturn(..) => "assert_return",
+            Self::Action(..) => "action",
+            Self::AssertExhaustion(..) => "assert_exhaustion",
+            Self::AssertTrap(..) => "assert_trap",
+            Self::AssertInvalid(..) => "assert_invalid",
+            Self::AssertMalformed(..) => "assert_malformed",
+            Self::AssertUninstantiable(..) => "assert_uninstantiable",
+            Self::AssertUnlinkable(..) => "assert_unlinkable",
+            Self::Register(..) => "register",
+            Self::Default => "default",
+        }
+        .to_string()
+    }
+}
 
 #[derive(Debug, Deserialize)]
 struct TestCases {
@@ -345,7 +363,11 @@ pub fn test(mut path: String) {
             LAST_CASE = (test_i, test.clone());
         }
         let test_i = test_i + 1;
-        println!("{}/{total_tests}", test_i);
+        info!(
+            "Running test {}/{total_tests} ({})",
+            test_i,
+            test.case_type()
+        );
         if let Some(rt) = &mut runtime {
             rt.stack = Vec::new();
         }

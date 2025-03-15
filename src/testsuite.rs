@@ -319,7 +319,7 @@ pub fn test(mut path: String) {
             .collect::<String>();
         error!(
             "oops the test-suite panicked!\nReason:\n{fmted}Last test ({}):\n\t{:?}",
-            unsafe { &LAST_CASE.0 },
+            unsafe { LAST_CASE.0 + 1 },
             unsafe { &LAST_CASE.1 }
         )
     }));

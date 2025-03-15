@@ -13,7 +13,7 @@ mod testsuite;
 
 #[allow(unused_imports)]
 #[macro_use]
-extern crate log;
+extern crate tracing;
 
 fn alloc<const N: usize>() -> Hex<N> {
     #[allow(clippy::uninit_assumed_init)]
@@ -24,7 +24,14 @@ fn alloc<const N: usize>() -> Hex<N> {
 }
 
 fn main() {
-    pretty_env_logger::init();
+    let subscriber = tracing_subscriber::fmt()
+        .compact()
+        .with_file(true)
+        .with_line_number(true)
+        .with_target(false)
+        .finish();
+    tracing::subscriber::set_global_default(subscriber).expect("failed to setup logging");
+
     let path = args()
         .skip(1)
         .find(|p| !p.starts_with("-"))

@@ -34,5 +34,3 @@ while IFS= read -r line; do
     fi
     num=$((num+1))
 done
-
-cat readme.md > docs/index.md

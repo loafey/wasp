@@ -235,28 +235,20 @@ fn remove_floats(vals: Vec<Value>) -> Vec<Value> {
         .map(|v| match v {
             Value::F32(x) => {
                 if x.is_nan_canonical() {
-                    Value::I32(unsafe {
-                        std::mem::transmute::<u32, i32>(f32::NAN_CANONICAL.to_bits())
-                    })
+                    Value::I32(f32::NAN_CANONICAL.to_bits() as i32)
                 } else if x.is_nan_arithmetic() {
-                    Value::I32(unsafe {
-                        std::mem::transmute::<u32, i32>(f32::NAN_ARITHMETIC.to_bits())
-                    })
+                    Value::I32(f32::NAN_ARITHMETIC.to_bits() as i32)
                 } else {
-                    Value::I32(unsafe { std::mem::transmute::<u32, i32>(x.to_bits()) })
+                    Value::I32(x.to_bits() as i32)
                 }
             }
             Value::F64(x) => {
                 if x.is_nan_canonical() {
-                    Value::I64(unsafe {
-                        std::mem::transmute::<u64, i64>(f64::NAN_CANONICAL.to_bits())
-                    })
+                    Value::I64(f64::NAN_CANONICAL.to_bits() as i64)
                 } else if x.is_nan_arithmetic() {
-                    Value::I64(unsafe {
-                        std::mem::transmute::<u64, i64>(f64::NAN_ARITHMETIC.to_bits())
-                    })
+                    Value::I64(f64::NAN_ARITHMETIC.to_bits() as i64)
                 } else {
-                    Value::I64(unsafe { std::mem::transmute::<u64, i64>(x.to_bits()) })
+                    Value::I64(x.to_bits() as i64)
                 }
             }
             x => x,

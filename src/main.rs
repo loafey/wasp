@@ -29,17 +29,19 @@ fn main() {
         .with_file(true)
         .with_line_number(true)
         .with_target(false)
-        .finish();
-    tracing::subscriber::set_global_default(subscriber).expect("failed to setup logging");
-
+        .without_time();
     let path = args()
         .skip(1)
         .find(|p| !p.starts_with("-"))
         .unwrap_or("examples/c_addition.wasm".to_string());
 
     if path.ends_with(".wast") {
+        tracing::subscriber::set_global_default(subscriber.finish())
+            .expect("failed to setup logging");
         testsuite::test(path);
     } else {
+        tracing::subscriber::set_global_default(subscriber.finish())
+            .expect("failed to setup logging");
         let mut runtime = Runtime::build(path)
             // .add_io(
             //     "wasi_snapshot_preview1",

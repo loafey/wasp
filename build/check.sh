@@ -22,7 +22,7 @@ f=$(cat readme.md | sed -r "s/\x1B\[([0-9]{1,3}(;[0-9]{1,2};?)?)?[mGK]//g" | gre
 echo $f > readme.md
 
 echo "\n# Opinionated order of tests" >> readme.md
-echo "Beware that this list does not contain every test, such as SIMD etc" >> readme.md
+echo "Beware that this list might miss a test or two" >> readme.md
 num=1
 cat build/test-order.txt |
 while IFS= read -r line; do

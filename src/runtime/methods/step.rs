@@ -1091,6 +1091,7 @@ impl Runtime {
                 push!(f32, x.abs())
             }
             x8c_f32_neg => {
+                // println!("{}", stringify_frame!());
                 let x = pop!(f32);
                 push!(f32, -x)
             }

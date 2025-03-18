@@ -6,6 +6,7 @@ impl Runtime {
             let ws = unsafe { module.as_ws() };
             // If a start function exists, run it
             if let Some(start) = ws.start {
+                let mut local_n = 0;
                 let locals = ws
                     .functions
                     .get(*start as usize)
@@ -13,7 +14,10 @@ impl Runtime {
                         Function::WS { locals, .. } => Some(
                             locals
                                 .iter()
-                                .flat_map(|l| (0..l.n).map(|i| (i, l.t.default_value())))
+                                .flat_map(move |l| {
+                                    local_n += 1;
+                                    (0..l.n).map(move |i| (local_n + i - 1, l.t.default_value()))
+                                })
                                 .collect(),
                         ),
                         Function::IO { .. } => None,

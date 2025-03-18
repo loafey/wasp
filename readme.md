@@ -55,7 +55,7 @@ ERROR src/testsuite.rs:439: test 332/927 failed (module: "test-suite/test/core/f
 
 ## Failed: test-suite/test/core/func.wast
 ```bash
-ERROR src/testsuite.rs:453: test 17/172 failed (module: "test-suite/test/core/func.0.wasm", invoke: "local-mixed", error: wrong type popped from stack (got i32, expected f32): src/runtime/methods/step.rs:1094:25)
+ERROR src/testsuite.rs:448: test 41/172 failed (module: "test-suite/test/core/func.0.wasm", invoke: "return-f32", got [f32(78.7)], but expected [i32(1073741824)])
 ```
 
 ## Failed: test-suite/test/core/func_ptrs.wast
@@ -81,7 +81,7 @@ ERROR src/testsuite.rs:439: test 65/241 failed (module: "test-suite/test/core/if
 
 ## Failed: test-suite/test/core/imports.wast
 ```bash
-ERROR src/testsuite.rs:453: test 4/178 failed (module: "test-suite/test/core/imports.1.wasm", invoke: "print32", error: wrong type popped from stack (got f32, expected i32): src/runtime/methods/step.rs:1392:25)
+ERROR src/testsuite.rs:453: test 4/178 failed (module: "test-suite/test/core/imports.1.wasm", invoke: "print32", error: wrong type popped from stack (got f32, expected i32): src/runtime/methods/step.rs:1393:25)
 ```
 
 ## Failed: test-suite/test/core/labels.wast
@@ -101,17 +101,17 @@ Last test (2):
 
 ## Failed: test-suite/test/core/local_get.wast
 ```bash
-ERROR src/testsuite.rs:453: test 19/36 failed (module: "test-suite/test/core/local_get.0.wasm", invoke: "type-mixed", error: wrong type popped from stack (got f64, expected i64): src/runtime/methods/step.rs:766:27)
+ERROR src/testsuite.rs:453: test 19/36 failed (module: "test-suite/test/core/local_get.0.wasm", invoke: "type-mixed", error: wrong type popped from stack (got f32, expected i64): src/runtime/methods/step.rs:766:27)
 ```
 
 ## Failed: test-suite/test/core/local_set.wast
 ```bash
-ERROR src/testsuite.rs:453: test 20/53 failed (module: "test-suite/test/core/local_set.0.wasm", invoke: "write", error: wrong type popped from stack (got f64, expected u64): src/runtime/methods/step.rs:1430:25)
+ERROR src/testsuite.rs:453: test 20/53 failed (module: "test-suite/test/core/local_set.0.wasm", invoke: "write", error: wrong type popped from stack (got f32, expected u64): src/runtime/methods/step.rs:1431:25)
 ```
 
 ## Failed: test-suite/test/core/local_tee.wast
 ```bash
-ERROR src/testsuite.rs:453: test 55/97 failed (module: "test-suite/test/core/local_tee.0.wasm", invoke: "write", error: wrong type popped from stack (got f64, expected u64): src/runtime/methods/step.rs:1430:25)
+ERROR src/testsuite.rs:453: test 55/97 failed (module: "test-suite/test/core/local_tee.0.wasm", invoke: "write", error: wrong type popped from stack (got f32, expected u64): src/runtime/methods/step.rs:1431:25)
 ```
 
 ## Failed: test-suite/test/core/loop.wast
@@ -524,7 +524,7 @@ Last test (1):
 ```bash
 ERROR src/testsuite.rs:334: oops the test-suite panicked!
 Reason:
-	panicked at src/runtime/methods/step.rs:1762:17:
+	panicked at src/runtime/methods/step.rs:1763:17:
 	not implemented: instruction not supported : xfc_16_table_size(TableIdX(0))
 Last test (2):
 	AssertReturn(AssertReturn { _type: MustBe!("assert_return"), action: Invoke { module: None, field: "size-t0", args: [] }, expected: [I32 { value: "0" }] })

@@ -300,11 +300,11 @@ fn handle_action<T>(
                 .enumerate()
                 .map(|(a, b)| (a as u32, b))
                 .collect::<HashMap<_, _>>();
-            args.extend(
-                locals
-                    .iter()
-                    .flat_map(|l| (0..l.n).map(|i| (i, l.t.default_value()))),
-            );
+            let mut local_n = 0;
+            args.extend(locals.iter().flat_map(move |l| {
+                local_n += 1;
+                (0..l.n).map(move |i| (local_n + i - 1, l.t.default_value()))
+            }));
 
             rt.stack.push(Frame {
                 func_id: FuncId::Id(fid),

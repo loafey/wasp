@@ -18,7 +18,7 @@ use std::collections::HashMap;
 pub enum Function {
     WS {
         ty: FuncType,
-        _locals: Vec<Locals>,
+        locals: Vec<Locals>,
         code: Vec<Instr>,
         _labels: HashMap<Vec<u32>, u32>,
     },
@@ -33,13 +33,13 @@ impl std::fmt::Debug for Function {
         match self {
             Self::WS {
                 ty,
-                _locals,
+                locals,
                 code,
                 _labels,
             } => f
                 .debug_struct("WS")
                 .field("ty", ty)
-                .field("_locals", _locals)
+                .field("locals", locals)
                 .field("code", code)
                 .field("_labels", _labels)
                 .finish(),
@@ -478,7 +478,7 @@ fn get_functions(
         functions.push(
             Function::WS {
                 ty,
-                _locals: locals,
+                locals,
                 _labels: HashMap::new(),
                 code,
             }

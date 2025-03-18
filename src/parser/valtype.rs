@@ -1,6 +1,6 @@
 use std::io::Read;
 
-use crate::hex::Hex;
+use crate::{hex::Hex, runtime::Value};
 
 use super::Parsable;
 
@@ -12,12 +12,32 @@ pub enum ValType {
     Vec128,
     Ref(RefTyp),
 }
+impl ValType {
+    pub fn default_value(&self) -> Value {
+        match self {
+            ValType::Poly => todo!(),
+            ValType::Num(num_type) => num_type.default_value(),
+            ValType::Vec128 => todo!(),
+            ValType::Ref(_) => todo!(),
+        }
+    }
+}
 #[derive(Debug, PartialEq, Eq, PartialOrd, Ord, Clone, Copy)]
 pub enum NumType {
     I32,
     I64,
     F32,
     F64,
+}
+impl NumType {
+    pub fn default_value(&self) -> Value {
+        match self {
+            NumType::I32 => Value::I32(0),
+            NumType::I64 => Value::I64(0),
+            NumType::F32 => Value::F32(0.0),
+            NumType::F64 => Value::F64(0.0),
+        }
+    }
 }
 #[derive(Debug, PartialEq, Eq, PartialOrd, Ord, Clone, Copy)]
 pub enum RefTyp {

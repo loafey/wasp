@@ -4,7 +4,9 @@ use std::{collections::HashMap, fs, path::PathBuf};
 
 use crate::{
     parser::{ExportDesc, FuncIdx},
-    runtime::{FloatExp, Frame, FuncId, Import, Runtime, RuntimeError, Value},
+    runtime::{
+        clean_model::Function, FloatExp, Frame, FuncId, Import, Runtime, RuntimeError, Value,
+    },
 };
 
 #[derive(Debug, Deserialize, Clone)]
@@ -276,21 +278,29 @@ fn handle_action<T>(
             if module.is_some() {
                 todo!()
             }
+            let ws = unsafe { rt.modules["_$_main_$_"].as_ws() };
+            let fid = ws.exports.get(&field).expect("no function");
 
-            let fid = *unsafe { rt.modules["_$_main_$_"].as_ws() }
-                .exports
-                .get(&field)
-                .expect("no function");
-
-            let ExportDesc::Func(FuncIdx(fid)) = fid else {
+            let ExportDesc::Func(FuncIdx(fid)) = *fid else {
+                panic!("no function with this id")
+            };
+            let Some(locals) = ws
+                .functions
+                .get(fid as usize)
+                .and_then(|v| match v.as_ref() {
+                    Function::WS { locals, .. } => Some(locals),
+                    Function::IO { .. } => None,
+                })
+            else {
                 panic!("no function with this id")
             };
 
-            let args = const_to_val(args)
+            let mut args = const_to_val(args)
                 .into_iter()
                 .enumerate()
                 .map(|(a, b)| (a as u32, b))
                 .collect::<HashMap<_, _>>();
+            args.extend(locals.iter().map(|l| (l.n, l.t.default_value())));
 
             rt.stack.push(Frame {
                 func_id: FuncId::Id(fid),

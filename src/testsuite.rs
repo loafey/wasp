@@ -409,6 +409,7 @@ pub fn test(mut path: String) {
 
                 let expected = const_to_val(expected);
 
+                let current_path = current_path.clone();
                 handle_action(rt, action, move |rt, field| {
                     let mut last;
                     loop {
@@ -421,7 +422,7 @@ pub fn test(mut path: String) {
                                 if last == expected {
                                     break;
                                 } else {
-                                    error!("test {test_i}/{total_tests} failed (module: {module_index}, invoke: {field:?}, got {last:?}, but expected {expected:?})");
+                                    error!("test {test_i}/{total_tests} failed (module: {current_path:?}, invoke: {field:?}, got {last:?}, but expected {expected:?})");
                                     std::process::exit(1);
                                 }
                             }
@@ -430,12 +431,12 @@ pub fn test(mut path: String) {
                                 if stack == expected {
                                     break;
                                 } else {
-                                    error!("test {test_i}/{total_tests} failed (module: {module_index}, invoke: {field:?}, got {last:?}, but expected {expected:?})");
+                                    error!("test {test_i}/{total_tests} failed (module: {current_path:?}, invoke: {field:?}, got {last:?}, but expected {expected:?})");
                                     std::process::exit(1);
                                 }
                             }
                             Err(e) => {
-                                error!("test {test_i}/{total_tests} failed (module: {module_index}, invoke: {field:?}, error: {e:?})");
+                                error!("test {test_i}/{total_tests} failed (module: {current_path:?}, invoke: {field:?}, error: {e:?})");
                                 std::process::exit(1);
                             }
                             Ok(()) => (),
@@ -449,13 +450,14 @@ pub fn test(mut path: String) {
                 }
                 let rt = runtime.as_mut().expect("no rt set");
                 let ac = action.clone();
+                let current_path = current_path.clone();
                 handle_action(rt, action, move |rt, _| loop {
                     match rt.step() {
                         Err(RuntimeError::NoFrame(_, _, _)) => {
                             break;
                         }
                         Err(e) => {
-                            error!("test {test_i}/{total_tests} failed: {e:?} (module: {module_index}, invoke: {:?})", match ac {
+                            error!("test {test_i}/{total_tests} failed: {e:?} (module: {current_path:?}, invoke: {:?})", match ac {
                                 Action::Invoke { field, .. } => field,
                                 Action::Get { field,.. } => field,
                             });
@@ -492,10 +494,11 @@ pub fn test(mut path: String) {
                     continue;
                 }
                 let rt = runtime.as_mut().expect("no rt set");
+                let current_path = current_path.clone();
                 handle_action(rt, action, move |rt, field| loop {
                     match rt.step() {
                         Err(RuntimeError::NoFrame(_, _, _)) => {
-                            error!("test {test_i}/{total_tests} did not fail, expected error: {text:?} (module: {module_index}, function {field:?})");
+                            error!("test {test_i}/{total_tests} did not fail, expected error: {text:?} (module: {current_path:?}, function {field:?})");
                             std::process::exit(1);
                         }
                         Err(e)
@@ -512,7 +515,7 @@ pub fn test(mut path: String) {
                             break;
                         }
                         Err(e) => {
-                            error!("test {test_i}/{total_tests} got error \"{e:?}\", expected error: {text:?} (module: {module_index}, function {field:?})");
+                            error!("test {test_i}/{total_tests} got error \"{e:?}\", expected error: {text:?} (module: {current_path:?}, function {field:?})");
                             std::process::exit(1);
                         }
                         Ok(()) => (),

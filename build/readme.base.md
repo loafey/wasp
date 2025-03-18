@@ -1,3 +1,3 @@
 # W.A.S.P
-
-## Latest spec test (typechecking currently disabled)
+This is a highly experimental WebAssembly interpreter.
+It is not suitable for usage yet.

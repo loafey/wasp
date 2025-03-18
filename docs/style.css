@@ -1,0 +1,9 @@
+.total-success {
+    display: grid;
+    grid-template-columns: auto 1fr;
+}
+
+.test-order {
+    display: grid;
+    grid-template-columns: auto auto 1fr;
+}

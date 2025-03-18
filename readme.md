@@ -1,11 +1,26 @@
 # W.A.S.P
 
 ## Latest spec test (typechecking currently disabled)
-💅: 50\
-💩: 97
+💅: 44\
+💩: 103
+## Failed: test-suite/test/core/align.wast
+```bash
+ERROR src/testsuite.rs:453: test 108/162 failed (module: "test-suite/test/core/align.106.wasm", invoke: "f32_align_switch", error: wrong type popped from stack (got f32, expected u32): src/runtime/methods/step.rs:394:29)
+```
+
+## Failed: test-suite/test/core/br_if.wast
+```bash
+ERROR src/testsuite.rs:439: test 60/118 failed (module: "test-suite/test/core/br_if.0.wasm", invoke: "as-local.set-value", got [i32(-1)], but expected [i32(17)])
+```
+
+## Failed: test-suite/test/core/br_table.wast
+```bash
+ERROR src/testsuite.rs:448: test 45/174 failed (module: "test-suite/test/core/br_table.0.wasm", invoke: "multiple-value", got [--- BLOCK ---, i32(213)], but expected [i32(212)])
+```
+
 ## Failed: test-suite/test/core/elem.wast
 ```bash
-ERROR src/testsuite.rs:320: oops the test-suite panicked!
+ERROR src/testsuite.rs:334: oops the test-suite panicked!
 Reason:
 	panicked at src/runtime/clean_model.rs:699:31:
 	not yet implemented
@@ -15,14 +30,14 @@ Last test (1):
 
 ## Failed: test-suite/test/core/endianness.wast
 ```bash
-ERROR src/testsuite.rs:425: test 2/69 failed (module: "test-suite/test/core/endianness.0.wasm", invoke: "i32_load16_s", got [i32(65535)], but expected [i32(-1)])
+ERROR src/testsuite.rs:439: test 2/69 failed (module: "test-suite/test/core/endianness.0.wasm", invoke: "i32_load16_s", got [i32(65535)], but expected [i32(-1)])
 ```
 
 ## Failed: test-suite/test/core/exports.wast
 ```bash
-ERROR src/testsuite.rs:320: oops the test-suite panicked!
+ERROR src/testsuite.rs:334: oops the test-suite panicked!
 Reason:
-	panicked at src/testsuite.rs:277:17:
+	panicked at src/testsuite.rs:279:17:
 	not yet implemented
 Last test (14):
 	AssertReturn(AssertReturn { _type: MustBe!("assert_return"), action: Invoke { module: Some("$Func"), field: "e", args: [I32 { value: "42" }] }, expected: [I32 { value: "43" }] })
@@ -30,30 +45,30 @@ Last test (14):
 
 ## Failed: test-suite/test/core/fac.wast
 ```bash
-ERROR src/testsuite.rs:439: test 7/8 failed (module: "test-suite/test/core/fac.0.wasm", invoke: "fac-ssa", error: wrong type popped from stack (got BlockLock, expected i64): src/runtime/methods/step.rs:1002:25)
+ERROR src/testsuite.rs:439: test 3/8 failed (module: "test-suite/test/core/fac.0.wasm", invoke: "fac-iter", got [i64(1)], but expected [i64(7034535277573963776)])
 ```
 
 ## Failed: test-suite/test/core/float_exprs.wast
 ```bash
-ERROR src/testsuite.rs:425: test 332/927 failed (module: "test-suite/test/core/float_exprs.39.wasm", invoke: "no_demote_mixed_mul", got [i32(0)], but expected [i32(329178166)])
+ERROR src/testsuite.rs:439: test 332/927 failed (module: "test-suite/test/core/float_exprs.39.wasm", invoke: "no_demote_mixed_mul", got [i32(0)], but expected [i32(329178166)])
 ```
 
 ## Failed: test-suite/test/core/func.wast
 ```bash
-ERROR src/testsuite.rs:439: test 9/172 failed (module: "test-suite/test/core/func.0.wasm", invoke: "local-first-i32", error: a local is missing: src/runtime/methods/step.rs:545:51)
+ERROR src/testsuite.rs:453: test 17/172 failed (module: "test-suite/test/core/func.0.wasm", invoke: "local-mixed", error: wrong type popped from stack (got i32, expected f32): src/runtime/methods/step.rs:1094:25)
 ```
 
 ## Failed: test-suite/test/core/func_ptrs.wast
 ```bash
 83
-ERROR src/testsuite.rs:557: test 6/36 did not fail invalidating/parsing, expected error: "unknown table" (module: "test-suite/test/core/func_ptrs.1.wasm")
+ERROR src/testsuite.rs:571: test 6/36 did not fail invalidating/parsing, expected error: "unknown table" (module: "test-suite/test/core/func_ptrs.1.wasm")
 ```
 
 ## Failed: test-suite/test/core/global.wast
 ```bash
-ERROR src/testsuite.rs:320: oops the test-suite panicked!
+ERROR src/testsuite.rs:334: oops the test-suite panicked!
 Reason:
-	panicked at src/testsuite.rs:396:45:
+	panicked at src/testsuite.rs:410:45:
 	failed to load module: GlobalWithoutOffset
 Last test (1):
 	Module(Module { _type: MustBe!("module"), _name: None, filename: "global.0.wasm" })
@@ -61,19 +76,24 @@ Last test (1):
 
 ## Failed: test-suite/test/core/if.wast
 ```bash
-ERROR src/testsuite.rs:425: test 98/241 failed (module: "test-suite/test/core/if.0.wasm", invoke: "params", got [i32(1)], but expected [i32(-1)])
+ERROR src/testsuite.rs:439: test 65/241 failed (module: "test-suite/test/core/if.0.wasm", invoke: "as-local.set-value", got [i32(0)], but expected [i32(1)])
+```
+
+## Failed: test-suite/test/core/imports.wast
+```bash
+ERROR src/testsuite.rs:453: test 4/178 failed (module: "test-suite/test/core/imports.1.wasm", invoke: "print32", error: wrong type popped from stack (got f32, expected i32): src/runtime/methods/step.rs:1392:25)
 ```
 
 ## Failed: test-suite/test/core/labels.wast
 ```bash
-ERROR src/testsuite.rs:425: test 3/29 failed (module: "test-suite/test/core/labels.0.wasm", invoke: "loop1", got [i32(1)], but expected [i32(5)])
+ERROR src/testsuite.rs:439: test 3/29 failed (module: "test-suite/test/core/labels.0.wasm", invoke: "loop1", got [i32(1)], but expected [i32(5)])
 ```
 
 ## Failed: test-suite/test/core/linking.wast
 ```bash
-ERROR src/testsuite.rs:320: oops the test-suite panicked!
+ERROR src/testsuite.rs:334: oops the test-suite panicked!
 Reason:
-	panicked at src/testsuite.rs:642:21:
+	panicked at src/testsuite.rs:656:21:
 	not yet implemented: Register: "Mf" $Mf
 Last test (2):
 	Register(Register { _type: MustBe!("register"), name: Some("$Mf"), _as: "Mf" })
@@ -81,32 +101,32 @@ Last test (2):
 
 ## Failed: test-suite/test/core/local_get.wast
 ```bash
-ERROR src/testsuite.rs:439: test 2/36 failed (module: "test-suite/test/core/local_get.0.wasm", invoke: "type-local-i32", error: a local is missing: src/runtime/methods/step.rs:545:51)
+ERROR src/testsuite.rs:453: test 19/36 failed (module: "test-suite/test/core/local_get.0.wasm", invoke: "type-mixed", error: wrong type popped from stack (got f64, expected i64): src/runtime/methods/step.rs:766:27)
 ```
 
 ## Failed: test-suite/test/core/local_set.wast
 ```bash
-ERROR src/testsuite.rs:439: test 20/53 failed (module: "test-suite/test/core/local_set.0.wasm", invoke: "write", error: a local is missing: src/runtime/methods/step.rs:545:51)
+ERROR src/testsuite.rs:453: test 20/53 failed (module: "test-suite/test/core/local_set.0.wasm", invoke: "write", error: wrong type popped from stack (got f64, expected u64): src/runtime/methods/step.rs:1430:25)
 ```
 
 ## Failed: test-suite/test/core/local_tee.wast
 ```bash
-ERROR src/testsuite.rs:439: test 55/97 failed (module: "test-suite/test/core/local_tee.0.wasm", invoke: "write", error: a local is missing: src/runtime/methods/step.rs:545:51)
+ERROR src/testsuite.rs:453: test 55/97 failed (module: "test-suite/test/core/local_tee.0.wasm", invoke: "write", error: wrong type popped from stack (got f64, expected u64): src/runtime/methods/step.rs:1430:25)
 ```
 
 ## Failed: test-suite/test/core/loop.wast
 ```bash
-ERROR src/testsuite.rs:425: test 40/120 failed (module: "test-suite/test/core/loop.0.wasm", invoke: "break-multi-value", got [i32(0), i32(0), i64(0)], but expected [i32(18), i32(-18), i64(18)])
+ERROR src/testsuite.rs:439: test 40/120 failed (module: "test-suite/test/core/loop.0.wasm", invoke: "break-multi-value", got [i32(0), i32(0), i64(0)], but expected [i32(18), i32(-18), i64(18)])
 ```
 
 ## Failed: test-suite/test/core/memory.wast
 ```bash
-ERROR src/testsuite.rs:434: test 36/88 failed (module: "test-suite/test/core/memory.30.wasm", invoke: "cast", got [--- BLOCK ---, f64(0)], but expected [i64(4611686018427387904)])
+ERROR src/testsuite.rs:448: test 36/88 failed (module: "test-suite/test/core/memory.30.wasm", invoke: "cast", got [--- BLOCK ---, f64(0)], but expected [i64(4611686018427387904)])
 ```
 
 ## Failed: test-suite/test/core/memory_copy.wast
 ```bash
-ERROR src/testsuite.rs:320: oops the test-suite panicked!
+ERROR src/testsuite.rs:334: oops the test-suite panicked!
 Reason:
 	panicked at src/runtime/memory.rs:157:25:
 	attempt to add with overflow
@@ -116,7 +136,7 @@ Last test (3419):
 
 ## Failed: test-suite/test/core/memory_fill.wast
 ```bash
-ERROR src/testsuite.rs:320: oops the test-suite panicked!
+ERROR src/testsuite.rs:334: oops the test-suite panicked!
 Reason:
 	panicked at src/runtime/memory.rs:214:27:
 	attempt to add with overflow
@@ -126,29 +146,29 @@ Last test (8):
 
 ## Failed: test-suite/test/core/memory_grow.wast
 ```bash
-ERROR src/testsuite.rs:425: test 2/104 failed (module: "test-suite/test/core/memory_grow.0.wasm", invoke: "size", got [i32(65535)], but expected [i32(0)])
+ERROR src/testsuite.rs:439: test 2/104 failed (module: "test-suite/test/core/memory_grow.0.wasm", invoke: "size", got [i32(65535)], but expected [i32(0)])
 ```
 
 ## Failed: test-suite/test/core/memory_init.wast
 ```bash
-ERROR src/testsuite.rs:557: test 130/240 did not fail invalidating/parsing, expected error: "unknown data segment" (module: "test-suite/test/core/memory_init.5.wasm")
+ERROR src/testsuite.rs:571: test 130/240 did not fail invalidating/parsing, expected error: "unknown data segment" (module: "test-suite/test/core/memory_init.5.wasm")
 ```
 
 ## Failed: test-suite/test/core/memory_size.wast
 ```bash
-ERROR src/testsuite.rs:425: test 2/42 failed (module: "test-suite/test/core/memory_size.0.wasm", invoke: "size", got [i32(65535)], but expected [i32(0)])
+ERROR src/testsuite.rs:439: test 2/42 failed (module: "test-suite/test/core/memory_size.0.wasm", invoke: "size", got [i32(65535)], but expected [i32(0)])
 ```
 
 ## Failed: test-suite/test/core/memory_trap.wast
 ```bash
-ERROR src/testsuite.rs:439: test 2/182 failed (module: "test-suite/test/core/memory_trap.0.wasm", invoke: "store", error: out of bounds memory access)
+ERROR src/testsuite.rs:453: test 2/182 failed (module: "test-suite/test/core/memory_trap.0.wasm", invoke: "store", error: out of bounds memory access)
 ```
 
 ## Failed: test-suite/test/core/ref_func.wast
 ```bash
-ERROR src/testsuite.rs:320: oops the test-suite panicked!
+ERROR src/testsuite.rs:334: oops the test-suite panicked!
 Reason:
-	panicked at src/testsuite.rs:396:45:
+	panicked at src/testsuite.rs:410:45:
 	failed to load module: ParseError(File: "test-suite/test/core/ref_func.1.wasm"
 	UnknownInstruction(<d1>), bin pos: 220, stack: [
 	    "wasp::parser::instr::Instr",
@@ -165,9 +185,9 @@ Last test (3):
 
 ## Failed: test-suite/test/core/ref_is_null.wast
 ```bash
-ERROR src/testsuite.rs:320: oops the test-suite panicked!
+ERROR src/testsuite.rs:334: oops the test-suite panicked!
 Reason:
-	panicked at src/testsuite.rs:351:6:
+	panicked at src/testsuite.rs:365:6:
 	failed to parse test data: Error("data did not match any variant of untagged enum Case", line: 5, column: 2)
 Last test (1):
 	Default
@@ -175,9 +195,9 @@ Last test (1):
 
 ## Failed: test-suite/test/core/ref_null.wast
 ```bash
-ERROR src/testsuite.rs:320: oops the test-suite panicked!
+ERROR src/testsuite.rs:334: oops the test-suite panicked!
 Reason:
-	panicked at src/testsuite.rs:351:6:
+	panicked at src/testsuite.rs:365:6:
 	failed to parse test data: Error("data did not match any variant of untagged enum Case", line: 5, column: 154)
 Last test (1):
 	Default
@@ -185,14 +205,14 @@ Last test (1):
 
 ## Failed: test-suite/test/core/return.wast
 ```bash
-ERROR src/testsuite.rs:434: test 8/84 failed (module: "test-suite/test/core/return.0.wasm", invoke: "type-f32-value", got [--- BLOCK ---, f32(3)], but expected [i32(1073741824)])
+ERROR src/testsuite.rs:448: test 8/84 failed (module: "test-suite/test/core/return.0.wasm", invoke: "type-f32-value", got [--- BLOCK ---, f32(3)], but expected [i32(1073741824)])
 ```
 
 ## Failed: test-suite/test/core/select.wast
 ```bash
-ERROR src/testsuite.rs:320: oops the test-suite panicked!
+ERROR src/testsuite.rs:334: oops the test-suite panicked!
 Reason:
-	panicked at src/testsuite.rs:351:6:
+	panicked at src/testsuite.rs:365:6:
 	failed to parse test data: Error("data did not match any variant of untagged enum Case", line: 33, column: 2)
 Last test (1):
 	Default
@@ -426,6 +446,16 @@ Last test (1):
 ```bash
 ```
 
+## Failed: test-suite/test/core/stack.wast
+```bash
+ERROR src/testsuite.rs:439: test 2/7 failed (module: "test-suite/test/core/stack.0.wasm", invoke: "fac-expr", got [i64(1)], but expected [i64(7034535277573963776)])
+```
+
+## Failed: test-suite/test/core/switch.wast
+```bash
+ERROR src/testsuite.rs:448: test 3/28 failed (module: "test-suite/test/core/switch.0.wasm", invoke: "stmt", got [--- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, --- BLOCK ---, i32(0)], but expected [i32(-1)])
+```
+
 ## Failed: test-suite/test/core/table.wast
 ```bash
 memory allocation of 77309411344 bytes failed
@@ -433,14 +463,14 @@ memory allocation of 77309411344 bytes failed
 
 ## Failed: test-suite/test/core/table_copy.wast
 ```bash
-ERROR src/testsuite.rs:460: test 66/1728 failed: out of bounds table access (module: "test-suite/test/core/table_copy.2.wasm", invoke: "test")
+ERROR src/testsuite.rs:474: test 66/1728 failed: out of bounds table access (module: "test-suite/test/core/table_copy.2.wasm", invoke: "test")
 ```
 
 ## Failed: test-suite/test/core/table_fill.wast
 ```bash
-ERROR src/testsuite.rs:320: oops the test-suite panicked!
+ERROR src/testsuite.rs:334: oops the test-suite panicked!
 Reason:
-	panicked at src/testsuite.rs:396:45:
+	panicked at src/testsuite.rs:410:45:
 	failed to load module: ParseError(File: "test-suite/test/core/table_fill.0.wasm"
 	UnknownInstruction(<25>), bin pos: 96, stack: [
 	    "wasp::parser::instr::Instr",
@@ -457,9 +487,9 @@ Last test (1):
 
 ## Failed: test-suite/test/core/table_get.wast
 ```bash
-ERROR src/testsuite.rs:320: oops the test-suite panicked!
+ERROR src/testsuite.rs:334: oops the test-suite panicked!
 Reason:
-	panicked at src/testsuite.rs:351:6:
+	panicked at src/testsuite.rs:365:6:
 	failed to parse test data: Error("data did not match any variant of untagged enum Case", line: 8, column: 2)
 Last test (1):
 	Default
@@ -467,9 +497,9 @@ Last test (1):
 
 ## Failed: test-suite/test/core/table_grow.wast
 ```bash
-ERROR src/testsuite.rs:320: oops the test-suite panicked!
+ERROR src/testsuite.rs:334: oops the test-suite panicked!
 Reason:
-	panicked at src/testsuite.rs:351:6:
+	panicked at src/testsuite.rs:365:6:
 	failed to parse test data: Error("data did not match any variant of untagged enum Case", line: 44, column: 2)
 Last test (1):
 	Default
@@ -477,14 +507,14 @@ Last test (1):
 
 ## Failed: test-suite/test/core/table_init.wast
 ```bash
-ERROR src/testsuite.rs:460: test 68/780 failed: out of bounds table access (module: "test-suite/test/core/table_init.3.wasm", invoke: "test")
+ERROR src/testsuite.rs:474: test 68/780 failed: out of bounds table access (module: "test-suite/test/core/table_init.3.wasm", invoke: "test")
 ```
 
 ## Failed: test-suite/test/core/table_set.wast
 ```bash
-ERROR src/testsuite.rs:320: oops the test-suite panicked!
+ERROR src/testsuite.rs:334: oops the test-suite panicked!
 Reason:
-	panicked at src/testsuite.rs:351:6:
+	panicked at src/testsuite.rs:365:6:
 	failed to parse test data: Error("data did not match any variant of untagged enum Case", line: 10, column: 2)
 Last test (1):
 	Default
@@ -492,9 +522,9 @@ Last test (1):
 
 ## Failed: test-suite/test/core/table_size.wast
 ```bash
-ERROR src/testsuite.rs:320: oops the test-suite panicked!
+ERROR src/testsuite.rs:334: oops the test-suite panicked!
 Reason:
-	panicked at src/runtime/methods/step.rs:1757:17:
+	panicked at src/runtime/methods/step.rs:1762:17:
 	not implemented: instruction not supported : xfc_16_table_size(TableIdX(0))
 Last test (2):
 	AssertReturn(AssertReturn { _type: MustBe!("assert_return"), action: Invoke { module: None, field: "size-t0", args: [] }, expected: [I32 { value: "0" }] })
@@ -502,19 +532,19 @@ Last test (2):
 
 ## Failed: test-suite/test/core/unreachable.wast
 ```bash
-ERROR src/testsuite.rs:501: test 34/64 did not fail, expected error: "unreachable" (module: "test-suite/test/core/unreachable.0.wasm", function "as-if-then-no-else")
+ERROR src/testsuite.rs:515: test 34/64 did not fail, expected error: "unreachable" (module: "test-suite/test/core/unreachable.0.wasm", function "as-if-then-no-else")
 ```
 
 ## Failed: test-suite/test/core/unreached-invalid.wast
 ```bash
-ERROR src/testsuite.rs:557: test 1/118 did not fail invalidating/parsing, expected error: "unknown local" (module: "test-suite/test/core/unreached-invalid.0.wasm")
+ERROR src/testsuite.rs:571: test 1/118 did not fail invalidating/parsing, expected error: "unknown local" (module: "test-suite/test/core/unreached-invalid.0.wasm")
 ```
 
 ## Failed: test-suite/test/core/unreached-valid.wast
 ```bash
-ERROR src/testsuite.rs:320: oops the test-suite panicked!
+ERROR src/testsuite.rs:334: oops the test-suite panicked!
 Reason:
-	panicked at src/testsuite.rs:396:45:
+	panicked at src/testsuite.rs:410:45:
 	failed to load module: ParseError(File: "test-suite/test/core/unreached-valid.0.wasm"
 	UnknownInstruction(<d1>), bin pos: 273, stack: [
 	    "wasp::parser::instr::Instr",
@@ -531,12 +561,12 @@ Last test (1):
 
 ## Failed: test-suite/test/core/unwind.wast
 ```bash
-ERROR src/testsuite.rs:439: test 3/50 failed (module: "test-suite/test/core/unwind.0.wasm", invoke: "func-unwind-by-br", error: missing jump label: src/runtime/methods/step.rs:301:26)
+ERROR src/testsuite.rs:453: test 3/50 failed (module: "test-suite/test/core/unwind.0.wasm", invoke: "func-unwind-by-br", error: missing jump label: src/runtime/methods/step.rs:302:26)
 ```
 
 ## Failed: test-suite/test/core/utf8-custom-section-id.wast
 ```bash
-ERROR src/testsuite.rs:557: test 1/176 did not fail invalidating/parsing, expected error: "malformed UTF-8 encoding" (module: "test-suite/test/core/utf8-custom-section-id.0.wasm")
+ERROR src/testsuite.rs:571: test 1/176 did not fail invalidating/parsing, expected error: "malformed UTF-8 encoding" (module: "test-suite/test/core/utf8-custom-section-id.0.wasm")
 ```
 
 # Opinionated order of tests
@@ -555,14 +585,14 @@ Beware that this list might miss a test or two
 12. ❌ if
 13. ❌ loop
 14. ✅ br
-15. ✅ br_if
-16. ✅ br_table
+15. ❌ br_if
+16. ❌ br_table
 17. ❌ global
 18. ❌ local_get
 19. ❌ local_set
 20. ❌ local_tee
-21. ✅ stack
-22. ✅ imports
+21. ❌ stack
+22. ❌ imports
 23. ❌ exports
 24. ✅ start
 25. ✅ data
@@ -591,7 +621,7 @@ Beware that this list might miss a test or two
 48. ❌ table_init
 49. ❌ table_copy
 50. ❌ table_fill
-51. ✅ align
+51. ❌ align
 52. ✅ bulk
 53. ✅ int_exprs
 54. ✅ int_literals
@@ -628,7 +658,7 @@ Beware that this list might miss a test or two
 85. ✅ utf8-import-field
 86. ✅ utf8-import-module
 87. ✅ utf8-invalid-encoding
-88. ✅ switch
+88. ❌ switch
 89. ✅ inline-module
 90. ❌ simd_load
 91. ❌ simd_store

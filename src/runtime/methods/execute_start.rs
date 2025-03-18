@@ -10,9 +10,12 @@ impl Runtime {
                     .functions
                     .get(*start as usize)
                     .and_then(|v| match v.as_ref() {
-                        Function::WS { locals, .. } => {
-                            Some(locals.iter().map(|l| (l.n, l.t.default_value())).collect())
-                        }
+                        Function::WS { locals, .. } => Some(
+                            locals
+                                .iter()
+                                .flat_map(|l| (0..l.n).map(|i| (i, l.t.default_value())))
+                                .collect(),
+                        ),
                         Function::IO { .. } => None,
                     })
                     .unwrap_or_default();

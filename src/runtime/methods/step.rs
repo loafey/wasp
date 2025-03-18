@@ -544,6 +544,8 @@ impl Runtime {
                 }
             }
             x20_local_get(LocalIdX(id)) => {
+                // println!("{}", stringify_frame!());
+                // println!("id={id}");
                 push!(*local!(id))
             }
             x21_local_set(LocalIdX(id)) => {

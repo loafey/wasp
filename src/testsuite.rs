@@ -432,10 +432,10 @@ pub fn test(mut path: String) {
                                     std::process::exit(1);
                                 }
                             }
-                            Err(RuntimeError::ReturnedToNoFrame(stack, _, _, _)) => {
+                            Err(RuntimeError::ReturnedToNoFrame(_, _, _, _)) => {
                                 let expected = remove_floats(expected);
                                 last = remove_floats(last);
-                                if stack == expected {
+                                if last == expected {
                                     break;
                                 } else {
                                     error!("test {test_i}/{total_tests} failed (module: {current_path:?}, invoke: {field:?}, got {last:?}, but expected {expected:?})");

@@ -18,7 +18,7 @@ while IFS= read -r line; do
     echo "\`\`\`" >> readme.md
     echo "" >> readme.md
 done
-f=$(cat readme.md | sed -r "s/\x1B\[([0-9]{1,3}(;[0-9]{1,2};?)?)?[mGK]//g" | grep -v "  INFO ") 
+f=$(cat readme.md | sed -r "s/\x1B\[([0-9]{1,3}(;[0-9]{1,2};?)?)?[mGK]//g" | grep -v " INFO ") 
 echo $f > readme.md
 
 echo "\n# Opinionated order of tests" >> readme.md

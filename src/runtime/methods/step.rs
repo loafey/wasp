@@ -76,9 +76,10 @@ macro_rules! gen_macros {
             };
         }
 
-        macro_rules! stringify_stack {
+        #[allow(unused_macros)]
+        macro_rules! stringify_frame {
             () => {
-                format!("{:?}", f.stack)
+                format!("{:#?}", f)
             };
         }
 
@@ -542,7 +543,9 @@ impl Runtime {
                     false => push!(x),
                 }
             }
-            x20_local_get(LocalIdX(id)) => push!(*local!(id)),
+            x20_local_get(LocalIdX(id)) => {
+                push!(*local!(id))
+            }
             x21_local_set(LocalIdX(id)) => {
                 let val = pop!();
                 set_local!(*id, val);

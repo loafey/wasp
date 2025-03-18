@@ -1,6 +1,4 @@
-use std::collections::HashMap;
-
-use crate::runtime::{Frame, FuncId, Runtime, RuntimeError};
+use crate::runtime::{clean_model::Function, Frame, FuncId, Runtime, RuntimeError};
 
 impl Runtime {
     pub fn execute_start(&mut self) -> Result<(), RuntimeError> {
@@ -8,12 +6,22 @@ impl Runtime {
             let ws = unsafe { module.as_ws() };
             // If a start function exists, run it
             if let Some(start) = ws.start {
+                let locals = ws
+                    .functions
+                    .get(*start as usize)
+                    .and_then(|v| match v.as_ref() {
+                        Function::WS { locals, .. } => {
+                            Some(locals.iter().map(|l| (l.n, l.t.default_value())).collect())
+                        }
+                        Function::IO { .. } => None,
+                    })
+                    .unwrap_or_default();
                 self.stack.push(Frame {
                     func_id: FuncId::Id(*start),
                     pc: 0,
                     module: "_$_main_$_".to_string(),
                     stack: Vec::new(),
-                    locals: HashMap::new(),
+                    locals,
                     depth_stack: Vec::new(),
                 });
                 loop {

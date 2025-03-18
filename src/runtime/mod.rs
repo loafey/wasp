@@ -66,9 +66,9 @@ impl std::fmt::Debug for Value {
 }
 
 pub struct DepthValue {
-    bt: BT,
-    pos: usize,
-    vt: BlockType,
+    pub bt: BT,
+    pub pos: usize,
+    pub vt: BlockType,
 }
 
 impl Debug for DepthValue {

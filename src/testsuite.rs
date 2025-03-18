@@ -5,7 +5,8 @@ use std::{collections::HashMap, fs, path::PathBuf};
 use crate::{
     parser::{ExportDesc, FuncIdx},
     runtime::{
-        clean_model::Function, FloatExp, Frame, FuncId, Import, Runtime, RuntimeError, Value,
+        clean_model::Function, DepthValue, FloatExp, Frame, FuncId, Import, Runtime, RuntimeError,
+        Value,
     },
 };
 
@@ -304,7 +305,11 @@ fn handle_action<T>(
                 module: "_$_main_$_".to_string(),
                 stack: Vec::new(),
                 locals: args,
-                depth_stack: Vec::new(),
+                depth_stack: vec![DepthValue {
+                    bt: crate::parser::BT::Block,
+                    pos: 0,
+                    vt: crate::parser::BlockType::Eps,
+                }],
             });
 
             loop_func(rt, &field)
@@ -422,17 +427,11 @@ pub fn test(mut path: String) {
                         // let id = rt.stack.first().expect("no first").func_id;
                         last = rt.stack.first().expect("no first").stack.clone();
                         match rt.step() {
-                            Err(RuntimeError::NoFrame(_, _, _)) => {
-                                let expected = remove_floats(expected);
-                                last = remove_floats(last);
-                                if last == expected {
-                                    break;
-                                } else {
-                                    error!("test {test_i}/{total_tests} failed (module: {current_path:?}, invoke: {field:?}, got {last:?}, but expected {expected:?})");
-                                    std::process::exit(1);
-                                }
-                            }
-                            Err(RuntimeError::ReturnedToNoFrame(_, _, _, _)) => {
+                            Err(
+                                RuntimeError::ReturnedToNoFrame(_, _, _, _)
+                                | RuntimeError::NoFrame(_, _, _)
+                                | RuntimeError::EmptyStack(_, _, _),
+                            ) => {
                                 let expected = remove_floats(expected);
                                 last = remove_floats(last);
                                 if last == expected {

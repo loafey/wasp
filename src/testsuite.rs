@@ -442,6 +442,7 @@ pub fn test(mut path: String) {
                             }
                             Err(RuntimeError::ReturnedToNoFrame(stack, _, _, _)) => {
                                 let expected = remove_floats(expected);
+                                last = remove_floats(last);
                                 if stack == expected {
                                     break;
                                 } else {

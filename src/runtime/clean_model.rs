@@ -695,8 +695,33 @@ fn setup_elems(
                 }
                 _ => panic!(),
             },
-            Elem::E3(_, _) => todo!(),
-            Elem::E4(_, _) => todo!(),
+            Elem::E3(_rt, vec) => {
+                result.push(
+                    Expr {
+                        instrs: vec
+                            .iter()
+                            .map(|FuncIdx(i)| Instr::x41_i32_const(*i as i32))
+                            .collect(),
+                    }
+                    .into(),
+                );
+            }
+            Elem::E4(expr, vec) => {
+                let [Instr::x41_i32_const(table)] = &expr.instrs[..] else {
+                    panic!()
+                };
+                // might be wrong
+                for expr in &vec {
+                    result.push(expr.clone().into());
+                }
+                let mut table = tables[*table as usize].write();
+                for v in vec {
+                    let [Instr::xd2_ref_func(id)] = &v.instrs[..] else {
+                        panic!()
+                    };
+                    table.table.insert(0, *id);
+                }
+            }
             Elem::E5(_rt, vec) => {
                 // might be wrong
                 for expr in vec {

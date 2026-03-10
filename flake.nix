@@ -39,14 +39,6 @@
           gcc
           emscripten
           gnumake
-          libxkbcommon
-          libGL
-          fontconfig
-          wayland
-          xorg.libXcursor
-          xorg.libXrandr
-          xorg.libXi
-          xorg.libX11
           python3
           wabt
           watchexec

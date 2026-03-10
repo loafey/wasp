@@ -816,10 +816,8 @@ fn validate_label_depth(functions: &[Ptr<Function>]) -> Result<(), RuntimeError>
         let mut depth = 0;
         for c in code {
             match c {
-                Instr::x0c_br(LabelIdX(i)) | Instr::x0d_br_if(LabelIdX(i)) => {
-                    if *i > depth {
-                        return Err(RuntimeError::UnknownLabel);
-                    }
+                Instr::x0c_br(LabelIdX(i)) | Instr::x0d_br_if(LabelIdX(i)) if *i > depth => {
+                    return Err(RuntimeError::UnknownLabel);
                 }
                 Instr::x0e_br_table(ls, LabelIdX(i)) => {
                     for LabelIdX(i) in ls {

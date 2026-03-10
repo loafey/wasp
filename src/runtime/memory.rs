@@ -154,11 +154,10 @@ impl<const PAGE_SIZE: usize> Memory<PAGE_SIZE> {
         destination: usize,
     ) -> Result<(), RuntimeError> {
         let start_block = source / PAGE_SIZE;
-        let end_block = (source + amount).checked_sub(1).unwrap_or_default() / PAGE_SIZE;
+        let end_block = (source + amount).saturating_sub(1) / PAGE_SIZE;
 
         let destination_block = destination / PAGE_SIZE;
-        let destination_block_end =
-            (destination + amount).checked_sub(1).unwrap_or_default() / PAGE_SIZE;
+        let destination_block_end = (destination + amount).saturating_sub(1) / PAGE_SIZE;
 
         if destination_block_end < destination_block || end_block < start_block {
             return Ok(());
@@ -190,9 +189,9 @@ impl<const PAGE_SIZE: usize> Memory<PAGE_SIZE> {
             return Err(RuntimeError::OutOfBoundsMemoryAccess);
         }
         let start_address = address;
-        let start_block = start_address.checked_sub(1).unwrap_or_default() / PAGE_SIZE;
+        let start_block = start_address.saturating_sub(1) / PAGE_SIZE;
         let end_address = address + slice.len();
-        let end_block = end_address.checked_sub(1).unwrap_or_default() / PAGE_SIZE;
+        let end_block = end_address.saturating_sub(1) / PAGE_SIZE;
 
         if start_block > self.current_pages || end_block >= self.current_pages {
             return Err(RuntimeError::OutOfBoundsMemoryAccess);

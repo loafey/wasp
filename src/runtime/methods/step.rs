@@ -103,14 +103,14 @@ macro_rules! gen_macros {
                     Value::I32(val) => val,
                     x => throw!(|a, b, c| WrongType(a, "u32", x.as_str(), b, c)),
                 };
-                unsafe { std::mem::transmute::<i32, u32>(val) }
+                i32::cast_unsigned(val)
             }};
             (u64) => {{
                 let val = match unwrap!(f.stack.pop(), EmptyStack) {
                     Value::I64(val) => val,
                     x => throw!(|a, b, c| WrongType(a, "u64", x.as_str(), b, c)),
                 };
-                unsafe { std::mem::transmute::<i64, u64>(val) }
+                i64::cast_unsigned(val)
             }};
             (f32) => {{
                 let val = match unwrap!(f.stack.pop(), EmptyStack) {
@@ -187,12 +187,10 @@ macro_rules! gen_macros {
                 f.stack.push(Value::I64($v))
             };
             (u32,$v:expr) => {
-                f.stack
-                    .push(Value::I32(unsafe { std::mem::transmute::<u32, i32>($v) }))
+                f.stack.push(Value::I32(u32::cast_signed($v)))
             };
             (u64,$v:expr) => {
-                f.stack
-                    .push(Value::I64(unsafe { std::mem::transmute::<u64, i64>($v) }))
+                f.stack.push(Value::I64(u64::cast_signed($v)))
             };
             (f32,$v:expr) => {
                 f.stack.push(Value::F32($v))
@@ -1433,6 +1431,7 @@ impl Runtime {
             }
             xbb_f64_promote_f32 => {
                 let x = pop!(f32);
+                #[allow(clippy::if_same_then_else)]
                 if x.is_nan_canonical() {
                     push!(f64, f64::NAN_CANONICAL)
                 } else if x.is_nan_arithmetic() {

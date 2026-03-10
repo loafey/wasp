@@ -186,46 +186,34 @@ fn const_to_val(consts: Vec<ConstValue>) -> Vec<Value> {
             ConstValue::I32 { value } => Value::I32(
                 value
                     .parse()
-                    .or_else(|_| {
-                        value
-                            .parse()
-                            .map(|v| unsafe { std::mem::transmute::<u32, i32>(v) })
-                    })
+                    .or_else(|_| value.parse().map(u32::cast_signed))
                     .expect("failed to parse"),
             ),
             ConstValue::I64 { value } => Value::I64(
                 value
                     .parse()
-                    .or_else(|_| {
-                        value
-                            .parse()
-                            .map(|v| unsafe { std::mem::transmute::<u64, i64>(v) })
-                    })
+                    .or_else(|_| value.parse().map(u64::cast_signed))
                     .expect("failed to parse"),
             ),
             ConstValue::F32 { value } => Value::F32(match &value[..] {
                 "nan:canonical" => f32::NAN_CANONICAL,
                 "nan:arithmetic" => f32::NAN_ARITHMETIC,
-                _ => unsafe {
-                    f32::from_bits(
-                        value
-                            .parse::<i32>()
-                            .or_else(|_| value.parse().map(|v| std::mem::transmute::<u32, i32>(v)))
-                            .expect("failed to parse") as u32,
-                    )
-                },
+                _ => f32::from_bits(
+                    value
+                        .parse::<i32>()
+                        .or_else(|_| value.parse().map(u32::cast_signed))
+                        .expect("failed to parse") as u32,
+                ),
             }),
             ConstValue::F64 { value } => Value::F64(match &value[..] {
                 "nan:canonical" => f64::NAN_CANONICAL,
                 "nan:arithmetic" => f64::NAN_ARITHMETIC,
-                _ => unsafe {
-                    f64::from_bits(
-                        value
-                            .parse::<i64>()
-                            .or_else(|_| value.parse().map(|v| std::mem::transmute::<u64, i64>(v)))
-                            .expect("failed to parse") as u64,
-                    )
-                },
+                _ => f64::from_bits(
+                    value
+                        .parse::<i64>()
+                        .or_else(|_| value.parse().map(u64::cast_signed))
+                        .expect("failed to parse") as u64,
+                ),
             }),
         })
         .collect()
@@ -234,7 +222,9 @@ fn const_to_val(consts: Vec<ConstValue>) -> Vec<Value> {
 fn remove_floats(vals: Vec<Value>) -> Vec<Value> {
     vals.into_iter()
         .map(|v| match v {
-            Value::F32(x) => {
+            Value::F32(x) =>
+            {
+                #[allow(clippy::if_same_then_else)]
                 if x.is_nan_canonical() {
                     Value::I32(f32::NAN_CANONICAL.to_bits() as i32)
                 } else if x.is_nan_arithmetic() {
@@ -243,7 +233,9 @@ fn remove_floats(vals: Vec<Value>) -> Vec<Value> {
                     Value::I32(x.to_bits() as i32)
                 }
             }
-            Value::F64(x) => {
+            Value::F64(x) =>
+            {
+                #[allow(clippy::if_same_then_else)]
                 if x.is_nan_canonical() {
                     Value::I64(f64::NAN_CANONICAL.to_bits() as i64)
                 } else if x.is_nan_arithmetic() {

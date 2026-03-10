@@ -33,17 +33,26 @@
           nativeBuildInputs = with pkgs; [ ] ++ min-pkgs;
         };
 
-        min-pkgs = with pkgs; [
-          pkg-config
-          openssl
-          gcc
-          emscripten
-          gnumake
-          python3
-          wabt
-          watchexec
-          gettext
-          pandoc
+        updated-wabt = pkgs.wabt.overrideAttrs (finalAttrs: previousAttrs: {
+          src = pkgs.fetchFromGitHub {
+            "owner" = "WebAssembly";
+            "repo" = "wabt";
+            "rev" = "6be9e863ce5766a9e3fc1be8a5b2a8bbb7b37bb0";
+            "hash" = "sha256-72oHUzRAqm2lFLKHNivPVOLyifix1Z79jRy17EPuUsI=";
+            "fetchSubmodules" = true;
+          };
+        });
+        min-pkgs = [
+          pkgs.pkg-config
+          pkgs.openssl
+          pkgs.gcc
+          pkgs.emscripten
+          pkgs.gnumake
+          pkgs.python3
+          updated-wabt
+          pkgs.watchexec
+          pkgs.gettext
+          pkgs.pandoc
         ];
       in {
         defaultPackage = fetchy;

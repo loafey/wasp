@@ -14,5 +14,5 @@ test-all:
 	@zsh build/check.sh
 test-setup:
 	rm -rf test-suite/ || true
-	git clone https://github.com/WebAssembly/spec.git test-suite
+	git clone https://github.com/WebAssembly/spec.git test-suite --depth=1
 	rm -rf test-suite/.git

@@ -345,6 +345,7 @@ pub fn test(mut path: String) {
         .arg(input)
         .arg("-o")
         .arg(&path)
+        .arg("--enable-all")
         .output()
         .expect("Failed to run wast2json");
     if !o.status.success() {
